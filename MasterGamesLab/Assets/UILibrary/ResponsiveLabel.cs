@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class ResponsiveLabel : Label
+[UxmlElement] // This replaces the UxmlFactory class
+public partial class ResponsiveLabel : Label
 {
-    // Default 50% of parent height
+    // Adding [UxmlAttribute] replaces the UxmlTraits class
+    [UxmlAttribute("height-percentage")]
     private float _heightPercentage = 0.5f;
 
     public float HeightPercentage
@@ -13,24 +15,6 @@ public class ResponsiveLabel : Label
         {
             _heightPercentage = Mathf.Clamp01(value);
             UpdateFontSize();
-        }
-    }
-
-    public new class UxmlFactory : UxmlFactory<ResponsiveLabel, UxmlTraits> { }
-
-    public new class UxmlTraits : Label.UxmlTraits
-    {
-        UxmlFloatAttributeDescription m_HeightPercentage = new UxmlFloatAttributeDescription
-        {
-            name = "height-percentage",
-            defaultValue = 0.5f
-        };
-
-        public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-        {
-            base.Init(ve, bag, cc);
-            var label = ve as ResponsiveLabel;
-            label.HeightPercentage = m_HeightPercentage.GetValueFromBag(bag, cc);
         }
     }
 
@@ -52,7 +36,8 @@ public class ResponsiveLabel : Label
             float parentHeight = parent.resolvedStyle.height;
             if (parentHeight > 0)
             {
-                this.style.fontSize = parentHeight * HeightPercentage;
+                // Note: resolvedStyle is more reliable than layout.height here
+                this.style.fontSize = parentHeight * _heightPercentage;
             }
         }
     }
