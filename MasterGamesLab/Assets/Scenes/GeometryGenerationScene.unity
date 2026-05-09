@@ -178,7 +178,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 115435318}
-  m_Mesh: {fileID: 1973491220}
+  m_Mesh: {fileID: 1661465634}
 --- !u!23 &115435322
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -244,10 +244,10 @@ MonoBehaviour:
   resolution: 20
   hexSize: 0.95
   maxSpawn: 10
-  fullSphereDistance: 2
-  fullProjectionDistance: 1.5
+  fullSphereDistance: 2.5
+  fullProjectionDistance: 2
   planetCamera: {fileID: 2118201218}
---- !u!43 &1973491220
+--- !u!43 &1661465634
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

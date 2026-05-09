@@ -9,7 +9,6 @@ namespace GeometryGeneration
         [SerializeField] private int radius = 10;
         [SerializeField] private int resolution = 5;
         [SerializeField] private float hexSize = 1;
-        [SerializeField] private int maxSpawn = 10;
 
         private HexagonalSphere hexagonalSphere;
         private MeshFilter meshFilter;
