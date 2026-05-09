@@ -20,8 +20,44 @@ namespace GeometryGeneration
             this.subdivisionLevel = subdivisionLevel;
             this.hexSize = hexSize;
 
+            // Generate tiles
             Tiles = new List<Tile>();
+            var icoSphereVertices = GenerateIcoSphereGeometry();
+            GenerateTiles(icoSphereVertices);
         }
+
+        public void UpdateTiles(IProjection projection, float projectionFactor)
+        {
+            foreach (var tile in Tiles)
+            {
+                var pointOnSphere = tile.CenterOnSphere;
+                var projectedPoint = projection.Project(pointOnSphere);
+                tile.Center = Vector3.Lerp(pointOnSphere, projectedPoint, projectionFactor);
+            }
+        }
+
+        public MapMesh GenerateMesh()
+        {
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            var vertIdx = 0;
+            foreach (var tile in Tiles)
+            {
+                tile.BuildFaces(hexSize, radius * 0.5f);
+
+                foreach (var face in tile.Faces)
+                {
+                    vertices.Add(face.Points[0].Position);
+                    vertices.Add(face.Points[1].Position);
+                    vertices.Add(face.Points[2].Position);
+                    triangles.AddRange(new[] { vertIdx, vertIdx + 1, vertIdx + 2 });
+                    vertIdx += 3;
+                }
+            }
+
+            return new MapMesh(vertices, triangles);
+        }
+
 
         public void GenerateMesh(MeshFilter meshFilter, float projectionFactor)
         {
@@ -41,7 +77,7 @@ namespace GeometryGeneration
                 // tile.Center = new Vector3(tile.Center.x, tile.Center.y, tile.Center.z * 0.5f);
             }
 
-            GenerateMesh();
+            GenerateMesh2();
 
             var mesh = new Mesh
             {
@@ -179,7 +215,7 @@ namespace GeometryGeneration
             }
         }
 
-        private void GenerateMesh()
+        private void GenerateMesh2()
         {
             var vertices = new List<Vector3>();
             var triangles = new List<int>();

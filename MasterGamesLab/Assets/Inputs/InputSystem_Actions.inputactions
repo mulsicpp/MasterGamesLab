@@ -991,6 +991,74 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "SphereNavigation",
+            "id": "a98274dc-0569-494e-a690-a9e6fa4978f4",
+            "actions": [
+                {
+                    "name": "PrimaryMousePressed",
+                    "type": "Button",
+                    "id": "8b2e164d-4fe0-4632-9bf1-b688627f5e39",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Look",
+                    "type": "PassThrough",
+                    "id": "0f11600d-0f02-4491-a6fc-a550b0d6699d",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Zoom",
+                    "type": "Value",
+                    "id": "2fc91bad-fd47-4628-a0fc-40603d993916",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "018199c5-003f-427b-b8e9-5009facf9728",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrimaryMousePressed",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "192b2765-a245-478f-b213-59984f2cbbb3",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "820c8b48-cc7e-4e2b-9fef-f2629d891cb3",
+                    "path": "<Mouse>/scroll",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [

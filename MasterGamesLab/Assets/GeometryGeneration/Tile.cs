@@ -74,12 +74,6 @@ namespace GeometryGeneration
                     continue;
                 }
 
-                // Debug.Log(geometryVertices[0].Position + " " + geometryVertices[i + 1].Position + " " +
-                //           geometryVertices[i + 2].Position);
-                /*Debug.DrawLine(geometryVertices[0].Position, geometryVertices[i + 1].Position, Color.red);
-                Debug.DrawLine(geometryVertices[0].Position, geometryVertices[i + 2].Position, Color.red);
-                Debug.DrawLine(geometryVertices[i + 2].Position, geometryVertices[i + 1].Position, Color.red);*/
-
                 Faces.Add(new Triangle(geometryVertices[0], geometryVertices[i + 1], geometryVertices[i + 2]));
             }
         }
