@@ -7,37 +7,40 @@ namespace GeometryGeneration
     {
         private const float FLOAT_COMPARISON_DELTA = 1e-5f;
 
-        public readonly List<Face> Neighbors;
+        public readonly int Id;
         public Vector3 Position;
+        public readonly List<Triangle> Neighbors;
 
-        public Point(Vector3 position)
+        public Point(Vector3 position, int id = -1)
         {
+            Id = id;
             Position = position;
-            Neighbors = new List<Face>();
+            Neighbors = new List<Triangle>();
         }
 
-        public Point(float x, float y, float z)
+        public Point(float x, float y, float z, int id = -1)
         {
+            Id = id;
             Position = new Vector3(x, y, z);
-            Neighbors = new List<Face>();
+            Neighbors = new List<Triangle>();
         }
 
-        public void ClearNeighbors()
-        {
-            Neighbors.Clear();
-        }
-
-        public void AddNeighbor(Face neighbor)
+        public void AddNeighbor(Triangle neighbor)
         {
             Neighbors.Add(neighbor);
         }
 
-        public bool ApproximatelyEqual(Point other)
+        public bool ApproximatelyEqual(Vector3 other)
         {
             return
-                Mathf.Abs(other.Position.x - Position.x) <= FLOAT_COMPARISON_DELTA &&
-                Mathf.Abs(other.Position.y - Position.y) <= FLOAT_COMPARISON_DELTA &&
-                Mathf.Abs(other.Position.z - Position.z) <= FLOAT_COMPARISON_DELTA;
+                Mathf.Abs(other.x - Position.x) <= FLOAT_COMPARISON_DELTA &&
+                Mathf.Abs(other.y - Position.y) <= FLOAT_COMPARISON_DELTA &&
+                Mathf.Abs(other.z - Position.z) <= FLOAT_COMPARISON_DELTA;
+        }
+
+        public static Vector3 ProjectToSphere(Vector3 position, float radius)
+        {
+            return position.normalized * radius;
         }
     }
 }

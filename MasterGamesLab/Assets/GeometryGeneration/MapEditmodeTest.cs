@@ -1,13 +1,19 @@
 using System.Collections.Generic;
 using GeometryGeneration;
+using JetBrains.Annotations;
 using UnityEngine;
 
 [ExecuteInEditMode]
-public class Map : MonoBehaviour
+public class MapEditmodeTest : MonoBehaviour
 {
     [SerializeField] private int radius = 10;
     [SerializeField] private int resolution = 5;
     [SerializeField] private float hexSize = 1;
+    [SerializeField] private float projectionFactor = 1;
+
+    [SerializeField] private int maxSpawn = 10;
+
+    public static int MaxSpawn = 10;
 
     private HexagonalSphere hexagonalSphere;
     private MeshFilter meshFilter;
@@ -32,8 +38,9 @@ public class Map : MonoBehaviour
     private void DrawSphere()
     {
         Debug.Log("Sphere drawing");
+        MaxSpawn = maxSpawn;
         hexagonalSphere = new HexagonalSphere(radius, resolution, hexSize);
-        hexagonalSphere.GenerateMesh(meshFilter);
+        hexagonalSphere.GenerateMesh(meshFilter, projectionFactor);
     }
 
     private void SpawnDebugSpheres(List<Point> positions)
