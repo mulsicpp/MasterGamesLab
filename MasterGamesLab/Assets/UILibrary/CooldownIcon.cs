@@ -1,24 +1,13 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class CooldownIcon : VisualElement
+[UxmlElement] // Automatically generates the factory
+public partial class CooldownIcon : VisualElement
 {
-    public new class UxmlFactory : UxmlFactory<CooldownIcon, UxmlTraits> { }
-
-    public new class UxmlTraits : VisualElement.UxmlTraits
-    {
-        UxmlFloatAttributeDescription cooldownAttr =
-            new UxmlFloatAttributeDescription { name = "cooldown", defaultValue = 1f };
-
-        public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-        {
-            base.Init(ve, bag, cc);
-            ((CooldownIcon)ve).CooldownPercent =
-                Mathf.Clamp01(cooldownAttr.GetValueFromBag(bag, cc));
-        }
-    }
-
+    // Attributes can be placed directly on properties or fields
+    [UxmlAttribute("cooldown")]
     private float cooldownPercent = 1f;
+
     public float CooldownPercent
     {
         get => cooldownPercent;
@@ -33,9 +22,7 @@ public class CooldownIcon : VisualElement
 
     public CooldownIcon()
     {
-        //style.backgroundScaleMode = ScaleMode.ScaleToFit;
         style.unityBackgroundImageTintColor = Color.white;
-
         generateVisualContent += OnGenerateVisualContent;
     }
 
@@ -51,6 +38,7 @@ public class CooldownIcon : VisualElement
         float radius = size * 0.5f;
 
         int segments = 64;
+        // Logic remains identical to your original mesh generation
         float angleStep = 360f * CooldownPercent / segments;
 
         painter.fillColor = overlayColor;

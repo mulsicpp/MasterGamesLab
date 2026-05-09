@@ -11,6 +11,8 @@ public class Test : NetworkBehaviour
 {
     int number = 0;
     NetworkObject netObj;
+
+    public string player_name;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -33,7 +35,8 @@ public class Test : NetworkBehaviour
     {
         if(!IsClient && !IsServer)
         {
-            netObj.NetworkManager.StartClient();
+            NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(player_name);
+            NetworkManager.Singleton.StartClient();
         }
     }
 
@@ -41,7 +44,8 @@ public class Test : NetworkBehaviour
     {
         if (!IsClient && !IsServer)
         {
-            netObj.NetworkManager.StartHost();
+            NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(player_name);
+            NetworkManager.Singleton.StartHost();
         }
     }
 
