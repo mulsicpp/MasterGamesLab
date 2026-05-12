@@ -14,6 +14,7 @@ namespace Map
 
         private readonly Point center;
         public readonly Vector3 CenterOnSphere;
+        private readonly List<Vector3> cornerPositions;
 
         public Vector3 Center
         {
@@ -21,19 +22,11 @@ namespace Map
             set => center.Position = value;
         }
 
-
         public Tile(Point center, float sphereRadius)
         {
             Id = center.Id;
             this.center = center;
-            // Center = ProjectToSphere(Center, sphereRadius);
             CenterOnSphere = Point.ProjectToSphere(Center, sphereRadius);
-
-            // Center = ProjectToSphere(Center, sphereRadius);
-            // if (Id == 0)
-            // {
-            //     Debug.Log("Center: " + Center);
-            // }
 
             if (center.Neighbors.Count == 0)
             {
@@ -42,26 +35,32 @@ namespace Map
 
             neighbourIds = new List<int>(center.Neighbors.Count);
             UpdateNeighbourIdsAndTriangles();
+
+            cornerPositions = new List<Vector3>(center.Neighbors.Count);
+            foreach (var triangle in center.Neighbors)
+            {
+                cornerPositions.Add(Point.ProjectToSphere(triangle.Center, sphereRadius));
+            }
         }
 
         public void BuildFaces(float tileSize = 1)
         {
             tileSize = Math.Clamp(tileSize, 0.001f, 1);
 
-            Faces = new List<Triangle>(4);
-            var neighbourCenters = new List<Vector3>(neighbourTriangles.Count);
-            foreach (var triangle in neighbourTriangles)
-            {
-                neighbourCenters.Add(Point.ProjectToSphere(triangle.Center, 1));
-            }
+            /* var neighbourCenters = new List<Vector3>(neighbourTriangles.Count);
+             foreach (var triangle in neighbourTriangles)
+             {
+                 neighbourCenters.Add(Point.ProjectToSphere(triangle.Center, 1));
+             }*/
 
-            var geometryVertices = new List<Point>();
-            foreach (var point in neighbourCenters)
+            var geometryVertices = new List<Point>(cornerPositions.Count);
+            foreach (var point in cornerPositions)
             {
                 //geometryVertices.Add(new Point(ProjectToSphere(Vector3.Lerp(Center, point, tileSize))));
                 geometryVertices.Add(new Point(Vector3.Lerp(Center, point, tileSize)));
             }
 
+            Faces = new List<Triangle>(4);
             for (var i = 0; i < geometryVertices.Count - 2; i++)
             {
                 Faces.Add(new Triangle(geometryVertices[0], geometryVertices[i + 1], geometryVertices[i + 2]));
