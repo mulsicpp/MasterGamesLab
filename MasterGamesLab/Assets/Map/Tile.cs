@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using GeometryGeneration;
 using UnityEngine;
 
-namespace GeometryGeneration
+namespace Map
 {
     public class Tile
     {
@@ -36,14 +37,14 @@ namespace GeometryGeneration
 
             if (center.Neighbors.Count == 0)
             {
-                throw new System.Exception($"Tile {Id} at {center.Position} has no neighbours");
+                throw new Exception($"Tile {Id} at {center.Position} has no neighbours");
             }
 
             neighbourIds = new List<int>(center.Neighbors.Count);
             UpdateNeighbourIdsAndTriangles();
         }
 
-        public void BuildFaces(float tileSize = 1, float maxEdgeLength = 1)
+        public void BuildFaces(float tileSize = 1)
         {
             tileSize = Math.Clamp(tileSize, 0.001f, 1);
 
@@ -51,7 +52,7 @@ namespace GeometryGeneration
             var neighbourCenters = new List<Vector3>(neighbourTriangles.Count);
             foreach (var triangle in neighbourTriangles)
             {
-                neighbourCenters.Add(triangle.Center);
+                neighbourCenters.Add(Point.ProjectToSphere(triangle.Center, 1));
             }
 
             var geometryVertices = new List<Point>();
@@ -61,19 +62,8 @@ namespace GeometryGeneration
                 geometryVertices.Add(new Point(Vector3.Lerp(Center, point, tileSize)));
             }
 
-            var maxEdgeLengthSqrd = maxEdgeLength * maxEdgeLength;
             for (var i = 0; i < geometryVertices.Count - 2; i++)
             {
-                var edge0 = geometryVertices[i + 1].Position - geometryVertices[0].Position;
-                var edge1 = geometryVertices[i + 2].Position - geometryVertices[0].Position;
-                var edge2 = geometryVertices[i + 2].Position - geometryVertices[i + 1].Position;
-
-                if (edge0.sqrMagnitude > maxEdgeLengthSqrd || edge1.sqrMagnitude > maxEdgeLengthSqrd ||
-                    edge2.sqrMagnitude > maxEdgeLengthSqrd)
-                {
-                    continue;
-                }
-
                 Faces.Add(new Triangle(geometryVertices[0], geometryVertices[i + 1], geometryVertices[i + 2]));
             }
         }

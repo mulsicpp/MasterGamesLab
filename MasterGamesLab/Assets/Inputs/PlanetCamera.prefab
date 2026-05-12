@@ -157,6 +157,6 @@ MonoBehaviour:
   minZoomSpeed: 0.05
   maxZoomSpeed: 1
   minRotationSpeed: 0.03
-  maxRotationSpeed: 0.5
+  maxRotationSpeed: 0.3
   minPitch: -90
   maxPitch: 90

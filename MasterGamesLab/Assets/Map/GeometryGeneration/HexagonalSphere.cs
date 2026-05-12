@@ -1,32 +1,18 @@
 ﻿using System.Collections.Generic;
-using GeometryGeneration.Projections;
-using UnityEditor;
+using GeometryGeneration;
 using UnityEngine;
 
-namespace GeometryGeneration
+namespace Map.GeometryGeneration
 {
-    public class HexagonalSphere
+    public static class HexagonalSphere
     {
-        private readonly float hexSize;
-        private MapMesh mapMesh;
-        private readonly int radius;
-        private readonly int subdivisionLevel;
-
-        public List<Tile> Tiles { get; private set; }
-
-        public HexagonalSphere(int radius, int subdivisionLevel, float hexSize)
+        public static List<Tile> GenerateHexagonalSphere(float radius, int subdivisionLevel)
         {
-            this.radius = radius;
-            this.subdivisionLevel = subdivisionLevel;
-            this.hexSize = hexSize;
-
-            // Generate tiles
-            Tiles = new List<Tile>();
-            var icoSphereVertices = GenerateIcoSphereGeometry();
-            GenerateTiles(icoSphereVertices);
+            var icoSphereVertices = GenerateIcoSphereGeometry(radius, subdivisionLevel);
+            return GenerateTiles(icoSphereVertices, radius);
         }
 
-        public void UpdateTiles(IProjection projection, float projectionFactor)
+        /*public void UpdateTiles(IProjection projection, float projectionFactor)
         {
             foreach (var tile in Tiles)
             {
@@ -34,67 +20,15 @@ namespace GeometryGeneration
                 var projectedPoint = projection.Project(pointOnSphere);
                 tile.Center = Vector3.Lerp(pointOnSphere, projectedPoint, projectionFactor);
             }
-        }
+        }*/
 
-        public MapMesh GenerateMesh()
+        private static List<Point> GenerateIcoSphereGeometry(float radius, int subdivisionLevel)
         {
-            var vertices = new List<Vector3>();
-            var triangles = new List<int>();
-            var vertIdx = 0;
-            foreach (var tile in Tiles)
-            {
-                tile.BuildFaces(hexSize, radius * 0.5f);
-
-                foreach (var face in tile.Faces)
-                {
-                    vertices.Add(face.Points[0].Position);
-                    vertices.Add(face.Points[1].Position);
-                    vertices.Add(face.Points[2].Position);
-                    triangles.AddRange(new[] { vertIdx, vertIdx + 1, vertIdx + 2 });
-                    vertIdx += 3;
-                }
-            }
-
-            return new MapMesh(vertices, triangles);
+            var icosahedronFaces = GenerateIcosahedron(radius);
+            return SubdivideIcosahedron(icosahedronFaces, subdivisionLevel);
         }
 
-
-        public void GenerateMesh(MeshFilter meshFilter, float projectionFactor)
-        {
-            projectionFactor = Mathf.Clamp(projectionFactor, 0.001f, 1);
-            Tiles.Clear();
-            var icoSphereVertices = GenerateIcoSphereGeometry();
-            GenerateTiles(icoSphereVertices);
-
-            IProjection projection = new BerghausStarProjection(new Vector3(0, 1, 0).normalized, radius);
-
-            foreach (var tile in Tiles)
-            {
-                var pointOnSphere = tile.CenterOnSphere;
-                var projectedPoint = projection.Project(pointOnSphere);
-                tile.Center = Vector3.Lerp(pointOnSphere, projectedPoint, projectionFactor);
-                // tile.Center = Point.ProjectToSphere(tile.Center, radius);
-                // tile.Center = new Vector3(tile.Center.x, tile.Center.y, tile.Center.z * 0.5f);
-            }
-
-            GenerateMesh2();
-
-            var mesh = new Mesh
-            {
-                vertices = mapMesh.Vertices.ToArray(),
-                triangles = mapMesh.Triangles.ToArray()
-            };
-            mesh.RecalculateNormals();
-            meshFilter.mesh = mesh;
-        }
-
-        private List<Point> GenerateIcoSphereGeometry()
-        {
-            var icosahedronFaces = GenerateIcosahedron();
-            return SubdivideIcosahedron(icosahedronFaces);
-        }
-
-        private List<Triangle> GenerateIcosahedron()
+        private static List<Triangle> GenerateIcosahedron(float radius)
         {
             var h = radius / Mathf.Sqrt(5f);
             var ringR = 2f * radius / Mathf.Sqrt(5f);
@@ -137,7 +71,7 @@ namespace GeometryGeneration
             return faces;
         }
 
-        private List<Point> SubdivideIcosahedron(List<Triangle> icosahedronFaces)
+        private static List<Point> SubdivideIcosahedron(List<Triangle> icosahedronFaces, int subdivisionLevel)
         {
             var vertices = new List<Point>();
             foreach (var tile in icosahedronFaces)
@@ -200,41 +134,15 @@ namespace GeometryGeneration
             }
         }
 
-        private void GenerateTiles(List<Point> icoSpherePoints)
+        private static List<Tile> GenerateTiles(List<Point> icoSpherePoints, float radius)
         {
-            var cur = 0;
+            var tiles = new List<Tile>(icoSpherePoints.Count);
             foreach (var vertex in icoSpherePoints)
             {
-                /*if (cur > Map.MaxSpawn)
-                {
-                    return;
-                }*/
-
-                Tiles.Add(new Tile(vertex, radius));
-                cur++;
-            }
-        }
-
-        private void GenerateMesh2()
-        {
-            var vertices = new List<Vector3>();
-            var triangles = new List<int>();
-            var vertIdx = 0;
-            foreach (var tile in Tiles)
-            {
-                tile.BuildFaces(hexSize, radius * 0.5f);
-
-                foreach (var face in tile.Faces)
-                {
-                    vertices.Add(face.Points[0].Position);
-                    vertices.Add(face.Points[1].Position);
-                    vertices.Add(face.Points[2].Position);
-                    triangles.AddRange(new[] { vertIdx, vertIdx + 1, vertIdx + 2 });
-                    vertIdx += 3;
-                }
+                tiles.Add(new Tile(vertex, radius));
             }
 
-            mapMesh = new MapMesh(vertices, triangles);
+            return tiles;
         }
     }
 }
