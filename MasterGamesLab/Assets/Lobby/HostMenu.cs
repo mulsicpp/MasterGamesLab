@@ -3,46 +3,59 @@ using UnityEngine.UIElements;
 
 public class HostMenu : MonoBehaviour
 {
+    private Label _lobbyNameLabel;
+    private Label _codeLabel;
+    private Label[] _playerLabels = new Label[4];
 
-    [SerializeField] private Lobby lobby;
-    private Button hostButton;
-    private Button backButton;
-
-    private TextField nameField;
-
-    private Label ipAddressLabel;
-
-    private VisualElement root;
-
-    void OnEnable()
+    private void OnEnable()
     {
-        root = GetComponent<UIDocument>().rootVisualElement;
+        var root = GetComponent<UIDocument>().rootVisualElement;
 
-        nameField = root.Q<TextField>("Name");
 
-        ipAddressLabel = root.Q<Label>("IpAddress");
-        ipAddressLabel.text = "furz";
+        _lobbyNameLabel = root.Q<Label>("LobbyNameLabel");
+        _codeLabel = root.Q<Label>("CodeLabel");
+        
+        // Find player labels using your specific naming convention (Player0Label, etc.)
+        for (int i = 0; i < 4; i++)
+        {
+            _playerLabels[i] = root.Q<Label>($"Player{i}Label");
+        }
 
-        backButton = root.Q<Button>("Back");
+        // 2. Setup Buttons
+        var backButton = root.Q<Button>("BackButton");
+        var startButton = root.Q<Button>("StartButton");
+
         backButton.clicked += OnBackPressed;
-
-        hostButton = root.Q<Button>("Host");
-        hostButton.clicked += OnHostPressed;
-
+        startButton.clicked += OnStartPressed;
     }
 
-    private void OnHostPressed()
+    // --- Button Functions ---
+
+    public void OnBackPressed()
     {
-        Debug.Log("Name: " + nameField.text + ", IP Address: " + ipAddressLabel.text);
-    }
-    private void OnBackPressed()
-    {
-        lobby.Show();
-        gameObject.SetActive(false);
+        Debug.Log("Leaving lobby...");
+        // Add Netcode logic to disconnect/leave lobby here
     }
 
-    public void Show()
+    public void OnStartPressed()
     {
-        gameObject.SetActive(true);
+        Debug.Log("Start Game button pressed!");
+        // Add Netcode logic to change scenes for all players
+    }
+
+    // --- UI Update Functions ---
+
+    public void SetLobbyInfo(string lobbyName, string joinCode)
+    {
+        if (_lobbyNameLabel != null) _lobbyNameLabel.text = lobbyName;
+        if (_codeLabel != null) _codeLabel.text = $"Code: {joinCode}";
+    }
+
+    public void UpdatePlayerSlot(int index, string playerName)
+    {
+        if (index >= 0 && index < _playerLabels.Length)
+        {
+            _playerLabels[index].text = playerName;
+        }
     }
 }

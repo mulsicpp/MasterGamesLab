@@ -26,7 +26,7 @@ public class Lobby : MonoBehaviour
 
     private void OnHostPressed()
     {
-        hostMenu.Show();
+        //hostMenu.Show();
         gameObject.SetActive(false);
     }
 
