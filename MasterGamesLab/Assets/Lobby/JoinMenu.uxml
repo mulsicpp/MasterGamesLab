@@ -1,11 +1,16 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:VisualElement name="root" style="flex-grow: 0; background-color: rgb(0, 0, 0); justify-content: center; width: 100%; flex-shrink: 0; height: 100%;">
-        <ui:VisualElement style="flex-grow: 0; flex-shrink: 0; height: 39%; width: 100%;">
-            <ui:TextField label="Name" placeholder-text="Enter your name" name="Name"/>
-            <ui:TextField label="Host Address" placeholder-text="Enter Host IP" name="IpAddress"/>
+        <ui:MultiColumnListView columns="" sort-column-descriptions="" header-title="Lobbys" name="LobbyList" style="height: 70%; width: 100%; background-color: rgb(255, 255, 255);">
+            <ui:Columns primary-column-name="test" resizable="false">
+                <ui:Column name="name" title="Lobby Name" min-width="0%" visible="true" width="70%"/>
+                <ui:Column visible="true" width="30%" stretchable="false" title="Players" name="players"/>
+            </ui:Columns>
+        </ui:MultiColumnListView>
+        <ui:VisualElement style="flex-grow: 0; flex-shrink: 0; height: 30%; width: 100%;">
+            <ui:TextField label="Lobby Code" placeholder-text="Enter Host IP" name="LobbyCode" style="background-color: rgb(255, 255, 255);"/>
             <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: center;">
-                <ui:Button text="Back" name="Back" style="width: 42%;"/>
-                <ui:Button text="Join" name="Join" style="width: 42%;"/>
+                <ui:Button text="Back" name="BackButton" style="width: 42%;"/>
+                <ui:Button text="Join" name="JoinButton" style="width: 42%;"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
