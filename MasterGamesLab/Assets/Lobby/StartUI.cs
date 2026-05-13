@@ -2,10 +2,10 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class Lobby : MonoBehaviour
+public class StartUI : MonoBehaviour
 {
-    [SerializeField] private JoinMenu joinMenu;
-    [SerializeField] private HostMenu hostMenu;
+    [SerializeField] private JoinUI joinMenu;
+    [SerializeField] private LobbyUI hostMenu;
     private Button hostButton;
     private Button joinButton;
 

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 
-public class JoinMenu : MonoBehaviour
+public class JoinUI : MonoBehaviour
 {
     private TextField _lobbyCodeInput;
     private MultiColumnListView _lobbyList;

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class HostMenu : MonoBehaviour
+public class LobbyUI : MonoBehaviour
 {
     private Label _lobbyNameLabel;
     private Label _codeLabel;
