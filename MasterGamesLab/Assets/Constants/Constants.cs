@@ -1,7 +1,6 @@
 using System.Drawing;
 
-namespace Constants
-{
+
     public static class Constants
     {
         public const int MIN_PLAYER_COUNT = 2;
@@ -9,4 +8,3 @@ namespace Constants
 
         public static readonly Color[] PLAYER_COLORS = { Color.Red, Color.Blue, Color.Yellow, Color.Green };
     }
-}
