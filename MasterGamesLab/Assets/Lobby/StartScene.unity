@@ -413,7 +413,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff0bb1f8e08f5644ba4051a27ffbde99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JoinMenu
-  lobby: {fileID: 1740609994}
 --- !u!114 &1118779278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -469,7 +468,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1740609993
 Transform:
   m_ObjectHideFlags: 0
@@ -539,7 +538,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1877013772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -552,7 +551,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b340d95c13e564f44bf5ce93719858f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HostMenu
-  lobby: {fileID: 1740609994}
 --- !u!114 &1877013773
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -15,13 +15,11 @@ public class LobbyUI : MonoBehaviour
         _lobbyNameLabel = root.Q<Label>("LobbyNameLabel");
         _codeLabel = root.Q<Label>("CodeLabel");
         
-        // Find player labels using your specific naming convention (Player0Label, etc.)
         for (int i = 0; i < 4; i++)
         {
             _playerLabels[i] = root.Q<Label>($"Player{i}Label");
         }
 
-        // 2. Setup Buttons
         var backButton = root.Q<Button>("BackButton");
         var startButton = root.Q<Button>("StartButton");
 
@@ -29,21 +27,17 @@ public class LobbyUI : MonoBehaviour
         startButton.clicked += OnStartPressed;
     }
 
-    // --- Button Functions ---
 
     public void OnBackPressed()
     {
         Debug.Log("Leaving lobby...");
-        // Add Netcode logic to disconnect/leave lobby here
     }
 
     public void OnStartPressed()
     {
         Debug.Log("Start Game button pressed!");
-        // Add Netcode logic to change scenes for all players
     }
 
-    // --- UI Update Functions ---
 
     public void SetLobbyInfo(string lobbyName, string joinCode)
     {
