@@ -32,7 +32,7 @@ public class Lobby : MonoBehaviour
 
     private void OnJoinPressed()
     {
-        joinMenu.Show();
+        //joinMenu.Show();
         gameObject.SetActive(false);
 
     }
