@@ -72,8 +72,8 @@ public class Connector : MonoBehaviour
             allocation.AllocationIdBytes,
             allocation.Key,
             allocation.ConnectionData,
-            null,
-            true
+            allocation.ConnectionData,
+            false
         );
 
         NetworkManager.Singleton.StartHost();
@@ -107,7 +107,7 @@ public class Connector : MonoBehaviour
             joinAllocation.Key,
             joinAllocation.ConnectionData,
             joinAllocation.HostConnectionData,
-            true
+            false
         );
 
         NetworkManager.Singleton.StartClient();
