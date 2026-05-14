@@ -12,18 +12,20 @@ public class JoinUI : MonoBehaviour
     [SerializeField] private StartUI startUI;
     [SerializeField] private LobbyUI lobbyUI;
 
+    VisualElement root;
+    Button backButton;
+    Button joinButton;
+    Button refreshButton;
 
 
-
-    private async void OnEnable()
+    private void OnEnable()
     {
+        root = GetComponent<UIDocument>().rootVisualElement;
 
-        var root = GetComponent<UIDocument>().rootVisualElement;
+        backButton = root.Q<Button>("BackButton");
+        joinButton = root.Q<Button>("JoinButton");
+        refreshButton = root.Q<Button>("RefreshButton");
 
-
-        var backButton = root.Q<Button>("BackButton");
-        var joinButton = root.Q<Button>("JoinButton");
-        var refreshButton = root.Q<Button>("RefreshButton");
         lobbyCodeInput = root.Q<TextField>("LobbyCode");
 
         backButton.clicked += OnBackPressed;
@@ -34,19 +36,11 @@ public class JoinUI : MonoBehaviour
         lobbyList = root.Q<MultiColumnListView>("LobbyList");
         SetupLobbyList();
 
-
         refreshLobbies();
     }
 
     private void OnDisable()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
-
-
-        var backButton = root.Q<Button>("BackButton");
-        var joinButton = root.Q<Button>("JoinButton");
-        var refreshButton = root.Q<Button>("RefreshButton");
-
         backButton.clicked -= OnBackPressed;
         joinButton.clicked -= OnJoinPressed;
         refreshButton.clicked -= OnRefreshPressed;

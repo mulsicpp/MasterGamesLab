@@ -24,16 +24,10 @@ public class StartUI : MonoBehaviour
 
         hostButton.clicked += OnHostPressedAsync;
         joinButton.clicked += OnJoinPressed;
-
     }
 
     void OnDisable()
     {
-        root = GetComponent<UIDocument>().rootVisualElement;
-
-        hostButton = root.Q<Button>("Host");
-        joinButton = root.Q<Button>("Join");
-
         hostButton.clicked -= OnHostPressedAsync;
         joinButton.clicked -= OnJoinPressed;
 
@@ -43,32 +37,31 @@ public class StartUI : MonoBehaviour
     {
         if (playerName.text.IsNullOrEmpty())
             return;
-        Debug.Log("Creating lobby");
+
+        hostButton.SetEnabled(false);
+        joinButton.SetEnabled(false);
+
         LobbyLogic.Instance.PlayerName = playerName.text;
         hostButton.SetEnabled(false);
-
         try
         {
             await LobbyLogic.Instance.CreateLobby();
-
-            Debug.Log("Lobby created");
-
             lobbyUI.Show();
             gameObject.SetActive(false);
-            Debug.Log("Menu switched");
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Failed to create lobby: {e}");
             hostButton.SetEnabled(true);
         }
+        hostButton.SetEnabled(true);
+        joinButton.SetEnabled(true);
     }
 
     private void OnJoinPressed()
     {
         if (playerName.text.IsNullOrEmpty())
             return;
-        Debug.Log("1234");
         LobbyLogic.Instance.PlayerName = playerName.text;
         joinUI.Show();
         gameObject.SetActive(false);

@@ -8,13 +8,16 @@ public class LobbyUI : MonoBehaviour
     private Label[] playerLabels = new Label[Constants.MAX_PLAYER_COUNT];
     [SerializeField] private StartUI startUI;
 
+    VisualElement root;
+    Button backButton;
+    Button startButton;
 
 
     private void OnEnable()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
-
-
+        root = GetComponent<UIDocument>().rootVisualElement;
+        backButton = root.Q<Button>("BackButton");
+        startButton = root.Q<Button>("StartButton");
         lobbyNameLabel = root.Q<Label>("LobbyNameLabel");
         codeLabel = root.Q<Label>("CodeLabel");
 
@@ -23,8 +26,7 @@ public class LobbyUI : MonoBehaviour
             playerLabels[i] = root.Q<Label>($"Player{i}Label");
         }
 
-        var backButton = root.Q<Button>("BackButton");
-        var startButton = root.Q<Button>("StartButton");
+
 
         backButton.clicked += OnBackPressed;
         startButton.clicked += OnStartPressed;
@@ -32,10 +34,6 @@ public class LobbyUI : MonoBehaviour
 
     private void OnDisable()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
-        var backButton = root.Q<Button>("BackButton");
-        var startButton = root.Q<Button>("StartButton");
-
         backButton.clicked -= OnBackPressed;
         startButton.clicked -= OnStartPressed;
     }
