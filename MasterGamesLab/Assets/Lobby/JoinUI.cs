@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
+using Unity.Services.Lobbies.Models;
 
 public class JoinUI : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class JoinUI : MonoBehaviour
     [SerializeField] private StartUI startUI;
 
 
-    private List<LobbyData> availableLobbies = new List<LobbyData>();
+    private List<Lobby> availableLobbies = new List<Lobby>();
 
     private void OnEnable()
     {
@@ -26,9 +27,6 @@ public class JoinUI : MonoBehaviour
 
         lobbyList = root.Q<MultiColumnListView>("LobbyList");
         SetupLobbyList();
-        AddLobbyElement("test1", 2);
-        AddLobbyElement("test2", 3);
-        AddLobbyElement("test3", 4);
     }
 
     public void OnBackPressed()
@@ -44,14 +42,13 @@ public class JoinUI : MonoBehaviour
         Debug.Log($"Attempting to join with code: {code}");
     }
 
-    // This is the function you requested to add new items dynamically
-    public void AddLobbyElement(string lobbyName, int playerCount)
-    {
-        availableLobbies.Add(new LobbyData { Name = lobbyName, Players = playerCount });
 
-        // Tell the UI Toolkit to refresh and show the new data
-        lobbyList.RefreshItems();
-    }
+    // public void AddLobbyElement(string lobbyName, int playerCount)
+    // {
+    //     availableLobbies.Add(new Lobby { Name = lobbyName, Players = playerCount });
+
+    //     lobbyList.RefreshItems();
+    // }
 
     private void SetupLobbyList()
     {
@@ -65,17 +62,11 @@ public class JoinUI : MonoBehaviour
         // Binding the "Players" column
         lobbyList.columns["players"].makeCell = () => new Label();
         lobbyList.columns["players"].bindCell = (VisualElement e, int i) =>
-            (e as Label).text = $"{availableLobbies[i].Players}/" + Constants.MAX_PLAYER_COUNT;
+            (e as Label).text = availableLobbies[i].Players + "/" + availableLobbies[i].MaxPlayers;
     }
 
     public void Show()
     {
         gameObject.SetActive(true);
     }
-}
-
-public class LobbyData
-{
-    public string Name;
-    public int Players;
 }
