@@ -19,22 +19,38 @@ public class StartUI : MonoBehaviour
         hostButton = root.Q<Button>("Host");
         joinButton = root.Q<Button>("Join");
 
-        hostButton.clicked += OnHostPressed;
+        hostButton.clicked += OnHostPressedAsync;
         joinButton.clicked += OnJoinPressed;
 
     }
 
-    private void OnHostPressed()
+    private async void OnHostPressedAsync()
     {
-        lobbyUI.Show();
-        gameObject.SetActive(false);
+        Debug.Log("Creating lobby");
+
+        hostButton.SetEnabled(false);
+
+        try
+        {
+            await LobbyLogic.Instance.CreateLobby();
+
+            Debug.Log("Lobby created");
+
+            lobbyUI.Show();
+            gameObject.SetActive(false);
+            Debug.Log("Menu switched");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to create lobby: {e}");
+            hostButton.SetEnabled(true);
+        }
     }
 
     private void OnJoinPressed()
     {
         joinUI.Show();
         gameObject.SetActive(false);
-
     }
 
     public void Show()

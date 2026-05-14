@@ -10,9 +10,7 @@ public class JoinUI : MonoBehaviour
     [SerializeField] private StartUI startUI;
 
 
-    private List<Lobby> availableLobbies = new List<Lobby>();
-
-    private void OnEnable()
+    private async void OnEnable()
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
 
@@ -27,6 +25,12 @@ public class JoinUI : MonoBehaviour
 
         lobbyList = root.Q<MultiColumnListView>("LobbyList");
         SetupLobbyList();
+
+        await LobbyLogic.Instance.LoadPublicLobbies();
+        Debug.Log("Loaded lobbies: " + LobbyLogic.Instance.PublicLobbies.Count);
+        lobbyList.itemsSource = LobbyLogic.Instance.PublicLobbies;
+        lobbyList.RefreshItems();
+        Debug.Log("Refreshed");
     }
 
     public void OnBackPressed()
@@ -52,17 +56,17 @@ public class JoinUI : MonoBehaviour
 
     private void SetupLobbyList()
     {
-        lobbyList.itemsSource = availableLobbies;
+        lobbyList.itemsSource = LobbyLogic.Instance.PublicLobbies;
 
         // Binding the "Name" column
         lobbyList.columns["name"].makeCell = () => new Label();
         lobbyList.columns["name"].bindCell = (VisualElement e, int i) =>
-            (e as Label).text = availableLobbies[i].Name;
+            (e as Label).text = LobbyLogic.Instance.PublicLobbies[i].Name;
 
         // Binding the "Players" column
         lobbyList.columns["players"].makeCell = () => new Label();
         lobbyList.columns["players"].bindCell = (VisualElement e, int i) =>
-            (e as Label).text = availableLobbies[i].Players + "/" + availableLobbies[i].MaxPlayers;
+            (e as Label).text = LobbyLogic.Instance.PublicLobbies[i].Players.Count + "/" + LobbyLogic.Instance.PublicLobbies[i].MaxPlayers;
     }
 
     public void Show()
