@@ -6,7 +6,7 @@ public class StartUI : MonoBehaviour
 {
     [SerializeField] private JoinUI joinUI;
     [SerializeField] private LobbyUI lobbyUI;
-    private TextField name;
+    private TextField playerName;
     private Button hostButton;
     private Button joinButton;
 
@@ -19,7 +19,7 @@ public class StartUI : MonoBehaviour
 
         hostButton = root.Q<Button>("Host");
         joinButton = root.Q<Button>("Join");
-        name = root.Q<TextField>("Name");
+        playerName = root.Q<TextField>("Name");
 
         hostButton.clicked += OnHostPressedAsync;
         joinButton.clicked += OnJoinPressed;
@@ -29,7 +29,7 @@ public class StartUI : MonoBehaviour
     private async void OnHostPressedAsync()
     {
         Debug.Log("Creating lobby");
-
+        LobbyLogic.Instance.PlayerName = playerName.text;
         hostButton.SetEnabled(false);
 
         try
@@ -51,6 +51,7 @@ public class StartUI : MonoBehaviour
 
     private void OnJoinPressed()
     {
+        LobbyLogic.Instance.PlayerName = playerName.text;
         joinUI.Show();
         gameObject.SetActive(false);
     }
