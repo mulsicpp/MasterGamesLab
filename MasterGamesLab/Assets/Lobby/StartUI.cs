@@ -6,6 +6,7 @@ public class StartUI : MonoBehaviour
 {
     [SerializeField] private JoinUI joinUI;
     [SerializeField] private LobbyUI lobbyUI;
+    private TextField name;
     private Button hostButton;
     private Button joinButton;
 
@@ -18,6 +19,7 @@ public class StartUI : MonoBehaviour
 
         hostButton = root.Q<Button>("Host");
         joinButton = root.Q<Button>("Join");
+        name = root.Q<TextField>("Name");
 
         hostButton.clicked += OnHostPressed;
         joinButton.clicked += OnJoinPressed;
