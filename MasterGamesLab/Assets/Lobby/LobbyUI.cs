@@ -3,21 +3,22 @@ using UnityEngine.UIElements;
 
 public class LobbyUI : MonoBehaviour
 {
-    private Label _lobbyNameLabel;
-    private Label _codeLabel;
-    private Label[] _playerLabels = new Label[4];
+    private Label lobbyNameLabel;
+    private Label codeLabel;
+    private Label[] playerLabels = new Label[Constants.MAX_PLAYER_COUNT];
+    [SerializeField] private StartUI startUI;
 
     private void OnEnable()
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
 
 
-        _lobbyNameLabel = root.Q<Label>("LobbyNameLabel");
-        _codeLabel = root.Q<Label>("CodeLabel");
-        
-        for (int i = 0; i < 4; i++)
+        lobbyNameLabel = root.Q<Label>("LobbyNameLabel");
+        codeLabel = root.Q<Label>("CodeLabel");
+
+        for (int i = 0; i < Constants.MAX_PLAYER_COUNT; i++)
         {
-            _playerLabels[i] = root.Q<Label>($"Player{i}Label");
+            playerLabels[i] = root.Q<Label>($"Player{i}Label");
         }
 
         var backButton = root.Q<Button>("BackButton");
@@ -30,7 +31,9 @@ public class LobbyUI : MonoBehaviour
 
     public void OnBackPressed()
     {
-        Debug.Log("Leaving lobby...");
+        Debug.Log("Back button clicked. Returning to Main Menu...");
+        gameObject.SetActive(false);
+        startUI.Show();
     }
 
     public void OnStartPressed()
@@ -41,15 +44,20 @@ public class LobbyUI : MonoBehaviour
 
     public void SetLobbyInfo(string lobbyName, string joinCode)
     {
-        if (_lobbyNameLabel != null) _lobbyNameLabel.text = lobbyName;
-        if (_codeLabel != null) _codeLabel.text = $"Code: {joinCode}";
+        if (lobbyNameLabel != null) lobbyNameLabel.text = lobbyName;
+        if (codeLabel != null) codeLabel.text = $"Code: {joinCode}";
     }
 
     public void UpdatePlayerSlot(int index, string playerName)
     {
-        if (index >= 0 && index < _playerLabels.Length)
+        if (index >= 0 && index < playerLabels.Length)
         {
-            _playerLabels[index].text = playerName;
+            playerLabels[index].text = playerName;
         }
+    }
+
+    public void Show()
+    {
+        gameObject.SetActive(true);
     }
 }

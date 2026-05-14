@@ -1,14 +1,16 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
+using Unity.Services.Lobbies.Models;
 
 public class JoinUI : MonoBehaviour
 {
-    private TextField _lobbyCodeInput;
-    private MultiColumnListView _lobbyList;
-    
+    private TextField lobbyCodeInput;
+    private MultiColumnListView lobbyList;
+    [SerializeField] private StartUI startUI;
 
-    private List<LobbyData> _availableLobbies = new List<LobbyData>();
+
+    private List<Lobby> availableLobbies = new List<Lobby>();
 
     private void OnEnable()
     {
@@ -17,58 +19,54 @@ public class JoinUI : MonoBehaviour
 
         var backButton = root.Q<Button>("BackButton");
         var joinButton = root.Q<Button>("JoinButton");
-        _lobbyCodeInput = root.Q<TextField>("LobbyCode");
+        lobbyCodeInput = root.Q<TextField>("LobbyCode");
 
         backButton.clicked += OnBackPressed;
         joinButton.clicked += OnJoinPressed;
 
 
-        _lobbyList = root.Q<MultiColumnListView>("LobbyList");
+        lobbyList = root.Q<MultiColumnListView>("LobbyList");
         SetupLobbyList();
-        AddLobbyElement("test1", 2);
-        AddLobbyElement("test2", 3);
-        AddLobbyElement("test3", 4);
     }
 
     public void OnBackPressed()
     {
         Debug.Log("Back button clicked. Returning to Main Menu...");
-
+        gameObject.SetActive(false);
+        startUI.Show();
     }
 
     public void OnJoinPressed()
     {
-        string code = _lobbyCodeInput.value;
+        string code = lobbyCodeInput.value;
         Debug.Log($"Attempting to join with code: {code}");
     }
 
-    // This is the function you requested to add new items dynamically
-    public void AddLobbyElement(string lobbyName, int playerCount)
-    {
-        _availableLobbies.Add(new LobbyData { Name = lobbyName, Players = playerCount });
-        
-        // Tell the UI Toolkit to refresh and show the new data
-        _lobbyList.RefreshItems();
-    }
+
+    // public void AddLobbyElement(string lobbyName, int playerCount)
+    // {
+    //     availableLobbies.Add(new Lobby { Name = lobbyName, Players = playerCount });
+
+    //     lobbyList.RefreshItems();
+    // }
 
     private void SetupLobbyList()
     {
-        _lobbyList.itemsSource = _availableLobbies;
+        lobbyList.itemsSource = availableLobbies;
 
         // Binding the "Name" column
-        _lobbyList.columns["name"].makeCell = () => new Label();
-        _lobbyList.columns["name"].bindCell = (VisualElement e, int i) => 
-            (e as Label).text = _availableLobbies[i].Name;
+        lobbyList.columns["name"].makeCell = () => new Label();
+        lobbyList.columns["name"].bindCell = (VisualElement e, int i) =>
+            (e as Label).text = availableLobbies[i].Name;
 
         // Binding the "Players" column
-        _lobbyList.columns["players"].makeCell = () => new Label();
-        _lobbyList.columns["players"].bindCell = (VisualElement e, int i) => 
-            (e as Label).text = $"{_availableLobbies[i].Players}/" + Constants.MAX_PLAYER_COUNT;
+        lobbyList.columns["players"].makeCell = () => new Label();
+        lobbyList.columns["players"].bindCell = (VisualElement e, int i) =>
+            (e as Label).text = availableLobbies[i].Players + "/" + availableLobbies[i].MaxPlayers;
     }
-}
 
-public class LobbyData
-{
-    public string Name;
-    public int Players;
+    public void Show()
+    {
+        gameObject.SetActive(true);
+    }
 }

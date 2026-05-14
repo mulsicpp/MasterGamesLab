@@ -4,8 +4,8 @@ using UnityEngine.UIElements;
 
 public class StartUI : MonoBehaviour
 {
-    [SerializeField] private JoinUI joinMenu;
-    [SerializeField] private LobbyUI hostMenu;
+    [SerializeField] private JoinUI joinUI;
+    [SerializeField] private LobbyUI lobbyUI;
     private Button hostButton;
     private Button joinButton;
 
@@ -26,13 +26,13 @@ public class StartUI : MonoBehaviour
 
     private void OnHostPressed()
     {
-        //hostMenu.Show();
+        lobbyUI.Show();
         gameObject.SetActive(false);
     }
 
     private void OnJoinPressed()
     {
-        //joinMenu.Show();
+        joinUI.Show();
         gameObject.SetActive(false);
 
     }
