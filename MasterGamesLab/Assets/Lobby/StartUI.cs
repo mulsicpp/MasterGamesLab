@@ -13,7 +13,7 @@ public class StartUI : MonoBehaviour
     private VisualElement root;
 
 
-    void OnEnable()
+    void Awake()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
 

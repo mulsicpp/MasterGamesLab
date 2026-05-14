@@ -8,7 +8,9 @@ public class LobbyUI : MonoBehaviour
     private Label[] playerLabels = new Label[Constants.MAX_PLAYER_COUNT];
     [SerializeField] private StartUI startUI;
 
-    private void OnEnable()
+
+
+    private void Awake()
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
 
@@ -29,14 +31,14 @@ public class LobbyUI : MonoBehaviour
     }
 
 
-    public void OnBackPressed()
+    private void OnBackPressed()
     {
         Debug.Log("Back button clicked. Returning to Main Menu...");
         gameObject.SetActive(false);
         startUI.Show();
     }
 
-    public void OnStartPressed()
+    private void OnStartPressed()
     {
         Debug.Log("Start Game button pressed!");
     }
