@@ -8,11 +8,16 @@ public class LobbyUI : MonoBehaviour
     private Label[] playerLabels = new Label[Constants.MAX_PLAYER_COUNT];
     [SerializeField] private StartUI startUI;
 
+    VisualElement root;
+    Button backButton;
+    Button startButton;
+
+
     private void OnEnable()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
-
-
+        root = GetComponent<UIDocument>().rootVisualElement;
+        backButton = root.Q<Button>("BackButton");
+        startButton = root.Q<Button>("StartButton");
         lobbyNameLabel = root.Q<Label>("LobbyNameLabel");
         codeLabel = root.Q<Label>("CodeLabel");
 
@@ -21,22 +26,27 @@ public class LobbyUI : MonoBehaviour
             playerLabels[i] = root.Q<Label>($"Player{i}Label");
         }
 
-        var backButton = root.Q<Button>("BackButton");
-        var startButton = root.Q<Button>("StartButton");
+
 
         backButton.clicked += OnBackPressed;
         startButton.clicked += OnStartPressed;
     }
 
+    private void OnDisable()
+    {
+        backButton.clicked -= OnBackPressed;
+        startButton.clicked -= OnStartPressed;
+    }
 
-    public void OnBackPressed()
+
+    private void OnBackPressed()
     {
         Debug.Log("Back button clicked. Returning to Main Menu...");
         gameObject.SetActive(false);
         startUI.Show();
     }
 
-    public void OnStartPressed()
+    private void OnStartPressed()
     {
         Debug.Log("Start Game button pressed!");
     }

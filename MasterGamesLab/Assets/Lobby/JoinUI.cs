@@ -2,57 +2,79 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using Unity.Services.Lobbies.Models;
+using Unity.VisualScripting;
+using WebSocketSharp;
 
 public class JoinUI : MonoBehaviour
 {
     private TextField lobbyCodeInput;
     private MultiColumnListView lobbyList;
     [SerializeField] private StartUI startUI;
+    [SerializeField] private LobbyUI lobbyUI;
+
+    VisualElement root;
+    Button backButton;
+    Button joinButton;
+    Button refreshButton;
 
 
-    private async void OnEnable()
+    private void OnEnable()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
+        root = GetComponent<UIDocument>().rootVisualElement;
 
+        backButton = root.Q<Button>("BackButton");
+        joinButton = root.Q<Button>("JoinButton");
+        refreshButton = root.Q<Button>("RefreshButton");
 
-        var backButton = root.Q<Button>("BackButton");
-        var joinButton = root.Q<Button>("JoinButton");
         lobbyCodeInput = root.Q<TextField>("LobbyCode");
 
         backButton.clicked += OnBackPressed;
         joinButton.clicked += OnJoinPressed;
+        refreshButton.clicked += OnRefreshPressed;
 
 
         lobbyList = root.Q<MultiColumnListView>("LobbyList");
         SetupLobbyList();
 
-        await LobbyLogic.Instance.LoadPublicLobbies();
-        Debug.Log("Loaded lobbies: " + LobbyLogic.Instance.PublicLobbies.Count);
-        lobbyList.itemsSource = LobbyLogic.Instance.PublicLobbies;
-        lobbyList.RefreshItems();
-        Debug.Log("Refreshed");
+        refreshLobbies();
     }
 
-    public void OnBackPressed()
+    private void OnDisable()
+    {
+        backButton.clicked -= OnBackPressed;
+        joinButton.clicked -= OnJoinPressed;
+        refreshButton.clicked -= OnRefreshPressed;
+    }
+
+    private void OnBackPressed()
     {
         Debug.Log("Back button clicked. Returning to Main Menu...");
         gameObject.SetActive(false);
         startUI.Show();
     }
 
-    public void OnJoinPressed()
+    private async void OnJoinPressed()
     {
-        string code = lobbyCodeInput.value;
-        Debug.Log($"Attempting to join with code: {code}");
+        if (lobbyCodeInput.text.IsNullOrEmpty())
+            await LobbyLogic.Instance.JoinLobbyById((lobbyList.selectedItem as Lobby).Id);
+        else
+            await LobbyLogic.Instance.JoinLobbyByCode(lobbyCodeInput.value);
+        lobbyUI.Show();
+        gameObject.SetActive(false);
+    }
+
+    private void OnRefreshPressed()
+    {
+        refreshLobbies();
     }
 
 
-    // public void AddLobbyElement(string lobbyName, int playerCount)
-    // {
-    //     availableLobbies.Add(new Lobby { Name = lobbyName, Players = playerCount });
-
-    //     lobbyList.RefreshItems();
-    // }
+    private async void refreshLobbies()
+    {
+        await LobbyLogic.Instance.LoadPublicLobbies();
+        lobbyList.itemsSource = LobbyLogic.Instance.PublicLobbies;
+        lobbyList.RefreshItems();
+    }
 
     private void SetupLobbyList()
     {
