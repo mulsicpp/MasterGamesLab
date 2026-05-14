@@ -459,6 +459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JoinMenu
   startUI: {fileID: 1740609994}
+  lobbyUI: {fileID: 1877013772}
 --- !u!114 &1118779278
 MonoBehaviour:
   m_ObjectHideFlags: 0

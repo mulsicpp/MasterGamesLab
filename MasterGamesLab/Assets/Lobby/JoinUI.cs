@@ -13,8 +13,11 @@ public class JoinUI : MonoBehaviour
     [SerializeField] private LobbyUI lobbyUI;
 
 
-    void Awake()
+
+
+    private async void OnEnable()
     {
+
         var root = GetComponent<UIDocument>().rootVisualElement;
 
 
@@ -30,11 +33,23 @@ public class JoinUI : MonoBehaviour
 
         lobbyList = root.Q<MultiColumnListView>("LobbyList");
         SetupLobbyList();
+
+
+        refreshLobbies();
     }
 
-    private async void OnEnable()
+    private void OnDisable()
     {
-        refreshLobbies();
+        var root = GetComponent<UIDocument>().rootVisualElement;
+
+
+        var backButton = root.Q<Button>("BackButton");
+        var joinButton = root.Q<Button>("JoinButton");
+        var refreshButton = root.Q<Button>("RefreshButton");
+
+        backButton.clicked -= OnBackPressed;
+        joinButton.clicked -= OnJoinPressed;
+        refreshButton.clicked -= OnRefreshPressed;
     }
 
     private void OnBackPressed()
@@ -47,9 +62,9 @@ public class JoinUI : MonoBehaviour
     private async void OnJoinPressed()
     {
         if (lobbyCodeInput.text.IsNullOrEmpty())
-            await LobbyLogic.Instance.JoinLobbyByCode(lobbyCodeInput.value);
-        else
             await LobbyLogic.Instance.JoinLobbyById((lobbyList.selectedItem as Lobby).Id);
+        else
+            await LobbyLogic.Instance.JoinLobbyByCode(lobbyCodeInput.value);
         lobbyUI.Show();
         gameObject.SetActive(false);
     }

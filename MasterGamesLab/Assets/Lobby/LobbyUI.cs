@@ -10,7 +10,7 @@ public class LobbyUI : MonoBehaviour
 
 
 
-    private void Awake()
+    private void OnEnable()
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
 
@@ -28,6 +28,16 @@ public class LobbyUI : MonoBehaviour
 
         backButton.clicked += OnBackPressed;
         startButton.clicked += OnStartPressed;
+    }
+
+    private void OnDisable()
+    {
+        var root = GetComponent<UIDocument>().rootVisualElement;
+        var backButton = root.Q<Button>("BackButton");
+        var startButton = root.Q<Button>("StartButton");
+
+        backButton.clicked -= OnBackPressed;
+        startButton.clicked -= OnStartPressed;
     }
 
 

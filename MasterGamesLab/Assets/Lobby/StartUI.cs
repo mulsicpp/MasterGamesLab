@@ -1,6 +1,7 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using WebSocketSharp;
 
 public class StartUI : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class StartUI : MonoBehaviour
     private VisualElement root;
 
 
-    void Awake()
+    void OnEnable()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
 
@@ -26,8 +27,22 @@ public class StartUI : MonoBehaviour
 
     }
 
+    void OnDisable()
+    {
+        root = GetComponent<UIDocument>().rootVisualElement;
+
+        hostButton = root.Q<Button>("Host");
+        joinButton = root.Q<Button>("Join");
+
+        hostButton.clicked -= OnHostPressedAsync;
+        joinButton.clicked -= OnJoinPressed;
+
+    }
+
     private async void OnHostPressedAsync()
     {
+        if (playerName.text.IsNullOrEmpty())
+            return;
         Debug.Log("Creating lobby");
         LobbyLogic.Instance.PlayerName = playerName.text;
         hostButton.SetEnabled(false);
@@ -51,6 +66,9 @@ public class StartUI : MonoBehaviour
 
     private void OnJoinPressed()
     {
+        if (playerName.text.IsNullOrEmpty())
+            return;
+        Debug.Log("1234");
         LobbyLogic.Instance.PlayerName = playerName.text;
         joinUI.Show();
         gameObject.SetActive(false);
