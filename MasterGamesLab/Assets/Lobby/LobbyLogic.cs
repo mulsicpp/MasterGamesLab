@@ -11,12 +11,11 @@ using Unity.Netcode.Transports.UTP;
 using System.Threading.Tasks;
 using System.ComponentModel.Design.Serialization;
 
-using LobbyData = Unity.Services.Lobbies.Models.Lobby;
-
 public class LobbyLogic : MonoBehaviour
 {
-    LobbyData lobby;
-    async void Start()
+    Lobby lobby;
+
+    async void Awake()
     {
         DontDestroyOnLoad(gameObject);
 
@@ -27,10 +26,25 @@ public class LobbyLogic : MonoBehaviour
         }
     }
 
-    public async Task<List<LobbyData>> LoadPublicLobbies()
+    public async Task<List<Lobby>> LoadPublicLobbies()
     {
         QueryResponse response = await LobbyService.Instance.QueryLobbiesAsync();
         return response.Results;
+    }
+
+    public async Task<Lobby> JoinLobbyById(string playerName, string lobbyId)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public async Task<Lobby> JoinLobbyByCode(string playerName, string lobbyCode)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public async Task<Lobby> CreateLobby(string playerName)
+    {
+        throw new System.NotImplementedException();
     }
 
 }
