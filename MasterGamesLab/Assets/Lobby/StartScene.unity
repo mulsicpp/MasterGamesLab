@@ -395,7 +395,7 @@ GameObject:
   - component: {fileID: 1118779278}
   - component: {fileID: 1118779277}
   m_Layer: 0
-  m_Name: JoinMenu
+  m_Name: JoinUi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -413,6 +413,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff0bb1f8e08f5644ba4051a27ffbde99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JoinMenu
+  startUI: {fileID: 1740609994}
 --- !u!114 &1118779278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -463,12 +464,12 @@ GameObject:
   - component: {fileID: 1740609994}
   - component: {fileID: 1740609995}
   m_Layer: 5
-  m_Name: Lobby
+  m_Name: StartUi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1740609993
 Transform:
   m_ObjectHideFlags: 0
@@ -496,8 +497,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95443d625d166974fa1f846f9c52a056, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Lobby
-  joinMenu: {fileID: 1118779277}
-  hostMenu: {fileID: 1877013772}
+  joinUI: {fileID: 1118779277}
+  lobbyUI: {fileID: 1877013772}
 --- !u!114 &1740609995
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -533,12 +534,12 @@ GameObject:
   - component: {fileID: 1877013773}
   - component: {fileID: 1877013772}
   m_Layer: 0
-  m_Name: HostMenu
+  m_Name: LobbyUi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1877013772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -551,6 +552,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b340d95c13e564f44bf5ce93719858f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HostMenu
+  startUI: {fileID: 1740609994}
 --- !u!114 &1877013773
 MonoBehaviour:
   m_ObjectHideFlags: 0
