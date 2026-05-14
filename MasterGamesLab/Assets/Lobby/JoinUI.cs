@@ -2,12 +2,15 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using Unity.Services.Lobbies.Models;
+using Unity.VisualScripting;
+using WebSocketSharp;
 
 public class JoinUI : MonoBehaviour
 {
     private TextField lobbyCodeInput;
     private MultiColumnListView lobbyList;
     [SerializeField] private StartUI startUI;
+    [SerializeField] private LobbyUI lobbyUI;
 
 
     void Awake()
@@ -41,10 +44,14 @@ public class JoinUI : MonoBehaviour
         startUI.Show();
     }
 
-    private void OnJoinPressed()
+    private async void OnJoinPressed()
     {
-        string code = lobbyCodeInput.value;
-        Debug.Log($"Attempting to join with code: {code}");
+        if (lobbyCodeInput.text.IsNullOrEmpty())
+            await LobbyLogic.Instance.JoinLobbyByCode(lobbyCodeInput.value);
+        else
+            await LobbyLogic.Instance.JoinLobbyById((lobbyList.selectedItem as Lobby).Id);
+        lobbyUI.Show();
+        gameObject.SetActive(false);
     }
 
     private void OnRefreshPressed()
