@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.Design.Serialization;
 using System.Collections;
 using System.Collections.Generic;
+using static UnityEngine.LowLevelPhysics2D.PhysicsLayers;
 
 public class LobbyLogic : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class LobbyLogic : MonoBehaviour
     public string PlayerName;
 
     private Coroutine lobbyHeartbeat;
+    private bool isHost = false;
 
     [SerializeField]
     private StartUI startUI;
@@ -49,13 +51,21 @@ public class LobbyLogic : MonoBehaviour
             StopCoroutine(lobbyHeartbeat);
     }
 
-    public async Task<List<Lobby>> LoadPublicLobbies()
+    public async Task LoadPublicLobbies()
     {
-        QueryResponse response = await LobbyService.Instance.QueryLobbiesAsync();
-        return PublicLobbies = response.Results;
+        PublicLobbies = (await LobbyService.Instance.QueryLobbiesAsync())?.Results;
+        joinUI.lobbyList.itemsSource = PublicLobbies;
+        joinUI.lobbyList.RefreshItems();
+
     }
 
-    public async Task<Lobby> JoinLobbyById(string lobbyId)
+    public async Task GoToJoinMenu()
+    {
+        await LoadPublicLobbies();
+        ShowJoinUI();
+    }
+
+    public async Task JoinLobbyById(string lobbyId)
     {
         JoinLobbyByIdOptions options = new JoinLobbyByIdOptions
         {
@@ -70,10 +80,10 @@ public class LobbyLogic : MonoBehaviour
         };
 
         var lobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId, options);
-        return await JoinLobby(lobby);
+        await JoinLobby(lobby);
     }
 
-    public async Task<Lobby> JoinLobbyByCode(string lobbyCode)
+    public async Task JoinLobbyByCode(string lobbyCode)
     {
         JoinLobbyByCodeOptions options = new JoinLobbyByCodeOptions
         {
@@ -88,10 +98,11 @@ public class LobbyLogic : MonoBehaviour
         };
 
         var lobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode, options);
-        return await JoinLobby(lobby);
+
+        await JoinLobby(lobby);
     }
 
-    private async Task<Lobby> JoinLobby(Lobby lobby)
+    private async Task JoinLobby(Lobby lobby)
     {
         Debug.Log("Joined the lobby" + lobby.Name);
 
@@ -105,12 +116,13 @@ public class LobbyLogic : MonoBehaviour
         NetworkManager.Singleton.StartClient();
 
         Lobby = lobby;
+        isHost = false;
         SubscribeToLobby();
 
-        return Lobby;
+        ShowLobbyUI();
     }
 
-    public async Task<Lobby> CreateLobby()
+    public async Task HostLobby()
     {
         Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
         string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
@@ -133,7 +145,8 @@ public class LobbyLogic : MonoBehaviour
             }
         };
 
-        Lobby = await LobbyService.Instance.CreateLobbyAsync(PlayerName, 4, options);
+        Lobby = await LobbyService.Instance.CreateLobbyAsync(PlayerName + "'s Lobby", 4, options);
+        isHost = true;
         SubscribeToLobby();
 
         var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
@@ -142,7 +155,7 @@ public class LobbyLogic : MonoBehaviour
 
         NetworkManager.Singleton.StartHost();
 
-        return Lobby;
+        ShowLobbyUI();
     }
 
     private IEnumerator LobbyHeartbeat()
@@ -151,7 +164,7 @@ public class LobbyLogic : MonoBehaviour
 
         while (true)
         {
-            if (Lobby != null)
+            if (Lobby != null && isHost)
             {
                 Debug.Log("Sending heartbeat");
                 Task heartbeatTask = LobbyService.Instance.SendHeartbeatPingAsync(Lobby.Id);
@@ -191,16 +204,44 @@ public class LobbyLogic : MonoBehaviour
 
     private void OnLobbyChanged(ILobbyChanges changes)
     {
-        if (changes.LobbyDeleted)
+        if (changes.LobbyDeleted || Lobby == null)
         {
-            
+            Lobby = null;
+            isHost = false;
+            ShowStartUI();
         }
         else
         {
             changes.ApplyToLobby(Lobby);
+            lobbyUI.UpdateUI(Lobby);
         }
 
-        // TODO update UI
     }
 
+    public void HideUI()
+    {
+        startUI.Hide();
+        joinUI.Hide();
+        lobbyUI.Hide();
+    }
+
+    public void ShowStartUI()
+    {
+        startUI.playerName.SetValueWithoutNotify(PlayerName);
+        HideUI();
+        startUI.Show();
+    }
+
+    public void ShowJoinUI()
+    {
+        HideUI();
+        joinUI.Show();
+    }
+
+    public void ShowLobbyUI()
+    {
+        lobbyUI.UpdateUI(Lobby);
+        HideUI();
+        lobbyUI.Show();
+    }
 }

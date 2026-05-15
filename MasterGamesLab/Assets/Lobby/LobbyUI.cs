@@ -1,5 +1,8 @@
+using System;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.LowLevelPhysics2D.PhysicsLayers;
 
 public class LobbyUI : MonoBehaviour
 {
@@ -64,6 +67,21 @@ public class LobbyUI : MonoBehaviour
         if (index >= 0 && index < playerLabels.Length)
         {
             playerLabels[index].text = playerName;
+        }
+    }
+
+    public void UpdateUI(Lobby lobby)
+    {
+        foreach (var playerLabel in playerLabels)
+        {
+            playerLabel.text = "";
+        }
+
+        SetLobbyInfo(lobby.Name, lobby.LobbyCode);
+
+        for (int i = 0; i < lobby.Players.Count; i++)
+        {
+            playerLabels[i].text = lobby.Players[i].Data["Name"].Value;
         }
     }
 

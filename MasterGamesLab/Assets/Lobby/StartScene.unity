@@ -413,6 +413,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LobbyLogic
   PlayerName: 
+  startUI: {fileID: 1740609994}
+  joinUI: {fileID: 1118779277}
+  lobbyUI: {fileID: 1877013772}
 --- !u!4 &747665313
 Transform:
   m_ObjectHideFlags: 0
@@ -445,7 +448,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1118779277
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -569,7 +572,7 @@ MonoBehaviour:
       - {fileID: 11400000, guid: 93dc52b72bc21364f859a227bad33623, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
-    ConnectionApproval: 1
+    ConnectionApproval: 0
     ConnectionData: 
     EnableTimeResync: 0
     TimeResyncInterval: 30
@@ -691,7 +694,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1877013772
 MonoBehaviour:
   m_ObjectHideFlags: 0

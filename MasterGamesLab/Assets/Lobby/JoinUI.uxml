@@ -7,7 +7,7 @@
             </ui:Columns>
         </ui:MultiColumnListView>
         <ui:VisualElement style="flex-grow: 0; flex-shrink: 0; height: 30%; width: 100%;">
-            <ui:TextField label="Lobby Code" placeholder-text="Enter Host IP" name="LobbyCode" style="background-color: rgb(255, 255, 255);"/>
+            <ui:TextField label="Lobby Code" placeholder-text="Enter Code" name="LobbyCode" style="background-color: rgb(255, 255, 255);"/>
             <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: center;">
                 <ui:Button text="Back" name="BackButton" style="width: 30%;"/>
                 <ui:Button text="Join" name="JoinButton" style="width: 30%;"/>

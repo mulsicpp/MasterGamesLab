@@ -7,15 +7,15 @@ using WebSocketSharp;
 
 public class JoinUI : MonoBehaviour
 {
-    private TextField lobbyCodeInput;
-    private MultiColumnListView lobbyList;
+    public TextField lobbyCodeInput;
+    public MultiColumnListView lobbyList;
     [SerializeField] private StartUI startUI;
     [SerializeField] private LobbyUI lobbyUI;
 
     VisualElement root;
-    Button backButton;
-    Button joinButton;
-    Button refreshButton;
+    public Button backButton;
+    public Button joinButton;
+    public Button refreshButton;
 
 
     private void OnEnable()
@@ -36,8 +36,6 @@ public class JoinUI : MonoBehaviour
         lobbyList = root.Q<MultiColumnListView>("LobbyList");
         SetupLobbyList();
 
-        refreshLobbies();
-
         Hide();
     }
 
@@ -51,8 +49,7 @@ public class JoinUI : MonoBehaviour
     private void OnBackPressed()
     {
         Debug.Log("Back button clicked. Returning to Main Menu...");
-        Hide();
-        startUI.Show();
+        LobbyLogic.Instance.ShowStartUI();
     }
 
     private async void OnJoinPressed()
@@ -61,22 +58,12 @@ public class JoinUI : MonoBehaviour
             await LobbyLogic.Instance.JoinLobbyById((lobbyList.selectedItem as Lobby).Id);
         else
             await LobbyLogic.Instance.JoinLobbyByCode(lobbyCodeInput.value);
-        lobbyUI.Show();
-        Hide();
     }
 
-    private void OnRefreshPressed()
-    {
-        refreshLobbies();
-    }
-
-
-    private async void refreshLobbies()
+    private async void OnRefreshPressed()
     {
         refreshButton.SetEnabled(false);
         await LobbyLogic.Instance.LoadPublicLobbies();
-        lobbyList.itemsSource = LobbyLogic.Instance.PublicLobbies;
-        lobbyList.RefreshItems();
         refreshButton.SetEnabled(true);
     }
 

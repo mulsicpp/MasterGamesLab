@@ -7,9 +7,9 @@ public class StartUI : MonoBehaviour
 {
     [SerializeField] private JoinUI joinUI;
     [SerializeField] private LobbyUI lobbyUI;
-    private TextField playerName;
-    private Button hostButton;
-    private Button joinButton;
+    public TextField playerName;
+    public Button hostButton;
+    public Button joinButton;
 
     private VisualElement root;
 
@@ -24,8 +24,6 @@ public class StartUI : MonoBehaviour
 
         hostButton.clicked += OnHostPressedAsync;
         joinButton.clicked += OnJoinPressed;
-
-        playerName.SetValueWithoutNotify(LobbyLogic.Instance.PlayerName);
     }
 
     void OnDisable()
@@ -44,29 +42,30 @@ public class StartUI : MonoBehaviour
         joinButton.SetEnabled(false);
 
         LobbyLogic.Instance.PlayerName = playerName.text;
-        hostButton.SetEnabled(false);
         try
         {
-            await LobbyLogic.Instance.CreateLobby();
-            lobbyUI.Show();
-            Hide();
+            await LobbyLogic.Instance.HostLobby();
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Failed to create lobby: {e}");
-            hostButton.SetEnabled(true);
         }
         hostButton.SetEnabled(true);
         joinButton.SetEnabled(true);
     }
 
-    private void OnJoinPressed()
+    private async void OnJoinPressed()
     {
         if (playerName.text.IsNullOrEmpty())
             return;
         LobbyLogic.Instance.PlayerName = playerName.text;
-        joinUI.Show();
-        Hide();
+
+        await LobbyLogic.Instance.GoToJoinMenu();
+        // if (playerName.text.IsNullOrEmpty())
+        //     return;
+        // LobbyLogic.Instance.PlayerName = playerName.text;
+        // joinUI.Show();
+        // Hide();
     }
 
     public void Show()
