@@ -21,6 +21,13 @@ public class LobbyLogic : MonoBehaviour
 
     private Coroutine lobbyHeartbeat;
 
+    [SerializeField]
+    private StartUI startUI;
+    [SerializeField]
+    private JoinUI joinUI;
+    [SerializeField]
+    private LobbyUI lobbyUI;
+
     async void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }

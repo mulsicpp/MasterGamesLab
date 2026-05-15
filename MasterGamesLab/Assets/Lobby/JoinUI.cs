@@ -71,9 +71,11 @@ public class JoinUI : MonoBehaviour
 
     private async void refreshLobbies()
     {
+        refreshButton.SetEnabled(false);
         await LobbyLogic.Instance.LoadPublicLobbies();
         lobbyList.itemsSource = LobbyLogic.Instance.PublicLobbies;
         lobbyList.RefreshItems();
+        refreshButton.SetEnabled(true);
     }
 
     private void SetupLobbyList()

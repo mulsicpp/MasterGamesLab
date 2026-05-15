@@ -24,6 +24,8 @@ public class StartUI : MonoBehaviour
 
         hostButton.clicked += OnHostPressedAsync;
         joinButton.clicked += OnJoinPressed;
+
+        playerName.SetValueWithoutNotify(LobbyLogic.Instance.PlayerName);
     }
 
     void OnDisable()
