@@ -7,7 +7,7 @@
         <ui:Label text="Player3" name="Player3Label" style="background-color: rgb(255, 255, 255);"/>
         <ui:VisualElement style="flex-grow: 0; flex-shrink: 0; height: 39%; width: 100%;">
             <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: center;">
-                <ui:Button text="Back" name="BackButton" style="width: 42%;"/>
+                <ui:Button text="Leave" name="LeaveButton" style="width: 42%;"/>
                 <ui:Button text="Start" name="StartButton" style="width: 42%;"/>
             </ui:VisualElement>
         </ui:VisualElement>

@@ -21,7 +21,6 @@ public class LobbyLogic : MonoBehaviour
     public string PlayerName;
 
     private Coroutine lobbyHeartbeat;
-    private bool isHost = false;
 
     [SerializeField]
     private StartUI startUI;
@@ -116,7 +115,6 @@ public class LobbyLogic : MonoBehaviour
         NetworkManager.Singleton.StartClient();
 
         Lobby = lobby;
-        isHost = false;
         SubscribeToLobby();
 
         ShowLobbyUI();
@@ -146,7 +144,6 @@ public class LobbyLogic : MonoBehaviour
         };
 
         Lobby = await LobbyService.Instance.CreateLobbyAsync(PlayerName + "'s Lobby", 4, options);
-        isHost = true;
         SubscribeToLobby();
 
         var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
@@ -164,7 +161,7 @@ public class LobbyLogic : MonoBehaviour
 
         while (true)
         {
-            if (Lobby != null && isHost)
+            if (Lobby != null && AuthenticationService.Instance.PlayerId == Lobby?.HostId)
             {
                 Debug.Log("Sending heartbeat");
                 Task heartbeatTask = LobbyService.Instance.SendHeartbeatPingAsync(Lobby.Id);
@@ -207,7 +204,6 @@ public class LobbyLogic : MonoBehaviour
         if (changes.LobbyDeleted || Lobby == null)
         {
             Lobby = null;
-            isHost = false;
             ShowStartUI();
         }
         else

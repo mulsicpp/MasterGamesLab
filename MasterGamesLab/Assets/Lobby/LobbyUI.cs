@@ -12,14 +12,14 @@ public class LobbyUI : MonoBehaviour
     [SerializeField] private StartUI startUI;
 
     VisualElement root;
-    Button backButton;
+    Button leaveButton;
     Button startButton;
 
 
     private void OnEnable()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
-        backButton = root.Q<Button>("BackButton");
+        leaveButton = root.Q<Button>("LeaveButton");
         startButton = root.Q<Button>("StartButton");
         lobbyNameLabel = root.Q<Label>("LobbyNameLabel");
         codeLabel = root.Q<Label>("CodeLabel");
@@ -31,7 +31,7 @@ public class LobbyUI : MonoBehaviour
 
 
 
-        backButton.clicked += OnBackPressed;
+        leaveButton.clicked += OnLeavePressed;
         startButton.clicked += OnStartPressed;
 
         Hide();
@@ -39,15 +39,15 @@ public class LobbyUI : MonoBehaviour
 
     private void OnDisable()
     {
-        backButton.clicked -= OnBackPressed;
+        leaveButton.clicked -= OnLeavePressed;
         startButton.clicked -= OnStartPressed;
     }
 
 
-    private void OnBackPressed()
+    private void OnLeavePressed()
     {
         Debug.Log("Back button clicked. Returning to Main Menu...");
-        Hide(); startUI.Show();
+        LobbyLogic.Instance.ShowStartUI();
     }
 
     private void OnStartPressed()
