@@ -1,109 +1,124 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization; // Required for the new Input System
 
-public class PlanetCameraController : MonoBehaviour
+// Required for the new Input System
+
+namespace Inputs
 {
-    [SerializeField] private InputActionAsset inputActions;
-
-    private InputActionMap sphereNavigationActionMap;
-    private InputAction primaryMousePressedAction;
-    private InputAction lookAction;
-    private InputAction zoomAction;
-
-    [SerializeField] private Transform target;
-
-    [SerializeField] private float minZoom = 1f;
-    [SerializeField] private float maxZoom = 10f;
-    [SerializeField] private float minZoomSpeed = 1f;
-    [SerializeField] private float maxZoomSpeed = 1;
-
-    [SerializeField] private float minRotationSpeed = 0.2f;
-    [SerializeField] private float maxRotationSpeed = 0.2f;
-
-    [SerializeField] private float minPitch = -85f;
-    [SerializeField] private float maxPitch = 85f;
-
-    // Internal tracking variables
-    private float currentYaw = 0f;
-    private float currentPitch = 0f;
-
-    public float CurrentDistance { get; private set; } = 15f;
-
-    private void OnEnable()
+    public class PlanetCameraController : MonoBehaviour
     {
-        sphereNavigationActionMap = inputActions.FindActionMap("SphereNavigation");
-        sphereNavigationActionMap.Enable();
-    }
+        [SerializeField] private InputActionAsset inputActions;
 
-    private void OnDisable()
-    {
-        sphereNavigationActionMap.Disable();
-    }
+        private InputActionMap sphereNavigationActionMap;
+        private InputAction primaryMousePressedAction;
+        private InputAction lookAction;
+        private InputAction zoomAction;
 
-    private void Awake()
-    {
-        sphereNavigationActionMap = inputActions.FindActionMap("SphereNavigation");
-        primaryMousePressedAction = sphereNavigationActionMap.FindAction("PrimaryMousePressed");
-        lookAction = sphereNavigationActionMap.FindAction("Look");
-        zoomAction = sphereNavigationActionMap.FindAction("Zoom");
-    }
+        [SerializeField] private Transform target;
 
-    private void Start()
-    {
-        CurrentDistance = Mathf.Clamp(Vector3.Distance(transform.position, target.position), minZoom, maxZoom);
-        var angles = transform.eulerAngles;
-        currentPitch = angles.x;
-        currentYaw = angles.y;
-    }
+        [SerializeField] private float minZoom = 1f;
+        [SerializeField] private float maxZoom = 10f;
+        [SerializeField] private float minZoomSpeed = 1f;
+        [SerializeField] private float maxZoomSpeed = 1;
 
-    private void LateUpdate()
-    {
-        HandleInput();
-        UpdateCameraTransform();
-    }
+        [SerializeField] private float minRotationSpeed = 0.2f;
+        [SerializeField] private float maxRotationSpeed = 0.2f;
 
-    private void HandleInput()
-    {
-        if (primaryMousePressedAction.IsPressed())
+        [SerializeField] private float minPitch = -85f;
+        [SerializeField] private float maxPitch = 85f;
+
+        public static PlanetCameraController Instance { get; private set; } = null!;
+
+#if UNITY_EDITOR
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Init()
         {
-            var lookDelta = lookAction.ReadValue<Vector2>();
+            Instance = null!;
+        }
+#endif
 
-            var currentRotationSpeed =
-                Mathf.Lerp(minRotationSpeed, maxRotationSpeed, (CurrentDistance - minZoom) / (maxZoom - minZoom));
+        // Internal tracking variables
+        private float currentYaw = 0f;
+        private float currentPitch = 0f;
 
-            currentYaw += lookDelta.x * currentRotationSpeed;
-            currentPitch -= lookDelta.y * currentRotationSpeed;
+        public float CurrentDistance { get; private set; } = 15f;
 
-            currentPitch = Mathf.Clamp(currentPitch, minPitch, maxPitch);
+        private void OnEnable()
+        {
+            Instance = this;
+            sphereNavigationActionMap = inputActions.FindActionMap("SphereNavigation");
+            sphereNavigationActionMap.Enable();
         }
 
-        var scrollDelta = zoomAction.ReadValue<Vector2>();
-
-        if (Mathf.Abs(scrollDelta.y) > 0.001f)
+        private void OnDisable()
         {
-            var currentZoomSpeed = ExponentialMapRange(CurrentDistance, minZoom, maxZoom, minZoomSpeed, maxZoomSpeed);
-            CurrentDistance -= scrollDelta.y * currentZoomSpeed;
-            CurrentDistance = Mathf.Clamp(CurrentDistance, minZoom, maxZoom);
+            sphereNavigationActionMap.Disable();
         }
-    }
 
-    private void UpdateCameraTransform()
-    {
-        var rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
+        private void Awake()
+        {
+            sphereNavigationActionMap = inputActions.FindActionMap("SphereNavigation");
+            primaryMousePressedAction = sphereNavigationActionMap.FindAction("PrimaryMousePressed");
+            lookAction = sphereNavigationActionMap.FindAction("Look");
+            zoomAction = sphereNavigationActionMap.FindAction("Zoom");
+        }
 
-        var position = target.position + rotation * new Vector3(0f, 0f, -CurrentDistance);
+        private void Start()
+        {
+            CurrentDistance = Mathf.Clamp(Vector3.Distance(transform.position, target.position), minZoom, maxZoom);
+            var angles = transform.eulerAngles;
+            currentPitch = angles.x;
+            currentYaw = angles.y;
+        }
 
-        transform.position = position;
-        transform.rotation = rotation;
-    }
+        private void LateUpdate()
+        {
+            HandleInput();
+            UpdateCameraTransform();
+        }
 
-    private static float ExponentialMapRange(float value, float minX, float maxX, float minY, float maxY)
-    {
-        value = Mathf.Clamp(value, minX, maxX);
-        var k = Math.Log(maxY / minY) / (maxX - minX);
-        return minY * (float)Math.Exp(k * (value - minX));
+        private void HandleInput()
+        {
+            if (primaryMousePressedAction.IsPressed())
+            {
+                var lookDelta = lookAction.ReadValue<Vector2>();
+
+                var currentRotationSpeed =
+                    Mathf.Lerp(minRotationSpeed, maxRotationSpeed, (CurrentDistance - minZoom) / (maxZoom - minZoom));
+
+                currentYaw += lookDelta.x * currentRotationSpeed;
+                currentPitch -= lookDelta.y * currentRotationSpeed;
+
+                currentPitch = Mathf.Clamp(currentPitch, minPitch, maxPitch);
+            }
+
+            var scrollDelta = zoomAction.ReadValue<Vector2>();
+
+            if (Mathf.Abs(scrollDelta.y) > 0.001f)
+            {
+                var currentZoomSpeed =
+                    ExponentialMapRange(CurrentDistance, minZoom, maxZoom, minZoomSpeed, maxZoomSpeed);
+                CurrentDistance -= scrollDelta.y * currentZoomSpeed;
+                CurrentDistance = Mathf.Clamp(CurrentDistance, minZoom, maxZoom);
+            }
+        }
+
+        private void UpdateCameraTransform()
+        {
+            var rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
+
+            var position = target.position + rotation * new Vector3(0f, 0f, -CurrentDistance);
+
+            transform.position = position;
+            transform.rotation = rotation;
+        }
+
+        private static float ExponentialMapRange(float value, float minX, float maxX, float minY, float maxY)
+        {
+            value = Mathf.Clamp(value, minX, maxX);
+            var k = Math.Log(maxY / minY) / (maxX - minX);
+            return minY * (float)Math.Exp(k * (value - minX));
+        }
     }
 }
