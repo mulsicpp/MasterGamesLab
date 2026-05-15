@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.ComponentModel.Design.Serialization;
 using System.Collections;
 using System.Collections.Generic;
-using static UnityEngine.LowLevelPhysics2D.PhysicsLayers;
 
 public class LobbyLogic : MonoBehaviour
 {
@@ -118,6 +117,14 @@ public class LobbyLogic : MonoBehaviour
         SubscribeToLobby();
 
         ShowLobbyUI();
+    }
+
+    public async Task LeaveLobby()
+    {
+        await LobbyService.Instance.RemovePlayerAsync(Lobby.Id, AuthenticationService.Instance.PlayerId);
+        Lobby = null;
+        NetworkManager.Singleton.Shutdown();
+        ShowStartUI();
     }
 
     public async Task HostLobby()

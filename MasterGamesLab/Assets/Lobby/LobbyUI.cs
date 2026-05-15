@@ -44,10 +44,10 @@ public class LobbyUI : MonoBehaviour
     }
 
 
-    private void OnLeavePressed()
+    private async void OnLeavePressed()
     {
         Debug.Log("Back button clicked. Returning to Main Menu...");
-        LobbyLogic.Instance.ShowStartUI();
+        await LobbyLogic.Instance.LeaveLobby();
     }
 
     private void OnStartPressed()
