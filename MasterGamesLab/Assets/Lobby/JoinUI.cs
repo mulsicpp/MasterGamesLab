@@ -37,6 +37,8 @@ public class JoinUI : MonoBehaviour
         SetupLobbyList();
 
         refreshLobbies();
+
+        Hide();
     }
 
     private void OnDisable()
@@ -49,7 +51,7 @@ public class JoinUI : MonoBehaviour
     private void OnBackPressed()
     {
         Debug.Log("Back button clicked. Returning to Main Menu...");
-        gameObject.SetActive(false);
+        Hide();
         startUI.Show();
     }
 
@@ -60,7 +62,7 @@ public class JoinUI : MonoBehaviour
         else
             await LobbyLogic.Instance.JoinLobbyByCode(lobbyCodeInput.value);
         lobbyUI.Show();
-        gameObject.SetActive(false);
+        Hide();
     }
 
     private void OnRefreshPressed()
@@ -93,6 +95,11 @@ public class JoinUI : MonoBehaviour
 
     public void Show()
     {
-        gameObject.SetActive(true);
+        root.style.display = DisplayStyle.Flex;
+    }
+
+    public void Hide()
+    {
+        root.style.display = DisplayStyle.None;
     }
 }

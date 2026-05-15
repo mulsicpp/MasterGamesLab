@@ -30,6 +30,8 @@ public class LobbyUI : MonoBehaviour
 
         backButton.clicked += OnBackPressed;
         startButton.clicked += OnStartPressed;
+
+        Hide();
     }
 
     private void OnDisable()
@@ -42,8 +44,7 @@ public class LobbyUI : MonoBehaviour
     private void OnBackPressed()
     {
         Debug.Log("Back button clicked. Returning to Main Menu...");
-        gameObject.SetActive(false);
-        startUI.Show();
+        Hide(); startUI.Show();
     }
 
     private void OnStartPressed()
@@ -68,6 +69,11 @@ public class LobbyUI : MonoBehaviour
 
     public void Show()
     {
-        gameObject.SetActive(true);
+        root.style.display = DisplayStyle.Flex;
+    }
+
+    public void Hide()
+    {
+        root.style.display = DisplayStyle.None;
     }
 }

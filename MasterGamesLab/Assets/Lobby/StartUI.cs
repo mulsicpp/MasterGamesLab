@@ -47,7 +47,7 @@ public class StartUI : MonoBehaviour
         {
             await LobbyLogic.Instance.CreateLobby();
             lobbyUI.Show();
-            gameObject.SetActive(false);
+            Hide();
         }
         catch (System.Exception e)
         {
@@ -64,11 +64,17 @@ public class StartUI : MonoBehaviour
             return;
         LobbyLogic.Instance.PlayerName = playerName.text;
         joinUI.Show();
-        gameObject.SetActive(false);
+        Hide();
     }
 
     public void Show()
     {
-        gameObject.SetActive(true);
+        root.style.display = DisplayStyle.Flex;
+    }
+
+    public void Hide()
+    {
+        root.style.display = DisplayStyle.None;
+
     }
 }
