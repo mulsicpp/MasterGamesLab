@@ -43,6 +43,11 @@ public class LobbyUI : MonoBehaviour
         startButton.clicked -= OnStartPressed;
     }
 
+    private void Update()
+    {
+        startButton.SetEnabled(LobbyLogic.Instance.IsHost());
+    }
+
 
     private async void OnLeavePressed()
     {

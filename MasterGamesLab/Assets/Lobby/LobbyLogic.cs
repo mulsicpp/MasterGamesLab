@@ -51,10 +51,12 @@ public class LobbyLogic : MonoBehaviour
 
     public async Task LoadPublicLobbies()
     {
-        PublicLobbies = (await LobbyService.Instance.QueryLobbiesAsync())?.Results;
-        joinUI.lobbyList.itemsSource = PublicLobbies;
-        joinUI.lobbyList.RefreshItems();
-
+        try
+        {
+            PublicLobbies = (await LobbyService.Instance.QueryLobbiesAsync())?.Results;
+            joinUI.lobbyList.itemsSource = PublicLobbies;
+            joinUI.lobbyList.RefreshItems();
+        } catch (System.Exception) {}
     }
 
     public async Task GoToJoinMenu()
@@ -78,7 +80,7 @@ public class LobbyLogic : MonoBehaviour
         };
 
         var lobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId, options);
-        await JoinLobby(lobby);
+        JoinLobby(lobby);
     }
 
     public async Task JoinLobbyByCode(string lobbyCode)
@@ -97,21 +99,21 @@ public class LobbyLogic : MonoBehaviour
 
         var lobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode, options);
 
-        await JoinLobby(lobby);
+        JoinLobby(lobby);
     }
 
-    private async Task JoinLobby(Lobby lobby)
+    private void JoinLobby(Lobby lobby)
     {
         Debug.Log("Joined the lobby" + lobby.Name);
 
-        string relayJoinCode = lobby.Data["JoinCode"].Value;
-        Debug.Log("Relay code: " + relayJoinCode);
-
-        JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(relayJoinCode);
-        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
-
-        NetworkManager.Singleton.StartClient();
+        // string relayJoinCode = lobby.Data["JoinCode"].Value;
+        // Debug.Log("Relay code: " + relayJoinCode);
+        // 
+        // JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(relayJoinCode);
+        // var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        // transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
+        // 
+        // NetworkManager.Singleton.StartClient();
 
         Lobby = lobby;
         SubscribeToLobby();
@@ -123,23 +125,23 @@ public class LobbyLogic : MonoBehaviour
     {
         await LobbyService.Instance.RemovePlayerAsync(Lobby.Id, AuthenticationService.Instance.PlayerId);
         Lobby = null;
-        NetworkManager.Singleton.Shutdown();
+        // NetworkManager.Singleton.Shutdown();
         ShowStartUI();
     }
 
     public async Task HostLobby()
     {
-        Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
-        string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+        // Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
+        // string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
         CreateLobbyOptions options = new CreateLobbyOptions
         {
             IsPrivate = false,
-            Data = new Dictionary<string, DataObject> {
-            {
-                "JoinCode", new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
-            }
-            },
+            // Data = new Dictionary<string, DataObject> {
+            // {
+            //     "JoinCode", new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
+            // }
+            // },
             Player = new Player
             {
                 Data = new Dictionary<string, PlayerDataObject> {
@@ -153,11 +155,9 @@ public class LobbyLogic : MonoBehaviour
         Lobby = await LobbyService.Instance.CreateLobbyAsync(PlayerName + "'s Lobby", 4, options);
         SubscribeToLobby();
 
-        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-
-        transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
-
-        NetworkManager.Singleton.StartHost();
+        // var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        // transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
+        // NetworkManager.Singleton.StartHost();
 
         ShowLobbyUI();
     }
@@ -168,7 +168,7 @@ public class LobbyLogic : MonoBehaviour
 
         while (true)
         {
-            if (Lobby != null && AuthenticationService.Instance.PlayerId == Lobby?.HostId)
+            if (IsHost())
             {
                 Debug.Log("Sending heartbeat");
                 Task heartbeatTask = LobbyService.Instance.SendHeartbeatPingAsync(Lobby.Id);
@@ -246,5 +246,10 @@ public class LobbyLogic : MonoBehaviour
         lobbyUI.UpdateUI(Lobby);
         HideUI();
         lobbyUI.Show();
+    }
+
+    public bool IsHost()
+    {
+        return Lobby != null && AuthenticationService.Instance.PlayerId == Lobby?.HostId;
     }
 }
