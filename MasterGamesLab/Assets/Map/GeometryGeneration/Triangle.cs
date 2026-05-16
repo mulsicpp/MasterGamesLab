@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace GeometryGeneration
+namespace Map.GeometryGeneration
 {
     public class Triangle
     {
-        public Vector3 Center => UpdateCenter();
+        public Vector3 Center { get; private set; }
         private readonly List<Point> points;
 
         public Triangle(Point p1, Point p2, Point p3)
         {
             points = new List<Point> { p1, p2, p3 };
+            Center = UpdateCenter();
             p1.AddNeighbor(this);
             p2.AddNeighbor(this);
             p3.AddNeighbor(this);
