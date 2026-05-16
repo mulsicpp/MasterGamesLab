@@ -66,15 +66,7 @@ public class Connector : MonoBehaviour
         // 4. Start the actual Netcode Host
         var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
 
-        transport.SetRelayServerData(
-            allocation.RelayServer.IpV4,
-            (ushort)allocation.RelayServer.Port,
-            allocation.AllocationIdBytes,
-            allocation.Key,
-            allocation.ConnectionData,
-            null,
-            true
-        );
+        transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
 
         NetworkManager.Singleton.StartHost();
     }
@@ -98,17 +90,9 @@ public class Connector : MonoBehaviour
         Debug.Log("Relay code: " + relayJoinCode);
 
         // 4. Join the Relay
-        JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(relayJoinCode);
+        JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(relayJoinCode);
         var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        transport.SetRelayServerData(
-            joinAllocation.RelayServer.IpV4,
-            (ushort)joinAllocation.RelayServer.Port,
-            joinAllocation.AllocationIdBytes,
-            joinAllocation.Key,
-            joinAllocation.ConnectionData,
-            joinAllocation.HostConnectionData,
-            true
-        );
+        transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
 
         NetworkManager.Singleton.StartClient();
     }
