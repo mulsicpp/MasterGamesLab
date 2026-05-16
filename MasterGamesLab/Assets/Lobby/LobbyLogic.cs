@@ -8,7 +8,6 @@ using Unity.Services.Relay.Models;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using System.Threading.Tasks;
-using System.ComponentModel.Design.Serialization;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -229,7 +228,7 @@ public class LobbyLogic : MonoBehaviour
         }
     }
 
-    private void OnLobbyChanged(ILobbyChanges changes)
+    private async void OnLobbyChanged(ILobbyChanges changes)
     {
         if (changes.LobbyDeleted || Lobby == null)
         {
@@ -239,6 +238,23 @@ public class LobbyLogic : MonoBehaviour
         else
         {
             changes.ApplyToLobby(Lobby);
+
+            if ((Lobby.Data?.ContainsKey("JoinCode") ?? false) && !NetworkManager.Singleton.IsListening && !IsHost())
+            {
+                Debug.Log("Connecting to host");
+
+                string relayJoinCode = Lobby.Data["JoinCode"].Value;
+                Debug.Log("Relay code: " + relayJoinCode);
+                
+                JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(relayJoinCode);
+                var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+                transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
+                
+                NetworkManager.Singleton.StartClient();
+
+                Debug.Log("Successfully connected to host");
+            }
+
             lobbyUI.UpdateUI(Lobby);
         }
 
