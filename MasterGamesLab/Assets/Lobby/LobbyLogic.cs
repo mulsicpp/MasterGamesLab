@@ -129,7 +129,7 @@ public class LobbyLogic : MonoBehaviour
         ShowStartUI();
     }
 
-    public async Task HostLobby()
+    public async Task CreateLobby()
     {
         // Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
         // string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
@@ -160,6 +160,29 @@ public class LobbyLogic : MonoBehaviour
         // NetworkManager.Singleton.StartHost();
 
         ShowLobbyUI();
+    }
+
+    public async Task StartHost()
+    {
+        if (!IsHost()) return;
+
+        Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
+        string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+
+        UpdateLobbyOptions options = new UpdateLobbyOptions
+        {
+            Data = new Dictionary<string, DataObject> {
+            {
+                "JoinCode", new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
+            }
+            }
+        };
+
+        Lobby = await LobbyService.Instance.UpdateLobbyAsync(Lobby.Id, options);
+
+        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
+        NetworkManager.Singleton.StartHost();
     }
 
     private IEnumerator LobbyHeartbeat()

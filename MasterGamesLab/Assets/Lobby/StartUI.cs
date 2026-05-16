@@ -44,7 +44,7 @@ public class StartUI : MonoBehaviour
         LobbyLogic.Instance.PlayerName = playerName.text;
         try
         {
-            await LobbyLogic.Instance.HostLobby();
+            await LobbyLogic.Instance.CreateLobby();
         }
         catch (System.Exception e)
         {

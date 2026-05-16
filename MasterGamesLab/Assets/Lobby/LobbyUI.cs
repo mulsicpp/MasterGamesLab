@@ -1,4 +1,5 @@
 using System;
+using Unity.Netcode;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -45,7 +46,7 @@ public class LobbyUI : MonoBehaviour
 
     private void Update()
     {
-        startButton.SetEnabled(LobbyLogic.Instance.IsHost());
+        startButton.SetEnabled(LobbyLogic.Instance.IsHost() && !NetworkManager.Singleton.IsListening);
     }
 
 
@@ -55,9 +56,12 @@ public class LobbyUI : MonoBehaviour
         await LobbyLogic.Instance.LeaveLobby();
     }
 
-    private void OnStartPressed()
+    private async void OnStartPressed()
     {
         Debug.Log("Start Game button pressed!");
+        startButton.SetEnabled(false);
+        await LobbyLogic.Instance.StartHost();
+        startButton.SetEnabled(LobbyLogic.Instance.IsHost() && !NetworkManager.Singleton.IsListening);
     }
 
 
