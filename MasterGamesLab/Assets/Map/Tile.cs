@@ -1,20 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using GeometryGeneration;
+using Map.GeometryGeneration;
 using UnityEngine;
 
 namespace Map
 {
     public class Tile
     {
+        public enum TileType
+        {
+            Water,
+            Plain,
+            Forest,
+            Mountain
+        }
+
         public readonly int Id;
-        private readonly List<int> neighbourIds;
-        private List<Triangle> neighbourTriangles;
+        public MapChunk Chunk;
         public List<Triangle> Faces;
 
-        private readonly Point center;
-        public readonly Vector3 CenterOnSphere;
-        private readonly List<Vector3> cornerPositions;
+        public TileType Type
+        {
+            get => tileType;
+            set
+            {
+                tileType = value;
+                Chunk.Dirty = true;
+            }
+        }
+
+        public bool Active
+        {
+            get => active;
+            set
+            {
+                active = value;
+                Chunk.Dirty = true;
+            }
+        }
 
         public Vector3 Center
         {
@@ -22,11 +46,20 @@ namespace Map
             set => center.Position = value;
         }
 
+        private readonly List<Vector3> cornerPositions;
+        private readonly List<int> neighbourIds;
+        private List<Triangle> neighbourTriangles;
+        private TileType tileType;
+        private bool active;
+
+        private readonly Point center;
+        private readonly float randomValue;
+
         public Tile(Point center, float sphereRadius)
         {
             Id = center.Id;
+            randomValue = UnityEngine.Random.Range(0f, 1f);
             this.center = center;
-            CenterOnSphere = Point.ProjectToSphere(Center, sphereRadius);
 
             if (center.Neighbors.Count == 0)
             {
@@ -65,6 +98,11 @@ namespace Map
             {
                 Faces.Add(new Triangle(geometryVertices[0], geometryVertices[i + 1], geometryVertices[i + 2]));
             }
+        }
+
+        public Vector4 GetTileData()
+        {
+            return new Vector4(Id + Map.ID_OFFSET, randomValue, active ? 1 : 0, 0);
         }
 
         private void UpdateNeighbourIdsAndTriangles()

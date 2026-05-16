@@ -1,13 +1,16 @@
 ﻿using System.Collections.Generic;
-using GeometryGeneration.Projections;
 using UnityEngine;
 
 namespace Map.GeometryGeneration
 {
     public class MapChunk : MonoBehaviour
     {
+        public bool GeometryChanged;
+        public bool Dirty;
+
         private IMap parent;
         private MeshFilter meshFilter;
+        private Mesh mesh;
         private int startIdx;
         private int endIdx;
         private List<Vector3> vertices;
@@ -23,6 +26,10 @@ namespace Map.GeometryGeneration
             parent = parentMap;
             startIdx = startIndex;
             endIdx = endIndex;
+            for (var i = startIdx; i < endIdx; i++)
+            {
+                parent.Tiles[i].Chunk = this;
+            }
         }
 
         public void UpdateMesh()
@@ -30,11 +37,15 @@ namespace Map.GeometryGeneration
             vertices = new List<Vector3>();
             triangles = new List<int>();
 
+            var customData = new List<Vector4>();
+
             var vertIdx = 0;
             for (var i = startIdx; i < endIdx; i++)
             {
                 var tile = parent.Tiles[i];
                 tile.BuildFaces(parent.HexSize);
+
+                var tileData = tile.GetTileData();
 
                 foreach (var face in tile.Faces)
                 {
@@ -42,17 +53,45 @@ namespace Map.GeometryGeneration
                     vertices.Add(face.Points[1].Position);
                     vertices.Add(face.Points[2].Position);
                     triangles.AddRange(new[] { vertIdx, vertIdx + 1, vertIdx + 2 });
+
+                    customData.Add(tileData);
+                    customData.Add(tileData);
+                    customData.Add(tileData);
                     vertIdx += 3;
                 }
             }
 
-            var mesh = new Mesh
+            mesh = new Mesh
             {
                 vertices = vertices.ToArray(),
                 triangles = triangles.ToArray()
             };
             mesh.RecalculateNormals();
+            mesh.SetUVs(1, customData);
             meshFilter.mesh = mesh;
+            GeometryChanged = false;
+            Dirty = false;
+        }
+
+        public void UpdateTileData()
+        {
+            var customData = new List<Vector4>(vertices.Count);
+
+            for (var i = startIdx; i < endIdx; i++)
+            {
+                var tile = parent.Tiles[i];
+                var tileData = tile.GetTileData();
+
+                foreach (var face in tile.Faces)
+                {
+                    customData.Add(tileData);
+                    customData.Add(tileData);
+                    customData.Add(tileData);
+                }
+            }
+
+            mesh.SetUVs(1, customData);
+            Dirty = false;
         }
     }
 }
