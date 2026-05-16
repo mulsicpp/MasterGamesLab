@@ -14,7 +14,7 @@ namespace InGameCamera
         private InputAction zoomAction;
 
         public Transform Target;
-        public float CurrentDistance { get; private set; } = 15f;
+        public float CurrentDistance { get; private set; } = 3f;
 
         [SerializeField] private InputActionAsset inputActions;
 
@@ -49,7 +49,6 @@ namespace InGameCamera
 
         private void Start()
         {
-            CurrentDistance = Mathf.Clamp(Vector3.Distance(transform.position, Target.position), minZoom, maxZoom);
             var angles = transform.eulerAngles;
             currentPitch = angles.x;
             currentYaw = angles.y;

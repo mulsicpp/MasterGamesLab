@@ -15,25 +15,9 @@ namespace Map
 
         public static Map Instance { get; private set; } = null!;
 
-        public List<Tile> ActiveTiles
-        {
-            get => activeTiles;
-            set
-            {
-                foreach (var tile in activeTiles)
-                {
-                    tile.Active = false;
-                }
-
-                activeTiles = value;
-                foreach (var tile in activeTiles)
-                {
-                    tile.Active = true;
-                }
-            }
-        }
 
         public IReadOnlyList<Tile> Tiles => tiles;
+        public IReadOnlyList<Tile> ActiveTiles => activeTiles;
         public float Radius => radius;
         public int Resolution => resolution;
         public float HexSize => hexSize;
@@ -41,7 +25,6 @@ namespace Map
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
         [SerializeField] private float hexSize = 0.95f;
-        [SerializeField] private int numberOfChunks = 20;
         [SerializeField] private GameObject chunkPrefab;
 
         [SerializeField] private float fullSphereDistance = 2;
@@ -63,29 +46,34 @@ namespace Map
         {
             currentlyHoveredTileId = -1;
             Debug.Log("Starting Map Generation");
-            tiles = HexagonalSphere.GenerateHexagonalSphere(radius, resolution);
-            activeTiles = new List<Tile>();
-            Debug.Log("Starting Chunk Generation");
+            var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
+            tiles = new List<Tile>(numPoints);
+            chunks = new List<MapChunk>(chunksPoints.Count);
 
-            chunks = new List<MapChunk>(numberOfChunks);
-            var numPerChunk = Mathf.CeilToInt((float)tiles.Count / numberOfChunks);
-
-            for (var i = 0; i < numberOfChunks; i++)
+            var currentId = 0;
+            foreach (var chunkPoints in chunksPoints)
             {
                 var chunkGameObject = Instantiate(chunkPrefab, transform);
                 var chunk = chunkGameObject.GetComponent<MapChunk>();
-                chunk.Init(this, i * numPerChunk, Mathf.Min(i * numPerChunk + numPerChunk, tiles.Count));
+                var startId = currentId;
+
+                foreach (var point in chunkPoints)
+                {
+                    point.SetId(currentId++);
+                    var tile = new Tile(point, radius, chunk);
+                    tiles.Add(tile);
+                }
+
+                chunk.Init(this, startId, currentId);
+                chunk.UpdateMesh();
                 chunks.Add(chunk);
             }
 
+            Debug.Log($"Generated {tiles.Count} tiles");
+
+            activeTiles = new List<Tile>();
+
             Shader.SetGlobalFloat(PlanetRadius, radius);
-
-            foreach (var chunk in chunks)
-            {
-                chunk.UpdateMesh();
-            }
-
-            Debug.Log("Finished Map Generation");
         }
 
         private void Update()
@@ -113,6 +101,9 @@ namespace Map
         {
             return currentlyHoveredTileId == -1 ? null : tiles[currentlyHoveredTileId];
         }
+
+        public void AddActiveTile(Tile tile) => activeTiles.Add(tile);
+        public void RemoveActiveTile(Tile tile) => activeTiles.Remove(tile);
 
         private void UpdateProjectionUniforms()
         {

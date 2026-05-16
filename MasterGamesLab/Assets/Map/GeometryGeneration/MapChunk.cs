@@ -26,10 +26,6 @@ namespace Map.GeometryGeneration
             parent = parentMap;
             startIdx = startIndex;
             endIdx = endIndex;
-            for (var i = startIdx; i < endIdx; i++)
-            {
-                parent.Tiles[i].Chunk = this;
-            }
         }
 
         public void UpdateMesh()

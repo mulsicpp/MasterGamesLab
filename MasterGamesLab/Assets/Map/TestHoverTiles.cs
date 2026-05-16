@@ -5,12 +5,20 @@ namespace Map
 {
     public class TestHoverTiles : MonoBehaviour
     {
-        void Update()
+        Tile lastActiveTile;
+
+        private void Update()
         {
+            if (lastActiveTile != null)
+            {
+                lastActiveTile.Active = false;
+            }
+
             var tile = Map.Instance.GetCurrentlyHoveredTile();
             if (tile != null)
             {
-                Map.Instance.ActiveTiles = new List<Tile> { tile };
+                tile.Active = true;
+                lastActiveTile = tile;
             }
         }
     }

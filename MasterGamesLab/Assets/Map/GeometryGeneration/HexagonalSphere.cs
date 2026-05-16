@@ -1,55 +1,38 @@
 ﻿using System.Collections.Generic;
-using GeometryGeneration;
 using UnityEngine;
 
 namespace Map.GeometryGeneration
 {
     public static class HexagonalSphere
     {
-        public static List<Tile> GenerateHexagonalSphere(float radius, int subdivisionLevel)
+        public static (List<List<Point>>, int) GenerateIcoSphereChunks(float radius, int subdivisionLevel)
         {
-            var icoSphereVertices = GenerateIcoSphereGeometry(radius, subdivisionLevel);
-            return GenerateTiles(icoSphereVertices, radius);
+            var triangles = GenerateIcosahedronTriangles(radius);
+            return GenerateChunks(triangles, subdivisionLevel);
         }
 
-        /*public void UpdateTiles(IProjection projection, float projectionFactor)
-        {
-            foreach (var tile in Tiles)
-            {
-                var pointOnSphere = tile.CenterOnSphere;
-                var projectedPoint = projection.Project(pointOnSphere);
-                tile.Center = Vector3.Lerp(pointOnSphere, projectedPoint, projectionFactor);
-            }
-        }*/
-
-        private static List<Point> GenerateIcoSphereGeometry(float radius, int subdivisionLevel)
-        {
-            var icosahedronFaces = GenerateIcosahedron(radius);
-            return SubdivideIcosahedron(icosahedronFaces, subdivisionLevel);
-        }
-
-        private static List<Triangle> GenerateIcosahedron(float radius)
+        private static List<MapGenerationTriangle> GenerateIcosahedronTriangles(float radius)
         {
             var h = radius / Mathf.Sqrt(5f);
             var ringR = 2f * radius / Mathf.Sqrt(5f);
 
-            var vertices = new List<Point>(12) { new(0f, radius, 0f) }; // north pole
+            var vertices = new List<Vector3>(12) { new(0f, radius, 0f) }; // North Pole
 
             for (var i = 0; i < 5; i++) // upper ring
             {
                 var angle = i * 2f * Mathf.PI / 5f - Mathf.PI / 5f;
-                vertices.Add(new Point(ringR * Mathf.Cos(angle), h, ringR * Mathf.Sin(angle)));
+                vertices.Add(new Vector3(ringR * Mathf.Cos(angle), h, ringR * Mathf.Sin(angle)));
             }
 
             for (var i = 0; i < 5; i++) // lower ring
             {
                 var angle = i * 2f * Mathf.PI / 5f;
-                vertices.Add(new Point(ringR * Mathf.Cos(angle), -h, ringR * Mathf.Sin(angle)));
+                vertices.Add(new Vector3(ringR * Mathf.Cos(angle), -h, ringR * Mathf.Sin(angle)));
             }
 
-            vertices.Add(new Point(0f, -radius, 0f)); // south pole
+            vertices.Add(new Vector3(0f, -radius, 0f)); // South Pole
 
-            var faces = new List<Triangle>(20);
+            var faces = new List<MapGenerationTriangle>(20);
             for (var i = 0; i < 5; i++)
             {
                 var currentUpper = 1 + i;
@@ -59,48 +42,121 @@ namespace Map.GeometryGeneration
                 var nextLower = 6 + (i + 1) % 5;
 
                 // Top cap 
-                faces.Add(new Triangle(vertices[0], vertices[nextUpper], vertices[currentUpper]));
+                faces.Add(new MapGenerationTriangle
+                {
+                    PointA = vertices[0],
+                    PointB = vertices[nextUpper],
+                    PointC = vertices[currentUpper],
+                    IncludePointA = i == 0,
+                    IncludePointB = false,
+                    IncludePointC = true,
+                    IncludeEdgeAb = false,
+                    IncludeEdgeBc = true,
+                    IncludeEdgeCa = true,
+                });
                 // Middle ring (upward pointing triangles)
-                faces.Add(new Triangle(vertices[currentUpper], vertices[nextUpper], vertices[currentLower]));
+                faces.Add(new MapGenerationTriangle
+                {
+                    PointA = vertices[currentUpper],
+                    PointB = vertices[nextUpper],
+                    PointC = vertices[currentLower],
+                    IncludePointA = false,
+                    IncludePointB = false,
+                    IncludePointC = false,
+                    IncludeEdgeAb = false,
+                    IncludeEdgeBc = false,
+                    IncludeEdgeCa = true,
+                });
                 // Middle ring (downward pointing triangles)
-                faces.Add(new Triangle(vertices[currentLower], vertices[nextUpper], vertices[nextLower]));
+                faces.Add(new MapGenerationTriangle
+                {
+                    PointA = vertices[currentLower],
+                    PointB = vertices[nextUpper],
+                    PointC = vertices[nextLower],
+                    IncludePointA = false,
+                    IncludePointB = false,
+                    IncludePointC = false,
+                    IncludeEdgeAb = true,
+                    IncludeEdgeBc = false,
+                    IncludeEdgeCa = false,
+                });
                 // Bottom cap
-                faces.Add(new Triangle(vertices[11], vertices[currentLower], vertices[nextLower]));
+                faces.Add(new MapGenerationTriangle
+                {
+                    PointA = vertices[11],
+                    PointB = vertices[currentLower],
+                    PointC = vertices[nextLower],
+                    IncludePointA = i == 0,
+                    IncludePointB = true,
+                    IncludePointC = false,
+                    IncludeEdgeAb = true,
+                    IncludeEdgeBc = true,
+                    IncludeEdgeCa = false,
+                });
             }
 
             return faces;
         }
 
-        private static List<Point> SubdivideIcosahedron(List<Triangle> icosahedronFaces, int subdivisionLevel)
+        private static (List<List<Point>>, int) GenerateChunks(List<MapGenerationTriangle> triangles,
+            int subdivisionLevel)
         {
-            var vertices = new List<Point>();
-            foreach (var tile in icosahedronFaces)
-            {
-                var points = tile.Points;
+            var chunks = new List<List<Point>>(triangles.Count);
+            var cachedPoints = new List<Point>();
 
-                List<Point> bottomSide;
-                var leftSide = SubdivideLine(points[0], points[1], subdivisionLevel);
-                var rightSide = SubdivideLine(points[0], points[2], subdivisionLevel);
-                var topSide = new List<Point> { GetCachedPoint(points[0].Position) };
+            foreach (var face in triangles)
+            {
+                var currentChunk = new List<Point>((int)((subdivisionLevel + 2) * (subdivisionLevel + 2 + 1) * 0.5));
+
+                var pointA = GetCachedPoint(face.PointA);
+                var pointB = GetCachedPoint(face.PointB);
+                var pointC = GetCachedPoint(face.PointC);
+
+                if (face.IncludePointA)
+                {
+                    currentChunk.Add(pointA);
+                }
+
+                if (face.IncludePointB)
+                {
+                    currentChunk.Add(pointB);
+                }
+
+                if (face.IncludePointC)
+                {
+                    currentChunk.Add(pointC);
+                }
+
+                var lineAb = SubdivideLine(pointA, pointB, subdivisionLevel,
+                    face.IncludeEdgeAb ? currentChunk : null, true);
+                var lineAc = SubdivideLine(pointA, pointC, subdivisionLevel,
+                    face.IncludeEdgeCa ? currentChunk : null, true);
+
+                var currentConnection = new List<Point> { pointA };
 
                 for (var i = 1; i <= subdivisionLevel + 1; i++)
                 {
-                    bottomSide = topSide;
-                    topSide = SubdivideLine(leftSide[i], rightSide[i], i - 1);
+                    var lastConnection = currentConnection;
+                    currentConnection = SubdivideLine(lineAb[i], lineAc[i], i - 1,
+                        i < subdivisionLevel + 1 || face.IncludeEdgeBc ? currentChunk : null,
+                        i == subdivisionLevel + 1);
 
                     for (var j = 0; j < i; j++)
                     {
-                        _ = new Triangle(bottomSide[j], topSide[j], topSide[j + 1]);
+                        _ = new Triangle(lastConnection[j], currentConnection[j + 1], currentConnection[j]);
                         if (j == 0) continue;
 
-                        _ = new Triangle(bottomSide[j - 1], bottomSide[j], topSide[j]);
+                        _ = new Triangle(lastConnection[j - 1], lastConnection[j], currentConnection[j]);
                     }
                 }
+
+                chunks.Add(currentChunk);
             }
 
-            return vertices;
+            return (chunks, cachedPoints.Count);
 
-            List<Point> SubdivideLine(Point start, Point end, int amount)
+            List<Point> SubdivideLine(Point start, Point end, int amount, List<Point> points = null,
+                bool checkCache = false)
             {
                 var newPoints = new List<Point> { GetCachedPoint(start.Position) };
 
@@ -111,7 +167,9 @@ namespace Map.GeometryGeneration
                     var y = start.Position.y * (1 - factor) + end.Position.y * factor;
                     var z = start.Position.z * (1 - factor) + end.Position.z * factor;
 
-                    newPoints.Add(GetCachedPoint(new Vector3(x, y, z)));
+                    var point = checkCache ? GetCachedPoint(new Vector3(x, y, z)) : new Point(x, y, z);
+                    newPoints.Add(point);
+                    points?.Add(point);
                 }
 
                 newPoints.Add(GetCachedPoint(end.Position));
@@ -120,7 +178,7 @@ namespace Map.GeometryGeneration
 
             Point GetCachedPoint(Vector3 position)
             {
-                foreach (var storedPoint in vertices)
+                foreach (var storedPoint in cachedPoints)
                 {
                     if (storedPoint.ApproximatelyEqual(position))
                     {
@@ -128,21 +186,10 @@ namespace Map.GeometryGeneration
                     }
                 }
 
-                var point = new Point(position, vertices.Count);
-                vertices.Add(point);
+                var point = new Point(position);
+                cachedPoints.Add(point);
                 return point;
             }
-        }
-
-        private static List<Tile> GenerateTiles(List<Point> icoSpherePoints, float radius)
-        {
-            var tiles = new List<Tile>(icoSpherePoints.Count);
-            foreach (var vertex in icoSpherePoints)
-            {
-                tiles.Add(new Tile(vertex, radius));
-            }
-
-            return tiles;
         }
     }
 }

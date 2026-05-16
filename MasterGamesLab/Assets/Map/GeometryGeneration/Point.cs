@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace GeometryGeneration
+namespace Map.GeometryGeneration
 {
     public class Point
     {
         private const float FLOAT_COMPARISON_DELTA = 1e-5f;
 
-        public readonly int Id;
+        public int Id { get; private set; }
         public Vector3 Position;
         public readonly List<Triangle> Neighbors;
 
@@ -24,6 +24,8 @@ namespace GeometryGeneration
             Position = new Vector3(x, y, z);
             Neighbors = new List<Triangle>();
         }
+
+        public void SetId(int id) => Id = id;
 
         public void AddNeighbor(Triangle neighbor)
         {
