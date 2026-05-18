@@ -273,7 +273,7 @@ public class LobbyLogic : MonoBehaviour
 
     public void ShowStartUI()
     {
-        startUI.playerName.SetValueWithoutNotify(PlayerName);
+        startUI.playerName.Value = PlayerName;
         HideUI();
         startUI.Show();
     }
