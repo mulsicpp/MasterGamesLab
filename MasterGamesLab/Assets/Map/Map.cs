@@ -59,14 +59,18 @@ namespace Map
 
                 foreach (var point in chunkPoints)
                 {
-                    point.SetId(currentId++);
-                    var tile = new Tile(point, radius, chunk);
-                    tiles.Add(tile);
+                    point.InitializeTile(currentId++, radius, chunk);
+                    tiles.Add(point);
                 }
 
                 chunk.Init(this, startId, currentId);
                 chunk.UpdateMesh();
                 chunks.Add(chunk);
+            }
+
+            foreach (var tile in tiles)
+            {
+                tile.InitializeNeighbors();
             }
 
             Debug.Log($"Generated {tiles.Count} tiles");

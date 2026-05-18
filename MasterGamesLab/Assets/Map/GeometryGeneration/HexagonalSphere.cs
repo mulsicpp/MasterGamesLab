@@ -5,7 +5,7 @@ namespace Map.GeometryGeneration
 {
     public static class HexagonalSphere
     {
-        public static (List<List<Point>>, int) GenerateIcoSphereChunks(float radius, int subdivisionLevel)
+        public static (List<List<Tile>>, int) GenerateIcoSphereChunks(float radius, int subdivisionLevel)
         {
             var triangles = GenerateIcosahedronTriangles(radius);
             return GenerateChunks(triangles, subdivisionLevel);
@@ -98,15 +98,15 @@ namespace Map.GeometryGeneration
             return faces;
         }
 
-        private static (List<List<Point>>, int) GenerateChunks(List<MapGenerationTriangle> triangles,
+        private static (List<List<Tile>>, int) GenerateChunks(List<MapGenerationTriangle> triangles,
             int subdivisionLevel)
         {
-            var chunks = new List<List<Point>>(triangles.Count);
-            var cachedPoints = new List<Point>();
+            var chunks = new List<List<Tile>>(triangles.Count);
+            var cachedPoints = new List<Tile>();
 
             foreach (var face in triangles)
             {
-                var currentChunk = new List<Point>((int)((subdivisionLevel + 2) * (subdivisionLevel + 2 + 1) * 0.5));
+                var currentChunk = new List<Tile>((int)((subdivisionLevel + 2) * (subdivisionLevel + 2 + 1) * 0.5));
 
                 var pointA = GetCachedPoint(face.PointA);
                 var pointB = GetCachedPoint(face.PointB);
@@ -132,7 +132,7 @@ namespace Map.GeometryGeneration
                 var lineAc = SubdivideLine(pointA, pointC, subdivisionLevel,
                     face.IncludeEdgeCa ? currentChunk : null, true);
 
-                var currentConnection = new List<Point> { pointA };
+                var currentConnection = new List<Tile> { pointA };
 
                 for (var i = 1; i <= subdivisionLevel + 1; i++)
                 {
@@ -155,10 +155,10 @@ namespace Map.GeometryGeneration
 
             return (chunks, cachedPoints.Count);
 
-            List<Point> SubdivideLine(Point start, Point end, int amount, List<Point> points = null,
+            List<Tile> SubdivideLine(Tile start, Tile end, int amount, List<Tile> points = null,
                 bool checkCache = false)
             {
-                var newPoints = new List<Point> { GetCachedPoint(start.Position) };
+                var newPoints = new List<Tile> { GetCachedPoint(start.Position) };
 
                 for (var i = 1; i <= amount; i++)
                 {
@@ -167,7 +167,7 @@ namespace Map.GeometryGeneration
                     var y = start.Position.y * (1 - factor) + end.Position.y * factor;
                     var z = start.Position.z * (1 - factor) + end.Position.z * factor;
 
-                    var point = checkCache ? GetCachedPoint(new Vector3(x, y, z)) : new Point(x, y, z);
+                    var point = checkCache ? GetCachedPoint(new Vector3(x, y, z)) : new Tile(new Vector3(x, y, z));
                     newPoints.Add(point);
                     points?.Add(point);
                 }
@@ -176,7 +176,7 @@ namespace Map.GeometryGeneration
                 return newPoints;
             }
 
-            Point GetCachedPoint(Vector3 position)
+            Tile GetCachedPoint(Vector3 position)
             {
                 foreach (var storedPoint in cachedPoints)
                 {
@@ -186,7 +186,7 @@ namespace Map.GeometryGeneration
                     }
                 }
 
-                var point = new Point(position);
+                var point = new Tile(position);
                 cachedPoints.Add(point);
                 return point;
             }
