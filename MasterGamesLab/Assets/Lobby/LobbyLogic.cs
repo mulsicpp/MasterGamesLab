@@ -146,7 +146,7 @@ public class LobbyLogic : MonoBehaviour
                 Data = new Dictionary<string, PlayerDataObject> {
                 {
                     "Name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, PlayerName)
-                }
+                },
             }
             }
         };
@@ -165,11 +165,14 @@ public class LobbyLogic : MonoBehaviour
     {
         if (!IsHost()) return;
 
+        PlayerManager.Instance.SetPlayersFromLobby(Lobby);
+
         Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
         string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
         UpdateLobbyOptions options = new UpdateLobbyOptions
         {
+            IsPrivate = true,
             Data = new Dictionary<string, DataObject> {
             {
                 "JoinCode", new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
@@ -214,6 +217,7 @@ public class LobbyLogic : MonoBehaviour
     {
         if (Lobby != null)
         {
+            NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(AuthenticationService.Instance.PlayerId);
             LobbyEventCallbacks callbacks = new LobbyEventCallbacks();
             callbacks.LobbyChanged += OnLobbyChanged;
 
