@@ -188,6 +188,8 @@ public class LobbyLogic : MonoBehaviour
         var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
         NetworkManager.Singleton.StartHost();
+
+        HideUI();
     }
 
     private IEnumerator LobbyHeartbeat()
@@ -258,6 +260,8 @@ public class LobbyLogic : MonoBehaviour
                 transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
                 
                 NetworkManager.Singleton.StartClient();
+
+                HideUI();
 
                 Debug.Log("Successfully connected to host");
             }
