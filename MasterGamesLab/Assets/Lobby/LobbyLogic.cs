@@ -133,14 +133,16 @@ public class LobbyLogic : MonoBehaviour
         // Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
         // string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
+        int mapSeed = Random.Range(int.MinValue, int.MaxValue);
+
         CreateLobbyOptions options = new CreateLobbyOptions
         {
             IsPrivate = false,
-            // Data = new Dictionary<string, DataObject> {
-            // {
-            //     "JoinCode", new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
-            // }
-            // },
+            Data = new Dictionary<string, DataObject> {
+            {
+                "MapSeed", new DataObject(DataObject.VisibilityOptions.Member, mapSeed.ToString())
+            }
+            },
             Player = new Player
             {
                 Data = new Dictionary<string, PlayerDataObject> {
@@ -153,10 +155,6 @@ public class LobbyLogic : MonoBehaviour
 
         Lobby = await LobbyService.Instance.CreateLobbyAsync(PlayerName + "'s Lobby", 4, options);
         SubscribeToLobby();
-
-        // var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        // transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
-        // NetworkManager.Singleton.StartHost();
 
         ShowLobbyUI();
     }
