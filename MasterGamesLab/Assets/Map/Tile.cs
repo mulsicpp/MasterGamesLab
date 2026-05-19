@@ -119,7 +119,8 @@ namespace Map
 
         public Vector4 GetTileData()
         {
-            return new Vector4(Id + Map.ID_OFFSET, randomValue, active ? 1 : 0, 0);
+            //return new Vector4(Id + Map.ID_OFFSET, randomValue, active ? 1 : 0, 0);
+            return new Vector4(Id + Map.ID_OFFSET, (float)Type, active ? 1 : 0, randomValue);
         }
     }
 }
