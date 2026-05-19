@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Map
 {
-    public class Tile
+    public class Tile : ITile
     {
         private const float FLOAT_COMPARISON_DELTA = 1e-5f;
 
@@ -24,7 +24,8 @@ namespace Map
         // Tile data
         public int Id { get; private set; }
         public MapChunk Chunk;
-        public readonly List<Tile> Neighbors;
+        public IReadOnlyList<Tile> Neighbors => neighbors;
+        public Vector3 PositionOnSphere { get; private set; }
         public readonly List<Triangle> Faces;
 
         public TileType Type
@@ -56,6 +57,7 @@ namespace Map
             }
         }
 
+        private readonly List<Tile> neighbors;
         private readonly List<Vector3> cornerPositions;
         private TileType tileType;
         private bool active;
@@ -70,7 +72,7 @@ namespace Map
             // Initialize tile data for later
             Id = -1;
             Chunk = null;
-            Neighbors = new List<Tile>(6);
+            neighbors = new List<Tile>(6);
             cornerPositions = new List<Vector3>(6);
             Faces = new List<Triangle>(4);
             randomValue = UnityEngine.Random.Range(0f, 1f);
@@ -100,6 +102,7 @@ namespace Map
         {
             Id = id;
             Chunk = chunk;
+            PositionOnSphere = ProjectToSphere(Position, sphereRadius);
 
             if (neighborTriangles.Count == 0)
             {
@@ -135,14 +138,14 @@ namespace Map
 
         public void InitializeNeighbors()
         {
-            Neighbors.Clear();
+            neighbors.Clear();
             foreach (var neighbor in neighborTriangles)
             {
                 foreach (var point in neighbor.Points)
                 {
-                    if (!Neighbors.Contains(point) && point != this)
+                    if (!neighbors.Contains(point) && point != this)
                     {
-                        Neighbors.Add(point);
+                        neighbors.Add(point);
                     }
                 }
             }
