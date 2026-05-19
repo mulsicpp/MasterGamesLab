@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using InGameCamera;
 using Map.GeometryGeneration;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace Map
 {
-    public class Map : MonoBehaviour, IMap
+    public class Map : NetworkBehaviour, IMap
     {
         public const int ID_OFFSET = 1;
         private static readonly int PlanetRadius = Shader.PropertyToID("_PlanetRadius");
@@ -143,6 +144,12 @@ namespace Map
             var pixelColor = colorData[0];
 
             currentlyHoveredTileId = ((pixelColor.r << 16) | (pixelColor.g << 8) | pixelColor.b) - ID_OFFSET;
+        }
+
+        public void Generate(int seed)
+        {
+            // TODO World generation needs to be implemented!
+            Debug.Log("Generating world with seed " + seed + " ...");
         }
 
 #if UNITY_EDITOR

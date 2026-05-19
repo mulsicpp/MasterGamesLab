@@ -117,6 +117,9 @@ public class LobbyLogic : MonoBehaviour
         Lobby = lobby;
         SubscribeToLobby();
 
+        int mapSeed = int.Parse(Lobby.Data["MapSeed"].Value);
+        Map.Map.Instance.Generate(mapSeed);
+
         ShowLobbyUI();
     }
 
@@ -155,6 +158,8 @@ public class LobbyLogic : MonoBehaviour
 
         Lobby = await LobbyService.Instance.CreateLobbyAsync(PlayerName + "'s Lobby", 4, options);
         SubscribeToLobby();
+
+        Map.Map.Instance.Generate(mapSeed);
 
         ShowLobbyUI();
     }
