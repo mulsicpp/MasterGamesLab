@@ -2,6 +2,7 @@
 using InGameCamera;
 using Map.GeometryGeneration;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 
 namespace Map
@@ -96,7 +97,12 @@ namespace Map
             }
 
             // Update the currently hovered tile
-            MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                Debug.Log("Click");
+                MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
+            }
+
             // Update the projection
             UpdateProjectionUniforms();
         }

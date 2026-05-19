@@ -15,8 +15,12 @@ namespace InGameCamera
         [SerializeField] private Camera mainCamera;
         [SerializeField] private Camera tileIdCamera;
 
-        private RenderTexture tileIdTexture;
+        private RenderTexture tileIdTexture1X1;
         private PlanetCameraController planetCameraController;
+
+        private Vector3 lastCamPos;
+        private Quaternion lastCamRot;
+        private float lastFOV;
 
         private void OnEnable()
         {
@@ -27,14 +31,15 @@ namespace InGameCamera
         private void Start()
         {
             planetCameraController.Target = Map.Map.Instance.transform;
+            tileIdCamera.enabled = false;
         }
 
         private void OnDestroy()
         {
-            if (tileIdTexture != null)
+            if (tileIdTexture1X1 != null)
             {
-                tileIdTexture.Release();
-                Destroy(tileIdTexture);
+                tileIdTexture1X1.Release();
+                Destroy(tileIdTexture1X1);
             }
         }
 
@@ -49,25 +54,53 @@ namespace InGameCamera
                 return;
             }
 
+            /*var mouseDelta = Mouse.current.delta.ReadValue();
+            var cameraMoved = CheckIfCameraMoved();
+            var mouseMoved = mouseDelta.sqrMagnitude > 0.01f;
+            if (!cameraMoved && !mouseMoved)
+            {
+                return;
+            }*/
+
             EnsureRenderTextureMatchesScreen();
 
-            // Sync the ID Camera to perfectly match the Main Camera
-            tileIdCamera.fieldOfView = mainCamera.fieldOfView;
+            // tileIdCamera.fieldOfView = mainCamera.fieldOfView;
             tileIdCamera.transform.position = mainCamera.transform.position;
             tileIdCamera.transform.rotation = mainCamera.transform.rotation;
 
-            // Render exactly ONE frame into our texture
-            tileIdCamera.Render();
+            // This warps the camera's vision to zoom infinitely into the mouse pixel
+            var pickMat = Matrix4x4.identity;
+            pickMat.m00 = Screen.width;
+            pickMat.m11 = Screen.height;
+            pickMat.m03 = Screen.width - 2.0f * mousePos.x;
+            pickMat.m13 = Screen.height - 2.0f * mousePos.y;
 
-            // Request the pixel readback from the GPU
+            tileIdCamera.projectionMatrix = pickMat * mainCamera.projectionMatrix;
+
+            tileIdCamera.Render();
             AsyncGPUReadback.Request(
-                tileIdTexture,
+                tileIdTexture1X1,
                 0,
-                mX, 1, // X offset and width
-                mY, 1, // Y offset and height
-                0, 1, // Z offset and depth
+                0, 1,
+                0, 1,
+                0, 1,
                 onReadbackComplete
             );
+        }
+
+        private bool CheckIfCameraMoved()
+        {
+            if (mainCamera.transform.position != lastCamPos ||
+                mainCamera.transform.rotation != lastCamRot ||
+                !Mathf.Approximately(mainCamera.fieldOfView, lastFOV))
+            {
+                lastCamPos = mainCamera.transform.position;
+                lastCamRot = mainCamera.transform.rotation;
+                lastFOV = mainCamera.fieldOfView;
+                return true;
+            }
+
+            return false;
         }
 
         private void EnsureRenderTextureMatchesScreen()
@@ -75,28 +108,27 @@ namespace InGameCamera
             var screenW = Screen.width;
             var screenH = Screen.height;
 
-            if (tileIdTexture != null && tileIdTexture.width == screenW && tileIdTexture.height == screenH)
+            if (tileIdTexture1X1 != null && tileIdTexture1X1.width == screenW && tileIdTexture1X1.height == screenH)
                 return;
 
-            if (tileIdTexture != null)
+            if (tileIdTexture1X1 != null)
             {
-                tileIdTexture.Release();
-                Destroy(tileIdTexture);
+                tileIdTexture1X1.Release();
+                Destroy(tileIdTexture1X1);
             }
 
-            tileIdTexture = new RenderTexture(screenW, screenH, 16, RenderTextureFormat.ARGB32,
-                RenderTextureReadWrite.Linear)
+            tileIdTexture1X1 = new RenderTexture(1, 1, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear)
             {
-                filterMode = FilterMode.Point // We want raw exact pixel colors for our IDs, no blurring
+                filterMode = FilterMode.Point
             };
+            tileIdTexture1X1.Create();
 
-            tileIdTexture.Create();
-            tileIdCamera.targetTexture = tileIdTexture;
+            tileIdCamera.targetTexture = tileIdTexture1X1;
         }
 
         /*private void OnGUI()
         {
-            if (tileIdTexture == null)
+            if (tileIdTexture1X1 == null)
             {
                 return;
             }
@@ -105,7 +137,7 @@ namespace InGameCamera
             var height = Screen.height / 3;
             var rect = new Rect(10, 10, width, height);
 
-            GUI.DrawTexture(rect, tileIdTexture, ScaleMode.ScaleToFit, false);
+            GUI.DrawTexture(rect, tileIdTexture1X1, ScaleMode.ScaleToFit, false);
         }*/
 
 #if UNITY_EDITOR

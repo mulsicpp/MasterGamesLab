@@ -158,6 +158,7 @@ namespace Map.GeometryGeneration
             List<Tile> SubdivideLine(Tile start, Tile end, int amount, List<Tile> points = null,
                 bool checkCache = false)
             {
+                // return SubdivideArc(start, end, amount, points, checkCache, Vector3.zero);
                 var newPoints = new List<Tile> { GetCachedPoint(start.Position) };
 
                 for (var i = 1; i <= amount; i++)
@@ -175,6 +176,30 @@ namespace Map.GeometryGeneration
                 newPoints.Add(GetCachedPoint(end.Position));
                 return newPoints;
             }
+
+            /*List<Tile> SubdivideArc(Tile start, Tile end, int amount, List<Tile> points = null,
+                bool checkCache = false, Vector3 sphereCenter = default)
+            {
+                var newPoints = new List<Tile> { GetCachedPoint(start.Position) };
+
+                var startRel = start.Position - sphereCenter;
+                var endRel = end.Position - sphereCenter;
+
+                for (var i = 1; i <= amount; i++)
+                {
+                    var factor = (float)i / (amount + 1);
+
+                    var interpolatedRel = Vector3.Slerp(startRel, endRel, factor);
+                    var interpolatedPos = interpolatedRel + sphereCenter;
+
+                    var point = checkCache ? GetCachedPoint(interpolatedPos) : new Tile(interpolatedPos);
+                    newPoints.Add(point);
+                    points?.Add(point);
+                }
+
+                newPoints.Add(GetCachedPoint(end.Position));
+                return newPoints;
+            }*/
 
             Tile GetCachedPoint(Vector3 position)
             {
