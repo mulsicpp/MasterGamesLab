@@ -48,7 +48,7 @@ public class ContinentPass : IGenerationPass
                 int randIdx = UnityEngine.Random.Range(0, frontier.Count);
                 Tile testTile = frontier[randIdx];
 
-                float3 pos = new float3(testTile.Center.x, testTile.Center.y, testTile.Center.z);
+                float3 pos = new float3(testTile.PositionOnSphere.x, testTile.PositionOnSphere.y, testTile.PositionOnSphere.z);
 
                 //3D Noise 
                 float n = noise.snoise((pos * noiseScale) + noiseOffset);
