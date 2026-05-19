@@ -7,9 +7,9 @@ public class StartUI : MonoBehaviour
 {
     [SerializeField] private JoinUI joinUI;
     [SerializeField] private LobbyUI lobbyUI;
-    public TextField playerName;
-    public Button hostButton;
-    public Button joinButton;
+    public ResponsiveTextField playerName;
+    public ResponsiveButton hostButton;
+    public ResponsiveButton joinButton;
 
     private VisualElement root;
 
@@ -18,9 +18,10 @@ public class StartUI : MonoBehaviour
     {
         root = GetComponent<UIDocument>().rootVisualElement;
 
-        hostButton = root.Q<Button>("Host");
-        joinButton = root.Q<Button>("Join");
-        playerName = root.Q<TextField>("Name");
+        hostButton = root.Q<ResponsiveButton>("Host");
+        joinButton = root.Q<ResponsiveButton>("Join");
+        playerName = root.Q<ResponsiveTextField>("Name");
+
 
         hostButton.clicked += OnHostPressedAsync;
         joinButton.clicked += OnJoinPressed;
@@ -35,13 +36,13 @@ public class StartUI : MonoBehaviour
 
     private async void OnHostPressedAsync()
     {
-        if (playerName.text.IsNullOrEmpty())
+        if (playerName.Value.IsNullOrEmpty())
             return;
 
         hostButton.SetEnabled(false);
         joinButton.SetEnabled(false);
 
-        LobbyLogic.Instance.PlayerName = playerName.text;
+        LobbyLogic.Instance.PlayerName = playerName.Value;
         try
         {
             await LobbyLogic.Instance.CreateLobby();
@@ -56,9 +57,9 @@ public class StartUI : MonoBehaviour
 
     private async void OnJoinPressed()
     {
-        if (playerName.text.IsNullOrEmpty())
+        if (playerName.Value.IsNullOrEmpty())
             return;
-        LobbyLogic.Instance.PlayerName = playerName.text;
+        LobbyLogic.Instance.PlayerName = playerName.Value;
 
         await LobbyLogic.Instance.GoToJoinMenu();
         // if (playerName.text.IsNullOrEmpty())

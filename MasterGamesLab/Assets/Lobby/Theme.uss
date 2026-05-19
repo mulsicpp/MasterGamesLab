@@ -1,0 +1,80 @@
+.unity-ui-document__root {
+    --text-color: rgb(255, 255, 255);
+    --text-font: url("project://database/Assets/Fonts/Bahnschrift.ttf?fileID=12800000&guid=cd8211396085d8b459e734097fb89f5d&type=3#Bahnschrift");
+    --background-button-color: rgba(255, 255, 255, 0.05);
+    --border-radius: 0;
+    --hover-backround-button-color: rgb(255, 255, 255);
+    --outline-color: rgb(255, 255, 255);
+    --outline-width: 1px;
+}
+
+.element {
+    flex-shrink: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.label {
+    color: var(--text-color);
+    -unity-font-definition: var(--text-font);
+}
+
+.button {
+    color: var(--text-color);
+    -unity-font-definition: var(--text-font);
+    background-color: var(--background-button-color);
+    border-left-color: var(--outline-color);
+    border-right-color: var(--outline-color);
+    border-top-color: var(--outline-color);
+    border-bottom-color: var(--outline-color);
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+    border-left-width: var(--outline-width);
+    border-right-width: var(--outline-width);
+    border-top-width: var(--outline-width);
+    border-bottom-width: var(--outline-width);
+    padding-left: 4px;
+}
+
+.button:hover {
+    background-color: var(--hover-backround-button-color);
+    color: rgb(255, 255, 255);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(0, 0, 0);
+}
+
+.text-field {
+    color: rgb(255, 255, 255);
+    background-color: var(--background-button-color);
+    border-left-color: var(--outline-color);
+    border-right-color: var(--outline-color);
+    border-top-color: var(--outline-color);
+    border-bottom-color: var(--outline-color);
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+    border-left-width: var(--outline-width);
+    border-right-width: var(--outline-width);
+    border-top-width: var(--outline-width);
+    border-bottom-width: var(--outline-width);
+
+
+    -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift.ttf?fileID=12800000&guid=cd8211396085d8b459e734097fb89f5d&type=3#Bahnschrift");
+}

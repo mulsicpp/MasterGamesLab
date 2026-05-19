@@ -3,11 +3,32 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Netcode;
+using Unity.Services.Authentication;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 
 public class PlayerManager : NetworkBehaviour
 {
-    public List<PlayerData> players;
+    public static PlayerManager Instance;
+
+    public PlayerData[] players;
+    public int selfIndex = -1;
+
+    public void Awake()
+    {
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    public void SetPlayersFromLobby(Lobby lobby)
+    {
+        players = new PlayerData[lobby.Players.Count];
+        for(int i = 0; i < lobby.Players.Count; i++)
+        {
+            players[i] = new PlayerData(lobby.Players[i]);
+        }
+    }
 
     public void Start()
     {
@@ -24,28 +45,41 @@ public class PlayerManager : NetworkBehaviour
 
     public void ApproveConnection(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
     {
-        PlayerData playerData = new PlayerData();
+        var playerId = System.Text.Encoding.ASCII.GetString(request.Payload);
 
-        playerData.clientid = request.ClientNetworkId;
-        playerData.name = System.Text.Encoding.ASCII.GetString(request.Payload);
+        int index = Array.FindIndex(players, data => data.playerId == playerId);
+
+        if(index == -1)
+        {
+            response.Approved = false;
+            response.CreatePlayerObject = false;
+            response.Reason = "PlayerID could not be found";
+
+            return;
+        }
+
+        players[index].clientId = request.ClientNetworkId;
 
         response.Approved = true;
         response.CreatePlayerObject = false;
-
-        RegisterPlayer(playerData);
     }
 
     public void OnClientConnected(ulong clientid)
     {
-        UpdatePlayersClientRpc(players.ToArray());
+        UpdatePlayersClientRpc(players);
     }
 
     public void OnClientDisconnect(ulong clientid)
     {
-        UnregisterPlayer(clientid);
+        int index = Array.FindIndex(players, data => data.clientId == clientid);
+        if (index != -1)
+        {
+            players[index].clientId = Constants.NO_CLIENT_ID;
+        }
+
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
         {
-            UpdatePlayersClientRpc(players.ToArray());
+            UpdatePlayersClientRpc(players);
         }
     }
 
@@ -54,51 +88,43 @@ public class PlayerManager : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     public void UpdatePlayersClientRpc(PlayerData[] players)
     {
-        this.players = new List<PlayerData>(players);
-    }
-
-
-
-    private void RegisterPlayer(PlayerData playerData)
-    {
-        players.Add(playerData);
-    }
-
-    private void UnregisterPlayer(ulong clientid)
-    {
-        for(int i = 0; i < players.Count; i++)
-        {
-            if (players[i].clientid == clientid)
-            {
-                players.RemoveAt(i);
-                return;
-            }
-        }
+        this.players = players;
+        selfIndex = Array.FindIndex(players, data => data.playerId == AuthenticationService.Instance.PlayerId);
     }
 
     public PlayerData? GetSelf()
     {
-        foreach (PlayerData playerData in this.players)
-        {
-            if(playerData.clientid == NetworkManager.Singleton.LocalClientId)
-            {
-                return playerData;
-            }
-        }
-
-        return null;
+        return selfIndex != -1 ? players[selfIndex] : null;
     }
 }
 
 [System.Serializable]
 public struct PlayerData : INetworkSerializable
 {
-    public ulong clientid;
+    public ulong clientId;
+    public string playerId;
     public string name;
+
+    public ulong money;
+
+    public PlayerData(Player player)
+    {
+        clientId = Constants.NO_CLIENT_ID;
+        playerId = player.Id;
+        name = player.Data?["Name"]?.Value;
+        money = Constants.PLAYER_START_MONEY;
+    }
+
+    public bool IsConnected()
+    {
+        return clientId != Constants.NO_CLIENT_ID;
+    }
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        serializer.SerializeValue(ref clientid);
+        serializer.SerializeValue(ref clientId);
+        serializer.SerializeValue(ref playerId);
         serializer.SerializeValue(ref name);
+        serializer.SerializeValue(ref money);
     }
 }

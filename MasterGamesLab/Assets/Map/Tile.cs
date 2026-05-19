@@ -5,8 +5,10 @@ using UnityEngine;
 
 namespace Map
 {
-    public class Tile
+    public class Tile : ITile
     {
+        private const float FLOAT_COMPARISON_DELTA = 1e-5f;
+
         public enum TileType
         {
             Water,
@@ -15,9 +17,16 @@ namespace Map
             Mountain
         }
 
-        public readonly int Id;
-        public readonly MapChunk Chunk;
-        public List<Triangle> Faces;
+        // Point data
+        public Vector3 Position;
+        private readonly List<Triangle> neighborTriangles;
+
+        // Tile data
+        public int Id { get; private set; }
+        public MapChunk Chunk;
+        public IReadOnlyList<Tile> Neighbors => neighbors;
+        public Vector3 PositionOnSphere { get; private set; }
+        public readonly List<Triangle> Faces;
 
         public TileType Type
         {
@@ -48,33 +57,60 @@ namespace Map
             }
         }
 
-        public Vector3 Center
-        {
-            get => center.Position;
-            set => center.Position = value;
-        }
-
+        private readonly List<Tile> neighbors;
         private readonly List<Vector3> cornerPositions;
         private TileType tileType;
         private bool active;
 
-        private readonly Point center;
         private readonly float randomValue;
 
-        public Tile(Point center, float sphereRadius, MapChunk chunk)
+        public Tile(Vector3 position)
         {
-            Id = center.Id;
-            Chunk = chunk;
-            randomValue = UnityEngine.Random.Range(0f, 1f);
-            this.center = center;
+            Position = position;
+            neighborTriangles = new List<Triangle>();
 
-            if (center.Neighbors.Count == 0)
+            // Initialize tile data for later
+            Id = -1;
+            Chunk = null;
+            neighbors = new List<Tile>(6);
+            cornerPositions = new List<Vector3>(6);
+            Faces = new List<Triangle>(4);
+            randomValue = UnityEngine.Random.Range(0f, 1f);
+        }
+
+        // Point Functions
+        public void AddNeighborTriangle(Triangle triangle)
+        {
+            neighborTriangles.Add(triangle);
+        }
+
+        public bool ApproximatelyEqual(Vector3 other)
+        {
+            return
+                Mathf.Abs(other.x - Position.x) <= FLOAT_COMPARISON_DELTA &&
+                Mathf.Abs(other.y - Position.y) <= FLOAT_COMPARISON_DELTA &&
+                Mathf.Abs(other.z - Position.z) <= FLOAT_COMPARISON_DELTA;
+        }
+
+        public static Vector3 ProjectToSphere(Vector3 position, float radius)
+        {
+            return position.normalized * radius;
+        }
+
+        // Tile Functions
+        public void InitializeTile(int id, float sphereRadius, MapChunk chunk)
+        {
+            Id = id;
+            Chunk = chunk;
+            PositionOnSphere = ProjectToSphere(Position, sphereRadius);
+
+            if (neighborTriangles.Count == 0)
             {
-                throw new Exception($"Tile {Id} at {center.Position} has no neighbours");
+                throw new Exception($"Tile {Id} at {Position} has no neighbours");
             }
 
             // Sort the neighbors so that they are in the correct order for the tile faces
-            var normal = center.Position.normalized;
+            var normal = Position.normalized;
             var tangent = Vector3.Cross(normal, Vector3.up);
             if (tangent.magnitude < 0.001f)
             {
@@ -84,19 +120,34 @@ namespace Map
             tangent.Normalize();
             var bitangent = Vector3.Cross(normal, tangent);
 
-            center.Neighbors.Sort((a, b) =>
+            neighborTriangles.Sort((a, b) =>
             {
-                var vA = a.Center - center.Position;
+                var vA = a.Center - Position;
                 var angleA = Mathf.Atan2(Vector3.Dot(vA, bitangent), Vector3.Dot(vA, tangent));
-                var vB = b.Center - center.Position;
+                var vB = b.Center - Position;
                 var angleB = Mathf.Atan2(Vector3.Dot(vB, bitangent), Vector3.Dot(vB, tangent));
                 return angleA.CompareTo(angleB);
             });
 
-            cornerPositions = new List<Vector3>(center.Neighbors.Count);
-            foreach (var triangle in center.Neighbors)
+            cornerPositions.Clear();
+            foreach (var triangle in neighborTriangles)
             {
-                cornerPositions.Add(Point.ProjectToSphere(triangle.Center, sphereRadius));
+                cornerPositions.Add(ProjectToSphere(triangle.Center, sphereRadius));
+            }
+        }
+
+        public void InitializeNeighbors()
+        {
+            neighbors.Clear();
+            foreach (var neighbor in neighborTriangles)
+            {
+                foreach (var point in neighbor.Points)
+                {
+                    if (!neighbors.Contains(point) && point != this)
+                    {
+                        neighbors.Add(point);
+                    }
+                }
             }
         }
 
@@ -104,13 +155,13 @@ namespace Map
         {
             tileSize = Math.Clamp(tileSize, 0.001f, 1);
 
-            var geometryVertices = new List<Point>(cornerPositions.Count);
+            var geometryVertices = new List<Tile>(cornerPositions.Count);
             foreach (var point in cornerPositions)
             {
-                geometryVertices.Add(new Point(Vector3.Lerp(Center, point, tileSize)));
+                geometryVertices.Add(new Tile(Vector3.Lerp(Position, point, tileSize)));
             }
 
-            Faces = new List<Triangle>(4);
+            Faces.Clear();
             for (var i = 0; i < geometryVertices.Count - 2; i++)
             {
                 Faces.Add(new Triangle(geometryVertices[0], geometryVertices[i + 1], geometryVertices[i + 2]));

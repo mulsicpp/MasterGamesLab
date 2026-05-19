@@ -11,13 +11,22 @@ namespace Map
         {
             if (lastActiveTile != null)
             {
-                lastActiveTile.Active = false;
+                // lastActiveTile.Active = false;
+                foreach (var n in lastActiveTile.Neighbors)
+                {
+                    n.Active = false;
+                }
             }
 
             var tile = Map.Instance.GetCurrentlyHoveredTile();
             if (tile != null)
             {
-                tile.Active = true;
+                // tile.Active = true;
+                foreach (var n in tile.Neighbors)
+                {
+                    n.Active = true;
+                }
+
                 lastActiveTile = tile;
             }
         }
