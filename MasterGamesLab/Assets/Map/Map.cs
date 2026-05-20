@@ -148,8 +148,13 @@ namespace Map
 
         public void Generate(int seed)
         {
-            // TODO World generation needs to be implemented!
             Debug.Log("Generating world with seed " + seed + " ...");
+            // TODO World generation needs to be implemented!
+
+            foreach (var tile in tiles)
+            {
+                tile.Type = tile.PositionOnSphere.z < -0.9f ? Tile.TileType.Mountain : tile.PositionOnSphere.z < -0.6f ? Tile.TileType.Plain : Tile.TileType.Water;
+            }
         }
 
 #if UNITY_EDITOR
