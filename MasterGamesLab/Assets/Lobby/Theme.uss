@@ -78,3 +78,81 @@
 
     -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift.ttf?fileID=12800000&guid=cd8211396085d8b459e734097fb89f5d&type=3#Bahnschrift");
 }
+
+
+#ListView .unity-list-view__item {
+    height: 50% !important;
+}
+
+.unity-slider{
+    margin:0;
+    min-width: 0;
+    width: 100%;
+    translate: 200%, 0px;
+}
+
+/* .unity-drag-container{
+    height: 100%;
+    width: 100px;
+} */
+
+.unity-scroller {
+    width: 1%!important; 
+    background-color: rgba(0, 0, 0, 0) !important;
+    border-left-width: 1px !important;
+    border-color: rgba(0,0,0, 0) !important;
+}
+
+#unity-dragger {
+    background-color: rgba(255, 255, 255, 0.36) !important; /* Pure Red */
+    border-radius: 6px !important; 
+    border-width: 0px !important; 
+    min-height: 20px !important;
+    left: 0px !important;
+    width: 100% !important;
+}
+
+#unity-dragger:hover {
+    background-color: var(--hover-backround-button-color) !important; /* Pure Red */
+}
+#unity-dragger:active {
+    background-color: var(--hover-backround-button-color) !important; /* Pure Red */
+}
+#unity-dragger:focus {
+    background-color: var(--hover-backround-button-color) !important; /* Pure Red */
+}
+
+.unity-base-slider__input:active #unity-dragger,
+.unity-slider__input:active #unity-dragger,
+#unity-drag-container:active #unity-dragger {
+     background-color: var(--hover-backround-button-color) !important; /* Forces the color to stay during the drag */
+}
+
+#unity-tracker {
+    border-radius: 6px !important;
+    border-width: 0px !important; 
+    background-color: var(--background-button-color) !important;
+}
+/* 4. Hover State */
+#unity-tracker:hover {
+    background-color: var(--background-button-color) !important;
+}
+
+/* 5. Active Click State */
+#unity-tracker:active {
+    background-color: var(--background-button-color) !important;
+}
+
+/* 6. Hide the directional arrow buttons */
+.unity-scroller__low-button,
+.unity-scroller__high-button {
+    display: none !important;
+}
+
+.unity-list-view__item:hover {
+    background-color: rgba(0, 0, 0, 0) !important;
+}
+
+.devider{
+    background-color: var(--hover-backround-button-color)
+}
