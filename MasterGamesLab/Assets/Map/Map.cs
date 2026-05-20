@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using InGameCamera;
 using Map.GeometryGeneration;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace Map
 {
-    public class Map : MonoBehaviour, IMap
+    public class Map : NetworkBehaviour, IMap
     {
         public const int ID_OFFSET = 1;
         private static readonly int PlanetRadius = Shader.PropertyToID("_PlanetRadius");
@@ -21,6 +22,8 @@ namespace Map
         public float Radius => radius;
         public int Resolution => resolution;
         public float HexSize => hexSize;
+
+        public IReadOnlyList<Edge> Edges => edges;
 
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
@@ -37,6 +40,8 @@ namespace Map
         private Vector3 oldProjectionCenter;
         private int currentlyHoveredTileId;
 
+        private List<Edge> edges;
+
         private void OnEnable()
         {
             Instance = this;
@@ -49,6 +54,7 @@ namespace Map
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
             tiles = new List<Tile>(numPoints);
             chunks = new List<MapChunk>(chunksPoints.Count);
+            edges = new List<Edge>();
 
             var currentId = 0;
             foreach (var chunkPoints in chunksPoints)
@@ -59,14 +65,18 @@ namespace Map
 
                 foreach (var point in chunkPoints)
                 {
-                    point.SetId(currentId++);
-                    var tile = new Tile(point, radius, chunk);
-                    tiles.Add(tile);
+                    point.InitializeTile(currentId++, radius, chunk);
+                    tiles.Add(point);
                 }
 
                 chunk.Init(this, startId, currentId);
                 chunk.UpdateMesh();
                 chunks.Add(chunk);
+            }
+
+            foreach (var tile in tiles)
+            {
+                tile.InitializeNeighbors();
             }
 
             Debug.Log($"Generated {tiles.Count} tiles");
@@ -139,6 +149,17 @@ namespace Map
             var pixelColor = colorData[0];
 
             currentlyHoveredTileId = ((pixelColor.r << 16) | (pixelColor.g << 8) | pixelColor.b) - ID_OFFSET;
+        }
+
+        public void Generate(int seed)
+        {
+            Debug.Log("Generating world with seed " + seed + " ...");
+            // TODO World generation needs to be implemented!
+
+            foreach (var tile in tiles)
+            {
+                tile.Type = tile.PositionOnSphere.z < -0.9f ? Tile.TileType.Mountain : tile.PositionOnSphere.z < -0.6f ? Tile.TileType.Plain : Tile.TileType.Water;
+            }
         }
 
 #if UNITY_EDITOR

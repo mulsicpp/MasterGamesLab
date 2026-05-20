@@ -6,18 +6,18 @@ namespace Map.GeometryGeneration
     public class Triangle
     {
         public Vector3 Center { get; private set; }
-        private readonly List<Point> points;
+        private readonly List<Tile> points;
 
-        public Triangle(Point p1, Point p2, Point p3)
+        public Triangle(Tile p1, Tile p2, Tile p3)
         {
-            points = new List<Point> { p1, p2, p3 };
+            points = new List<Tile> { p1, p2, p3 };
             Center = UpdateCenter();
-            p1.AddNeighbor(this);
-            p2.AddNeighbor(this);
-            p3.AddNeighbor(this);
+            p1.AddNeighborTriangle(this);
+            p2.AddNeighborTriangle(this);
+            p3.AddNeighborTriangle(this);
         }
 
-        public IReadOnlyList<Point> Points => points.AsReadOnly();
+        public IReadOnlyList<Tile> Points => points.AsReadOnly();
 
         private Vector3 UpdateCenter()
         {

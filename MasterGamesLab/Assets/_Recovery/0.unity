@@ -172,8 +172,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1369835665}
-  - component: {fileID: 1369835667}
   - component: {fileID: 1369835666}
+  - component: {fileID: 1369835667}
   m_Layer: 0
   m_Name: Map
   m_TagString: Untagged
@@ -208,9 +208,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1e200a73f8341f690b8250b9ac977cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map.Map
-  ShowTopMostFoldoutHeaderGroup: 1
   radius: 1
-  resolution: 30
+  resolution: 40
   hexSize: 1
   chunkPrefab: {fileID: 5519249646154030829, guid: 65a832fee843f45478962ed766b9ddce, type: 3}
   fullSphereDistance: 2.6
@@ -224,22 +223,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1369835663}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Script: {fileID: 11500000, guid: a7e152d4c45a10944b316a2244d4ba28, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2831127296
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
+  m_EditorClassIdentifier: Assembly-CSharp::ProceduralMapGenerator
 --- !u!1 &2054934861
 GameObject:
   m_ObjectHideFlags: 0
