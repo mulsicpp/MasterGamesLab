@@ -23,6 +23,8 @@ namespace Map
         public int Resolution => resolution;
         public float HexSize => hexSize;
 
+        public IReadOnlyList<Edge> Edges => edges;
+
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
         [SerializeField] private float hexSize = 0.95f;
@@ -38,6 +40,8 @@ namespace Map
         private Vector3 oldProjectionCenter;
         private int currentlyHoveredTileId;
 
+        private List<Edge> edges;
+
         private void OnEnable()
         {
             Instance = this;
@@ -50,6 +54,7 @@ namespace Map
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
             tiles = new List<Tile>(numPoints);
             chunks = new List<MapChunk>(chunksPoints.Count);
+            edges = new List<Edge>();
 
             var currentId = 0;
             foreach (var chunkPoints in chunksPoints)
