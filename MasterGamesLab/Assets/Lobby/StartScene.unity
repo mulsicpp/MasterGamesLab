@@ -461,6 +461,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff0bb1f8e08f5644ba4051a27ffbde99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JoinMenu
+  lobbyRowTemplate: {fileID: 9197481963319205126, guid: 28faaaeec5504ba47a9cdd635ef9b3bd, type: 3}
   startUI: {fileID: 1740609994}
   lobbyUI: {fileID: 1877013772}
 --- !u!114 &1118779278
