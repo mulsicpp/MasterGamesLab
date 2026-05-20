@@ -32,15 +32,13 @@ public partial class ResponsiveButton : Button
 
     private void UpdateFontSize()
     {
-        var parent = this.parent;
-        if (parent != null)
-        {
-            float parentHeight = parent.resolvedStyle.height;
-            if (parentHeight > 0)
+
+            float styleHeight = this.resolvedStyle.height;
+            if (styleHeight > 0)
             {
                 // Set the font size based on the resolved layout height of the parent container
-                this.style.fontSize = parentHeight * _heightPercentage;
+                this.style.fontSize = styleHeight * _heightPercentage;
             }
-        }
+        
     }
 }

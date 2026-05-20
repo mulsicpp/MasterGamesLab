@@ -30,15 +30,13 @@ public partial class ResponsiveLabel : Label
 
     private void UpdateFontSize()
     {
-        var parent = this.parent;
-        if (parent != null)
+
+        float styleHeight = this.resolvedStyle.height;
+        if (styleHeight > 0)
         {
-            float parentHeight = parent.resolvedStyle.height;
-            if (parentHeight > 0)
-            {
-                // Note: resolvedStyle is more reliable than layout.height here
-                this.style.fontSize = parentHeight * _heightPercentage;
-            }
+            // Note: resolvedStyle is more reliable than layout.height here
+            this.style.fontSize = styleHeight * _heightPercentage;
         }
+
     }
 }
