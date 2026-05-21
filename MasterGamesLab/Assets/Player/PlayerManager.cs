@@ -1,10 +1,9 @@
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using Unity.Collections;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
+using UnityEngine;
 
 public class PlayerManager : NetworkBehaviour
 {
@@ -32,13 +31,29 @@ public class PlayerManager : NetworkBehaviour
     public void Start()
     {
         NetworkManager.Singleton.ConnectionApprovalCallback += ApproveConnection;
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
         NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+        NetworkManager.Singleton.OnServerStarted += OnServerStopped;
+    }
+
+    public override void OnDestroy()
+    {
+        NetworkManager.Singleton.ConnectionApprovalCallback -= ApproveConnection;
+        NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
+        NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
+        NetworkManager.Singleton.OnServerStarted -= OnServerStopped;
     }
 
     public void OnServerStarted()
     {
-        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
+        NetworkManager.Singleton.NetworkTickSystem.Tick += OnNetworkTick;
+    }
+
+    public void OnServerStopped()
+    {
+        NetworkManager.Singleton.NetworkTickSystem.Tick -= OnNetworkTick;
     }
 
 
@@ -65,23 +80,37 @@ public class PlayerManager : NetworkBehaviour
 
     public void OnClientConnected(ulong clientid)
     {
+        if (!IsServer) return;
         UpdatePlayersClientRpc(Players);
+
+        // TODO Synchronize game state
     }
 
     public void OnClientDisconnect(ulong clientid)
     {
-        int index = Array.FindIndex(Players, data => data.ClientId == clientid);
-        if (index != -1)
+        if (IsServer)
         {
-            Players[index].ClientId = Constants.NO_CLIENT_ID;
-        }
+            int index = Array.FindIndex(Players, data => data.ClientId == clientid);
+            if (index != -1)
+            {
+                Players[index].ClientId = Constants.NO_CLIENT_ID;
+            }
 
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            {
+                UpdatePlayersClientRpc(Players);
+            }
+        } else if(clientid == NetworkManager.Singleton.LocalClientId)
         {
-            UpdatePlayersClientRpc(Players);
+            Debug.Log("Client disconnected");
+            NetworkManager.Singleton.Shutdown();
         }
     }
 
+    public void OnNetworkTick()
+    {
+        UpdatePlayersClientRpc(Players);
+    }
 
 
     [Rpc(SendTo.ClientsAndHost)]
