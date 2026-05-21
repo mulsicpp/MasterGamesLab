@@ -77,6 +77,9 @@
     border-bottom-width: var(--outline-width);
     -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
     -unity-text-align: middle-left;
+}
+
+.text-field #unity-text-input {
     --unity-cursor-color: var(--text-color);
 }
 
