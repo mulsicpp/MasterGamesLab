@@ -9,64 +9,24 @@ using System.Linq;
 
 public class Test : NetworkBehaviour
 {
-    int number = 0;
-    NetworkObject netObj;
-
-    public string player_name;
+    public NetworkList<int> numbers;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        netObj = GetComponent<NetworkObject>();
 
-        Debug.Log(NetworkInterface.GetAllNetworkInterfaces()
-        .Where(i => i.OperationalStatus == OperationalStatus.Up) // Interface must be active
-        .SelectMany(i => i.GetIPProperties().UnicastAddresses)
-        .FirstOrDefault(a => a.Address.AddressFamily == AddressFamily.InterNetwork)
-        ?.Address.ToString());
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.Log("list count: " + numbers.Count);
 
-    }
-
-    public void OnStartClient(InputAction.CallbackContext context)
-    {
-        if(!IsClient && !IsServer)
+        for(int i = 0; i < 10; i++)
         {
-            NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(player_name);
-            NetworkManager.Singleton.StartClient();
+            if(Input.GetKeyDown(KeyCode.Alpha0 + i))
+            {
+                numbers.Add(i);
+            }
         }
-    }
-
-    public void OnStartHost(InputAction.CallbackContext context)
-    {
-        if (!IsClient && !IsServer)
-        {
-            NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(player_name);
-            NetworkManager.Singleton.StartHost();
-        }
-    }
-
-    public void OnIncNumber(InputAction.CallbackContext context)
-    {
-        if (IsClient && context.started)
-        {
-            IncrementNumberServerRpc();
-        }
-    }
-
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void IncrementNumberServerRpc()
-    {
-        number++;
-        LogNumberClientRpc(number);
-    }
-
-    [Rpc(SendTo.ClientsAndHost, InvokePermission = RpcInvokePermission.Server)]
-    public void LogNumberClientRpc(int newNumber)
-    {
-        Debug.Log("Number: " + newNumber);
     }
 }
