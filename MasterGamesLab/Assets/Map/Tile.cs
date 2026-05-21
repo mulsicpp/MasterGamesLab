@@ -167,6 +167,7 @@ namespace Map
                 Edge edge = new Edge(edgeList.Count, this, n, byte.MaxValue, Edge.EdgeType.None);
 
                 edges.Add(edge);
+                n.edges.Add(edge);
                 edgeList.Add(edge);
             }
         }
