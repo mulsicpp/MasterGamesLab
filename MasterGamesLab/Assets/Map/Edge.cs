@@ -6,6 +6,7 @@ namespace Map
     {
         public enum EdgeType : byte
         {
+            None,
             Road,
             Canal,
             Rail
@@ -13,13 +14,13 @@ namespace Map
 
         public int Id { get; private set; }
 
-        public int StartTile { get; private set; }
-        public int EndTile { get; private set; }
+        public Tile StartTile { get; private set; }
+        public Tile EndTile { get; private set; }
 
-        public byte PlayerId { get; private set; }
-        public EdgeType Type { get; private set; }
+        public byte PlayerId;
+        public EdgeType Type;
 
-        public Edge(int id, int startTile, int endTile, byte playerId, EdgeType type)
+        public Edge(int id, Tile startTile, Tile endTile, byte playerId, EdgeType type)
         {
             Id = id;
             StartTile = startTile;

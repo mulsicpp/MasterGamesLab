@@ -47,7 +47,7 @@ public class LobbyUI : MonoBehaviour
 
     private void Update()
     {
-        startButton.SetEnabled(LobbyLogic.Instance.IsHost() && !NetworkManager.Singleton.IsListening);
+        startButton.SetEnabled(LobbyLogic.Instance.IsHost() && (!NetworkManager.Singleton?.IsListening ?? false));
     }
 
 

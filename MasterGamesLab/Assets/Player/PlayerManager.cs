@@ -30,29 +30,33 @@ public class PlayerManager : NetworkBehaviour
 
     public void Start()
     {
+        if (NetworkManager.Singleton == null) return;
         NetworkManager.Singleton.ConnectionApprovalCallback += ApproveConnection;
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
         NetworkManager.Singleton.OnServerStarted += OnServerStarted;
-        NetworkManager.Singleton.OnServerStarted += OnServerStopped;
+        NetworkManager.Singleton.OnServerStopped += OnServerStopped;
     }
 
     public override void OnDestroy()
     {
+        if (NetworkManager.Singleton == null) return;
         NetworkManager.Singleton.ConnectionApprovalCallback -= ApproveConnection;
         NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
         NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
-        NetworkManager.Singleton.OnServerStarted -= OnServerStopped;
+        NetworkManager.Singleton.OnServerStopped -= OnServerStopped;
     }
 
     public void OnServerStarted()
     {
+        if (NetworkManager.Singleton?.NetworkTickSystem == null) return;
         NetworkManager.Singleton.NetworkTickSystem.Tick += OnNetworkTick;
     }
 
-    public void OnServerStopped()
+    public void OnServerStopped(bool _)
     {
+        if (NetworkManager.Singleton?.NetworkTickSystem == null) return;
         NetworkManager.Singleton.NetworkTickSystem.Tick -= OnNetworkTick;
     }
 
@@ -80,6 +84,7 @@ public class PlayerManager : NetworkBehaviour
 
     public void OnClientConnected(ulong clientid)
     {
+        if (NetworkManager.Singleton == null) return;
         if (!IsServer) return;
         UpdatePlayersClientRpc(Players);
 
@@ -88,6 +93,7 @@ public class PlayerManager : NetworkBehaviour
 
     public void OnClientDisconnect(ulong clientid)
     {
+        if (NetworkManager.Singleton == null) return;
         if (IsServer)
         {
             int index = Array.FindIndex(Players, data => data.ClientId == clientid);
@@ -96,7 +102,7 @@ public class PlayerManager : NetworkBehaviour
                 Players[index].ClientId = Constants.NO_CLIENT_ID;
             }
 
-            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            if (NetworkManager.Singleton.IsListening)
             {
                 UpdatePlayersClientRpc(Players);
             }

@@ -231,7 +231,7 @@ public class LobbyLogic : MonoBehaviour
 
         while (true)
         {
-            yield return new WaitUntil (() => (Lobby?.Data?.ContainsKey("JoinCode") ?? false) && !NetworkManager.Singleton.IsListening && !IsHost());
+            yield return new WaitUntil (() => (Lobby?.Data?.ContainsKey("JoinCode") ?? false) && (!NetworkManager.Singleton?.IsListening ?? false) && !IsHost());
             ConnectingToGame = true;
 
             Debug.Log("Connecting to host...");

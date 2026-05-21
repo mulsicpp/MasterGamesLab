@@ -28,6 +28,8 @@ namespace Map
         public Vector3 PositionOnSphere { get; private set; }
         public readonly List<Triangle> Faces;
 
+        public IReadOnlyList<Edge> Edges => edges;
+
         public TileType Type
         {
             get => tileType;
@@ -63,6 +65,8 @@ namespace Map
         private bool active;
 
         private readonly float randomValue;
+
+        private List<Edge> edges;
 
         public Tile(Vector3 position)
         {
@@ -148,6 +152,22 @@ namespace Map
                         neighbors.Add(point);
                     }
                 }
+            }
+        }
+
+        public void InitializeEdges(List<Edge> edgeList)
+        {
+            edges = new List<Edge>();
+            foreach (Tile n in neighbors)
+            {
+                if (n.Id < Id) continue;
+                if (n.Type == TileType.Water && Type == TileType.Water) continue;
+                if (n.Type == TileType.Mountain || Type == TileType.Mountain) continue;
+
+                Edge edge = new Edge(edgeList.Count, this, n, byte.MaxValue, Edge.EdgeType.None);
+
+                edges.Add(edge);
+                edgeList.Add(edge);
             }
         }
 
