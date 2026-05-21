@@ -42,31 +42,29 @@ public class JoinUI : MonoBehaviour
 
         lobbyList = root.Q<ListView>("LobbyList");
 
-        for (int i = 0; i < 10; i++)
-        {
-            // Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
-            // string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+        // for (int i = 0; i < 10; i++)
+        // {
 
-            CreateLobbyOptions options = new CreateLobbyOptions
-            {
-                IsPrivate = false,
-                // Data = new Dictionary<string, DataObject> {
-                // {
-                //     "JoinCode", new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
-                // }
-                // },
-                Player = new Player
-                {
-                    Data = new Dictionary<string, PlayerDataObject> {
-                {
-                    "Name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, "PlayerName")
-                }
-            }
-                }
-            };
+        //     CreateLobbyOptions options = new CreateLobbyOptions
+        //     {
+        //         IsPrivate = false,
+        //         // Data = new Dictionary<string, DataObject> {
+        //         // {
+        //         //     "JoinCode", new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
+        //         // }
+        //         // },
+        //         Player = new Player
+        //         {
+        //             Data = new Dictionary<string, PlayerDataObject> {
+        //         {
+        //             "Name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, "PlayerName")
+        //         }
+        //     }
+        //         }
+        //     };
 
-            LobbyService.Instance.CreateLobbyAsync("PlayerName" + "'s Lobby", 4, options);
-        }
+        //     LobbyService.Instance.CreateLobbyAsync("PlayerName" + "'s Lobby", 4, options);
+        // }
 
         SetupLobbyList();
 
