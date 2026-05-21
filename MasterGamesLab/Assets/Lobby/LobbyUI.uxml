@@ -1,16 +1,29 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement name="root" style="flex-grow: 0; background-color: rgb(0, 0, 0); justify-content: center; width: 100%; height: 100%; flex-shrink: 0;">
-        <ui:Label text="NickNocks Lobby" name="LobbyNameLabel" style="background-color: rgb(255, 255, 255); -unity-text-align: upper-center;"/>
-        <ui:Label text="Player1" name="Player0Label" style="background-color: rgb(255, 255, 255);"/>
-        <ui:Label text="Player4" name="Player1Label" style="background-color: rgb(255, 255, 255);"/>
-        <ui:Label text="Player2" name="Player2Label" style="background-color: rgb(255, 255, 255);"/>
-        <ui:Label text="Player3" name="Player3Label" style="background-color: rgb(255, 255, 255);"/>
-        <ui:VisualElement style="flex-grow: 0; flex-shrink: 0; height: 39%; width: 100%;">
-            <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: center;">
-                <ui:Button text="Leave" name="LeaveButton" style="width: 42%;"/>
-                <ui:Button text="Start" name="StartButton" style="width: 42%;"/>
-            </ui:VisualElement>
-        </ui:VisualElement>
-        <ui:Label text="Code: FK5G " name="CodeLabel" style="background-color: rgb(255, 255, 255);"/>
+    <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
+    <ui:VisualElement name="root" class="unity-ui-document__root" style="flex-grow: 0; background-color: rgb(0, 0, 0); justify-content: center; width: 100%; flex-shrink: 0; height: 100%; align-items: center;">
+        <SquareElement class="element" style="flex-shrink: 0; position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 74%; height: 10%; background-image: none;">
+            <ui:Button text="" name="BackButton" class="element" style="width: 100%; height: 100%; background-color: rgba(188, 188, 188, 0); background-image: url(&quot;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=-1008301579157283121&amp;guid=422dbfc4599da0e48800bd75080c7a52&amp;type=3#arrow-left@2x&quot;);"/>
+        </SquareElement>
+        <ui:GroupBox class="element" style="width: 23.425%; height: 6.425%; position: absolute; top: 2%; right: 2%; flex-direction: row;">
+            <ResponsiveLabel text="Lobby Code:" height-percentage="0.7" class="element label" style="height: 100%; width: 53.37%;"/>
+            <ResponsiveButton text="ABCDEF" height-percentage="0.7" name="LobbyCodeButton" class="element button" style="width: 46.43%; height: 100%;"/>
+        </ui:GroupBox>
+        <ui:GroupBox class="element" style="width: 100%; height: 32.2%; flex-direction: row;">
+            <ui:GroupBox class="element" style="width: 31.25%; height: 100%; align-items: auto;">
+                <ResponsiveLabel text="Player1&apos;s Lobby:" height-percentage="0.7" name="LobbyNameLabel" class="label element" style="height: 20.56%; -unity-font-definition: url(&quot;project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&amp;guid=5ecfafd68e5d69944bac0bbd8593c196&amp;type=3#Bahnschrift-Condensed&quot;); -unity-text-align: middle-right; padding-right: 2%; -unity-font-style: normal; width: 90%; white-space: nowrap; text-overflow: ellipsis;"/>
+            </ui:GroupBox>
+            <ui:GroupBox name="GroupBox" class="element" style="height: 100%; width: 37.5%;">
+                <ResponsiveLabel height-percentage="0.7" name="Player0Label" text="Player1" class="lobby-player-label label element"/>
+                <ui:VisualElement name="div" class="element lobby-player-div" style="flex-grow: 0;"/>
+                <ResponsiveLabel height-percentage="0.7" name="Player1Label" text="Player2" class="lobby-player-label label element"/>
+                <ui:VisualElement name="div" class="element lobby-player-div" style="flex-grow: 0;"/>
+                <ResponsiveLabel height-percentage="0.7" name="Player2Label" text="" class="label element lobby-player-label-empty"/>
+                <ui:VisualElement name="div" class="element lobby-player-div" style="flex-grow: 0;"/>
+                <ResponsiveLabel height-percentage="0.7" name="Player3Label" text="" class="label element lobby-player-label-empty"/>
+                <ui:VisualElement name="div" class="element lobby-player-div" style="flex-grow: 0;"/>
+                <ResponsiveButton name="StartButton" picking-mode="Position" text="Start Game" height-percentage="0.7" class="element button" style="position: absolute; right: 0; width: 32.86%; height: 20.56%; top: auto; bottom: -20.56%;"/>
+            </ui:GroupBox>
+            <ui:GroupBox picking-mode="Ignore" class="element" style="width: 31.25%; height: 100%; padding-left: 2%;"/>
+        </ui:GroupBox>
     </ui:VisualElement>
 </ui:UXML>

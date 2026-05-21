@@ -8,22 +8,22 @@ using static UnityEngine.LowLevelPhysics2D.PhysicsLayers;
 public class LobbyUI : MonoBehaviour
 {
     private Label lobbyNameLabel;
-    private Label codeLabel;
+    private Button lobbyCodeButton;
     private Label[] playerLabels = new Label[Constants.MAX_PLAYER_COUNT];
     [SerializeField] private StartUI startUI;
 
     VisualElement root;
-    Button leaveButton;
+    Button backButton;
     Button startButton;
 
 
     private void OnEnable()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
-        leaveButton = root.Q<Button>("LeaveButton");
+        backButton = root.Q<Button>("BackButton");
         startButton = root.Q<Button>("StartButton");
         lobbyNameLabel = root.Q<Label>("LobbyNameLabel");
-        codeLabel = root.Q<Label>("CodeLabel");
+        lobbyCodeButton = root.Q<Button>("LobbyCodeButton");
 
         for (int i = 0; i < Constants.MAX_PLAYER_COUNT; i++)
         {
@@ -32,15 +32,16 @@ public class LobbyUI : MonoBehaviour
 
 
 
-        leaveButton.clicked += OnLeavePressed;
+        backButton.clicked += OnLeavePressed;
         startButton.clicked += OnStartPressed;
+        lobbyCodeButton.clicked += OnLobbyCodePressed;
 
         Hide();
     }
 
     private void OnDisable()
     {
-        leaveButton.clicked -= OnLeavePressed;
+        backButton.clicked -= OnLeavePressed;
         startButton.clicked -= OnStartPressed;
     }
 
@@ -50,6 +51,11 @@ public class LobbyUI : MonoBehaviour
     }
 
 
+    private void OnLobbyCodePressed()
+    {
+        Debug.Log($"[Clipboard Attempt] Copying string: '{lobbyCodeButton.text}' (Length: {lobbyCodeButton.text?.Length})");
+        GUIUtility.systemCopyBuffer = lobbyCodeButton.text;
+    }
     private async void OnLeavePressed()
     {
         Debug.Log("Back button clicked. Returning to Main Menu...");
@@ -68,15 +74,7 @@ public class LobbyUI : MonoBehaviour
     public void SetLobbyInfo(string lobbyName, string joinCode)
     {
         if (lobbyNameLabel != null) lobbyNameLabel.text = lobbyName;
-        if (codeLabel != null) codeLabel.text = $"Code: {joinCode}";
-    }
-
-    public void UpdatePlayerSlot(int index, string playerName)
-    {
-        if (index >= 0 && index < playerLabels.Length)
-        {
-            playerLabels[index].text = playerName;
-        }
+        if (lobbyCodeButton != null) lobbyCodeButton.text = $"{joinCode}";
     }
 
     public void UpdateUI(Lobby lobby)
@@ -84,6 +82,10 @@ public class LobbyUI : MonoBehaviour
         foreach (var playerLabel in playerLabels)
         {
             playerLabel.text = "";
+            playerLabel.text = "";
+            // Remove the old class and add the new one
+            playerLabel.RemoveFromClassList("lobby-player-label");
+            playerLabel.AddToClassList("lobby-player-label-empty");
         }
 
         SetLobbyInfo(lobby.Name, lobby.LobbyCode);
@@ -91,6 +93,8 @@ public class LobbyUI : MonoBehaviour
         for (int i = 0; i < lobby.Players.Count; i++)
         {
             playerLabels[i].text = lobby.Players[i].Data["Name"].Value;
+            playerLabels[i].RemoveFromClassList("lobby-player-label-empty");
+            playerLabels[i].AddToClassList("lobby-player-label");
         }
     }
 
