@@ -1,0 +1,12 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
+    <ui:GroupBox name="root" class="unity-ui-document__root element" style="flex-direction: row; height: 100%; width: 100%;">
+        <ui:GroupBox name="GroupBox" class="element" style="flex-direction: row; height: 80%; width: 100%; justify-content: space-between;">
+            <ui:VisualElement name="VisualElement" class="text-field" style="flex-grow: 0; flex-direction: row; flex-shrink: 0; width: 76%; height: 100%; align-items: stretch; justify-content: space-between;">
+                <ResponsiveLabel name="LobbyName" text="Lobby Name" height-percentage="0.7" class="element label" style="width: 82%; height: 100%; -unity-text-align: middle-left; -unity-font-definition: url(&quot;project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&amp;guid=5ecfafd68e5d69944bac0bbd8593c196&amp;type=3#Bahnschrift-Condensed&quot;);"/>
+                <ResponsiveLabel text="1/4" name="PlayerCount" height-percentage="0.7" class="element label" style="width: 18%; height: 100%; -unity-text-align: middle-center; -unity-font-definition: url(&quot;project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&amp;guid=5ecfafd68e5d69944bac0bbd8593c196&amp;type=3#Bahnschrift-Condensed&quot;);"/>
+            </ui:VisualElement>
+            <ResponsiveButton text="Join" name="Join" height-percentage="0.7" class="element button" style="width: 22%; height: 100%; -unity-font-definition: url(&quot;project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&amp;guid=5ecfafd68e5d69944bac0bbd8593c196&amp;type=3#Bahnschrift-Condensed&quot;);"/>
+        </ui:GroupBox>
+    </ui:GroupBox>
+</ui:UXML>
