@@ -12,7 +12,7 @@ namespace Map
             Rail
         }
 
-        public int Id { get; private set; }
+        public EdgeId Id { get; private set; }
 
         public Tile StartTile { get; private set; }
         public Tile EndTile { get; private set; }
@@ -20,7 +20,7 @@ namespace Map
         public byte PlayerId;
         public EdgeType Type;
 
-        public Edge(int id, Tile startTile, Tile endTile, byte playerId, EdgeType type)
+        public Edge(EdgeId id, Tile startTile, Tile endTile, byte playerId, EdgeType type)
         {
             Id = id;
             StartTile = startTile;

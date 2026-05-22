@@ -11,7 +11,7 @@ public class PlayerManager : NetworkBehaviour
     public static PlayerManager Instance;
 
     public PlayerData[] Players;
-    public int SelfIndex = -1;
+    public PlayerId SelfId = PlayerId.NONE;
 
     public void Awake()
     {
@@ -65,11 +65,11 @@ public class PlayerManager : NetworkBehaviour
     public void ApproveConnection(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
     {
         var data = System.Runtime.InteropServices.MemoryMarshal.Read<PlayerConnectData>(request.Payload);
-        string playerId = data.PlayerId.ToString();
+        string playerAuthId = data.PlayerAuthId.ToString();
 
-        Debug.Log("Incoming connection PlayerId: '" + playerId + "'");
+        Debug.Log("Incoming connection PlayerId: '" + playerAuthId + "'");
 
-        int index = Array.FindIndex(Players, playerData => playerData.PlayerId == data.PlayerId);
+        int index = Array.FindIndex(Players, playerData => playerData.PlayerAuthId == playerAuthId);
 
         if(index == -1)
         {
@@ -82,7 +82,7 @@ public class PlayerManager : NetworkBehaviour
             return;
         }
 
-        Players[index].ClientId = request.ClientNetworkId;
+        Players[index].ClientId = new ClientId(request.ClientNetworkId);
 
         response.Approved = true;
         response.CreatePlayerObject = false;
@@ -105,7 +105,7 @@ public class PlayerManager : NetworkBehaviour
             int index = Array.FindIndex(Players, data => data.ClientId == clientid);
             if (index != -1)
             {
-                Players[index].ClientId = Constants.NO_CLIENT_ID;
+                Players[index].ClientId = ClientId.NONE;
             }
 
             if (NetworkManager.Singleton.IsListening)
@@ -132,41 +132,42 @@ public class PlayerManager : NetworkBehaviour
     public void UpdatePlayersClientRpc(PlayerData[] players)
     {
         this.Players = players;
-        SelfIndex = Array.FindIndex(players, data => data.PlayerId == AuthenticationService.Instance.PlayerId);
+        var index = Array.FindIndex(players, data => data.PlayerAuthId == AuthenticationService.Instance.PlayerId);
+        SelfId = index == -1 ? PlayerId.NONE : new PlayerId((byte)index);
     }
 
     public PlayerData? GetSelf()
     {
-        return SelfIndex != -1 ? Players[SelfIndex] : null;
+        return SelfId != PlayerId.NONE ? Players[SelfId] : null;
     }
 }
 
 [System.Serializable]
 public struct PlayerData : INetworkSerializable
 {
-    public ulong ClientId;
-    public string PlayerId;
+    public ClientId ClientId;
+    public string PlayerAuthId;
     public string Name;
 
     public ulong Money;
 
     public PlayerData(Player player)
     {
-        ClientId = Constants.NO_CLIENT_ID;
-        PlayerId = player.Id;
+        ClientId = ClientId.NONE;
+        PlayerAuthId = player.Id;
         Name = player.Data?["Name"]?.Value;
         Money = Constants.PLAYER_START_MONEY;
     }
 
     public bool IsConnected()
     {
-        return ClientId != Constants.NO_CLIENT_ID;
+        return ClientId != ClientId.NONE;
     }
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
         serializer.SerializeValue(ref ClientId);
-        serializer.SerializeValue(ref PlayerId);
+        serializer.SerializeValue(ref PlayerAuthId);
         serializer.SerializeValue(ref Name);
         serializer.SerializeValue(ref Money);
     }
@@ -174,6 +175,6 @@ public struct PlayerData : INetworkSerializable
 
 public struct PlayerConnectData
 {
-    public FixedString64Bytes PlayerId;
+    public FixedString64Bytes PlayerAuthId;
     public Map.Map.SyncData MapSyncData;
 }

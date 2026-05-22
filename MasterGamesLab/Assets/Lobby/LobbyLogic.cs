@@ -389,7 +389,7 @@ public class LobbyLogic : MonoBehaviour
     {
         PlayerConnectData connectData = new PlayerConnectData
         {
-            PlayerId = AuthenticationService.Instance.PlayerId,
+            PlayerAuthId = AuthenticationService.Instance.PlayerId,
             MapSyncData = Map.Map.Instance.GetSyncData(),
         };
 

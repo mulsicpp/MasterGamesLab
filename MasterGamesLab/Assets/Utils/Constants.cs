@@ -3,8 +3,6 @@ using UnityEngine.UIElements;
 
 public static class Constants
 {
-    public const ulong NO_CLIENT_ID = ulong.MaxValue;
-
     public const int MIN_PLAYER_COUNT = 2;
     public const int MAX_PLAYER_COUNT = 4;
 

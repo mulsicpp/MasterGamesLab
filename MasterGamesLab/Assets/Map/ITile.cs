@@ -5,7 +5,7 @@ namespace Map
 {
     public interface ITile
     {
-        public int Id { get; }
+        public TileId Id { get; }
 
         public Vector3 PositionOnSphere { get; }
 

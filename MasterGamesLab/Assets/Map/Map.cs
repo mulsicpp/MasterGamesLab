@@ -72,7 +72,7 @@ namespace Map
 
                 foreach (var point in chunkPoints)
                 {
-                    point.InitializeTile(currentId++, radius, chunk);
+                    point.InitializeTile(new TileId(currentId++), radius, chunk);
                     tiles.Add(point);
                 }
 
@@ -184,6 +184,11 @@ namespace Map
             }
 
             InitEdges();
+
+            foreach (var chunk in chunks)
+            {
+                chunk.UpdateMesh();
+            }
 
             // Test edge types
 

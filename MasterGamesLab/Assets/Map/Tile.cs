@@ -22,7 +22,7 @@ namespace Map
         private readonly List<Triangle> neighborTriangles;
 
         // Tile data
-        public int Id { get; private set; }
+        public TileId Id { get; private set; }
         public MapChunk Chunk;
         public IReadOnlyList<ITile> Neighbors => neighbors;
         public Vector3 PositionOnSphere { get; private set; }
@@ -75,7 +75,7 @@ namespace Map
             neighborTriangles = new List<Triangle>();
 
             // Initialize tile data for later
-            Id = -1;
+            Id = TileId.NONE;
             Chunk = null;
             neighbors = new List<Tile>(6);
             cornerPositions = new List<Vector3>(6);
@@ -105,7 +105,7 @@ namespace Map
         }
 
         // Tile Functions
-        public void InitializeTile(int id, float sphereRadius, MapChunk chunk)
+        public void InitializeTile(TileId id, float sphereRadius, MapChunk chunk)
         {
             Id = id;
             Chunk = chunk;
@@ -176,7 +176,7 @@ namespace Map
                 if (n.Type == TileType.Water && Type == TileType.Water) continue;
                 if (n.Type == TileType.Mountain || Type == TileType.Mountain) continue;
 
-                Edge edge = new Edge(edgeList.Count, this, n, byte.MaxValue, Edge.EdgeType.None);
+                Edge edge = new Edge(new EdgeId(edgeList.Count), this, n, byte.MaxValue, Edge.EdgeType.None);
 
                 edges.Add(edge);
                 n.edges.Add(edge);
