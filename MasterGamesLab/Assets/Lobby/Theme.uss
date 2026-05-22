@@ -175,6 +175,8 @@
     -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
     padding-right: 0;
     padding-left: 2%;
+    justify-content: center;
+    align-items: flex-end;
 }
 
 .lobby-player-label-empty {
@@ -196,9 +198,17 @@
     border-right-color: rgba(255, 254, 254, 0.2);
     border-top-color: rgba(255, 254, 254, 0.2);
     border-bottom-color: rgba(255, 254, 254, 0.2);
+    align-items: flex-end;
 }
 
 .lobby-player-div {
     height: 4.4%;
     width: 100%;
+}
+
+.host-crown {
+    height: 100%;
+    background-image: url("project://database/Assets/Lobby/Crown.svg?fileID=7388822144124034973&guid=5771e13031fb0b546824e0b0c877c56e&type=3#Crown");
+    -unity-background-image-tint-color: var(--background-button-color);
+    margin-right: 2%;
 }
