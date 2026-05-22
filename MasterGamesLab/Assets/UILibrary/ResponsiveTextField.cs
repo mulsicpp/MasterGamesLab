@@ -6,9 +6,12 @@ public partial class ResponsiveTextField : VisualElement
 {
     private readonly Label _label;
     private readonly TextField _inputField;
+    private VisualElement _innerInput;
+    private IVisualElementScheduledItem _blinkTask;
+    private bool _isCursorVisible = true;
 
     // --- CUSTOM EDITOR ATTRIBUTES ---
-    
+
     [UxmlAttribute("label-text")]
     public string LabelText
     {
@@ -20,11 +23,11 @@ public partial class ResponsiveTextField : VisualElement
     public string PlaceholderText
     {
         get => _inputField.textEdition.placeholder;
-        set => _inputField.textEdition.placeholder = value; 
+        set => _inputField.textEdition.placeholder = value;
     }
 
     [UxmlAttribute("label-width-percentage")]
-    private float _labelWidthPercentage = 0.5f; 
+    private float _labelWidthPercentage = 0.5f;
     public float LabelWidthPercentage
     {
         get => _labelWidthPercentage;
@@ -36,7 +39,7 @@ public partial class ResponsiveTextField : VisualElement
     }
 
     [UxmlAttribute("text-height-percentage")]
-    private float _textHeightPercentage = 0.5f; 
+    private float _textHeightPercentage = 0.5f;
     public float TextHeightPercentage
     {
         get => _textHeightPercentage;
@@ -47,10 +50,36 @@ public partial class ResponsiveTextField : VisualElement
         }
     }
 
-    // --- NEW: SPACING VARIABLES EXPOSED TO THE INSPECTOR ---
+    // --- NEW: CURSOR CUSTOM ATTRIBUTES ---
+
+    [UxmlAttribute("cursor-blink-rate")]
+    private long _cursorBlinkRateMs = 500;
+    public long CursorBlinkRateMs
+    {
+        get => _cursorBlinkRateMs;
+        set
+        {
+            _cursorBlinkRateMs = (long)Mathf.Max(10, value);
+            RestartBlinkScheduler();
+        }
+    }
+
+    [UxmlAttribute("cursor-color")]
+    private Color _cursorColor = Color.white; // Default base color for the cursor
+    public Color CursorColor
+    {
+        get => _cursorColor;
+        set
+        {
+            _cursorColor = value;
+            ApplyCursorStyle();
+        }
+    }
+
+    // --- SPACING VARIABLES EXPOSED TO THE INSPECTOR ---
 
     [UxmlAttribute("text-side-padding")]
-    private float _textSidePadding = 0f; // Default 0 pixels padding on outer edges
+    private float _textSidePadding = 0f;
     public float TextSidePadding
     {
         get => _textSidePadding;
@@ -62,7 +91,7 @@ public partial class ResponsiveTextField : VisualElement
     }
 
     [UxmlAttribute("label-input-gap")]
-    private float _labelInputGap = 0f; // Default 0 pixels spacing between label and input
+    private float _labelInputGap = 0f;
     public float LabelInputGap
     {
         get => _labelInputGap;
@@ -81,21 +110,18 @@ public partial class ResponsiveTextField : VisualElement
 
     public ResponsiveTextField()
     {
-        // 1. Row layout orientation
         style.flexDirection = FlexDirection.Row;
         style.alignItems = Align.Center;
-        
-        // Zero out container defaults completely
+
         style.paddingTop = 0;
         style.paddingBottom = 0;
         style.paddingLeft = 0;
         style.paddingRight = 0;
 
-        // 2. Setup Label styles and strip default margins/paddings
         _label = new Label("Label Text");
         _label.style.height = Length.Percent(100);
         _label.style.unityTextAlign = TextAnchor.MiddleLeft;
-        
+
         _label.style.marginTop = 0;
         _label.style.marginBottom = 0;
         _label.style.marginLeft = 0;
@@ -109,19 +135,18 @@ public partial class ResponsiveTextField : VisualElement
         _label.style.borderLeftWidth = 0;
         _label.style.borderRightWidth = 0;
 
-        _label.style.flexGrow = 0;                          
-        _label.style.flexShrink = 1;                         
-        _label.style.whiteSpace = WhiteSpace.NoWrap;       
-        _label.style.overflow = Overflow.Hidden;           
-        _label.style.textOverflow = TextOverflow.Ellipsis; 
+        _label.style.flexGrow = 0;
+        _label.style.flexShrink = 1;
+        _label.style.whiteSpace = WhiteSpace.NoWrap;
+        _label.style.overflow = Overflow.Hidden;
+        _label.style.textOverflow = TextOverflow.Ellipsis;
         Add(_label);
 
-        // 3. Setup Input Box and strip default margins/paddings
         _inputField = new TextField();
         _inputField.style.height = Length.Percent(100);
-        _inputField.style.flexGrow = 1;                      
+        _inputField.style.flexGrow = 1;
         _inputField.style.flexShrink = 1;
-        
+
         _inputField.style.marginTop = 0;
         _inputField.style.marginBottom = 0;
         _inputField.style.marginLeft = 0;
@@ -135,29 +160,32 @@ public partial class ResponsiveTextField : VisualElement
         _inputField.style.borderLeftWidth = 0;
         _inputField.style.borderRightWidth = 0;
         _inputField.style.backgroundColor = Color.clear;
-        
-        var innerInput = _inputField.Q(className: "unity-text-field__input");
-        if (innerInput != null)
+
+        _innerInput = _inputField.Q(className: "unity-text-field__input");
+        if (_innerInput != null)
         {
-            innerInput.style.height = Length.Percent(100);
-            innerInput.style.marginTop = 0;
-            innerInput.style.marginBottom = 0;
-            innerInput.style.marginLeft = 0;
-            innerInput.style.marginRight = 0;
-            innerInput.style.paddingTop = 0;
-            innerInput.style.paddingBottom = 0;
-            innerInput.style.paddingLeft = 0;
-            innerInput.style.paddingRight = 0;
-            innerInput.style.borderTopWidth = 0;
-            innerInput.style.borderBottomWidth = 0;
-            innerInput.style.borderLeftWidth = 0;
-            innerInput.style.borderRightWidth = 0;
-            innerInput.style.backgroundColor = Color.clear;
+            _innerInput.style.height = Length.Percent(100);
+            _innerInput.style.marginTop = 0;
+            _innerInput.style.marginBottom = 0;
+            _innerInput.style.marginLeft = 0;
+            _innerInput.style.marginRight = 0;
+            _innerInput.style.paddingTop = 0;
+            _innerInput.style.paddingBottom = 0;
+            _innerInput.style.paddingLeft = 0;
+            _innerInput.style.paddingRight = 0;
+            _innerInput.style.borderTopWidth = 0;
+            _innerInput.style.borderBottomWidth = 0;
+            _innerInput.style.borderLeftWidth = 0;
+            _innerInput.style.borderRightWidth = 0;
+            _innerInput.style.backgroundColor = Color.clear;
         }
 
         Add(_inputField);
 
         RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+
+        _inputField.RegisterCallback<FocusEvent>(OnFieldFocused);
+        _inputField.RegisterCallback<BlurEvent>(OnFieldBlurred);
     }
 
     private void OnGeometryChanged(GeometryChangedEvent evt)
@@ -165,27 +193,62 @@ public partial class ResponsiveTextField : VisualElement
         UpdateLayout();
     }
 
+    private void OnFieldFocused(FocusEvent evt)
+    {
+        if (_innerInput == null)
+        {
+            _innerInput = _inputField.Q(className: "unity-text-field__input");
+        }
+
+        RestartBlinkScheduler();
+    }
+
+    private void OnFieldBlurred(BlurEvent evt)
+    {
+        _blinkTask?.Pause();
+        // Restore cursor color to default state when unfocused so it doesn't stay stuck invisible
+        _isCursorVisible = true;
+        ApplyCursorStyle();
+    }
+
+    private void RestartBlinkScheduler()
+    {
+        _blinkTask?.Pause();
+        if (_innerInput == null) return;
+
+        _blinkTask = schedule.Execute(() =>
+        {
+            _isCursorVisible = !_isCursorVisible;
+            ApplyCursorStyle();
+        }).Every(_cursorBlinkRateMs);
+    }
+
+    private void ApplyCursorStyle()
+    {
+        if (_inputField == null) return;
+
+        // Direct access to the caret drawing engine properties
+        Color currentBlinkVisualColor = _isCursorVisible ? _cursorColor : Color.clear;
+        _inputField.textSelection.cursorColor = currentBlinkVisualColor;
+        
+    }
+
     private void UpdateLayout()
     {
         float totalWidth = resolvedStyle.width;
         float totalHeight = resolvedStyle.height;
 
-        // --- APPLY DYNAMIC SPACING CONSTRAINTS ---
-        
-        // 1. Text Side Padding updates the main element's edge offsets
         style.paddingLeft = _textSidePadding;
         style.paddingRight = _textSidePadding;
 
-        // 2. Label Input Gap applies space between the elements
         _label.style.marginRight = _labelInputGap;
 
         if (totalWidth > 0)
         {
-            // Accounts for our left/right padding to calculate accurate maximum constraints
             float usableWidth = totalWidth - (_textSidePadding * 2f);
             float maxLabelWidth = usableWidth * _labelWidthPercentage;
 
-            _label.style.width = StyleKeyword.Null; 
+            _label.style.width = StyleKeyword.Null;
             _label.style.maxWidth = maxLabelWidth;
         }
 
@@ -195,10 +258,9 @@ public partial class ResponsiveTextField : VisualElement
             _label.style.fontSize = targetFontSize;
             _inputField.style.fontSize = targetFontSize;
 
-            var innerInput = _inputField.Q(className: "unity-text-field__input");
-            if (innerInput != null)
+            if (_innerInput != null)
             {
-                innerInput.style.fontSize = targetFontSize;
+                _innerInput.style.fontSize = targetFontSize;
             }
         }
     }
