@@ -64,7 +64,7 @@ public class ContinentPass : IGenerationPass
 
             //find water neighbors
             List<ITile> waterNeighbors = new List<ITile>();
-            foreach (ITile neighbor in current.Neighbors)
+            foreach (ITile neighbor in data.TileNeighbors[current])
             {
                 if (neighbor.Type == Tile.TileType.Water)
                 {

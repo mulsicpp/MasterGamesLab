@@ -74,16 +74,16 @@ namespace Map
                 chunks.Add(chunk);
             }
 
+            foreach (var tile in tiles)
+            {
+                tile.InitializeNeighbors();
+            }
+            
             ProceduralMapGenerator.GenerateMap();
 
             foreach (var chunk in chunks)
             {
                 chunk.UpdateMesh();
-            }
-
-            foreach (var tile in tiles)
-            {
-                tile.InitializeNeighbors();
             }
 
             Debug.Log($"Generated {tiles.Count} tiles");

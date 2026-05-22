@@ -17,7 +17,7 @@ public class GraphSetupPass : IGenerationPass
 
             // tile.InitializeNeighbors();
 
-            // data.TileNeighbors[tile] = new List<Tile>(tile.Neighbors);
+            data.TileNeighbors[tile] = new List<ITile>(tile.Neighbors);
 
         //    //neighboring tiles of the current tile
         //    HashSet<Tile> actualNeighbors = new HashSet<Tile>();
