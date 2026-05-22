@@ -4,6 +4,7 @@ using InGameCamera;
 using Map.GeometryGeneration;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 
 namespace Map
@@ -18,17 +19,15 @@ namespace Map
         public static Map Instance { get; private set; } = null!;
 
 
-        public IReadOnlyList<Tile> Tiles => tiles;
-        public IReadOnlyList<Tile> ActiveTiles => activeTiles;
+        public IReadOnlyList<ITile> Tiles => tiles;
+        public IReadOnlyList<ITile> ActiveTiles => activeTiles;
         public float Radius => radius;
         public int Resolution => resolution;
-        public float HexSize => hexSize;
 
         public IReadOnlyList<Edge> Edges => edges;
 
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
-        [SerializeField] private float hexSize = 0.95f;
         [SerializeField] private GameObject chunkPrefab;
 
         [SerializeField] private float fullSphereDistance = 2;
@@ -78,13 +77,20 @@ namespace Map
                 }
 
                 chunk.Init(this, startId, currentId);
-                chunk.UpdateMesh();
+                // chunk.UpdateMesh();
                 chunks.Add(chunk);
             }
 
             foreach (var tile in tiles)
             {
                 tile.InitializeNeighbors();
+            }
+            
+            ProceduralMapGenerator.GenerateMap();
+
+            foreach (var chunk in chunks)
+            {
+                chunk.UpdateMesh();
             }
 
             Debug.Log($"Generated {tiles.Count} tiles");
@@ -110,12 +116,17 @@ namespace Map
             }
 
             // Update the currently hovered tile
-            MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                Debug.Log("Click");
+                MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
+            }
+
             // Update the projection
             UpdateProjectionUniforms();
         }
 
-        public Tile GetCurrentlyHoveredTile()
+        public ITile GetCurrentlyHoveredTile()
         {
             return currentlyHoveredTileId == -1 ? null : tiles[currentlyHoveredTileId];
         }

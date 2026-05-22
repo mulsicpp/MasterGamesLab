@@ -13,6 +13,9 @@ namespace Map
 
         public bool Active { get; set; }
 
-        public IReadOnlyList<Tile> Neighbors { get; }
+        public IReadOnlyList<ITile> Neighbors { get; }
+
+        public void BuildFaces(List<Vector3> vertices, List<int> triangles, List<Vector4> tileData,
+            List<Vector4> materialData);
     }
 }

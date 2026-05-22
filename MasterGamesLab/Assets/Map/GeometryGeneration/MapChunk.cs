@@ -15,6 +15,8 @@ namespace Map.GeometryGeneration
         private int endIdx;
         private List<Vector3> vertices;
         private List<int> triangles;
+        private List<Vector4> tileData;
+        private List<Vector4> materialData;
 
         private void Awake()
         {
@@ -26,22 +28,26 @@ namespace Map.GeometryGeneration
             parent = parentMap;
             startIdx = startIndex;
             endIdx = endIndex;
+            vertices = new List<Vector3>();
+            triangles = new List<int>();
+            tileData = new List<Vector4>();
+            materialData = new List<Vector4>();
         }
 
         public void UpdateMesh()
         {
-            vertices = new List<Vector3>();
-            triangles = new List<int>();
+            vertices = new List<Vector3>(vertices.Count);
+            triangles = new List<int>(triangles.Count);
+            tileData = new List<Vector4>(tileData.Count);
+            materialData = new List<Vector4>(materialData.Count);
 
-            var customData = new List<Vector4>();
-
-            var vertIdx = 0;
+            // var vertIdx = 0;
             for (var i = startIdx; i < endIdx; i++)
             {
                 var tile = parent.Tiles[i];
-                tile.BuildFaces(parent.HexSize);
+                tile.BuildFaces(vertices, triangles, tileData, materialData);
 
-                var tileData = tile.GetTileData();
+                /*var tileData = tile.GetTileData();
 
                 foreach (var face in tile.Faces)
                 {
@@ -50,11 +56,11 @@ namespace Map.GeometryGeneration
                     vertices.Add(face.Points[2].Position);
                     triangles.AddRange(new[] { vertIdx, vertIdx + 1, vertIdx + 2 });
 
-                    customData.Add(tileData);
-                    customData.Add(tileData);
-                    customData.Add(tileData);
+                    this.tileData.Add(tileData);
+                    this.tileData.Add(tileData);
+                    this.tileData.Add(tileData);
                     vertIdx += 3;
-                }
+                }*/
             }
 
             mesh = new Mesh
@@ -63,7 +69,8 @@ namespace Map.GeometryGeneration
                 triangles = triangles.ToArray()
             };
             mesh.RecalculateNormals();
-            mesh.SetUVs(1, customData);
+            mesh.SetUVs(1, tileData);
+            mesh.SetUVs(2, materialData);
             meshFilter.mesh = mesh;
             GeometryChanged = false;
             Dirty = false;
@@ -71,7 +78,7 @@ namespace Map.GeometryGeneration
 
         public void UpdateTileData()
         {
-            var customData = new List<Vector4>(vertices.Count);
+            /*tileData = new List<Vector4>(tileData.Count);
 
             for (var i = startIdx; i < endIdx; i++)
             {
@@ -80,13 +87,13 @@ namespace Map.GeometryGeneration
 
                 foreach (var face in tile.Faces)
                 {
-                    customData.Add(tileData);
-                    customData.Add(tileData);
-                    customData.Add(tileData);
+                    this.tileData.Add(tileData);
+                    this.tileData.Add(tileData);
+                    this.tileData.Add(tileData);
                 }
             }
 
-            mesh.SetUVs(1, customData);
+            mesh.SetUVs(1, tileData);*/
             Dirty = false;
         }
     }

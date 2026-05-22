@@ -210,8 +210,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Map.Map
   ShowTopMostFoldoutHeaderGroup: 1
   radius: 1
-  resolution: 30
-  hexSize: 1
+  resolution: 15
   chunkPrefab: {fileID: 5519249646154030829, guid: 65a832fee843f45478962ed766b9ddce, type: 3}
   fullSphereDistance: 2.6
   fullProjectionDistance: 2.3

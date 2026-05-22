@@ -15,9 +15,9 @@ public class GraphSetupPass : IGenerationPass
             //midpoint of hexagon
             //var centerPoint = centerField.GetValue(tile);
 
-            tile.InitializeNeighbors();
+            // tile.InitializeNeighbors();
 
-            data.TileNeighbors[tile] = new List<Tile>(tile.Neighbors);
+            data.TileNeighbors[tile] = new List<ITile>(tile.Neighbors);
 
         //    //neighboring tiles of the current tile
         //    HashSet<Tile> actualNeighbors = new HashSet<Tile>();
