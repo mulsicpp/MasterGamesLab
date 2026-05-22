@@ -10,6 +10,9 @@
     --text-outline-width: 1px;
     --border-color: var(--outline-color);
     --border-width: var(--outline-width);
+
+    --disabled-border-color: rgba(255, 254, 254, 0.2);
+    --disabled-background-color: rgba(0, 0, 0, 0);
 }
 
 .element {
@@ -25,7 +28,7 @@
 }
 
 .label {
-    color: rgb(255, 255, 255);
+    color: var(--text-color);
     -unity-font-definition: var(--text-font);
     -unity-text-align: middle-left;
 }
@@ -42,13 +45,20 @@
 
 .button:hover {
     background-color: var(--hover-background-button-color);
-    color: rgb(255, 255, 255);
+    color: var(--text-color);
     -unity-text-outline-width: var(--text-outline-width);
     -unity-text-outline-color: var(--text-outline-color);
 }
 
+.button:disabled {
+    color: var(--disabled-border-color);
+    background-color: var(--disabled-background-color);
+    border-color: var(--disabled-border-color);
+    -unity-text-outline-width: 0;
+}
+
 .text-field {
-    color: rgb(255, 255, 255);
+    color: var(--text-color);
     background-color: var(--background-button-color);
     border-color: var(--border-color);
     border-width: var(--border-width);
@@ -136,8 +146,8 @@
 .lobby-player-label-empty {
     height: 20.56%;
     width: 100%;
-    background-color: rgba(0, 0, 0, 0);
-    border-color: rgba(255, 254, 254, 0.2);
+    background-color: var(--disabled-background-color);
+    border-color: var(--disabled-border-color);
     border-width: var(--border-width);
     border-radius: var(--border-radius);
     -unity-font-definition: var(--text-font);
