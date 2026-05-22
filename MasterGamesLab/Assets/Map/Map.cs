@@ -41,6 +41,12 @@ namespace Map
         private int currentlyHoveredTileId;
 
         private Edge[] edges;
+        private List<int> createdEdges;
+
+        public struct SyncData
+        {
+            public int CreatedEdgeCount;
+        }
 
         private void OnEnable()
         {
@@ -55,6 +61,7 @@ namespace Map
             tiles = new List<Tile>(numPoints);
             chunks = new List<MapChunk>(chunksPoints.Count);
             edges = new Edge[0];
+            createdEdges = new List<int>();
 
             var currentId = 0;
             foreach (var chunkPoints in chunksPoints)
@@ -191,14 +198,21 @@ namespace Map
         private void InitEdges()
         {
             var tempEdges = new List<Edge>();
-            for (int i = 0; i < tiles.Count; i++)
-            {
-                tiles[i].InitializeEdges(tempEdges);
-            }
+
+            foreach (Tile t in tiles) t.ClearEdges();
+            foreach (Tile t in tiles) t.InitializeEdges(tempEdges);
 
             Debug.Log("Initialized " + tempEdges.Count + " edges");
 
             edges = tempEdges.ToArray();
+            createdEdges = new List<int>();
+        }
+
+        public SyncData GetSyncData()
+        {
+            return new SyncData {
+                CreatedEdgeCount = createdEdges.Count,
+            };
         }
 
         public void OnDrawGizmos()
