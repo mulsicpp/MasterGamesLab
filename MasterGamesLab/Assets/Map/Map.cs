@@ -192,12 +192,12 @@ namespace Map
 
             // Test edge types
 
-            // for(int i = 0; i < edges.Length; i++)
-            // {
-            //     if (i < edges.Length / 8) edges[i].Type = Edge.EdgeType.Rail;
-            //     else if (i < edges.Length / 6) edges[i].Type = Edge.EdgeType.Canal;
-            //     else if(i < edges.Length / 4) edges[i].Type = Edge.EdgeType.Road;
-            // }
+            for(int i = 0; i < edges.Length; i++)
+            {
+                if (i < edges.Length / 8) CreateEdge(new EdgeId(i), Edge.EdgeType.Rail, PlayerId.NONE);
+                else if (i < edges.Length / 6) CreateEdge(new EdgeId(i), Edge.EdgeType.Canal, PlayerId.NONE);
+                else if(i < edges.Length / 4) CreateEdge(new EdgeId(i), Edge.EdgeType.Road, PlayerId.NONE);
+            }
         }
 
         private void InitEdges()
@@ -211,6 +211,21 @@ namespace Map
 
             edges = tempEdges.ToArray();
             createdEdges = new List<int>();
+        }
+
+        public bool CreateEdge(EdgeId id, Edge.EdgeType edgeType, PlayerId playerId)
+        {
+            if (id >= edges.Length) return false;
+
+            var edge = edges[id];
+            if (edge.Type != Edge.EdgeType.None) return false;
+            if(!edge.CanBeType(edgeType)) return false;
+
+            edge.Type = edgeType;
+            edge.PlayerId = playerId;
+
+            createdEdges.Add(id);
+            return true;
         }
 
         public SyncData GetSyncData()

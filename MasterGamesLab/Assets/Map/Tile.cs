@@ -176,12 +176,19 @@ namespace Map
                 if (n.Type == TileType.Water && Type == TileType.Water) continue;
                 if (n.Type == TileType.Mountain || Type == TileType.Mountain) continue;
 
-                Edge edge = new Edge(new EdgeId(edgeList.Count), this, n, byte.MaxValue, Edge.EdgeType.None);
+                Edge edge = new Edge(new EdgeId(edgeList.Count), this, n, PlayerId.NONE, Edge.EdgeType.None);
 
                 edges.Add(edge);
                 n.edges.Add(edge);
                 edgeList.Add(edge);
             }
+        }
+
+        public int CountEdgesWithType(Edge.EdgeType type)
+        {
+            int count = 0;
+            foreach(var edge in edges) if(edge.Type == type) count++;
+            return count;
         }
 
         private static readonly float TanPI3 = Mathf.Tan(Mathf.PI / 3);
