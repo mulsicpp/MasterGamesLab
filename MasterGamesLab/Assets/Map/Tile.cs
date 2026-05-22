@@ -80,6 +80,8 @@ namespace Map
             cornerPositions = new List<Vector3>(6);
             Faces = new List<Triangle>(4);
             randomValue = UnityEngine.Random.Range(0f, 1f);
+
+            edges = new List<Edge>();
         }
 
         // Point Functions
@@ -155,9 +157,13 @@ namespace Map
             }
         }
 
+        public void ClearEdges()
+        {
+            edges.Clear();
+        }
+
         public void InitializeEdges(List<Edge> edgeList)
         {
-            edges = new List<Edge>();
             foreach (Tile n in neighbors)
             {
                 if (n.Id < Id) continue;

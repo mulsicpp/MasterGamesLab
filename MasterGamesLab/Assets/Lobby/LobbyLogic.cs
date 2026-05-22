@@ -10,6 +10,7 @@ using Unity.Netcode.Transports.UTP;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 public class LobbyLogic : MonoBehaviour
 {
@@ -194,6 +195,8 @@ public class LobbyLogic : MonoBehaviour
 
         var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
+
+        SetConnectionData();
         NetworkManager.Singleton.StartHost();
 
         HideUI();
@@ -253,6 +256,8 @@ public class LobbyLogic : MonoBehaviour
 
             transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocationTask.Result, "dtls"));
 
+            SetConnectionData();
+
             if (!NetworkManager.Singleton.StartClient())
             {
                 Debug.LogError("StartClient failed to initialize network driver.");
@@ -300,7 +305,6 @@ public class LobbyLogic : MonoBehaviour
     {
         if (Lobby != null)
         {
-            NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(AuthenticationService.Instance.PlayerId);
             LobbyEventCallbacks callbacks = new LobbyEventCallbacks();
             callbacks.LobbyChanged += OnLobbyChanged;
 
@@ -379,5 +383,19 @@ public class LobbyLogic : MonoBehaviour
     public bool IsHost()
     {
         return Lobby != null && AuthenticationService.Instance.PlayerId == Lobby?.HostId;
+    }
+
+    private void SetConnectionData()
+    {
+        PlayerConnectData connectData = new PlayerConnectData
+        {
+            PlayerId = AuthenticationService.Instance.PlayerId,
+            MapSyncData = Map.Map.Instance.GetSyncData(),
+        };
+
+        byte[] rawData = new byte[Marshal.SizeOf<PlayerConnectData>()];
+        MemoryMarshal.Write(rawData, ref connectData);
+
+        NetworkManager.Singleton.NetworkConfig.ConnectionData = rawData;
     }
 }

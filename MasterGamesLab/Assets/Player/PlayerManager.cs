@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System;
+using Unity.Collections;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
@@ -63,15 +64,20 @@ public class PlayerManager : NetworkBehaviour
 
     public void ApproveConnection(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
     {
-        var playerId = System.Text.Encoding.ASCII.GetString(request.Payload);
+        var data = System.Runtime.InteropServices.MemoryMarshal.Read<PlayerConnectData>(request.Payload);
+        string playerId = data.PlayerId.ToString();
 
-        int index = Array.FindIndex(Players, data => data.PlayerId == playerId);
+        Debug.Log("Incoming connection PlayerId: '" + playerId + "'");
+
+        int index = Array.FindIndex(Players, playerData => playerData.PlayerId == data.PlayerId);
 
         if(index == -1)
         {
             response.Approved = false;
             response.CreatePlayerObject = false;
             response.Reason = "PlayerID could not be found";
+
+            Debug.Log(response.Reason);
 
             return;
         }
@@ -119,6 +125,9 @@ public class PlayerManager : NetworkBehaviour
     }
 
 
+    // TODO Maybe create two different RPCs:
+    // - UpdatePlayerStatus (on Connect/Disconnect)
+    // - UpdatePlayerData (every server tick)
     [Rpc(SendTo.ClientsAndHost)]
     public void UpdatePlayersClientRpc(PlayerData[] players)
     {
@@ -161,4 +170,10 @@ public struct PlayerData : INetworkSerializable
         serializer.SerializeValue(ref Name);
         serializer.SerializeValue(ref Money);
     }
+}
+
+public struct PlayerConnectData
+{
+    public FixedString64Bytes PlayerId;
+    public Map.Map.SyncData MapSyncData;
 }
