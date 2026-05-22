@@ -11,4 +11,7 @@ public static class Constants
 
     public const uint MAX_TRUCKS_PER_PLAYER = 64;
     public const uint MAX_FREIGHTERS_PER_PLAYER = 16;
+
+
+    public const int MAX_EDGES_PER_RPC = 32;
 }

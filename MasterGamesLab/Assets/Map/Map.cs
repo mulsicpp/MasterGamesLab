@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using InGameCamera;
 using Map.GeometryGeneration;
 using Unity.Netcode;
+using Unity.VisualScripting.Antlr3.Runtime;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -118,9 +120,10 @@ namespace Map
             // Update the currently hovered tile
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
-                Debug.Log("Click");
+                // Debug.Log("Click");
                 MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
             }
+            MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
 
             // Update the projection
             UpdateProjectionUniforms();
@@ -213,17 +216,18 @@ namespace Map
             createdEdges = new List<int>();
         }
 
-        public bool CreateEdge(EdgeId id, Edge.EdgeType edgeType, PlayerId playerId)
+        public bool CreateEdge(EdgeId id, Edge.EdgeType edgeType, PlayerId playerId, bool force = false)
         {
-            if (id >= edges.Length) return false;
+            if (id >= edges.Length || id < 0) return false;
 
             var edge = edges[id];
-            if (edge.Type != Edge.EdgeType.None) return false;
-            if(!edge.CanBeType(edgeType)) return false;
+
+            if (!force && !edge.CanBecomeType(edgeType)) return false;
 
             edge.Type = edgeType;
             edge.PlayerId = playerId;
 
+            if (createdEdges.Contains(id)) return false;
             createdEdges.Add(id);
             return true;
         }
@@ -233,6 +237,98 @@ namespace Map
             return new SyncData {
                 CreatedEdgeCount = createdEdges.Count,
             };
+        }
+
+        public void SyncClientMap(SyncData data, ClientId clientId)
+        {
+            if (!IsServer) return;
+
+            var rpcParams = GetRpcParams(clientId);
+
+            Edge.NetData[] edgeData = new Edge.NetData[Constants.MAX_EDGES_PER_RPC];
+            for (var offset = data.CreatedEdgeCount; offset < createdEdges.Count; offset += Constants.MAX_EDGES_PER_RPC)
+            {
+                var edgeCount = Math.Min(Constants.MAX_EDGES_PER_RPC, createdEdges.Count - offset);
+
+                if(edgeCount < Constants.MAX_EDGES_PER_RPC)
+                {
+                    edgeData = new Edge.NetData[edgeCount];
+                }
+
+                for(int i = 0; i < edgeCount; i++)
+                {
+                    edgeData[i] = edges[createdEdges[offset + i]].GetNetData();
+                }
+
+                CreateEdgesClientRpc(edgeData, rpcParams);
+            }
+        }
+
+        private ClientRpcParams GetRpcParams(ClientId clientId)
+        {
+            ClientRpcParams rpcParams = new ClientRpcParams
+            {
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds = new List<ulong> { clientId },
+                }
+            };
+            return rpcParams;
+        }
+
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        private void CreateEdgesClientRpc(Edge.NetData[] edgeData, ClientRpcParams rpcParams = default)
+        {
+            Debug.Log("Received " + edgeData.Length + " edges");
+            foreach(var e in edgeData)
+            {
+                CreateEdge(e.Id, e.Type, e.PlayerId, true);
+            }
+        }
+
+        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
+        public void RequestNewEdgesServerRpc(Edge.EdgeType edgeType, EdgeId[] edgeIds, RpcParams rpcParams = default)
+        {
+            var playerId = PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
+            
+            Debug.Log("Received new edges request from player " + playerId.Value);
+
+            if (playerId == PlayerId.NONE) return;
+
+            var validPath = true;
+
+            foreach(var id in edgeIds)
+            {
+                if (id >= edges.Length || id < 0)
+                {
+                    Debug.Log("Id out of range: " + id.Value);
+                    validPath = false;
+                    break;
+                }
+
+                var edge = edges[id];
+
+                if(!edge.CanBecomeType(edgeType))
+                {
+                    Debug.Log("Edge cannot become type: " + id.Value);
+                    validPath = false;
+                    break;
+                }
+            }
+
+            Debug.Log("Path is valid: " + validPath);
+
+            // TODO give feedback to responsible player
+            if(!validPath) return;
+
+            Edge.NetData[] edgeData = new Edge.NetData[edgeIds.Length];
+
+            for(var i = 0; i < edgeIds.Length; i++)
+            {
+                edgeData[i] = new Edge.NetData { Id = edgeIds[i], Type = edgeType, PlayerId = playerId };
+            }
+
+            CreateEdgesClientRpc(edgeData);
         }
 
         public void OnDrawGizmos()
@@ -269,7 +365,7 @@ namespace Map
             Gizmos.color = new Color(0.1f, 0.1f, 0.1f);
             Gizmos.DrawLineList(railPoints.ToArray().AsSpan());
 
-            Debug.Log("Drawing gizmos");
+            // Debug.Log("Drawing gizmos");
         }
 
 #if UNITY_EDITOR

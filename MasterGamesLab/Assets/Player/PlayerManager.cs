@@ -1,14 +1,18 @@
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class PlayerManager : NetworkBehaviour
 {
     public static PlayerManager Instance;
+
+    private Dictionary<ClientId, Map.Map.SyncData> mapSyncData = new Dictionary<ClientId, Map.Map.SyncData>();
 
     public PlayerData[] Players;
     public PlayerId SelfId = PlayerId.NONE;
@@ -81,8 +85,10 @@ public class PlayerManager : NetworkBehaviour
 
             return;
         }
+        var clientId = new ClientId(request.ClientNetworkId);
+        Players[index].ClientId = clientId;
 
-        Players[index].ClientId = new ClientId(request.ClientNetworkId);
+        mapSyncData[clientId] = data.MapSyncData;
 
         response.Approved = true;
         response.CreatePlayerObject = false;
@@ -92,9 +98,14 @@ public class PlayerManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton == null) return;
         if (!IsServer) return;
+
         UpdatePlayersClientRpc(Players);
 
-        // TODO Synchronize game state
+        if (clientid == NetworkManager.Singleton.LocalClientId) return;
+
+        var clientId = new ClientId(clientid);
+        Map.Map.Instance.SyncClientMap(mapSyncData[clientId], clientId);
+        mapSyncData.Remove(clientId);
     }
 
     public void OnClientDisconnect(ulong clientid)
@@ -139,6 +150,12 @@ public class PlayerManager : NetworkBehaviour
     public PlayerData? GetSelf()
     {
         return SelfId != PlayerId.NONE ? Players[SelfId] : null;
+    }
+
+    public PlayerId GetPlayerIdFromClientId(ClientId clientId)
+    {
+        int index = Array.FindIndex(Players, data => data.ClientId == clientId);
+        return index == -1 ? PlayerId.NONE : new PlayerId((byte)index);
     }
 }
 

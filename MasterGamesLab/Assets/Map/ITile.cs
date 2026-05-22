@@ -15,6 +15,8 @@ namespace Map
 
         public IReadOnlyList<ITile> Neighbors { get; }
 
+        public IReadOnlyList<Edge> Edges { get; }
+
         public void BuildFaces(List<Vector3> vertices, List<int> triangles, List<Vector4> tileData,
             List<Vector4> materialData);
     }

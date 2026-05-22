@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 public class LobbyLogic : MonoBehaviour
 {
@@ -30,6 +31,9 @@ public class LobbyLogic : MonoBehaviour
     private JoinUI joinUI;
     [SerializeField]
     private LobbyUI lobbyUI;
+
+    [SerializeField]
+    private bool suppressReconnect = false;
 
     async void Awake()
     {
@@ -213,7 +217,7 @@ public class LobbyLogic : MonoBehaviour
         {
             if (IsHost())
             {
-                Debug.Log("Sending heartbeat");
+                // Debug.Log("Sending heartbeat");
                 Task heartbeatTask = LobbyService.Instance.SendHeartbeatPingAsync(Lobby.Id);
 
                 yield return new WaitUntil(() => heartbeatTask.IsCompleted);
@@ -237,7 +241,7 @@ public class LobbyLogic : MonoBehaviour
 
         while (true)
         {
-            yield return new WaitUntil (() => (Lobby?.Data?.ContainsKey("JoinCode") ?? false) && (!NetworkManager.Singleton?.IsListening ?? false) && !IsHost());
+            yield return new WaitUntil (() => !suppressReconnect && (Lobby?.Data?.ContainsKey("JoinCode") ?? false) && (!NetworkManager.Singleton?.IsListening ?? false) && !IsHost());
             ConnectingToGame = true;
 
             Debug.Log("Connecting to host...");

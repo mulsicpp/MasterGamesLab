@@ -19,7 +19,7 @@ public class Test : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("list count: " + numbers.Count);
+        // Debug.Log("list count: " + numbers.Count);
 
         for(int i = 0; i < 10; i++)
         {
