@@ -20,11 +20,11 @@ public class ContinentPass : IGenerationPass
         int targetLandTiles = Mathf.FloorToInt(totalTiles * landPercentage);
         int currentLandTiles = 0;
 
-        List<Tile> frontier = new List<Tile>();
+        List<ITile> frontier = new List<ITile>();
 
         //seeds startpoints 
-        Tile seed1 = data.Map.Tiles[0];
-        Tile seed2 = data.Map.Tiles[totalTiles / 2];
+        ITile seed1 = data.Map.Tiles[0];
+        ITile seed2 = data.Map.Tiles[totalTiles / 2];
 
         seed1.Type = Tile.TileType.Plain;
         seed2.Type = Tile.TileType.Plain;
@@ -46,7 +46,7 @@ public class ContinentPass : IGenerationPass
             for (int i = 0; i < samples; i++)
             {
                 int randIdx = UnityEngine.Random.Range(0, frontier.Count);
-                Tile testTile = frontier[randIdx];
+                ITile testTile = frontier[randIdx];
 
                 float3 pos = new float3(testTile.PositionOnSphere.x, testTile.PositionOnSphere.y, testTile.PositionOnSphere.z);
 
@@ -60,11 +60,11 @@ public class ContinentPass : IGenerationPass
                 }
             }
 
-            Tile current = frontier[bestIndex];
+            ITile current = frontier[bestIndex];
 
             //find water neighbors
-            List<Tile> waterNeighbors = new List<Tile>();
-            foreach (Tile neighbor in data.TileNeighbors[current])
+            List<ITile> waterNeighbors = new List<ITile>();
+            foreach (ITile neighbor in current.Neighbors)
             {
                 if (neighbor.Type == Tile.TileType.Water)
                 {
@@ -80,7 +80,7 @@ public class ContinentPass : IGenerationPass
             else
             {
                 //expand to a random water neighbor
-                Tile nextLand = waterNeighbors[UnityEngine.Random.Range(0, waterNeighbors.Count)];
+                ITile nextLand = waterNeighbors[UnityEngine.Random.Range(0, waterNeighbors.Count)];
                 nextLand.Type = Tile.TileType.Plain;
                 currentLandTiles++;
 

@@ -7,12 +7,33 @@ public class ProceduralMapGenerator : MonoBehaviour
 {
     private List<IGenerationPass> generationPasses;
 
-    private IEnumerator Start()
+    public static void GenerateMap()
+    {
+        MapData data = new MapData(Map.Map.Instance);
+
+        //pipeline
+        var generationPasses = new List<IGenerationPass>
+        {
+            new GraphSetupPass(),
+            new ContinentPass()
+
+            // new BiomePass(),
+            // new CellularAutomataPass()
+        };
+
+        //Debug.Log("start pg");
+        foreach (var pass in generationPasses)
+        {
+            pass.Execute(data);
+        }
+    }
+
+    /*private IEnumerator Start()
     {
         //wait for map.cs to finish building the sphere
         yield return null;
 
-        //singleton instance 
+        //singleton instance
         if (Map.Map.Instance == null || Map.Map.Instance.Tiles == null || Map.Map.Instance.Tiles.Count == 0)
         {
             Debug.LogError("Map ist nicht bereit oder leer!");
@@ -26,7 +47,7 @@ public class ProceduralMapGenerator : MonoBehaviour
         {
             new GraphSetupPass(),
             new ContinentPass()
-            
+
             // new BiomePass(),
             // new CellularAutomataPass()
         };
@@ -37,5 +58,5 @@ public class ProceduralMapGenerator : MonoBehaviour
             pass.Execute(data);
         }
         //Debug.Log("finish pg");
-    }
+    }*/
 }

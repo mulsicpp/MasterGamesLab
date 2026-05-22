@@ -24,7 +24,7 @@ namespace Map
         // Tile data
         public int Id { get; private set; }
         public MapChunk Chunk;
-        public IReadOnlyList<Tile> Neighbors => neighbors;
+        public IReadOnlyList<ITile> Neighbors => neighbors;
         public Vector3 PositionOnSphere { get; private set; }
         public readonly List<Triangle> Faces;
 
@@ -59,6 +59,7 @@ namespace Map
 
         private readonly List<Tile> neighbors;
         private readonly List<Vector3> cornerPositions;
+        private Vector3 cornersCenter;
         private TileType tileType;
         private bool active;
 
@@ -130,10 +131,15 @@ namespace Map
             });
 
             cornerPositions.Clear();
+            cornersCenter = Vector3.zero;
             foreach (var triangle in neighborTriangles)
             {
-                cornerPositions.Add(ProjectToSphere(triangle.Center, sphereRadius));
+                var current = ProjectToSphere(triangle.Center, sphereRadius);
+                cornerPositions.Add(current);
+                cornersCenter += current;
             }
+
+            cornersCenter /= cornerPositions.Count;
         }
 
         public void InitializeNeighbors()
@@ -151,17 +157,61 @@ namespace Map
             }
         }
 
-        public void BuildFaces(float tileSize = 1)
+        private static readonly float TanPI3 = Mathf.Tan(Mathf.PI / 3);
+
+        private static readonly Vector2[] HexagonCoordinates = new Vector2[]
         {
-            tileSize = Math.Clamp(tileSize, 0.001f, 1);
+            new(-256, 0),
+            new(-128, 128 * TanPI3),
+            new(128, 128 * TanPI3),
+            new(256, 0),
+            new(128, -128 * TanPI3),
+            new(-128, -128 * TanPI3),
+        };
+
+        private static readonly Vector2 WaterCenter = new(256, 128 * TanPI3);
+        private static readonly Vector2 MountainCenter = new(256, 512 + 128 * TanPI3);
+        private static readonly Vector2 PlainCenter = new(512 + 256, 128 * TanPI3);
+
+        private static readonly Vector2 TextureSize = new(1024, 1024);
+        private static readonly Vector2 InvTextureSize = new(1f / TextureSize.x, 1f / TextureSize.y);
+
+        public void BuildFaces(List<Vector3> vertices, List<int> triangles, List<Vector4> tileData,
+            List<Vector4> materialData)
+        {
+            var startIdx = vertices.Count;
+            var tileDataVec = GetTileData();
+
+            vertices.Add(cornersCenter);
+            tileData.Add(tileDataVec);
+            materialData.Add(new Vector4(MountainCenter.x, MountainCenter.y, 0, 0) * InvTextureSize);
+
+            for (var i = 0; i < cornerPositions.Count; i++)
+            {
+                vertices.Add(cornerPositions[i]);
+                tileData.Add(tileDataVec);
+                materialData.Add(new Vector4(MountainCenter.x + HexagonCoordinates[i].x,
+                    MountainCenter.y + HexagonCoordinates[i].y, 0, 0) * InvTextureSize);
+            }
+
+            for (var i = 0; i < cornerPositions.Count; i++)
+            {
+                var current = i + 1;
+                var next = (i + 1) % cornerPositions.Count + 1;
+
+                triangles.Add(startIdx + 0);
+                triangles.Add(startIdx + current);
+                triangles.Add(startIdx + next);
+            }
 
             var geometryVertices = new List<Tile>(cornerPositions.Count);
             foreach (var point in cornerPositions)
             {
-                geometryVertices.Add(new Tile(Vector3.Lerp(Position, point, tileSize)));
+                geometryVertices.Add(new Tile(point));
             }
 
             Faces.Clear();
+
             for (var i = 0; i < geometryVertices.Count - 2; i++)
             {
                 Faces.Add(new Triangle(geometryVertices[0], geometryVertices[i + 1], geometryVertices[i + 2]));

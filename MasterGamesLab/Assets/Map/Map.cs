@@ -17,15 +17,13 @@ namespace Map
         public static Map Instance { get; private set; } = null!;
 
 
-        public IReadOnlyList<Tile> Tiles => tiles;
-        public IReadOnlyList<Tile> ActiveTiles => activeTiles;
+        public IReadOnlyList<ITile> Tiles => tiles;
+        public IReadOnlyList<ITile> ActiveTiles => activeTiles;
         public float Radius => radius;
         public int Resolution => resolution;
-        public float HexSize => hexSize;
 
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
-        [SerializeField] private float hexSize = 0.95f;
         [SerializeField] private GameObject chunkPrefab;
 
         [SerializeField] private float fullSphereDistance = 2;
@@ -65,8 +63,15 @@ namespace Map
                 }
 
                 chunk.Init(this, startId, currentId);
-                chunk.UpdateMesh();
+                // chunk.UpdateMesh();
                 chunks.Add(chunk);
+            }
+
+            ProceduralMapGenerator.GenerateMap();
+
+            foreach (var chunk in chunks)
+            {
+                chunk.UpdateMesh();
             }
 
             foreach (var tile in tiles)
@@ -107,7 +112,7 @@ namespace Map
             UpdateProjectionUniforms();
         }
 
-        public Tile GetCurrentlyHoveredTile()
+        public ITile GetCurrentlyHoveredTile()
         {
             return currentlyHoveredTileId == -1 ? null : tiles[currentlyHoveredTileId];
         }

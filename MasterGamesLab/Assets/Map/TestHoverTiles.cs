@@ -5,7 +5,7 @@ namespace Map
 {
     public class TestHoverTiles : MonoBehaviour
     {
-        Tile lastActiveTile;
+        ITile lastActiveTile;
 
         private void Update()
         {
