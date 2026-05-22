@@ -1,7 +1,5 @@
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using Unity.Collections;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
@@ -11,8 +9,8 @@ public class PlayerManager : NetworkBehaviour
 {
     public static PlayerManager Instance;
 
-    public PlayerData[] players;
-    public int selfIndex = -1;
+    public PlayerData[] Players;
+    public int SelfIndex = -1;
 
     public void Awake()
     {
@@ -23,23 +21,43 @@ public class PlayerManager : NetworkBehaviour
 
     public void SetPlayersFromLobby(Lobby lobby)
     {
-        players = new PlayerData[lobby.Players.Count];
+        Players = new PlayerData[lobby.Players.Count];
         for(int i = 0; i < lobby.Players.Count; i++)
         {
-            players[i] = new PlayerData(lobby.Players[i]);
+            Players[i] = new PlayerData(lobby.Players[i]);
         }
     }
 
     public void Start()
     {
+        if (NetworkManager.Singleton == null) return;
         NetworkManager.Singleton.ConnectionApprovalCallback += ApproveConnection;
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
         NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+        NetworkManager.Singleton.OnServerStopped += OnServerStopped;
+    }
+
+    public override void OnDestroy()
+    {
+        if (NetworkManager.Singleton == null) return;
+        NetworkManager.Singleton.ConnectionApprovalCallback -= ApproveConnection;
+        NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
+        NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
+        NetworkManager.Singleton.OnServerStopped -= OnServerStopped;
     }
 
     public void OnServerStarted()
     {
-        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
+        if (NetworkManager.Singleton?.NetworkTickSystem == null) return;
+        NetworkManager.Singleton.NetworkTickSystem.Tick += OnNetworkTick;
+    }
+
+    public void OnServerStopped(bool _)
+    {
+        if (NetworkManager.Singleton?.NetworkTickSystem == null) return;
+        NetworkManager.Singleton.NetworkTickSystem.Tick -= OnNetworkTick;
     }
 
 
@@ -47,7 +65,7 @@ public class PlayerManager : NetworkBehaviour
     {
         var playerId = System.Text.Encoding.ASCII.GetString(request.Payload);
 
-        int index = Array.FindIndex(players, data => data.playerId == playerId);
+        int index = Array.FindIndex(Players, data => data.PlayerId == playerId);
 
         if(index == -1)
         {
@@ -58,7 +76,7 @@ public class PlayerManager : NetworkBehaviour
             return;
         }
 
-        players[index].clientId = request.ClientNetworkId;
+        Players[index].ClientId = request.ClientNetworkId;
 
         response.Approved = true;
         response.CreatePlayerObject = false;
@@ -66,65 +84,81 @@ public class PlayerManager : NetworkBehaviour
 
     public void OnClientConnected(ulong clientid)
     {
-        UpdatePlayersClientRpc(players);
+        if (NetworkManager.Singleton == null) return;
+        if (!IsServer) return;
+        UpdatePlayersClientRpc(Players);
+
+        // TODO Synchronize game state
     }
 
     public void OnClientDisconnect(ulong clientid)
     {
-        int index = Array.FindIndex(players, data => data.clientId == clientid);
-        if (index != -1)
+        if (NetworkManager.Singleton == null) return;
+        if (IsServer)
         {
-            players[index].clientId = Constants.NO_CLIENT_ID;
-        }
+            int index = Array.FindIndex(Players, data => data.ClientId == clientid);
+            if (index != -1)
+            {
+                Players[index].ClientId = Constants.NO_CLIENT_ID;
+            }
 
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            if (NetworkManager.Singleton.IsListening)
+            {
+                UpdatePlayersClientRpc(Players);
+            }
+        } else if(clientid == NetworkManager.Singleton.LocalClientId)
         {
-            UpdatePlayersClientRpc(players);
+            Debug.Log("Client disconnected");
+            NetworkManager.Singleton.Shutdown();
         }
     }
 
+    public void OnNetworkTick()
+    {
+        UpdatePlayersClientRpc(Players);
+    }
 
 
     [Rpc(SendTo.ClientsAndHost)]
     public void UpdatePlayersClientRpc(PlayerData[] players)
     {
-        this.players = players;
-        selfIndex = Array.FindIndex(players, data => data.playerId == AuthenticationService.Instance.PlayerId);
+        this.Players = players;
+        SelfIndex = Array.FindIndex(players, data => data.PlayerId == AuthenticationService.Instance.PlayerId);
     }
 
     public PlayerData? GetSelf()
     {
-        return selfIndex != -1 ? players[selfIndex] : null;
+        return SelfIndex != -1 ? Players[SelfIndex] : null;
     }
 }
 
 [System.Serializable]
 public struct PlayerData : INetworkSerializable
 {
-    public ulong clientId;
-    public string playerId;
-    public string name;
+    public ulong ClientId;
+    public string PlayerId;
+    public string Name;
 
-    public ulong money;
+    public ulong Money;
 
     public PlayerData(Player player)
     {
-        clientId = Constants.NO_CLIENT_ID;
-        playerId = player.Id;
-        name = player.Data?["Name"]?.Value;
-        money = Constants.PLAYER_START_MONEY;
+        ClientId = Constants.NO_CLIENT_ID;
+        PlayerId = player.Id;
+        Name = player.Data?["Name"]?.Value;
+        Money = Constants.PLAYER_START_MONEY;
     }
 
     public bool IsConnected()
     {
-        return clientId != Constants.NO_CLIENT_ID;
+        return ClientId != Constants.NO_CLIENT_ID;
     }
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        serializer.SerializeValue(ref clientId);
-        serializer.SerializeValue(ref playerId);
-        serializer.SerializeValue(ref name);
-        serializer.SerializeValue(ref money);
+        serializer.SerializeValue(ref ClientId);
+        serializer.SerializeValue(ref PlayerId);
+        serializer.SerializeValue(ref Name);
+        serializer.SerializeValue(ref Money);
     }
 }

@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using InGameCamera;
 using Map.GeometryGeneration;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 
 namespace Map
 {
-    public class Map : MonoBehaviour, IMap
+    public class Map : NetworkBehaviour, IMap
     {
         public const int ID_OFFSET = 1;
         private static readonly int PlanetRadius = Shader.PropertyToID("_PlanetRadius");
@@ -21,6 +23,8 @@ namespace Map
         public IReadOnlyList<ITile> ActiveTiles => activeTiles;
         public float Radius => radius;
         public int Resolution => resolution;
+
+        public IReadOnlyList<Edge> Edges => edges;
 
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
@@ -36,6 +40,8 @@ namespace Map
         private Vector3 oldProjectionCenter;
         private int currentlyHoveredTileId;
 
+        private Edge[] edges;
+
         private void OnEnable()
         {
             Instance = this;
@@ -48,6 +54,7 @@ namespace Map
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
             tiles = new List<Tile>(numPoints);
             chunks = new List<MapChunk>(chunksPoints.Count);
+            edges = new Edge[0];
 
             var currentId = 0;
             foreach (var chunkPoints in chunksPoints)
@@ -154,6 +161,81 @@ namespace Map
             var pixelColor = colorData[0];
 
             currentlyHoveredTileId = ((pixelColor.r << 16) | (pixelColor.g << 8) | pixelColor.b) - ID_OFFSET;
+        }
+
+        public void Generate(int seed)
+        {
+            Debug.Log("Generating world with seed " + seed + " ...");
+            // TODO World generation needs to be implemented!
+
+            foreach (var tile in tiles)
+            {
+                if (tile.PositionOnSphere.z < -0.97f) tile.Type = Tile.TileType.Mountain;
+                else if (tile.PositionOnSphere.z < -0.9f) tile.Type = Tile.TileType.Forest;
+                else if (tile.PositionOnSphere.z < -0.7f) tile.Type = Tile.TileType.Plain;
+                else tile.Type = Tile.TileType.Water;
+            }
+
+            InitEdges();
+
+            // Test edge types
+
+            // for(int i = 0; i < edges.Length; i++)
+            // {
+            //     if (i < edges.Length / 8) edges[i].Type = Edge.EdgeType.Rail;
+            //     else if (i < edges.Length / 6) edges[i].Type = Edge.EdgeType.Canal;
+            //     else if(i < edges.Length / 4) edges[i].Type = Edge.EdgeType.Road;
+            // }
+        }
+
+        private void InitEdges()
+        {
+            var tempEdges = new List<Edge>();
+            for (int i = 0; i < tiles.Count; i++)
+            {
+                tiles[i].InitializeEdges(tempEdges);
+            }
+
+            Debug.Log("Initialized " + tempEdges.Count + " edges");
+
+            edges = tempEdges.ToArray();
+        }
+
+        public void OnDrawGizmos()
+        {
+            if(edges == null) return;
+
+            List<Vector3> nonePoints = new List<Vector3>();
+            List<Vector3> roadPoints = new List<Vector3>();
+            List<Vector3> canalPoints = new List<Vector3>();
+            List<Vector3> railPoints = new List<Vector3>();
+
+            for (int i = 0; i < edges.Length; i++)
+            {
+                List<Vector3> points = nonePoints;
+                switch (edges[i].Type)
+                {
+                    case Edge.EdgeType.Road: points = roadPoints; break;
+                    case Edge.EdgeType.Canal: points = canalPoints; break;
+                    case Edge.EdgeType.Rail: points = railPoints; break;
+                }
+                points.Add(edges[i].StartTile.PositionOnSphere * 1.01f);
+                points.Add(edges[i].EndTile.PositionOnSphere * 1.01f);
+            }
+
+            Gizmos.color = new Color(1.0f, 1.0f, 1.0f, 0.1f);
+            Gizmos.DrawLineList(nonePoints.ToArray().AsSpan());
+
+            Gizmos.color = Color.black;
+            Gizmos.DrawLineList(roadPoints.ToArray().AsSpan());
+
+            Gizmos.color = Color.blue;
+            Gizmos.DrawLineList(canalPoints.ToArray().AsSpan());
+
+            Gizmos.color = new Color(0.1f, 0.1f, 0.1f);
+            Gizmos.DrawLineList(railPoints.ToArray().AsSpan());
+
+            Debug.Log("Drawing gizmos");
         }
 
 #if UNITY_EDITOR

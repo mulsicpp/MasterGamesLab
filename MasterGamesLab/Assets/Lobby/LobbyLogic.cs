@@ -18,7 +18,10 @@ public class LobbyLogic : MonoBehaviour
     public List<Lobby> PublicLobbies { get; private set; }
     public string PlayerName;
 
+    public bool ConnectingToGame { get; private set; } = false;
+
     private Coroutine lobbyHeartbeat;
+    private Coroutine connectToIngame;
 
     [SerializeField]
     private StartUI startUI;
@@ -40,12 +43,15 @@ public class LobbyLogic : MonoBehaviour
         }
 
         lobbyHeartbeat = StartCoroutine(LobbyHeartbeat());
+        connectToIngame = StartCoroutine(ConnectToIngame());
     }
 
     private void OnDestroy()
     {
         if (lobbyHeartbeat != null)
             StopCoroutine(lobbyHeartbeat);
+        if (connectToIngame != null)
+            StopCoroutine(connectToIngame);
     }
 
     public async Task LoadPublicLobbies()
@@ -55,7 +61,8 @@ public class LobbyLogic : MonoBehaviour
             PublicLobbies = (await LobbyService.Instance.QueryLobbiesAsync())?.Results;
             joinUI.lobbyList.itemsSource = PublicLobbies;
             joinUI.lobbyList.RefreshItems();
-        } catch (System.Exception) {}
+        }
+        catch (System.Exception) { }
     }
 
     public async Task GoToJoinMenu()
@@ -117,6 +124,9 @@ public class LobbyLogic : MonoBehaviour
         Lobby = lobby;
         SubscribeToLobby();
 
+        int mapSeed = int.Parse(Lobby.Data["MapSeed"].Value);
+        Map.Map.Instance.Generate(mapSeed);
+
         ShowLobbyUI();
     }
 
@@ -133,14 +143,16 @@ public class LobbyLogic : MonoBehaviour
         // Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
         // string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
+        int mapSeed = Random.Range(int.MinValue, int.MaxValue);
+
         CreateLobbyOptions options = new CreateLobbyOptions
         {
             IsPrivate = false,
-            // Data = new Dictionary<string, DataObject> {
-            // {
-            //     "JoinCode", new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
-            // }
-            // },
+            Data = new Dictionary<string, DataObject> {
+            {
+                "MapSeed", new DataObject(DataObject.VisibilityOptions.Member, mapSeed.ToString())
+            }
+            },
             Player = new Player
             {
                 Data = new Dictionary<string, PlayerDataObject> {
@@ -154,9 +166,7 @@ public class LobbyLogic : MonoBehaviour
         Lobby = await LobbyService.Instance.CreateLobbyAsync(PlayerName + "'s Lobby", 4, options);
         SubscribeToLobby();
 
-        // var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        // transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
-        // NetworkManager.Singleton.StartHost();
+        Map.Map.Instance.Generate(mapSeed);
 
         ShowLobbyUI();
     }
@@ -185,6 +195,8 @@ public class LobbyLogic : MonoBehaviour
         var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
         NetworkManager.Singleton.StartHost();
+
+        HideUI();
     }
 
     private IEnumerator LobbyHeartbeat()
@@ -213,6 +225,77 @@ public class LobbyLogic : MonoBehaviour
         }
     }
 
+    private IEnumerator ConnectToIngame()
+    {
+        var retryDelay = new WaitForSeconds(1.0f);
+
+        while (true)
+        {
+            yield return new WaitUntil (() => (Lobby?.Data?.ContainsKey("JoinCode") ?? false) && (!NetworkManager.Singleton?.IsListening ?? false) && !IsHost());
+            ConnectingToGame = true;
+
+            Debug.Log("Connecting to host...");
+
+            string relayJoinCode = Lobby.Data["JoinCode"].Value;
+            Debug.Log("Relay code: " + relayJoinCode);
+
+            var allocationTask = RelayService.Instance.JoinAllocationAsync(relayJoinCode);
+            var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+
+            yield return new WaitUntil(() => allocationTask.IsCompleted);
+
+            if (allocationTask.IsFaulted || allocationTask.IsCanceled)
+            {
+                Debug.LogError($"Relay Allocation Failed: {allocationTask.Exception?.GetBaseException().Message}");
+                yield return retryDelay;
+                continue;
+            }
+
+            transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocationTask.Result, "dtls"));
+
+            if (!NetworkManager.Singleton.StartClient())
+            {
+                Debug.LogError("StartClient failed to initialize network driver.");
+                yield return retryDelay;
+                continue;
+            }
+
+            
+            float timeoutTimer = 0f;
+            float maxTimeout = 8.0f;
+            bool connectionVerified = false;
+
+            while (timeoutTimer < maxTimeout)
+            {
+                if (NetworkManager.Singleton.IsConnectedClient)
+                {
+                    connectionVerified = true;
+                    break;
+                }
+
+                if (!NetworkManager.Singleton.IsListening)
+                {
+                    break;
+                }
+
+                timeoutTimer += Time.deltaTime;
+                yield return null;
+            }
+
+            if (connectionVerified)
+            {
+                Debug.Log("VERIFIED: Successfully connected to host!");
+                ConnectingToGame = false;
+                HideUI();
+            }
+            else
+            {
+                Debug.LogError("Connection timed out or was rejected by the host.");
+                NetworkManager.Singleton.Shutdown(); // Clean up the failed socket
+            }
+        }
+    }
+
     private async void SubscribeToLobby()
     {
         if (Lobby != null)
@@ -232,7 +315,7 @@ public class LobbyLogic : MonoBehaviour
         }
     }
 
-    private async void OnLobbyChanged(ILobbyChanges changes)
+    private void OnLobbyChanged(ILobbyChanges changes)
     {
         if (changes.LobbyDeleted || Lobby == null)
         {
@@ -243,21 +326,23 @@ public class LobbyLogic : MonoBehaviour
         {
             changes.ApplyToLobby(Lobby);
 
-            if ((Lobby.Data?.ContainsKey("JoinCode") ?? false) && !NetworkManager.Singleton.IsListening && !IsHost())
-            {
-                Debug.Log("Connecting to host");
-
-                string relayJoinCode = Lobby.Data["JoinCode"].Value;
-                Debug.Log("Relay code: " + relayJoinCode);
-                
-                JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(relayJoinCode);
-                var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-                transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
-                
-                NetworkManager.Singleton.StartClient();
-
-                Debug.Log("Successfully connected to host");
-            }
+            // if ((Lobby.Data?.ContainsKey("JoinCode") ?? false) && !NetworkManager.Singleton.IsListening && !IsHost())
+            // {
+            //     Debug.Log("Connecting to host");
+            // 
+            //     string relayJoinCode = Lobby.Data["JoinCode"].Value;
+            //     Debug.Log("Relay code: " + relayJoinCode);
+            //     
+            //     JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(relayJoinCode);
+            //     var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            //     transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
+            //     
+            //     NetworkManager.Singleton.StartClient();
+            // 
+            //     HideUI();
+            // 
+            //     Debug.Log("Successfully connected to host");
+            // }
 
             lobbyUI.UpdateUI(Lobby);
         }

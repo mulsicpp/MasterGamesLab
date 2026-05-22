@@ -10,4 +10,7 @@ public static class Constants
 
     public static readonly Color[] PLAYER_COLORS = { Color.Red, Color.Blue, Color.Yellow, Color.Green };
     public const uint PLAYER_START_MONEY = 100;
+
+    public const uint MAX_TRUCKS_PER_PLAYER = 64;
+    public const uint MAX_FREIGHTERS_PER_PLAYER = 16;
 }

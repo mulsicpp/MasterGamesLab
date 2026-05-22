@@ -29,13 +29,14 @@
 }
 
 .label {
-    color: var(--text-color);
-    -unity-font-definition: var(--text-font);
+    color: rgb(255, 255, 255);
+    -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
+    -unity-text-align: middle-left;
 }
 
 .button {
     color: var(--text-color);
-    -unity-font-definition: var(--text-font);
+    -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
     background-color: var(--background-button-color);
     border-left-color: var(--outline-color);
     border-right-color: var(--outline-color);
@@ -49,7 +50,7 @@
     border-right-width: var(--outline-width);
     border-top-width: var(--outline-width);
     border-bottom-width: var(--outline-width);
-    padding-left: 4px;
+    -unity-text-align: middle-center;
 }
 
 .button:hover {
@@ -74,7 +75,130 @@
     border-right-width: var(--outline-width);
     border-top-width: var(--outline-width);
     border-bottom-width: var(--outline-width);
+    -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
+    -unity-text-align: middle-left;
+}
 
+.text-field #unity-text-input {
+    --unity-cursor-color: var(--text-color);
+}
 
-    -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift.ttf?fileID=12800000&guid=cd8211396085d8b459e734097fb89f5d&type=3#Bahnschrift");
+#ListView .unity-list-view__item {
+    height: 50%;
+}
+
+.unity-slider {
+    margin: 0;
+    min-width: 0;
+    width: 100%;
+    translate: 200%, 0;
+}
+
+.unity-scroller {
+    width: 1%;
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 1px;
+    border-color: rgba(0, 0, 0, 0);
+}
+
+#unity-dragger {
+    background-color: rgba(255, 255, 255, 0.36);
+    border-radius: 6px;
+    border-width: 0;
+    min-height: 20px;
+    left: 0;
+    width: 100%;
+}
+
+#unity-dragger:hover {
+    background-color: var(--hover-backround-button-color);
+}
+
+#unity-dragger:active {
+    background-color: var(--hover-backround-button-color);
+}
+
+#unity-dragger:focus {
+    background-color: var(--hover-backround-button-color);
+}
+
+.unity-base-slider__input:active #unity-dragger,
+.unity-slider__input:active #unity-dragger,
+#unity-drag-container:active #unity-dragger {
+    background-color: var(--hover-backround-button-color);
+}
+
+#unity-tracker {
+    border-radius: 6px;
+    border-width: 0;
+    background-color: var(--background-button-color);
+}
+
+#unity-tracker:hover {
+    background-color: var(--background-button-color);
+}
+
+#unity-tracker:active {
+    background-color: var(--background-button-color);
+}
+
+.unity-scroller__low-button,
+.unity-scroller__high-button {
+    display: none;
+}
+
+.unity-list-view__item:hover {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.devider {
+    background-color: var(--hover-backround-button-color);
+}
+
+.lobby-player-label {
+    height: 20.56%;
+    width: 100%;
+    background-color: var(--background-button-color);
+    border-left-color: var(--outline-color);
+    border-right-color: var(--outline-color);
+    border-top-color: var(--outline-color);
+    border-bottom-color: var(--outline-color);
+    border-bottom-color: var(--outline-color);
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+    border-left-width: var(--outline-width);
+    border-right-width: var(--outline-width);
+    border-top-width: var(--outline-width);
+    border-bottom-width: var(--outline-width);
+    -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
+    padding-right: 0;
+    padding-left: 2%;
+}
+
+.lobby-player-label-empty {
+    height: 20.56%;
+    width: 100%;
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+    border-left-width: var(--outline-width);
+    border-right-width: var(--outline-width);
+    border-top-width: var(--outline-width);
+    border-bottom-width: var(--outline-width);
+    -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
+    padding-right: 0;
+    padding-left: 2%;
+    background-color: rgba(0, 0, 0, 0);
+    border-left-color: rgba(255, 254, 254, 0.2);
+    border-right-color: rgba(255, 254, 254, 0.2);
+    border-top-color: rgba(255, 254, 254, 0.2);
+    border-bottom-color: rgba(255, 254, 254, 0.2);
+}
+
+.lobby-player-div {
+    height: 4.4%;
+    width: 100%;
 }
