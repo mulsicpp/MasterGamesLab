@@ -45,6 +45,9 @@ public class LobbyLogic : MonoBehaviour
 
         lobbyHeartbeat = StartCoroutine(LobbyHeartbeat());
         connectToIngame = StartCoroutine(ConnectToIngame());
+        startUI.Show();
+        joinUI.Hide();
+        lobbyUI.Hide();
     }
 
     private void OnDestroy()

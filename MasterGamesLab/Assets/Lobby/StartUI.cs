@@ -72,6 +72,7 @@ public class StartUI : MonoBehaviour
     public void Show()
     {
         root.style.display = DisplayStyle.Flex;
+        playerName.schedule.Execute(() => playerName.Focus());
     }
 
     public void Hide()

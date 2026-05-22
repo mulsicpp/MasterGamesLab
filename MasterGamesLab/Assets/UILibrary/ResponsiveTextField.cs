@@ -230,7 +230,13 @@ public partial class ResponsiveTextField : VisualElement
         // Direct access to the caret drawing engine properties
         Color currentBlinkVisualColor = _isCursorVisible ? _cursorColor : Color.clear;
         _inputField.textSelection.cursorColor = currentBlinkVisualColor;
-        
+
+    }
+
+    public new void Focus()
+    {
+        Debug.Log(_inputField?.focusable);
+        _inputField?.Focus();
     }
 
     private void UpdateLayout()
