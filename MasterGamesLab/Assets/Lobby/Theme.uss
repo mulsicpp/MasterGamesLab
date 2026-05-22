@@ -1,81 +1,59 @@
 .unity-ui-document__root {
+    --text-font: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
     --text-color: rgb(255, 255, 255);
-    --text-font: url("project://database/Assets/Fonts/Bahnschrift.ttf?fileID=12800000&guid=cd8211396085d8b459e734097fb89f5d&type=3#Bahnschrift");
     --background-button-color: rgba(255, 255, 255, 0.05);
+    --hover-background-button-color: rgb(255, 255, 255);
     --border-radius: 0;
-    --hover-backround-button-color: rgb(255, 255, 255);
     --outline-color: rgb(255, 255, 255);
     --outline-width: 1px;
+    --text-outline-color: rgb(0, 0, 0);
+    --text-outline-width: 1px;
+    --border-color: var(--outline-color);
+    --border-width: var(--outline-width);
 }
 
 .element {
     flex-shrink: 0;
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
-    padding-top: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    padding-left: 0;
-    border-top-width: 0;
-    border-right-width: 0;
-    border-bottom-width: 0;
-    border-left-width: 0;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    border-radius: 0;
+}
+
+.devider {
+    background-color: var(--hover-background-button-color);
 }
 
 .label {
     color: rgb(255, 255, 255);
-    -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
+    -unity-font-definition: var(--text-font);
     -unity-text-align: middle-left;
 }
 
 .button {
     color: var(--text-color);
-    -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
+    -unity-font-definition: var(--text-font);
     background-color: var(--background-button-color);
-    border-left-color: var(--outline-color);
-    border-right-color: var(--outline-color);
-    border-top-color: var(--outline-color);
-    border-bottom-color: var(--outline-color);
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
-    border-bottom-left-radius: var(--border-radius);
-    border-left-width: var(--outline-width);
-    border-right-width: var(--outline-width);
-    border-top-width: var(--outline-width);
-    border-bottom-width: var(--outline-width);
+    border-color: var(--border-color);
+    border-width: var(--border-width);
+    border-radius: var(--border-radius);
     -unity-text-align: middle-center;
 }
 
 .button:hover {
-    background-color: var(--hover-backround-button-color);
+    background-color: var(--hover-background-button-color);
     color: rgb(255, 255, 255);
-    -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(0, 0, 0);
+    -unity-text-outline-width: var(--text-outline-width);
+    -unity-text-outline-color: var(--text-outline-color);
 }
 
 .text-field {
     color: rgb(255, 255, 255);
     background-color: var(--background-button-color);
-    border-left-color: var(--outline-color);
-    border-right-color: var(--outline-color);
-    border-top-color: var(--outline-color);
-    border-bottom-color: var(--outline-color);
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
-    border-bottom-left-radius: var(--border-radius);
-    border-left-width: var(--outline-width);
-    border-right-width: var(--outline-width);
-    border-top-width: var(--outline-width);
-    border-bottom-width: var(--outline-width);
-    -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
+    border-color: var(--border-color);
+    border-width: var(--border-width);
+    border-radius: var(--border-radius);
+    -unity-font-definition: var(--text-font);
     -unity-text-align: middle-left;
 }
 
@@ -85,6 +63,10 @@
 
 #ListView .unity-list-view__item {
     height: 50%;
+}
+
+.unity-list-view__item:hover {
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .unity-slider {
@@ -101,6 +83,19 @@
     border-color: rgba(0, 0, 0, 0);
 }
 
+.unity-scroller__low-button,
+.unity-scroller__high-button {
+    display: none;
+}
+
+#unity-tracker,
+#unity-tracker:hover,
+#unity-tracker:active {
+    border-radius: 6px;
+    border-width: 0;
+    background-color: var(--background-button-color);
+}
+
 #unity-dragger {
     background-color: rgba(255, 255, 255, 0.36);
     border-radius: 6px;
@@ -110,69 +105,28 @@
     width: 100%;
 }
 
-#unity-dragger:hover {
-    background-color: var(--hover-backround-button-color);
-}
-
-#unity-dragger:active {
-    background-color: var(--hover-backround-button-color);
-}
-
-#unity-dragger:focus {
-    background-color: var(--hover-backround-button-color);
-}
-
+#unity-dragger:hover,
+#unity-dragger:active,
+#unity-dragger:focus,
 .unity-base-slider__input:active #unity-dragger,
 .unity-slider__input:active #unity-dragger,
 #unity-drag-container:active #unity-dragger {
-    background-color: var(--hover-backround-button-color);
+    background-color: var(--hover-background-button-color);
 }
 
-#unity-tracker {
-    border-radius: 6px;
-    border-width: 0;
-    background-color: var(--background-button-color);
-}
-
-#unity-tracker:hover {
-    background-color: var(--background-button-color);
-}
-
-#unity-tracker:active {
-    background-color: var(--background-button-color);
-}
-
-.unity-scroller__low-button,
-.unity-scroller__high-button {
-    display: none;
-}
-
-.unity-list-view__item:hover {
-    background-color: rgba(0, 0, 0, 0);
-}
-
-.devider {
-    background-color: var(--hover-backround-button-color);
+.lobby-player-div {
+    height: 4.4%;
+    width: 100%;
 }
 
 .lobby-player-label {
     height: 20.56%;
     width: 100%;
     background-color: var(--background-button-color);
-    border-left-color: var(--outline-color);
-    border-right-color: var(--outline-color);
-    border-top-color: var(--outline-color);
-    border-bottom-color: var(--outline-color);
-    border-bottom-color: var(--outline-color);
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
-    border-bottom-left-radius: var(--border-radius);
-    border-left-width: var(--outline-width);
-    border-right-width: var(--outline-width);
-    border-top-width: var(--outline-width);
-    border-bottom-width: var(--outline-width);
-    -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
+    border-color: var(--border-color);
+    border-width: var(--border-width);
+    border-radius: var(--border-radius);
+    -unity-font-definition: var(--text-font);
     padding-right: 0;
     padding-left: 2%;
     justify-content: center;
@@ -182,28 +136,14 @@
 .lobby-player-label-empty {
     height: 20.56%;
     width: 100%;
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
-    border-bottom-left-radius: var(--border-radius);
-    border-left-width: var(--outline-width);
-    border-right-width: var(--outline-width);
-    border-top-width: var(--outline-width);
-    border-bottom-width: var(--outline-width);
-    -unity-font-definition: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
+    background-color: rgba(0, 0, 0, 0);
+    border-color: rgba(255, 254, 254, 0.2);
+    border-width: var(--border-width);
+    border-radius: var(--border-radius);
+    -unity-font-definition: var(--text-font);
     padding-right: 0;
     padding-left: 2%;
-    background-color: rgba(0, 0, 0, 0);
-    border-left-color: rgba(255, 254, 254, 0.2);
-    border-right-color: rgba(255, 254, 254, 0.2);
-    border-top-color: rgba(255, 254, 254, 0.2);
-    border-bottom-color: rgba(255, 254, 254, 0.2);
     align-items: flex-end;
-}
-
-.lobby-player-div {
-    height: 4.4%;
-    width: 100%;
 }
 
 .host-crown {

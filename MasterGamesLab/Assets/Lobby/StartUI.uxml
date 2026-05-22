@@ -9,7 +9,7 @@
                 <ResponsiveTextField name="Name" label-width-percentage="0.57" label="c" value="22" text-height-percentage="0.8" placeholder-text="" label-text="Name:" text-side-padding="4" label-input-gap="4" class="element text-field" style="height: 29.8%; width: 100%; align-items: flex-end; justify-content: flex-start;"/>
                 <ui:VisualElement name="devider" style="flex-grow: 0; height: 10%; width: 100%; flex-shrink: 0;"/>
                 <ui:VisualElement name="VisualElement" style="flex-grow: 0; height: 29.8%; flex-shrink: 0; align-content: auto; justify-content: space-between; align-items: center; flex-direction: row; width: 100%;">
-                    <ResponsiveButton name="Host" text="Create" height-percentage="0.8" focusable="false" class="button element" style="width: 48.36%; height: 100%; -unity-font-definition: url(&quot;project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&amp;guid=5ecfafd68e5d69944bac0bbd8593c196&amp;type=3#Bahnschrift-Condensed&quot;);"/>
+                    <ResponsiveButton name="Host" text="Create" height-percentage="0.8" focusable="false" class="button element" style="width: 48.36%; height: 100%;"/>
                     <ResponsiveButton name="Join" text="Join" height-percentage="0.8" focusable="false" class="button element" style="width: 48.36%; height: 100%;"/>
                 </ui:VisualElement>
             </ui:VisualElement>
