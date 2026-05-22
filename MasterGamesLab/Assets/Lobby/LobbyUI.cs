@@ -1,9 +1,11 @@
-using System;
+
 using Unity.Netcode;
+using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static UnityEngine.LowLevelPhysics2D.PhysicsLayers;
+
+using System.Linq;
 
 public class LobbyUI : MonoBehaviour
 {
@@ -79,6 +81,13 @@ public class LobbyUI : MonoBehaviour
 
     public void UpdateUI(Lobby lobby)
     {
+        var localPlayerId = AuthenticationService.Instance.PlayerId;
+        if (lobby.HostId == localPlayerId)
+
+            startButton.SetEnabled(true);
+        else
+            startButton.SetEnabled(false);
+
         foreach (var playerLabel in playerLabels)
         {
             playerLabel.text = "";
@@ -90,13 +99,18 @@ public class LobbyUI : MonoBehaviour
 
         SetLobbyInfo(lobby.Name, lobby.LobbyCode);
 
-        for (int i = 0; i < lobby.Players.Count; i++)
+        var sortedPlayers = lobby.Players
+            .OrderByDescending(p => p.Id == localPlayerId)
+            .ToList();
+        for (int i = 0; i < sortedPlayers.Count; i++)
         {
-            if (lobby.Players[i].Id == lobby.HostId)
+            var player = sortedPlayers[i];
+            if (player.Id == lobby.HostId)
             {
-                playerLabels[i].Q<VisualElement>("HostIcon").style.display = DisplayStyle.Flex;
+                var hostIcon = playerLabels[i].Q<VisualElement>("HostIcon");
+                if (hostIcon != null) hostIcon.style.display = DisplayStyle.Flex;
             }
-            playerLabels[i].text = lobby.Players[i].Data["Name"].Value;
+            playerLabels[i].text = player.Data["Name"].Value;
             playerLabels[i].RemoveFromClassList("lobby-player-label-empty");
             playerLabels[i].AddToClassList("lobby-player-label");
         }

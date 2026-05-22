@@ -6,7 +6,7 @@
         </SquareElement>
         <ui:GroupBox class="element" style="width: 100%; height: 35%; flex-direction: row;">
             <ui:GroupBox class="element" style="width: 31.25%; height: 100%;">
-                <ResponsiveLabel text="Public Lobbies:" height-percentage="0.7" name="PublicLobbies" class="label element" style="height: 18.3%; -unity-font-definition: url(&quot;project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&amp;guid=5ecfafd68e5d69944bac0bbd8593c196&amp;type=3#Bahnschrift-Condensed&quot;); -unity-text-align: middle-right; padding-right: 2%; -unity-font-style: normal;"/>
+                <ResponsiveLabel text="Public Lobbies:" height-percentage="0.7" name="PublicLobbies" class="label element" style="height: 18.3%; -unity-text-align: middle-right; padding-right: 2%; -unity-font-style: normal;"/>
             </ui:GroupBox>
             <ui:GroupBox class="element" style="height: 100%; width: 37.5%;">
                 <ui:ListView name="LobbyList" item-template="project://database/Assets/Lobby/LobbyRowTemplate.uxml?fileID=9197481963319205126&amp;guid=28faaaeec5504ba47a9cdd635ef9b3bd&amp;type=3#LobbyRowTemplate" header-title="" enabled="true" selection-type="None" focusable="false" style="height: 71.5%; min-width: 100%; flex-shrink: 0; width: 100%;"/>
@@ -14,9 +14,9 @@
                     <ui:VisualElement class="element devider" style="flex-grow: 0; width: 100%; height: 2px;"/>
                 </ui:VisualElement>
                 <ui:GroupBox class="element" style="width: 100%; height: 18.3%; flex-direction: row; align-items: stretch; justify-content: flex-start;">
-                    <ResponsiveTextField label-width-percentage="0.9" label-text="Code:" name="LobbyCode" text-height-percentage="0.7" text-side-padding="2" class="element text-field" style="min-width: auto; min-height: auto; flex-shrink: 0; width: 75.24%; height: 100%; -unity-font-definition: url(&quot;project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&amp;guid=5ecfafd68e5d69944bac0bbd8593c196&amp;type=3#Bahnschrift-Condensed&quot;);"/>
+                    <ResponsiveTextField label-width-percentage="0.9" label-text="Code:" name="LobbyCode" text-height-percentage="0.7" text-side-padding="2" class="element text-field" style="min-width: auto; min-height: auto; flex-shrink: 0; width: 75.24%; height: 100%;"/>
                     <ui:VisualElement name="div" style="flex-grow: 0; flex-shrink: 0; width: 1.98%; height: 100%;"/>
-                    <ResponsiveButton text="Join" name="JoinButton" height-percentage="0.7" focusable="false" class="element button" style="width: 21.78%; height: 100%; -unity-font-definition: url(&quot;project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&amp;guid=5ecfafd68e5d69944bac0bbd8593c196&amp;type=3#Bahnschrift-Condensed&quot;); -unity-text-align: middle-center;"/>
+                    <ResponsiveButton text="Join" name="JoinButton" height-percentage="0.7" focusable="false" class="element button" style="width: 21.78%; height: 100%; -unity-text-align: middle-center;"/>
                 </ui:GroupBox>
             </ui:GroupBox>
             <ui:GroupBox picking-mode="Ignore" class="element" style="width: 31.25%; height: 100%; padding-left: 2%;">
