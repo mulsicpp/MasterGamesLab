@@ -5,6 +5,7 @@ namespace Map
 {
     public class Edge
     {
+        [System.Serializable]
         public enum EdgeType : byte
         {
             None,
