@@ -85,16 +85,16 @@ public class LobbyUI : MonoBehaviour
             playerLabel.text = "";
             playerLabel.RemoveFromClassList("lobby-player-label");
             playerLabel.AddToClassList("lobby-player-label-empty");
-            playerLabel.Q<VisualElement>("HostIcon").SetEnabled(false);
+            playerLabel.Q<VisualElement>("HostIcon").style.display = DisplayStyle.None;
         }
 
         SetLobbyInfo(lobby.Name, lobby.LobbyCode);
 
         for (int i = 0; i < lobby.Players.Count; i++)
         {
-            if(lobby.Players[i].Id == lobby.HostId)
+            if (lobby.Players[i].Id == lobby.HostId)
             {
-                 playerLabels[i].Q<VisualElement>("HostIcon").SetEnabled(true);
+                playerLabels[i].Q<VisualElement>("HostIcon").style.display = DisplayStyle.Flex;
             }
             playerLabels[i].text = lobby.Players[i].Data["Name"].Value;
             playerLabels[i].RemoveFromClassList("lobby-player-label-empty");
