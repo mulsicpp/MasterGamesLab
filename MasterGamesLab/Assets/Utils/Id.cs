@@ -1,13 +1,14 @@
 
+using Unity.Netcode;
+using System;
+using Map.Structures;
 
 using TileIdPrimitive = System.Int32;
 using EdgeIdPrimitive = System.Int32;
-using StructureIdPrimitive = System.Int32;
+using StructureOffsetPrimitive = System.Byte;
 
 using PlayerIdPrimitive = System.Byte;
 using ClientIdPrimitive = System.UInt64;
-using Unity.Netcode;
-using System;
 
 [System.Serializable]
 public struct TileId : INetworkSerializeByMemcpy, IEquatable<TileId>, IComparable<TileId>
@@ -55,27 +56,38 @@ public struct EdgeId : INetworkSerializeByMemcpy, IEquatable<EdgeId>, IComparabl
     public EdgeId(EdgeIdPrimitive value) => this.value = value;
 }
 
+
 [System.Serializable]
 public struct StructureId : INetworkSerializeByMemcpy, IEquatable<StructureId>, IComparable<StructureId>
 {
     [UnityEngine.SerializeField]
-    private StructureIdPrimitive value;
-    public StructureIdPrimitive Value => value;
+    private Structure.StructureType type;
+    public Structure.StructureType Type => type;
 
-    public static readonly StructureId NONE = new StructureId { value = -1 };
+    [UnityEngine.SerializeField]
+    private StructureOffsetPrimitive offset;
+    public StructureOffsetPrimitive Offset => offset;
 
-    public static bool operator ==(StructureId left, StructureId right) => left.value == right.value;
-    public static bool operator !=(StructureId left, StructureId right) => left.value != right.value;
+    public static readonly StructureId NONE = new StructureId { type = Structure.StructureType.None, offset = 0 };
 
-    public override bool Equals(object obj) => obj is StructureId id && value == id.value;
-    public override int GetHashCode() => HashCode.Combine(value);
+    public static bool operator ==(StructureId left, StructureId right) => left.type == right.type && left.offset == right.offset;
+    public static bool operator !=(StructureId left, StructureId right) => !(left == right);
+
+    public override bool Equals(object obj) => obj is StructureId id && this == id;
+    public override int GetHashCode() => HashCode.Combine(type, offset);
 
     public bool Equals(StructureId other) => this == other;
-    public int CompareTo(StructureId other) => value.CompareTo(other.value);
+    public int CompareTo(StructureId other)
+    {
+        var c = type.CompareTo(other.type);
+        if(c != 0) return c;
+        return offset.CompareTo(other.offset);
+    }
 
-    public static implicit operator StructureIdPrimitive(StructureId value) => value.value;
-
-    public StructureId(StructureIdPrimitive value) => this.value = value;
+    public StructureId(Structure.StructureType type, StructureOffsetPrimitive offset) {
+        this.type = type;
+        this.offset = offset;
+    }
 }
 
 [System.Serializable]

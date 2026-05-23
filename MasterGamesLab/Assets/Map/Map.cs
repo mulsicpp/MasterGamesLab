@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using InGameCamera;
 using Map.GeometryGeneration;
 using Unity.Burst.CompilerServices;
+using Map.Structures;
 using Unity.Netcode;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEditor.PackageManager;
@@ -31,6 +32,8 @@ namespace Map
         public Timestamp Timestamp { get => timestamp; }
 
         public IReadOnlyList<Edge> Edges => edges;
+
+        public IReadOnlyList<Producer> Producers => producers;
 
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
@@ -63,6 +66,7 @@ namespace Map
         private NodeState[] nodeStatesBuffer;
         private bool[] visitedTilesBuffer;
         private PriorityQueue<Tile, int, int> tileQueue;
+        private Producer[] producers;
 
         private void OnEnable()
         {
@@ -77,6 +81,12 @@ namespace Map
             tiles = new List<Tile>(numPoints);
             chunks = new List<MapChunk>(chunksPoints.Count);
             edges = new Edge[0];
+
+            producers = new Producer[Constants.MAX_PRODUCER_COUNT];
+            for(var i = 0; i < Constants.MAX_PRODUCER_COUNT; i++)
+            {
+                producers[i] = new Producer((byte)i, null, Good.None);
+            }
 
             var currentId = 0;
             foreach (var chunkPoints in chunksPoints)
@@ -210,12 +220,20 @@ namespace Map
                 chunk.UpdateMesh();
             }
 
-            for (int i = 0; i < edges.Length; i++)
+            int producerOffset = GetFirstAvailableStructureOffset(Structure.StructureType.Producer);
+            if(producerOffset > -1)
             {
-                if (i < edges.Length / 8) SetEdge(new EdgeId(i), Edge.EdgeType.Rail, PlayerId.NONE);
-                else if (i < edges.Length / 6) SetEdge(new EdgeId(i), Edge.EdgeType.Canal, PlayerId.NONE);
-                else if (i < edges.Length / 4) SetEdge(new EdgeId(i), Edge.EdgeType.Road, PlayerId.NONE);
+                SetProducer((byte)producerOffset, edges[0].EndTile.Id, Good.Apple);
             }
+
+            // Test edge types
+
+            // for(int i = 0; i < edges.Length; i++)
+            // {
+            //     if (i < edges.Length / 8) SetEdge(new EdgeId(i), Edge.EdgeType.Rail, PlayerId.NONE);
+            //     else if (i < edges.Length / 6) SetEdge(new EdgeId(i), Edge.EdgeType.Canal, PlayerId.NONE);
+            //     else if(i < edges.Length / 4) SetEdge(new EdgeId(i), Edge.EdgeType.Road, PlayerId.NONE);
+            // }
         }
 
         private void InitEdges()
@@ -241,6 +259,42 @@ namespace Map
             edge.Type = edgeType;
             edge.PlayerId = playerId;
             return true;
+        }
+
+        public int GetFirstAvailableStructureOffset(Structure.StructureType type)
+        {
+            Structure[] structures = null;
+
+            switch(type)
+            {
+                case Structure.StructureType.Producer: structures = producers; break;
+            }
+
+            if (structures == null) return -1;
+
+            for(int i = 0; i < structures.Length; i++)
+            {
+                if (structures[i].Tile == null)
+                    return i;
+            }
+            return -1;
+        }
+
+        public void SetProducer(byte offset, TileId tileId, Good good)
+        {
+            if(offset >= Constants.MAX_PRODUCER_COUNT) return;
+
+            var producer = producers[offset];
+
+            producer.Tile = tileId == TileId.NONE ? null : tiles[tileId];
+            producer.Good = good;
+        }
+
+        public void SpawnProducer(byte offset, TileId tileId, Good good)
+        {
+            if (offset >= Constants.MAX_PRODUCER_COUNT) return;
+
+
         }
 
         public void SyncClientMap(Timestamp clientTimestamp, ClientId clientId)
@@ -599,6 +653,13 @@ namespace Map
                     Gizmos.DrawSphere(p2, radius * 0.006f);
                 }
             }
+            Gizmos.color = Color.red;
+
+            foreach (var producer in producers)
+                if (producer.Tile != null)
+                    Gizmos.DrawSphere(producer.Tile.PositionOnSphere, 0.015f);
+
+            // Debug.Log("Drawing gizmos");
         }
 
 #if UNITY_EDITOR

@@ -30,6 +30,8 @@ namespace Map
 
         public IReadOnlyList<Edge> Edges => edges;
 
+        public Structures.Structure Structure;
+
         public TileType Type
         {
             get => tileType;
@@ -83,6 +85,8 @@ namespace Map
             randomValue = UnityEngine.Random.Range(0f, 1f);
 
             edges = new List<Edge>();
+
+            Structure = null;
         }
 
         // Point Functions
