@@ -40,8 +40,8 @@ namespace Map
             Id = id;
             StartTile = startTile;
             EndTile = endTile;
-            Type = type;
-            PlayerId = playerId;
+            this.type = type;
+            this.playerId = playerId;
             Timestamp = Map.Instance.Timestamp;
         }
 
