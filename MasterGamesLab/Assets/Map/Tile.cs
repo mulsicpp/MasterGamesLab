@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Map.GeometryGeneration;
+using Map.Structures;
 using UnityEngine;
 
 namespace Map
@@ -30,7 +31,7 @@ namespace Map
 
         public IReadOnlyList<Edge> Edges => edges;
 
-        public Structures.Structure Structure;
+        public Structures.Structure Structure { get; set; }
 
         public TileType Type
         {
@@ -194,6 +195,20 @@ namespace Map
             foreach(var edge in edges) if(edge.Type == type) count++;
             return count;
         }
+
+
+        public bool CanSpawnStructure(Structure.StructureType type)
+        {
+            if(Structure != null) return false;
+
+            switch (type)
+            {
+                case Structure.StructureType.Producer: return Type == TileType.Plain || Type == TileType.Forest;
+            }
+
+            return false;
+        }
+
 
         private static readonly float TanPI3 = Mathf.Tan(Mathf.PI / 3);
 

@@ -1,6 +1,7 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class TestRoadCreation : MonoBehaviour
+public class TestRoadCreation : NetworkBehaviour
 {
     Map.ITile startTile = null;
 
@@ -40,6 +41,17 @@ public class TestRoadCreation : MonoBehaviour
                     Map.Map.Instance.RequestNewEdgesServerRpc(type, new EdgeId[] { edge.Id });
                 }
                 startTile = null;
+            }
+        }
+
+        if(Input.GetKeyDown(KeyCode.P) && IsServer)
+        {
+            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
+            if (tile == null) return;
+
+            if(tile.CanSpawnStructure(Map.Structures.Structure.StructureType.Producer))
+            {
+                Map.Map.Instance.SpawnProducerGlobal(tile.Id, Map.Structures.Good.Apple);
             }
         }
     }

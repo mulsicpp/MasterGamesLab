@@ -13,6 +13,10 @@ namespace Map
         [SerializeField]
         public TimestampPrimitive Value;
 
+        public Timestamp(TimestampPrimitive value) => Value = value;
+
+        public Timestamp Next() => new Timestamp(Value + 1);
+
         public static bool operator ==(Timestamp left, Timestamp right) => left.Value == right.Value;
         public static bool operator !=(Timestamp left, Timestamp right) => left.Value != right.Value;
 
@@ -30,7 +34,5 @@ namespace Map
 
         public static explicit operator TimestampPrimitive(Timestamp value) => value.Value;
         public static explicit operator Timestamp(TimestampPrimitive value) => new Timestamp { Value = value };
-
-        public Timestamp(TimestampPrimitive value) => Value = value;
     }
 }

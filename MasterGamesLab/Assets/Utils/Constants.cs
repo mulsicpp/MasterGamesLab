@@ -16,4 +16,5 @@ public static class Constants
 
 
     public const int MAX_EDGES_PER_RPC = 32;
+    public const int MAX_PRODUCERS_PER_RPC = 32;
 }

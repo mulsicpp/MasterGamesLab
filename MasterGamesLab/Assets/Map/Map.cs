@@ -6,6 +6,7 @@ using Map.Structures;
 using Unity.Netcode;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEditor.PackageManager;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -200,11 +201,7 @@ namespace Map
                 chunk.UpdateMesh();
             }
 
-            int producerOffset = GetFirstAvailableStructureOffset(Structure.StructureType.Producer);
-            if(producerOffset > -1)
-            {
-                SetProducer((byte)producerOffset, edges[0].EndTile.Id, Good.Apple);
-            }
+            SpawnProducerLocal(edges[0].EndTile.Id, Good.Apple);
 
             // Test edge types
 
@@ -270,41 +267,40 @@ namespace Map
             producer.Good = good;
         }
 
-        public void SpawnProducer(byte offset, TileId tileId, Good good)
+        public bool SpawnProducerLocal(TileId tileId, Good good)
         {
-            if (offset >= Constants.MAX_PRODUCER_COUNT) return;
-
-
+            int producerOffset = GetFirstAvailableStructureOffset(Structure.StructureType.Producer);
+            if (producerOffset > -1)
+            {
+                SetProducer((byte)producerOffset, tileId, good);
+                return true;
+            }
+            return false;
         }
 
-        public void SyncClientMap(Timestamp clientTimestamp, ClientId clientId)
+        public bool SpawnProducerGlobal(TileId tileId, Good good)
         {
-            if (!IsServer) return;
+            if(!IsServer) return false;
 
-            var rpcParams = GetRpcParams(clientId);
-
-            var updatedEdges = new List<Edge.NetData>();
-            updatedEdges.Capacity = Constants.MAX_EDGES_PER_RPC;
-
-            foreach (var edge in edges)
+            int producerOffset = GetFirstAvailableStructureOffset(Structure.StructureType.Producer);
+            if (producerOffset > -1)
             {
-                if(edge.Timestamp > clientTimestamp)
+                var producerData = new Producer.NetData
                 {
-                    updatedEdges.Add(edge.GetNetData());
-                }
+                    Id = new StructureId(Structure.StructureType.Producer, (byte)producerOffset),
+                    TileId = tileId,
+                    Good = good,
+                };
 
-                if(updatedEdges.Count == Constants.MAX_EDGES_PER_RPC)
-                {
-                    CreateEdgesClientRpc(Timestamp, updatedEdges.ToArray(), rpcParams);
-                    updatedEdges.Clear();
-                }
+                var nextTimestamp = timestamp.Next();
+                UpdateProducersClientRpc(nextTimestamp, new[] { producerData });
+                return true;
             }
-
-            if (updatedEdges.Count > 0)
-            {
-                CreateEdgesClientRpc(Timestamp, updatedEdges.ToArray(), rpcParams);
-            }
+            return false;
         }
+
+
+
 
         private ClientRpcParams GetRpcParams(ClientId clientId)
         {
@@ -318,14 +314,86 @@ namespace Map
             return rpcParams;
         }
 
+        public void SyncClientMap(Timestamp clientTimestamp, ClientId clientId)
+        {
+            if (!IsServer) return;
+
+            var rpcParams = GetRpcParams(clientId);
+
+            SyncClientEdges(clientTimestamp, rpcParams);
+            SyncClientProducers(clientTimestamp, rpcParams);
+        }
+
+        private void SyncClientEdges(Timestamp clientTimestamp, ClientRpcParams rpcParams)
+        {
+            var updatedEdges = new List<Edge.NetData>();
+            updatedEdges.Capacity = Constants.MAX_EDGES_PER_RPC;
+
+            foreach (var edge in edges)
+            {
+                if(edge.Timestamp > clientTimestamp)
+                {
+                    updatedEdges.Add(edge.GetNetData());
+                }
+
+                if(updatedEdges.Count == Constants.MAX_EDGES_PER_RPC)
+                {
+                    UpdateEdgesClientRpc(Timestamp, updatedEdges.ToArray(), rpcParams);
+                    updatedEdges.Clear();
+                }
+            }
+
+            if (updatedEdges.Count > 0)
+            {
+                UpdateEdgesClientRpc(Timestamp, updatedEdges.ToArray(), rpcParams);
+            }
+        }
+
+        private void SyncClientProducers(Timestamp clientTimestamp, ClientRpcParams rpcParams)
+        {
+            var updatedProducers = new List<Producer.NetData>();
+            updatedProducers.Capacity = Constants.MAX_PRODUCERS_PER_RPC;
+
+            foreach (var producer in producers)
+            {
+                if (producer.Timestamp > clientTimestamp)
+                {
+                    updatedProducers.Add(producer.GetNetData());
+                }
+
+                if (updatedProducers.Count == Constants.MAX_PRODUCERS_PER_RPC)
+                {
+                    UpdateProducersClientRpc(Timestamp, updatedProducers.ToArray(), rpcParams);
+                    updatedProducers.Clear();
+                }
+            }
+
+            if (updatedProducers.Count > 0)
+            {
+                UpdateProducersClientRpc(Timestamp, updatedProducers.ToArray(), rpcParams);
+            }
+        }
+
+
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void CreateEdgesClientRpc(Timestamp timestamp, Edge.NetData[] edgeData, ClientRpcParams rpcParams = default)
+        private void UpdateEdgesClientRpc(Timestamp timestamp, Edge.NetData[] edgeData, ClientRpcParams rpcParams = default)
         {
             this.timestamp = timestamp;
             Debug.Log("Received " + edgeData.Length + " edges");
             foreach(var e in edgeData)
             {
                 SetEdge(e.Id, e.Type, e.PlayerId, true);
+            }
+        }
+
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        private void UpdateProducersClientRpc(Timestamp timestamp, Producer.NetData[] producerData, ClientRpcParams rpcParams = default)
+        {
+            this.timestamp = timestamp;
+            Debug.Log("Received " + producerData.Length + " producers");
+            foreach (var p in producerData)
+            {
+                SetProducer(p.Id.Offset, p.TileId, p.Good);
             }
         }
 
@@ -371,8 +439,8 @@ namespace Map
                 edgeData[i] = new Edge.NetData { Id = edgeIds[i], Type = edgeType, PlayerId = playerId };
             }
 
-            var nextTimestamp = new Timestamp(Timestamp.Value + 1);
-            CreateEdgesClientRpc(nextTimestamp, edgeData);
+            var nextTimestamp = Timestamp.Next();
+            UpdateEdgesClientRpc(nextTimestamp, edgeData);
         }
 
         public void OnDrawGizmos()

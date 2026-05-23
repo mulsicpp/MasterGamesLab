@@ -13,13 +13,15 @@ namespace Map.Structures
             public StructureId Id;
             public TileId TileId;
 
-            public Good good;
+            public Good Good;
         }
 
         public Producer(byte offset, Tile tile, Good good) : base(new StructureId(StructureType.Producer, offset), tile)
         {
             this.good = good;
         }
+
+        public NetData GetNetData() => new NetData { Id = Id, TileId = Tile.Id, Good = good };
     }
 
 }

@@ -1,4 +1,6 @@
 
+using Unity.Netcode;
+
 namespace Map.Structures
 {
     public abstract class Structure
