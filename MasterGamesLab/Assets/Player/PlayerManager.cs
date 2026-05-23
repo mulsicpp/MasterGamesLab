@@ -12,7 +12,7 @@ public class PlayerManager : NetworkBehaviour
 {
     public static PlayerManager Instance;
 
-    private Dictionary<ClientId, Map.Map.SyncData> mapSyncData = new Dictionary<ClientId, Map.Map.SyncData>();
+    private Dictionary<ClientId, Map.Timestamp> clientTimestamps = new Dictionary<ClientId, Map.Timestamp>();
 
     public PlayerData[] Players;
     public PlayerId SelfId = PlayerId.NONE;
@@ -88,7 +88,7 @@ public class PlayerManager : NetworkBehaviour
         var clientId = new ClientId(request.ClientNetworkId);
         Players[index].ClientId = clientId;
 
-        mapSyncData[clientId] = data.MapSyncData;
+        clientTimestamps[clientId] = data.Timestamp;
 
         response.Approved = true;
         response.CreatePlayerObject = false;
@@ -104,8 +104,8 @@ public class PlayerManager : NetworkBehaviour
         if (clientid == NetworkManager.Singleton.LocalClientId) return;
 
         var clientId = new ClientId(clientid);
-        Map.Map.Instance.SyncClientMap(mapSyncData[clientId], clientId);
-        mapSyncData.Remove(clientId);
+        Map.Map.Instance.SyncClientMap(clientTimestamps[clientId], clientId);
+        clientTimestamps.Remove(clientId);
     }
 
     public void OnClientDisconnect(ulong clientid)
@@ -193,5 +193,5 @@ public struct PlayerData : INetworkSerializable
 public struct PlayerConnectData
 {
     public FixedString64Bytes PlayerAuthId;
-    public Map.Map.SyncData MapSyncData;
+    public Map.Timestamp Timestamp;
 }

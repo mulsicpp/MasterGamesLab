@@ -4,6 +4,9 @@ public class TestRoadCreation : MonoBehaviour
 {
     Map.ITile startTile = null;
 
+    [SerializeField]
+    private Map.Edge.EdgeType type = Map.Edge.EdgeType.Road;
+
     void Start()
     {
         
@@ -31,10 +34,10 @@ public class TestRoadCreation : MonoBehaviour
                         break;
                     }
                 }
-                if (edge != null && edge.CanBecomeRoad())
+                if (edge != null && edge.CanBecomeType(type))
                 {
                     Debug.Log("Valid edge selected");
-                    Map.Map.Instance.RequestNewEdgesServerRpc(Map.Edge.EdgeType.Road, new EdgeId[] { edge.Id });
+                    Map.Map.Instance.RequestNewEdgesServerRpc(type, new EdgeId[] { edge.Id });
                 }
                 startTile = null;
             }

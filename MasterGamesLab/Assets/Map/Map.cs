@@ -20,11 +20,14 @@ namespace Map
 
         public static Map Instance { get; private set; } = null!;
 
-
         public IReadOnlyList<ITile> Tiles => tiles;
         public IReadOnlyList<ITile> ActiveTiles => activeTiles;
         public float Radius => radius;
         public int Resolution => resolution;
+
+        [SerializeField]
+        private Timestamp timestamp = new Timestamp(0);
+        public Timestamp Timestamp { get => timestamp; }
 
         public IReadOnlyList<Edge> Edges => edges;
 
@@ -43,12 +46,6 @@ namespace Map
         private int currentlyHoveredTileId;
 
         private Edge[] edges;
-        private List<int> createdEdges;
-
-        public struct SyncData
-        {
-            public int CreatedEdgeCount;
-        }
 
         private void OnEnable()
         {
@@ -63,7 +60,6 @@ namespace Map
             tiles = new List<Tile>(numPoints);
             chunks = new List<MapChunk>(chunksPoints.Count);
             edges = new Edge[0];
-            createdEdges = new List<int>();
 
             var currentId = 0;
             foreach (var chunkPoints in chunksPoints)
@@ -197,9 +193,9 @@ namespace Map
 
             for(int i = 0; i < edges.Length; i++)
             {
-                if (i < edges.Length / 8) CreateEdge(new EdgeId(i), Edge.EdgeType.Rail, PlayerId.NONE);
-                else if (i < edges.Length / 6) CreateEdge(new EdgeId(i), Edge.EdgeType.Canal, PlayerId.NONE);
-                else if(i < edges.Length / 4) CreateEdge(new EdgeId(i), Edge.EdgeType.Road, PlayerId.NONE);
+                if (i < edges.Length / 8) SetEdge(new EdgeId(i), Edge.EdgeType.Rail, PlayerId.NONE);
+                else if (i < edges.Length / 6) SetEdge(new EdgeId(i), Edge.EdgeType.Canal, PlayerId.NONE);
+                else if(i < edges.Length / 4) SetEdge(new EdgeId(i), Edge.EdgeType.Road, PlayerId.NONE);
             }
         }
 
@@ -213,10 +209,9 @@ namespace Map
             Debug.Log("Initialized " + tempEdges.Count + " edges");
 
             edges = tempEdges.ToArray();
-            createdEdges = new List<int>();
         }
 
-        public bool CreateEdge(EdgeId id, Edge.EdgeType edgeType, PlayerId playerId, bool force = false)
+        public bool SetEdge(EdgeId id, Edge.EdgeType edgeType, PlayerId playerId, bool force = false)
         {
             if (id >= edges.Length || id < 0) return false;
 
@@ -226,41 +221,35 @@ namespace Map
 
             edge.Type = edgeType;
             edge.PlayerId = playerId;
-
-            if (createdEdges.Contains(id)) return false;
-            createdEdges.Add(id);
             return true;
         }
 
-        public SyncData GetSyncData()
-        {
-            return new SyncData {
-                CreatedEdgeCount = createdEdges.Count,
-            };
-        }
-
-        public void SyncClientMap(SyncData data, ClientId clientId)
+        public void SyncClientMap(Timestamp clientTimestamp, ClientId clientId)
         {
             if (!IsServer) return;
 
             var rpcParams = GetRpcParams(clientId);
 
-            Edge.NetData[] edgeData = new Edge.NetData[Constants.MAX_EDGES_PER_RPC];
-            for (var offset = data.CreatedEdgeCount; offset < createdEdges.Count; offset += Constants.MAX_EDGES_PER_RPC)
+            var updatedEdges = new List<Edge.NetData>();
+            updatedEdges.Capacity = Constants.MAX_EDGES_PER_RPC;
+
+            foreach (var edge in edges)
             {
-                var edgeCount = Math.Min(Constants.MAX_EDGES_PER_RPC, createdEdges.Count - offset);
-
-                if(edgeCount < Constants.MAX_EDGES_PER_RPC)
+                if(edge.Timestamp > clientTimestamp)
                 {
-                    edgeData = new Edge.NetData[edgeCount];
+                    updatedEdges.Add(edge.GetNetData());
                 }
 
-                for(int i = 0; i < edgeCount; i++)
+                if(updatedEdges.Count == Constants.MAX_EDGES_PER_RPC)
                 {
-                    edgeData[i] = edges[createdEdges[offset + i]].GetNetData();
+                    CreateEdgesClientRpc(Timestamp, updatedEdges.ToArray(), rpcParams);
+                    updatedEdges.Clear();
                 }
+            }
 
-                CreateEdgesClientRpc(edgeData, rpcParams);
+            if (updatedEdges.Count > 0)
+            {
+                CreateEdgesClientRpc(Timestamp, updatedEdges.ToArray(), rpcParams);
             }
         }
 
@@ -277,12 +266,13 @@ namespace Map
         }
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void CreateEdgesClientRpc(Edge.NetData[] edgeData, ClientRpcParams rpcParams = default)
+        private void CreateEdgesClientRpc(Timestamp timestamp, Edge.NetData[] edgeData, ClientRpcParams rpcParams = default)
         {
+            this.timestamp = timestamp;
             Debug.Log("Received " + edgeData.Length + " edges");
             foreach(var e in edgeData)
             {
-                CreateEdge(e.Id, e.Type, e.PlayerId, true);
+                SetEdge(e.Id, e.Type, e.PlayerId, true);
             }
         }
 
@@ -328,7 +318,8 @@ namespace Map
                 edgeData[i] = new Edge.NetData { Id = edgeIds[i], Type = edgeType, PlayerId = playerId };
             }
 
-            CreateEdgesClientRpc(edgeData);
+            var nextTimestamp = new Timestamp(Timestamp.Value + 1);
+            CreateEdgesClientRpc(nextTimestamp, edgeData);
         }
 
         public void OnDrawGizmos()

@@ -5,6 +5,7 @@ namespace Map
 {
     public class Edge
     {
+        [System.Serializable]
         public enum EdgeType : byte
         {
             None,
@@ -13,13 +14,19 @@ namespace Map
             Rail
         }
 
-        public EdgeId Id { get; private set; }
+        public readonly EdgeId Id;
 
-        public Tile StartTile { get; private set; }
-        public Tile EndTile { get; private set; }
+        public readonly Tile StartTile;
+        public readonly Tile EndTile;
 
-        public EdgeType Type;
-        public PlayerId PlayerId;
+        public Timestamp Timestamp { get; private set; }
+
+        private EdgeType type;
+        private PlayerId playerId;
+
+        public EdgeType Type { get { return type; } set { type = value; Timestamp = Map.Instance.Timestamp; } }
+        public PlayerId PlayerId { get { return playerId; } set { playerId = value; Timestamp = Map.Instance.Timestamp; } }
+
 
         public struct NetData : INetworkSerializeByMemcpy
         {
@@ -28,13 +35,14 @@ namespace Map
             public PlayerId PlayerId;
         }
 
-        public Edge(EdgeId id, Tile startTile, Tile endTile, PlayerId playerId, EdgeType type)
+        public Edge(EdgeId id, Tile startTile, Tile endTile, EdgeType type, PlayerId playerId)
         {
             Id = id;
             StartTile = startTile;
             EndTile = endTile;
-            PlayerId = playerId;
-            Type = type;
+            this.type = type;
+            this.playerId = playerId;
+            Timestamp = Map.Instance.Timestamp;
         }
 
         public bool CanBecomeRoad()
@@ -44,7 +52,7 @@ namespace Map
 
         public bool CanBecomeCanal()
         {
-            if(Type != EdgeType.None) return false;
+            if (Type != EdgeType.None) return false;
             var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWithType(EdgeType.Canal) > 0;
             var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWithType(EdgeType.Canal) > 0;
 
@@ -61,7 +69,7 @@ namespace Map
 
         public bool CanBecomeType(EdgeType type)
         {
-            switch(type)
+            switch (type)
             {
                 case EdgeType.Road: return CanBecomeRoad();
                 case EdgeType.Canal: return CanBecomeCanal();
@@ -70,6 +78,6 @@ namespace Map
             return true;
         }
 
-        public NetData GetNetData() => new NetData { Id = Id, Type = Type, PlayerId = PlayerId };
+        public NetData GetNetData() => new NetData { Id = Id, Type = type, PlayerId = playerId };
     }
 }

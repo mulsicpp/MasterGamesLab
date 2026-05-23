@@ -397,7 +397,7 @@ public class LobbyLogic : MonoBehaviour
         PlayerConnectData connectData = new PlayerConnectData
         {
             PlayerAuthId = AuthenticationService.Instance.PlayerId,
-            MapSyncData = Map.Map.Instance.GetSyncData(),
+            Timestamp = Map.Map.Instance.Timestamp,
         };
 
         byte[] rawData = new byte[Marshal.SizeOf<PlayerConnectData>()];
