@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using InGameCamera;
 using Map.GeometryGeneration;
+using Unity.Burst.CompilerServices;
 using Map.Structures;
 using Unity.Netcode;
 using Unity.VisualScripting.Antlr3.Runtime;
@@ -42,6 +43,17 @@ namespace Map
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
 
+        // --- DEBUG PATHFINDING TESTING FIELDS ---
+        [Header("Pathfinding Debugger")]
+        [Tooltip("Drag a Tile reference here, or use the context menu via the Inspector dots to test.")]
+        [SerializeField] public int testStartTileId = -1;
+        [SerializeField] public int testTargetTileId = -1;
+        
+        // Two independent trace buffers so both paths can be drawn at once
+        private readonly List<Edge> shortestDebugPathEdges = new();
+        private readonly List<Edge> cheapestDebugPathEdges = new();
+        // ----------------------------------------
+
         private List<Tile> tiles;
         private List<Tile> activeTiles;
         private List<MapChunk> chunks;
@@ -51,6 +63,10 @@ namespace Map
 
         private Edge[] edges;
 
+        // --- HIGH PERFORMANCE PRE-ALLOCATED RUNTIME BUFFERS ---
+        private NodeState[] nodeStatesBuffer;
+        private bool[] visitedTilesBuffer;
+        private PriorityQueue<Tile, int, int> tileQueue;
         private Producer[] producers;
 
         private void OnEnable()
@@ -87,7 +103,6 @@ namespace Map
                 }
 
                 chunk.Init(this, startId, currentId);
-                // chunk.UpdateMesh();
                 chunks.Add(chunk);
             }
 
@@ -95,7 +110,7 @@ namespace Map
             {
                 tile.InitializeNeighbors();
             }
-            
+
             ProceduralMapGenerator.GenerateMap();
 
             foreach (var chunk in chunks)
@@ -108,11 +123,15 @@ namespace Map
             activeTiles = new List<Tile>();
 
             Shader.SetGlobalFloat(PlanetRadius, radius);
+
+            // Allocate fixed-size index lookup buffers once at startup to keep garbage collection at 0
+            nodeStatesBuffer = new NodeState[tiles.Count];
+            visitedTilesBuffer = new bool[tiles.Count];
+            tileQueue = new PriorityQueue<Tile, int, int>();
         }
 
         private void Update()
         {
-            // Update the map chunks
             foreach (var chunk in chunks)
             {
                 if (chunk.GeometryChanged)
@@ -125,15 +144,18 @@ namespace Map
                 }
             }
 
-            // Update the currently hovered tile
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
-                // Debug.Log("Click");
                 MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
+                
+                // Optional dynamic update line: recalculates debug paths on click if paths exist
+                if (shortestDebugPathEdges.Count > 0 || cheapestDebugPathEdges.Count > 0)
+                {
+                    RecalculateDebugPaths();
+                }
             }
             MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
 
-            // Update the projection
             UpdateProjectionUniforms();
         }
 
@@ -170,7 +192,6 @@ namespace Map
         {
             if (request.hasError)
             {
-                // Debug.LogError("GPU Readback error.");
                 currentlyHoveredTileId = -1;
                 return;
             }
@@ -184,7 +205,6 @@ namespace Map
         public void Generate(int seed)
         {
             Debug.Log("Generating world with seed " + seed + " ...");
-            // TODO World generation needs to be implemented!
 
             foreach (var tile in tiles)
             {
@@ -304,14 +324,13 @@ namespace Map
 
         private ClientRpcParams GetRpcParams(ClientId clientId)
         {
-            ClientRpcParams rpcParams = new ClientRpcParams
+            return new ClientRpcParams
             {
                 Send = new ClientRpcSendParams
                 {
                     TargetClientIds = new List<ulong> { clientId },
                 }
             };
-            return rpcParams;
         }
 
         public void SyncClientMap(Timestamp clientTimestamp, ClientId clientId)
@@ -380,7 +399,7 @@ namespace Map
         {
             this.timestamp = timestamp;
             Debug.Log("Received " + edgeData.Length + " edges");
-            foreach(var e in edgeData)
+            foreach (var e in edgeData)
             {
                 SetEdge(e.Id, e.Type, e.PlayerId, true);
             }
@@ -401,14 +420,12 @@ namespace Map
         public void RequestNewEdgesServerRpc(Edge.EdgeType edgeType, EdgeId[] edgeIds, RpcParams rpcParams = default)
         {
             var playerId = PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-            
             Debug.Log("Received new edges request from player " + playerId.Value);
 
             if (playerId == PlayerId.NONE) return;
 
             var validPath = true;
-
-            foreach(var id in edgeIds)
+            foreach (var id in edgeIds)
             {
                 if (id >= edges.Length || id < 0)
                 {
@@ -418,8 +435,7 @@ namespace Map
                 }
 
                 var edge = edges[id];
-
-                if(!edge.CanBecomeType(edgeType))
+                if (!edge.CanBecomeType(edgeType))
                 {
                     Debug.Log("Edge cannot become type: " + id.Value);
                     validPath = false;
@@ -428,13 +444,10 @@ namespace Map
             }
 
             Debug.Log("Path is valid: " + validPath);
-
-            // TODO give feedback to responsible player
-            if(!validPath) return;
+            if (!validPath) return;
 
             Edge.NetData[] edgeData = new Edge.NetData[edgeIds.Length];
-
-            for(var i = 0; i < edgeIds.Length; i++)
+            for (var i = 0; i < edgeIds.Length; i++)
             {
                 edgeData[i] = new Edge.NetData { Id = edgeIds[i], Type = edgeType, PlayerId = playerId };
             }
@@ -443,9 +456,210 @@ namespace Map
             UpdateEdgesClientRpc(nextTimestamp, edgeData);
         }
 
+        private struct NodeState
+        {
+            public int RealDistance;
+            public int RealCost;
+            public int CameFromId;
+            public EdgeId ReachedViaEdgeId;
+        }
+
+        public enum RoutePriorityMode { Shortest, Cheapest }
+
+        // 1. High-Performance Shortest Path (Distance First, Array Backed)
+        public EdgeId[] FindShortestPath(Tile start, Tile target)
+        {
+            if (!IsValidRequest(start, target)) return null;
+
+            System.Array.Clear(visitedTilesBuffer, 0, visitedTilesBuffer.Length);
+            tileQueue.Clear();
+
+            int startId = start.Id.Value;
+            nodeStatesBuffer[startId] = new NodeState { RealCost = 0, RealDistance = 0, CameFromId = -1 };
+            visitedTilesBuffer[startId] = true;
+            tileQueue.Enqueue(start, 0, 0);
+
+            while (tileQueue.Count > 0)
+            {
+                Tile current = tileQueue.Dequeue();
+                int currentId = current.Id.Value;
+                
+                if (current == target) return ReconstructPathArray(startId, target.Id.Value);
+
+                int currentRealDistance = nodeStatesBuffer[currentId].RealDistance;
+                int currentRealCost = nodeStatesBuffer[currentId].RealCost;
+
+                foreach (Edge edge in current.Edges)
+                {
+                    if (edge.Type != Edge.EdgeType.Road) continue;
+                    Tile neighbor = (edge.StartTile == current) ? edge.EndTile : edge.StartTile;
+                    int neighborId = neighbor.Id.Value;
+
+                    int newRealDistance = currentRealDistance + Constants.ROAD_MOVEMENT_DISTANCE;
+                    int newRealCost = currentRealCost + ((edge.PlayerId == PlayerId.NONE || edge.PlayerId != PlayerManager.Instance.SelfId) ? Constants.ROAD_MOVEMENT_COST : 0);
+
+                    bool hasState = visitedTilesBuffer[neighborId];
+
+                    if (!hasState || newRealDistance < nodeStatesBuffer[neighborId].RealDistance || 
+                       (newRealDistance == nodeStatesBuffer[neighborId].RealDistance && newRealCost < nodeStatesBuffer[neighborId].RealCost))
+                    {
+                        visitedTilesBuffer[neighborId] = true;
+                        nodeStatesBuffer[neighborId] = new NodeState 
+                        { 
+                            RealCost = newRealCost, 
+                            RealDistance = newRealDistance, 
+                            CameFromId = currentId, 
+                            ReachedViaEdgeId = edge.Id 
+                        };
+                        tileQueue.Enqueue(neighbor, newRealDistance + GetSphericalHeuristic(neighbor, target), newRealCost);
+                    }
+                }
+            }
+            return null;
+        }
+
+        // 2. High-Performance Cheapest Path (Cost First, Array Backed)
+        public EdgeId[] FindCheapestPath(Tile start, Tile target)
+        {
+            if (!IsValidRequest(start, target)) return null;
+
+            System.Array.Clear(visitedTilesBuffer, 0, visitedTilesBuffer.Length);
+            tileQueue.Clear();
+
+            int startId = start.Id.Value;
+            nodeStatesBuffer[startId] = new NodeState { RealCost = 0, RealDistance = 0, CameFromId = -1 };
+            visitedTilesBuffer[startId] = true;
+            tileQueue.Enqueue(start, 0, 0);
+
+            while (tileQueue.Count > 0)
+            {
+                Tile current = tileQueue.Dequeue();
+                int currentId = current.Id.Value;
+                
+                if (current == target) return ReconstructPathArray(startId, target.Id.Value);
+
+                int currentRealDistance = nodeStatesBuffer[currentId].RealDistance;
+                int currentRealCost = nodeStatesBuffer[currentId].RealCost;
+
+                foreach (Edge edge in current.Edges)
+                {
+                    if (edge.Type != Edge.EdgeType.Road) continue;
+                    Tile neighbor = (edge.StartTile == current) ? edge.EndTile : edge.StartTile;
+                    int neighborId = neighbor.Id.Value;
+
+                    int newRealDistance = currentRealDistance + Constants.ROAD_MOVEMENT_DISTANCE;
+                    int newRealCost = currentRealCost + ((edge.PlayerId == PlayerId.NONE || edge.PlayerId != PlayerManager.Instance.SelfId) ? Constants.ROAD_MOVEMENT_COST : 0);
+
+                    bool hasState = visitedTilesBuffer[neighborId];
+
+                    if (!hasState || newRealCost < nodeStatesBuffer[neighborId].RealCost || 
+                       (newRealCost == nodeStatesBuffer[neighborId].RealCost && newRealDistance < nodeStatesBuffer[neighborId].RealDistance))
+                    {
+                        visitedTilesBuffer[neighborId] = true;
+                        nodeStatesBuffer[neighborId] = new NodeState 
+                        { 
+                            RealCost = newRealCost, 
+                            RealDistance = newRealDistance, 
+                            CameFromId = currentId, 
+                            ReachedViaEdgeId = edge.Id 
+                        };
+                        tileQueue.Enqueue(neighbor, newRealCost, newRealDistance + GetSphericalHeuristic(neighbor, target));
+                    }
+                }
+            }
+            return null;
+        }
+
+        private bool IsValidRequest(Tile start, Tile target)
+        {
+            if (start == null || target == null || start == target) return false;
+            if (start.Type == Tile.TileType.Water || target.Type == Tile.TileType.Water) return false;
+            if (start.Type == Tile.TileType.Mountain || target.Type == Tile.TileType.Mountain) return false;
+            return true;
+        }
+
+        private EdgeId[] ReconstructPathArray(int startId, int targetId)
+        {
+            List<EdgeId> result = new();
+            int currId = targetId;
+            while (currId != startId)
+            {
+                result.Add(nodeStatesBuffer[currId].ReachedViaEdgeId);
+                currId = nodeStatesBuffer[currId].CameFromId;
+            }
+            result.Reverse();
+            return result.ToArray();
+        }
+
+        private int GetSphericalHeuristic(Tile current, Tile target)
+        {
+            if (current == target) return 0;
+            
+            Vector3 v1 = current.PositionOnSphere.normalized;
+            Vector3 v2 = target.PositionOnSphere.normalized;
+            float angleRadians = Mathf.Acos(Mathf.Clamp(Vector3.Dot(v1, v2), -1f, 1f));
+            
+            // Estimates steps over arc surface
+            float approximateTileAngleRad = Mathf.PI / (resolution * 2.0f);
+            return Mathf.FloorToInt(angleRadians / approximateTileAngleRad);
+        }
+
+        // --- IN-EDITOR RUNTIME TESTING TOOLS ---
+        
+        [ContextMenu("Test Path Between IDs")]
+        public void RecalculateDebugPaths()
+        {
+            if (!Application.isPlaying)
+            {
+                Debug.LogWarning("Please enter Play Mode before executing a pathfinding calculation test.");
+                return;
+            }
+
+            if (tiles == null || testStartTileId < 0 || testStartTileId >= tiles.Count || testTargetTileId < 0 || testTargetTileId >= tiles.Count)
+            {
+                Debug.LogError("Invalid Node ID ranges configured inside the Map components debug window.");
+                return;
+            }
+
+            shortestDebugPathEdges.Clear();
+            cheapestDebugPathEdges.Clear();
+
+            Tile startTile = tiles[testStartTileId];
+            Tile targetTile = tiles[testTargetTileId];
+
+            // 1. Calculate Shortest Path (Green Profile)
+            System.Diagnostics.Stopwatch swShortest = System.Diagnostics.Stopwatch.StartNew();
+            EdgeId[] shortestResult = FindShortestPath(startTile, targetTile);
+            swShortest.Stop();
+
+            if (shortestResult != null)
+            {
+                Debug.Log($"[A* Shortest] <color=lime>Success!</color> Found route containing {shortestResult.Length} steps in <b>{swShortest.Elapsed.TotalMilliseconds:F4} ms</b>.");
+                foreach (var id in shortestResult) shortestDebugPathEdges.Add(edges[id.Value]);
+            }
+
+            // 2. Calculate Cheapest Path (Red Profile)
+            System.Diagnostics.Stopwatch swCheapest = System.Diagnostics.Stopwatch.StartNew();
+            EdgeId[] cheapestResult = FindCheapestPath(startTile, targetTile);
+            swCheapest.Stop();
+
+            if (cheapestResult != null)
+            {
+                Debug.Log($"[A* Cheapest] <color=orange>Success!</color> Found route containing {cheapestResult.Length} steps in <b>{swCheapest.Elapsed.TotalMilliseconds:F4} ms</b>.");
+                foreach (var id in cheapestResult) cheapestDebugPathEdges.Add(edges[id.Value]);
+            }
+            
+            if (shortestResult == null && cheapestResult == null)
+            {
+                Debug.LogWarning($"Pathfinding failed or route isolated between Node {testStartTileId} and Node {testTargetTileId}. Check terrain settings.");
+            }
+        }
+        
+        // ---------------------------------------
+
         public void OnDrawGizmos()
         {
-            if(edges == null) return;
+            if (edges == null) return;
 
             List<Vector3> nonePoints = new List<Vector3>();
             List<Vector3> roadPoints = new List<Vector3>();
@@ -465,7 +679,7 @@ namespace Map
                 points.Add(edges[i].EndTile.PositionOnSphere * 1.01f);
             }
 
-            Gizmos.color = new Color(1.0f, 1.0f, 1.0f, 0.1f);
+            Gizmos.color = new Color(1.0f, 1.0f, 1.0f, 0.05f);
             Gizmos.DrawLineList(nonePoints.ToArray().AsSpan());
 
             Gizmos.color = Color.black;
@@ -477,6 +691,37 @@ namespace Map
             Gizmos.color = new Color(0.1f, 0.1f, 0.1f);
             Gizmos.DrawLineList(railPoints.ToArray().AsSpan());
 
+            // --- SHORTEST PATH RENDERING LAYER (GREEN) ---
+            if (shortestDebugPathEdges != null && shortestDebugPathEdges.Count > 0)
+            {
+                Gizmos.color = Color.green;
+                foreach (var edge in shortestDebugPathEdges)
+                {
+                    // Scaled at 1.015f to sit slightly above standard roads
+                    Vector3 p1 = edge.StartTile.PositionOnSphere * 1.015f;
+                    Vector3 p2 = edge.EndTile.PositionOnSphere * 1.015f;
+
+                    Gizmos.DrawLine(p1, p2);
+                    Gizmos.DrawSphere(p1, radius * 0.006f);
+                    Gizmos.DrawSphere(p2, radius * 0.006f);
+                }
+            }
+
+            // --- CHEAPEST PATH RENDERING LAYER (RED) ---
+            if (cheapestDebugPathEdges != null && cheapestDebugPathEdges.Count > 0)
+            {
+                Gizmos.color = Color.red;
+                foreach (var edge in cheapestDebugPathEdges)
+                {
+                    // Scaled slightly higher (1.018f) so overlapping paths don't Z-fight in the viewport
+                    Vector3 p1 = edge.StartTile.PositionOnSphere * 1.018f;
+                    Vector3 p2 = edge.EndTile.PositionOnSphere * 1.018f;
+
+                    Gizmos.DrawLine(p1, p2);
+                    Gizmos.DrawSphere(p1, radius * 0.006f);
+                    Gizmos.DrawSphere(p2, radius * 0.006f);
+                }
+            }
             Gizmos.color = Color.red;
 
             foreach (var producer in producers)

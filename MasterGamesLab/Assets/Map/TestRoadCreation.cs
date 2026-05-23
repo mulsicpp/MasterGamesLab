@@ -10,18 +10,18 @@ public class TestRoadCreation : NetworkBehaviour
 
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1))
         {
             var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
             if (tile == null) return;
             Debug.Log("Clickded on tile with id " + tile.Id.Value);
-            if(startTile == null) startTile = tile;
+            if (startTile == null) startTile = tile;
             else
             {
                 var endTile = tile;
@@ -29,7 +29,7 @@ public class TestRoadCreation : NetworkBehaviour
                 Map.Edge edge = null;
                 foreach (var e in startTile.Edges)
                 {
-                    if((e.StartTile == startTile && e.EndTile == endTile) || (e.StartTile == endTile && e.EndTile == startTile))
+                    if ((e.StartTile == startTile && e.EndTile == endTile) || (e.StartTile == endTile && e.EndTile == startTile))
                     {
                         edge = e;
                         break;
@@ -42,6 +42,10 @@ public class TestRoadCreation : NetworkBehaviour
                 }
                 startTile = null;
             }
+            if (Map.Map.Instance.testStartTileId == -1)
+                Map.Map.Instance.testStartTileId = tile.Id.Value;
+            else
+                Map.Map.Instance.testTargetTileId = tile.Id.Value;
         }
 
         if(Input.GetKeyDown(KeyCode.P) && IsServer)
