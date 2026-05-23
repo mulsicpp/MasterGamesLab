@@ -414,11 +414,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map.Map
   ShowTopMostFoldoutHeaderGroup: 1
+  timestamp:
+    Value: 0
   radius: 1
   resolution: 20
   chunkPrefab: {fileID: 5519249646154030829, guid: 65a832fee843f45478962ed766b9ddce, type: 3}
   fullSphereDistance: 0.41
   fullProjectionDistance: 0.15
+  testStartTileId: -1
+  testTargetTileId: -1
 --- !u!114 &916988257
 MonoBehaviour:
   m_ObjectHideFlags: 0
