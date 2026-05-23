@@ -150,7 +150,7 @@ public class LobbyUI : MonoBehaviour
                 var hostIcon = playerLabels[i].Q<VisualElement>("HostIcon");
                 if (hostIcon != null) hostIcon.style.display = DisplayStyle.Flex;
             }
-            playerLabels[i].text = player.Data["Name"].Value;
+            playerLabels[i].text = player.Data["Name"].Value + ((i == 0) ? " (You)" : "");
             playerLabels[i].RemoveFromClassList("lobby-player-label-empty");
             playerLabels[i].AddToClassList("lobby-player-label");
         }
