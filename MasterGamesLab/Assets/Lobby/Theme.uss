@@ -10,9 +10,13 @@
     --text-outline-width: 1px;
     --border-color: var(--outline-color);
     --border-width: var(--outline-width);
-
     --disabled-border-color: rgba(255, 254, 254, 0.2);
     --disabled-background-color: rgba(0, 0, 0, 0);
+    --white-space: nowrap;
+    --overflow: hidden;
+    --text-overflow: ellipsis;
+
+    --copy-hovered:rgba(255, 255, 255, 0.16);
 }
 
 .element {
@@ -31,6 +35,9 @@
     color: var(--text-color);
     -unity-font-definition: var(--text-font);
     -unity-text-align: middle-left;
+    white-space: var(--white-space);
+    overflow: var(--overflow);
+    text-overflow: var(--text-overflow);
 }
 
 .button {
@@ -41,6 +48,9 @@
     border-width: var(--border-width);
     border-radius: var(--border-radius);
     -unity-text-align: middle-center;
+    white-space: var(--white-space);
+    overflow: var(--overflow);
+    text-overflow: var(--text-overflow);
 }
 
 .button:hover {
@@ -65,6 +75,9 @@
     border-radius: var(--border-radius);
     -unity-font-definition: var(--text-font);
     -unity-text-align: middle-left;
+    white-space: var(--white-space);
+    overflow: var(--overflow);
+    text-overflow: var(--text-overflow);
 }
 
 .text-field #unity-text-input {
@@ -161,4 +174,32 @@
     background-image: url("project://database/Assets/Lobby/Crown.svg?fileID=7388822144124034973&guid=5771e13031fb0b546824e0b0c877c56e&type=3#Crown");
     -unity-background-image-tint-color: var(--background-button-color);
     margin-right: 2%;
+}
+
+.copy-button {
+    color: var(--text-color);
+    -unity-font-definition: var(--text-font);
+    background-color: rgba(0, 0, 0, 0);
+    border-color: var(--border-color);
+    border-radius: var(--border-radius);
+    -unity-text-align: middle-left;
+}
+
+.copy-button:hover {
+    color: var(--background-button-color);
+}
+
+.copy-button:disabled {
+    color: var(--disabled-border-color);
+    background-color: var(--disabled-background-color);
+    border-color: var(--disabled-border-color);
+    -unity-text-outline-width: 0;
+}
+
+.copy-button:hover > .image-icon {
+    -unity-background-image-tint-color: var(--copy-hovered);
+}
+
+.copy-button:hover > .text-label {
+    color: var(--copy-hovered);
 }
