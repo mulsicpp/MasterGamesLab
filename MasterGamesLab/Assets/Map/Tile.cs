@@ -176,7 +176,7 @@ namespace Map
                 if (n.Type == TileType.Water && Type == TileType.Water) continue;
                 if (n.Type == TileType.Mountain || Type == TileType.Mountain) continue;
 
-                Edge edge = new Edge(new EdgeId(edgeList.Count), this, n, PlayerId.NONE, Edge.EdgeType.None);
+                Edge edge = new Edge(new EdgeId(edgeList.Count), this, n, Edge.EdgeType.None, PlayerId.NONE);
 
                 edges.Add(edge);
                 n.edges.Add(edge);
