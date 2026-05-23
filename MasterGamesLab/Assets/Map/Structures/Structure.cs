@@ -3,29 +3,46 @@ namespace Map.Structures
 {
     public abstract class Structure
     {
+        [System.Serializable]
         public enum StructureType : byte
         {
-            None,
             Producer,
             Consumer,
             Garage,
             Port,
-            TrainStation
+            TrainStation,
+            None
         }
 
         public readonly StructureId Id;
-        public readonly StructureType Type;
 
         public Timestamp Timestamp { get; protected set; }
 
         private Tile tile;
-        public Tile Tile { get { return tile; } set { tile = value; Timestamp = Map.Instance.Timestamp; } }
+        public Tile Tile
+        {
+            get { return tile; }
+            set
+            {
+                if (tile != null)
+                {
+                    tile.Structure = null;
+                }
+                if (value != null)
+                {
+                    if (value.Structure != null)
+                        value.Structure.tile = null;
+                    value.Structure = this;
+                }
+                tile = value;
+                Timestamp = Map.Instance.Timestamp;
+            }
+        }
 
-        protected Structure(StructureId id, StructureType type = StructureType.None, Tile tile = null)
+        protected Structure(StructureId id, Tile tile = null)
         {
             Id = id;
-            Type = type;
-            this.tile = tile;
+            Tile = tile;
             Timestamp = Map.Instance.Timestamp;
         }
     }
