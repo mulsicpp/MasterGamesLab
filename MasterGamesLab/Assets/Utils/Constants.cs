@@ -14,4 +14,6 @@ public static class Constants
 
 
     public const int MAX_EDGES_PER_RPC = 32;
+
+    public const int ROAD_MOVEMENT_COST = 1;
 }

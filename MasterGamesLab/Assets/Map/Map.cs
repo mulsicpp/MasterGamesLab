@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using InGameCamera;
 using Map.GeometryGeneration;
+using Unity.Burst.CompilerServices;
 using Unity.Netcode;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEditor.PackageManager;
@@ -83,7 +84,7 @@ namespace Map
             {
                 tile.InitializeNeighbors();
             }
-            
+
             ProceduralMapGenerator.GenerateMap();
 
             foreach (var chunk in chunks)
@@ -191,11 +192,11 @@ namespace Map
 
             // Test edge types
 
-            for(int i = 0; i < edges.Length; i++)
+            for (int i = 0; i < edges.Length; i++)
             {
                 if (i < edges.Length / 8) SetEdge(new EdgeId(i), Edge.EdgeType.Rail, PlayerId.NONE);
                 else if (i < edges.Length / 6) SetEdge(new EdgeId(i), Edge.EdgeType.Canal, PlayerId.NONE);
-                else if(i < edges.Length / 4) SetEdge(new EdgeId(i), Edge.EdgeType.Road, PlayerId.NONE);
+                else if (i < edges.Length / 4) SetEdge(new EdgeId(i), Edge.EdgeType.Road, PlayerId.NONE);
             }
         }
 
@@ -235,12 +236,12 @@ namespace Map
 
             foreach (var edge in edges)
             {
-                if(edge.Timestamp > clientTimestamp)
+                if (edge.Timestamp > clientTimestamp)
                 {
                     updatedEdges.Add(edge.GetNetData());
                 }
 
-                if(updatedEdges.Count == Constants.MAX_EDGES_PER_RPC)
+                if (updatedEdges.Count == Constants.MAX_EDGES_PER_RPC)
                 {
                     CreateEdgesClientRpc(Timestamp, updatedEdges.ToArray(), rpcParams);
                     updatedEdges.Clear();
@@ -270,7 +271,7 @@ namespace Map
         {
             this.timestamp = timestamp;
             Debug.Log("Received " + edgeData.Length + " edges");
-            foreach(var e in edgeData)
+            foreach (var e in edgeData)
             {
                 SetEdge(e.Id, e.Type, e.PlayerId, true);
             }
@@ -280,14 +281,14 @@ namespace Map
         public void RequestNewEdgesServerRpc(Edge.EdgeType edgeType, EdgeId[] edgeIds, RpcParams rpcParams = default)
         {
             var playerId = PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-            
+
             Debug.Log("Received new edges request from player " + playerId.Value);
 
             if (playerId == PlayerId.NONE) return;
 
             var validPath = true;
 
-            foreach(var id in edgeIds)
+            foreach (var id in edgeIds)
             {
                 if (id >= edges.Length || id < 0)
                 {
@@ -298,7 +299,7 @@ namespace Map
 
                 var edge = edges[id];
 
-                if(!edge.CanBecomeType(edgeType))
+                if (!edge.CanBecomeType(edgeType))
                 {
                     Debug.Log("Edge cannot become type: " + id.Value);
                     validPath = false;
@@ -309,11 +310,11 @@ namespace Map
             Debug.Log("Path is valid: " + validPath);
 
             // TODO give feedback to responsible player
-            if(!validPath) return;
+            if (!validPath) return;
 
             Edge.NetData[] edgeData = new Edge.NetData[edgeIds.Length];
 
-            for(var i = 0; i < edgeIds.Length; i++)
+            for (var i = 0; i < edgeIds.Length; i++)
             {
                 edgeData[i] = new Edge.NetData { Id = edgeIds[i], Type = edgeType, PlayerId = playerId };
             }
@@ -322,9 +323,85 @@ namespace Map
             CreateEdgesClientRpc(nextTimestamp, edgeData);
         }
 
+
+        private struct NodeState
+        {
+            public float RealCost;
+            public Tile CameFrom;   
+            public Edge ReachedViaEdge;
+        }
+
+        public EdgeId[] FindShortestPath(Tile start, Tile target)
+        {
+            if (start == null || target == null) return null;
+            if (start == target || start.Type == Tile.TileType.Water || target.Type == Tile.TileType.Water || start.Type == Tile.TileType.Mountain || target.Type == Tile.TileType.Mountain) return null;
+
+
+            Dictionary<Tile, NodeState> NodeStates = new();
+            List<EdgeId> Result = new();
+
+            var tileQueue = new PriorityQueue<Tile, float>();
+
+            NodeStates[start] = new NodeState { RealCost = 0f, CameFrom = null };
+            tileQueue.Enqueue(start, 0f);
+
+            while (tileQueue.Count > 0)
+            {
+                Tile current = tileQueue.Dequeue();
+
+                if (current == target)
+                {
+                    Tile curr = target;
+                    while (curr != start)
+                    {
+                        Result.Add(NodeStates[curr].ReachedViaEdge.Id);
+                        curr = NodeStates[curr].CameFrom;
+                    }
+
+                    Result.Reverse();
+                    return Result.ToArray();
+                }
+
+                float currentRealCost = NodeStates[current].RealCost;
+
+                foreach (Edge edge in current.Edges)
+                {
+                    Tile neighbor = (edge.StartTile == current) ? edge.EndTile : edge.StartTile;
+
+                    //if (neighbor == null) continue;
+
+                    float stepCost = Constants.ROAD_MOVEMENT_COST;
+                    float newRealCost = currentRealCost + stepCost;
+
+                    bool hasState = NodeStates.TryGetValue(neighbor, out NodeState neighborState);
+
+                    if (!hasState || newRealCost < neighborState.RealCost)
+                    {
+                        NodeStates[neighbor] = new NodeState
+                        {
+                            RealCost = newRealCost,
+                            CameFrom = current,
+                            ReachedViaEdge = edge
+                        };
+
+                        float finalCost = newRealCost + GetSphericalHeuristic(neighbor, target);
+
+                        tileQueue.Enqueue(neighbor, finalCost);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private static float GetSphericalHeuristic(Tile current, Tile target)
+        {
+            return Vector3.Distance(current.PositionOnSphere, target.PositionOnSphere);
+        }
+
         public void OnDrawGizmos()
         {
-            if(edges == null) return;
+            if (edges == null) return;
 
             List<Vector3> nonePoints = new List<Vector3>();
             List<Vector3> roadPoints = new List<Vector3>();
