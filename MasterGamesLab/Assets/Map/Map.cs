@@ -108,7 +108,7 @@ namespace Map
                 tile.InitializeNeighbors();
             }
 
-            ProceduralMapGenerator.GenerateMap();
+            ProceduralMapGenerator.GenerateMap(this);
 
             foreach (var chunk in chunks)
             {
