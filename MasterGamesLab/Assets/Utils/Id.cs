@@ -1,7 +1,7 @@
 
 using Unity.Netcode;
 using System;
-using Map.Structures;
+using Map.Infrastructure;
 
 using TileIdPrimitive = System.Int32;
 using EdgeIdPrimitive = System.Int32;

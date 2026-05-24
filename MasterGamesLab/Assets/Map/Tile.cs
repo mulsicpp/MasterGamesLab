@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Map.GeometryGeneration;
-using Map.Structures;
+using Map.Infrastructure;
 using UnityEngine;
 
 namespace Map
@@ -31,7 +31,7 @@ namespace Map
 
         public IReadOnlyList<Edge> Edges => edges;
 
-        public Structures.Structure Structure { get; set; }
+        public Structure Structure { get; set; }
 
         public TileType Type
         {
@@ -203,7 +203,9 @@ namespace Map
 
             switch (type)
             {
-                case Structure.StructureType.Producer: return Type == TileType.Plain || Type == TileType.Forest;
+                case Structure.StructureType.Producer:
+                case Structure.StructureType.Consumer:
+                    return Type == TileType.Plain || Type == TileType.Forest;
             }
 
             return false;

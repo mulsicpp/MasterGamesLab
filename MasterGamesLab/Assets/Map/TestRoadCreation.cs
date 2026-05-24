@@ -1,3 +1,4 @@
+using Map.Infrastructure;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -53,9 +54,20 @@ public class TestRoadCreation : NetworkBehaviour
             var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
             if (tile == null) return;
 
-            if(tile.CanSpawnStructure(Map.Structures.Structure.StructureType.Producer))
+            if(tile.CanSpawnStructure(Structure.StructureType.Producer))
             {
-                Map.Map.Instance.SpawnProducerGlobal(tile.Id, Map.Structures.Good.Apple);
+                Map.Map.Instance.SpawnStructureGlobal(new Producer.NetData { TileId = tile.Id, Good = Good.Apple });
+            }
+        }
+
+        if(Input.GetKeyDown(KeyCode.C) && IsServer)
+        {
+            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
+            if (tile == null) return;
+
+            if(tile.CanSpawnStructure(Structure.StructureType.Consumer))
+            {
+                Map.Map.Instance.SpawnStructureGlobal(new Consumer.NetData { TileId = tile.Id, RequestedGood = Good.Apple });
             }
         }
     }

@@ -1,7 +1,7 @@
 
 using Unity.Netcode;
 
-namespace Map.Structures
+namespace Map.Infrastructure
 {
     public abstract class Structure
     {
@@ -14,6 +14,11 @@ namespace Map.Structures
             Port,
             TrainStation,
             None
+        }
+
+        public interface INetData {
+            public StructureId Id { get; }
+            public void SetOffset(byte offset);
         }
 
         public readonly StructureId Id;

@@ -1,4 +1,4 @@
-﻿using Map.Structures;
+﻿using Map.Infrastructure;
 using System.Collections.Generic;
 using UnityEngine;
 

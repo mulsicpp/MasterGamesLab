@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using InGameCamera;
 using Map.GeometryGeneration;
 using Unity.Burst.CompilerServices;
-using Map.Structures;
+using Map.Infrastructure;
 using Unity.Netcode;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEditor.PackageManager;
@@ -34,7 +34,7 @@ namespace Map
 
         public IReadOnlyList<Edge> Edges => edges;
 
-        public IReadOnlyList<Producer> Producers => producers;
+        public IReadOnlyInfrastructure Infrastructure => infrastructure;
 
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
@@ -48,7 +48,7 @@ namespace Map
         [Tooltip("Drag a Tile reference here, or use the context menu via the Inspector dots to test.")]
         [SerializeField] public int testStartTileId = -1;
         [SerializeField] public int testTargetTileId = -1;
-        
+
         // Two independent trace buffers so both paths can be drawn at once
         private readonly List<Edge> shortestDebugPathEdges = new();
         private readonly List<Edge> cheapestDebugPathEdges = new();
@@ -62,12 +62,12 @@ namespace Map
         private int currentlyHoveredTileId;
 
         private Edge[] edges;
+        private Infrastructure.Infrastructure infrastructure;
 
         // --- HIGH PERFORMANCE PRE-ALLOCATED RUNTIME BUFFERS ---
         private NodeState[] nodeStatesBuffer;
         private bool[] visitedTilesBuffer;
         private PriorityQueue<Tile, int, int> tileQueue;
-        private Producer[] producers;
 
         private void OnEnable()
         {
@@ -83,11 +83,7 @@ namespace Map
             chunks = new List<MapChunk>(chunksPoints.Count);
             edges = new Edge[0];
 
-            producers = new Producer[Constants.MAX_PRODUCER_COUNT];
-            for(var i = 0; i < Constants.MAX_PRODUCER_COUNT; i++)
-            {
-                producers[i] = new Producer((byte)i, null, Good.None);
-            }
+            infrastructure = new Infrastructure.Infrastructure();
 
             var currentId = 0;
             foreach (var chunkPoints in chunksPoints)
@@ -147,7 +143,7 @@ namespace Map
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
                 MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
-                
+
                 // Optional dynamic update line: recalculates debug paths on click if paths exist
                 if (shortestDebugPathEdges.Count > 0 || cheapestDebugPathEdges.Count > 0)
                 {
@@ -221,7 +217,7 @@ namespace Map
                 chunk.UpdateMesh();
             }
 
-            SpawnProducerLocal(edges[0].EndTile.Id, Good.Apple);
+            SpawnStructureLocal(new Producer.NetData { TileId = edges[0].EndTile.Id, Good = Good.Apple });
 
             // Test edge types
 
@@ -258,68 +254,33 @@ namespace Map
             return true;
         }
 
-        public int GetFirstAvailableStructureOffset(Structure.StructureType type)
+
+        public bool SpawnStructureLocal<T>(T data) where T : struct, Structure.INetData
         {
-            Structure[] structures = null;
-
-            switch(type)
-            {
-                case Structure.StructureType.Producer: structures = producers; break;
-            }
-
-            if (structures == null) return -1;
-
-            for(int i = 0; i < structures.Length; i++)
-            {
-                if (structures[i].Tile == null)
-                    return i;
-            }
-            return -1;
-        }
-
-        public void SetProducer(byte offset, TileId tileId, Good good)
-        {
-            if(offset >= Constants.MAX_PRODUCER_COUNT) return;
-
-            var producer = producers[offset];
-
-            producer.Tile = tileId == TileId.NONE ? null : tiles[tileId];
-            producer.Good = good;
-        }
-
-        public bool SpawnProducerLocal(TileId tileId, Good good)
-        {
-            int producerOffset = GetFirstAvailableStructureOffset(Structure.StructureType.Producer);
+            int producerOffset = infrastructure.GetFirstAvailableStructureOffset(data.Id.Type);
             if (producerOffset > -1)
             {
-                SetProducer((byte)producerOffset, tileId, good);
+                infrastructure.SetNetObject(data);
                 return true;
             }
             return false;
         }
 
-        public bool SpawnProducerGlobal(TileId tileId, Good good)
+        public bool SpawnStructureGlobal<T>(T data) where T: struct, Structure.INetData
         {
-            if(!IsServer) return false;
+            if (!IsServer) return false;
 
-            int producerOffset = GetFirstAvailableStructureOffset(Structure.StructureType.Producer);
-            if (producerOffset > -1)
+            int offset = infrastructure.GetFirstAvailableStructureOffset(data.Id.Type);
+            if (offset > -1)
             {
-                var producerData = new Producer.NetData
-                {
-                    Id = new StructureId(Structure.StructureType.Producer, (byte)producerOffset),
-                    TileId = tileId,
-                    Good = good,
-                };
+                data.SetOffset((byte)offset);
 
                 var nextTimestamp = timestamp.Next();
-                UpdateObjectsClientRpc(nextTimestamp, new[] { producerData });
+                UpdateGenericDataClient(nextTimestamp, new[] { data });
                 return true;
             }
             return false;
         }
-
-
 
 
         private ClientRpcParams GetRpcParams(ClientId clientId)
@@ -340,10 +301,11 @@ namespace Map
             var rpcParams = GetRpcParams(clientId);
 
             SyncClientObjects<Edge, Edge.NetData>(clientTimestamp, rpcParams, edges, Constants.MAX_EDGES_PER_RPC);
-            SyncClientObjects<Producer, Producer.NetData>(clientTimestamp, rpcParams, producers, Constants.MAX_EDGES_PER_RPC);
+            SyncClientObjects<Producer, Producer.NetData>(clientTimestamp, rpcParams, infrastructure.Producers, Constants.MAX_PRODUCERS_PER_RPC);
+            SyncClientObjects<Consumer, Consumer.NetData>(clientTimestamp, rpcParams, infrastructure.Consumers, Constants.MAX_CONSUMERS_PER_RPC);
         }
 
-        private void SyncClientObjects<T, U>(Timestamp clientTimestamp, ClientRpcParams rpcParams, T[] objects, int maxObjects = 32) where U : struct where T : INetObject<U>
+        private void SyncClientObjects<T, U>(Timestamp clientTimestamp, ClientRpcParams rpcParams, IEnumerable<T> objects, int maxObjects = 32) where U : struct where T : INetObject<U>
         {
             var updatedObjects = new List<U>();
             updatedObjects.Capacity = maxObjects;
@@ -357,27 +319,48 @@ namespace Map
 
                 if (updatedObjects.Count == maxObjects)
                 {
-                    UpdateObjectsClientRpc(Timestamp, updatedObjects.ToArray(), rpcParams);
+                    UpdateGenericDataClient(Timestamp, updatedObjects.ToArray(), rpcParams);
                     updatedObjects.Clear();
                 }
             }
 
             if (updatedObjects.Count > 0)
             {
-                UpdateObjectsClientRpc(Timestamp, updatedObjects.ToArray(), rpcParams);
+                UpdateGenericDataClient(Timestamp, updatedObjects.ToArray(), rpcParams);
             }
         }
 
-        private void SetNetObject<T>(T netData) where T : struct
+        private void SetNetObject<T>(T netData)
         {
             if (netData is Edge.NetData e) SetEdge(e.Id, e.Type, e.PlayerId, true);
-            else if (netData is Producer.NetData p) SetProducer(p.Id.Offset, p.TileId, p.Good);
+            else if (netData is Structure.INetData s) infrastructure.SetNetObject(s);
+            else throw new ArgumentException("Given NetData is not supported: " + netData.GetType().FullName);
+        }
 
+        private void UpdateGenericDataClient<T>(Timestamp timestamp, T[] netData, ClientRpcParams rpcParams = default) where T : struct
+        {
+            // edges
+            if (netData is Edge.NetData[] e) UpdateEdgeDataClientRpc(timestamp, e, rpcParams);
+
+            // structures
+            else if (netData is Producer.NetData[] p) UpdateProducerDataClientRpc(timestamp, p, rpcParams);
+            else if (netData is Consumer.NetData[] c) UpdateConsumerDataClientRpc(timestamp, c, rpcParams);
         }
 
 
+
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void UpdateObjectsClientRpc<T>(Timestamp timestamp, T[] netData, ClientRpcParams rpcParams = default) where T : struct
+        private void UpdateEdgeDataClientRpc(Timestamp timestamp, Edge.NetData[] netData, ClientRpcParams rpcParams = default) => UpdateGenericDataLocal(timestamp, netData);
+
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        private void UpdateProducerDataClientRpc(Timestamp timestamp, Producer.NetData[] netData, ClientRpcParams rpcParams = default) => UpdateGenericDataLocal(timestamp, netData);
+
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        private void UpdateConsumerDataClientRpc(Timestamp timestamp, Consumer.NetData[] netData, ClientRpcParams rpcParams = default) => UpdateGenericDataLocal(timestamp, netData);
+
+
+
+        private void UpdateGenericDataLocal<T>(Timestamp timestamp, T[] netData) where T : struct
         {
             this.timestamp = timestamp;
             foreach (var data in netData)
@@ -385,7 +368,6 @@ namespace Map
                 SetNetObject(data);
             }
         }
-
 
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
@@ -425,7 +407,7 @@ namespace Map
             }
 
             var nextTimestamp = Timestamp.Next();
-            UpdateObjectsClientRpc(nextTimestamp, edgeData);
+            UpdateEdgeDataClientRpc(nextTimestamp, edgeData);
         }
 
         private struct NodeState
@@ -455,7 +437,7 @@ namespace Map
             {
                 Tile current = tileQueue.Dequeue();
                 int currentId = current.Id.Value;
-                
+
                 if (current == target) return ReconstructPathArray(startId, target.Id.Value);
 
                 int currentRealDistance = nodeStatesBuffer[currentId].RealDistance;
@@ -472,16 +454,16 @@ namespace Map
 
                     bool hasState = visitedTilesBuffer[neighborId];
 
-                    if (!hasState || newRealDistance < nodeStatesBuffer[neighborId].RealDistance || 
+                    if (!hasState || newRealDistance < nodeStatesBuffer[neighborId].RealDistance ||
                        (newRealDistance == nodeStatesBuffer[neighborId].RealDistance && newRealCost < nodeStatesBuffer[neighborId].RealCost))
                     {
                         visitedTilesBuffer[neighborId] = true;
-                        nodeStatesBuffer[neighborId] = new NodeState 
-                        { 
-                            RealCost = newRealCost, 
-                            RealDistance = newRealDistance, 
-                            CameFromId = currentId, 
-                            ReachedViaEdgeId = edge.Id 
+                        nodeStatesBuffer[neighborId] = new NodeState
+                        {
+                            RealCost = newRealCost,
+                            RealDistance = newRealDistance,
+                            CameFromId = currentId,
+                            ReachedViaEdgeId = edge.Id
                         };
                         tileQueue.Enqueue(neighbor, newRealDistance + GetSphericalHeuristic(neighbor, target), newRealCost);
                     }
@@ -507,7 +489,7 @@ namespace Map
             {
                 Tile current = tileQueue.Dequeue();
                 int currentId = current.Id.Value;
-                
+
                 if (current == target) return ReconstructPathArray(startId, target.Id.Value);
 
                 int currentRealDistance = nodeStatesBuffer[currentId].RealDistance;
@@ -524,16 +506,16 @@ namespace Map
 
                     bool hasState = visitedTilesBuffer[neighborId];
 
-                    if (!hasState || newRealCost < nodeStatesBuffer[neighborId].RealCost || 
+                    if (!hasState || newRealCost < nodeStatesBuffer[neighborId].RealCost ||
                        (newRealCost == nodeStatesBuffer[neighborId].RealCost && newRealDistance < nodeStatesBuffer[neighborId].RealDistance))
                     {
                         visitedTilesBuffer[neighborId] = true;
-                        nodeStatesBuffer[neighborId] = new NodeState 
-                        { 
-                            RealCost = newRealCost, 
-                            RealDistance = newRealDistance, 
-                            CameFromId = currentId, 
-                            ReachedViaEdgeId = edge.Id 
+                        nodeStatesBuffer[neighborId] = new NodeState
+                        {
+                            RealCost = newRealCost,
+                            RealDistance = newRealDistance,
+                            CameFromId = currentId,
+                            ReachedViaEdgeId = edge.Id
                         };
                         tileQueue.Enqueue(neighbor, newRealCost, newRealDistance + GetSphericalHeuristic(neighbor, target));
                     }
@@ -566,18 +548,18 @@ namespace Map
         private int GetSphericalHeuristic(Tile current, Tile target)
         {
             if (current == target) return 0;
-            
+
             Vector3 v1 = current.PositionOnSphere.normalized;
             Vector3 v2 = target.PositionOnSphere.normalized;
             float angleRadians = Mathf.Acos(Mathf.Clamp(Vector3.Dot(v1, v2), -1f, 1f));
-            
+
             // Estimates steps over arc surface
             float approximateTileAngleRad = Mathf.PI / (resolution * 2.0f);
             return Mathf.FloorToInt(angleRadians / approximateTileAngleRad);
         }
 
         // --- IN-EDITOR RUNTIME TESTING TOOLS ---
-        
+
         [ContextMenu("Test Path Between IDs")]
         public void RecalculateDebugPaths()
         {
@@ -620,13 +602,13 @@ namespace Map
                 Debug.Log($"[A* Cheapest] <color=orange>Success!</color> Found route containing {cheapestResult.Length} steps in <b>{swCheapest.Elapsed.TotalMilliseconds:F4} ms</b>.");
                 foreach (var id in cheapestResult) cheapestDebugPathEdges.Add(edges[id.Value]);
             }
-            
+
             if (shortestResult == null && cheapestResult == null)
             {
                 Debug.LogWarning($"Pathfinding failed or route isolated between Node {testStartTileId} and Node {testTargetTileId}. Check terrain settings.");
             }
         }
-        
+
         // ---------------------------------------
 
         public void OnDrawGizmos()
@@ -694,11 +676,18 @@ namespace Map
                     Gizmos.DrawSphere(p2, radius * 0.006f);
                 }
             }
+
             Gizmos.color = Color.red;
 
-            foreach (var producer in producers)
+            foreach (var producer in infrastructure.Producers)
                 if (producer.Tile != null)
                     Gizmos.DrawSphere(producer.Tile.PositionOnSphere, 0.015f);
+
+            Gizmos.color = Color.blue;
+
+            foreach (var consumer in infrastructure.Consumers)
+                if (consumer.Tile != null)
+                    Gizmos.DrawSphere(consumer.Tile.PositionOnSphere, 0.015f);
 
             // Debug.Log("Drawing gizmos");
         }

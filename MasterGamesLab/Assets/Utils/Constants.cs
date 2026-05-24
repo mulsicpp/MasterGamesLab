@@ -12,11 +12,14 @@ public static class Constants
     public const uint MAX_TRUCKS_PER_PLAYER = 64;
     public const uint MAX_FREIGHTERS_PER_PLAYER = 16;
 
-    public const uint MAX_PRODUCER_COUNT = 64;
+    public const byte MAX_PRODUCER_COUNT = 64;
+    public const byte MAX_CONSUMER_COUNT = 128;
 
 
     public const int MAX_EDGES_PER_RPC = 32;
     public const int MAX_PRODUCERS_PER_RPC = 32;
+    public const int MAX_CONSUMERS_PER_RPC = 32;
+
 
     public const int ROAD_MOVEMENT_COST = 1;
     public const int ROAD_MOVEMENT_DISTANCE = 1;
