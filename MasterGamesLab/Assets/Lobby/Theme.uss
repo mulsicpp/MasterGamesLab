@@ -16,6 +16,7 @@
     --overflow: hidden;
     --text-overflow: ellipsis;
     --copy-hovered: rgba(255, 255, 255, 0.16);
+    --error-color:rgb(255, 73, 73);
 }
 
 .element {
@@ -216,9 +217,9 @@
 }
 
 .highlighted-text-field {
-    border-color: rgb(255, 73, 73);
+    border-color: var(--error-color);
     border-width: 2px;
-    color: rgb(255, 73, 73);
+    color: var(--error-color);
     background-color: rgba(0, 0, 0, 0.4);
     scale: 1.02 1.02;
 }
