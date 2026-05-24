@@ -11,6 +11,7 @@ using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
+using Unity.VisualScripting;
 
 namespace Map
 {
@@ -677,17 +678,41 @@ namespace Map
                 }
             }
 
-            Gizmos.color = Color.red;
+            var orange = new Color(1.0f, 0.2f, 0.0f); 
 
             foreach (var producer in infrastructure.Producers)
                 if (producer.Tile != null)
+                {
+                    Gizmos.color = Color.green;
                     Gizmos.DrawSphere(producer.Tile.PositionOnSphere, 0.015f);
-
-            Gizmos.color = Color.blue;
+                    if(producer.Good != Good.None)
+                    {
+                        switch(producer.Good)
+                        {
+                            case Good.Apple: Gizmos.color = Color.red; break;
+                            case Good.Orange: Gizmos.color = orange; break;
+                            case Good.Banana: Gizmos.color = Color.yellow; break;
+                        }
+                        Gizmos.DrawSphere(producer.Tile.PositionOnSphere * 1.02f, 0.005f);
+                    }
+                }
 
             foreach (var consumer in infrastructure.Consumers)
                 if (consumer.Tile != null)
+                {
+                    Gizmos.color = Color.blue;
                     Gizmos.DrawSphere(consumer.Tile.PositionOnSphere, 0.015f);
+                    if (consumer.RequestedGood != Good.None)
+                    {
+                        switch (consumer.RequestedGood)
+                        {
+                            case Good.Apple: Gizmos.color = Color.red; break;
+                            case Good.Orange: Gizmos.color = orange; break;
+                            case Good.Banana: Gizmos.color = Color.yellow; break;
+                        }
+                        Gizmos.DrawSphere(consumer.Tile.PositionOnSphere * 1.02f, 0.005f);
+                    }
+                }
 
             // Debug.Log("Drawing gizmos");
         }

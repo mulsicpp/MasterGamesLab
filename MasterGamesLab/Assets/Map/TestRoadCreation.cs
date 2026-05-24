@@ -9,6 +9,9 @@ public class TestRoadCreation : NetworkBehaviour
     [SerializeField]
     private Map.Edge.EdgeType type = Map.Edge.EdgeType.Road;
 
+    [SerializeField]
+    private Good good = Good.Apple;
+
     void Start()
     {
 
@@ -56,7 +59,7 @@ public class TestRoadCreation : NetworkBehaviour
 
             if(tile.CanSpawnStructure(Structure.StructureType.Producer))
             {
-                Map.Map.Instance.SpawnStructureGlobal(new Producer.NetData { TileId = tile.Id, Good = Good.Apple });
+                Map.Map.Instance.SpawnStructureGlobal(new Producer.NetData { TileId = tile.Id, Good = good });
             }
         }
 
@@ -67,7 +70,7 @@ public class TestRoadCreation : NetworkBehaviour
 
             if(tile.CanSpawnStructure(Structure.StructureType.Consumer))
             {
-                Map.Map.Instance.SpawnStructureGlobal(new Consumer.NetData { TileId = tile.Id, RequestedGood = Good.Apple });
+                Map.Map.Instance.SpawnStructureGlobal(new Consumer.NetData { TileId = tile.Id, RequestedGood = good });
             }
         }
     }
