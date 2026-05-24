@@ -321,8 +321,6 @@ namespace Map
             else if (states is Consumer.ConsumerState[] c) UpdateConsumerStatesClientRpc(timestamp, c, rpcParams);
         }
 
-
-
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
         private void UpdateEdgeStatesClientRpc(Timestamp timestamp, Edge.EdgeState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Edges, states);
 
@@ -342,7 +340,6 @@ namespace Map
                 objects[state.ArrayIndex].State = state;
             }
         }
-
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
         public void RequestNewEdgesServerRpc(Edge.EdgeType edgeType, EdgeId[] edgeIds, RpcParams rpcParams = default)
@@ -394,7 +391,6 @@ namespace Map
 
         public enum RoutePriorityMode { Shortest, Cheapest }
 
-        // 1. High-Performance Shortest Path (Distance First, Array Backed)
         public EdgeId[] FindShortestPath(Tile start, Tile target)
         {
             if (!IsValidRequest(start, target)) return null;
@@ -446,7 +442,6 @@ namespace Map
             return null;
         }
 
-        // 2. High-Performance Cheapest Path (Cost First, Array Backed)
         public EdgeId[] FindCheapestPath(Tile start, Tile target)
         {
             if (!IsValidRequest(start, target)) return null;
@@ -508,7 +503,7 @@ namespace Map
 
         private EdgeId[] ReconstructPathArray(int startId, int targetId)
         {
-            List<EdgeId> result = new();
+            var result = new List<EdgeId>();
             int currId = targetId;
             while (currId != startId)
             {
@@ -527,9 +522,52 @@ namespace Map
             Vector3 v2 = target.PositionOnSphere.normalized;
             float angleRadians = Mathf.Acos(Mathf.Clamp(Vector3.Dot(v1, v2), -1f, 1f));
 
-            // Estimates steps over arc surface
             float approximateTileAngleRad = Mathf.PI / (resolution * 2.0f);
             return Mathf.FloorToInt(angleRadians / approximateTileAngleRad);
+        }
+
+        private Vector3 GetProjectedPosition(Vector3 positionOnSphere, float heightOffsetFactor = 1.0f)
+        {
+            // Safety check if parameters aren't initialized yet
+            if (oldProjectionCenter == Vector3.zero)
+                return positionOnSphere * heightOffsetFactor;
+
+            // 1. Replicate exactly how the shader processes world space positions
+            Vector3 worldPos = positionOnSphere * heightOffsetFactor;
+            Vector3 projectionCenter = oldProjectionCenter.normalized;
+            float sphereRadius = radius;
+            float projectionFactor = oldProjectionFactor;
+
+            // 2. Calculate projection mapping matching HLSL step-by-step
+            Vector3 pNorm = worldPos.normalized; // Assuming planet center is at (0,0,0)
+            float d = Vector3.Dot(projectionCenter, pNorm);
+            d = Mathf.Clamp(d, -1.0f, 1.0f);
+            float angle = Mathf.Acos(d);
+
+            // Distance along the surface of the sphere
+            float arcLength = sphereRadius * angle;
+
+            // Direction outward from the focus point on the tangent plane
+            Vector3 toPoint = pNorm - (projectionCenter * d);
+            float lengthToPoint = toPoint.magnitude;
+
+            Vector3 flatPos;
+            if (lengthToPoint < 0.0001f)
+            {
+                flatPos = projectionCenter * sphereRadius; // Center point
+            }
+            else
+            {
+                Vector3 dirOnPlane = toPoint / lengthToPoint;
+                flatPos = (projectionCenter * sphereRadius) + (dirOnPlane * arcLength);
+            }
+
+            // 3. Match shader height behavior: Extract elevation and push straight UP along projection axis
+            float elevation = worldPos.magnitude - sphereRadius;
+            flatPos += projectionCenter * elevation;
+
+            // 4. Blend Position exactly like the shader's lerp loop
+            return Vector3.Lerp(worldPos, flatPos, projectionFactor);
         }
 
         // --- IN-EDITOR RUNTIME TESTING TOOLS ---
@@ -555,7 +593,6 @@ namespace Map
             Tile startTile = tiles[testStartTileId];
             Tile targetTile = tiles[testTargetTileId];
 
-            // 1. Calculate Shortest Path (Green Profile)
             System.Diagnostics.Stopwatch swShortest = System.Diagnostics.Stopwatch.StartNew();
             EdgeId[] shortestResult = FindShortestPath(startTile, targetTile);
             swShortest.Stop();
@@ -566,7 +603,6 @@ namespace Map
                 foreach (var id in shortestResult) shortestDebugPathEdges.Add(edges[id.Value]);
             }
 
-            // 2. Calculate Cheapest Path (Red Profile)
             System.Diagnostics.Stopwatch swCheapest = System.Diagnostics.Stopwatch.StartNew();
             EdgeId[] cheapestResult = FindCheapestPath(startTile, targetTile);
             swCheapest.Stop();
@@ -589,35 +625,30 @@ namespace Map
         {
             if (edges == null) return;
 
-            List<Vector3> nonePoints = new List<Vector3>();
-            List<Vector3> roadPoints = new List<Vector3>();
-            List<Vector3> canalPoints = new List<Vector3>();
-            List<Vector3> railPoints = new List<Vector3>();
-
+            // Draw default background grid lines and infrastructure paths
             for (int i = 0; i < edges.Length; i++)
             {
-                List<Vector3> points = nonePoints;
                 switch (edges[i].Type)
                 {
-                    case Edge.EdgeType.Road: points = roadPoints; break;
-                    case Edge.EdgeType.Canal: points = canalPoints; break;
-                    case Edge.EdgeType.Rail: points = railPoints; break;
+                    case Edge.EdgeType.Road:
+                        Gizmos.color = Color.black;
+                        break;
+                    case Edge.EdgeType.Canal:
+                        Gizmos.color = Color.blue;
+                        break;
+                    case Edge.EdgeType.Rail:
+                        Gizmos.color = new Color(0.1f, 0.1f, 0.1f);
+                        break;
+                    default:
+                        Gizmos.color = new Color(1.0f, 1.0f, 1.0f, 0.05f);
+                        break;
                 }
-                points.Add(edges[i].StartTile.PositionOnSphere * 1.01f);
-                points.Add(edges[i].EndTile.PositionOnSphere * 1.01f);
+
+                // Project positions dynamically using current shader parameters
+                Vector3 p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.01f);
+                Vector3 p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.01f);
+                Gizmos.DrawLine(p1, p2);
             }
-
-            Gizmos.color = new Color(1.0f, 1.0f, 1.0f, 0.05f);
-            Gizmos.DrawLineList(nonePoints.ToArray().AsSpan());
-
-            Gizmos.color = Color.black;
-            Gizmos.DrawLineList(roadPoints.ToArray().AsSpan());
-
-            Gizmos.color = Color.blue;
-            Gizmos.DrawLineList(canalPoints.ToArray().AsSpan());
-
-            Gizmos.color = new Color(0.1f, 0.1f, 0.1f);
-            Gizmos.DrawLineList(railPoints.ToArray().AsSpan());
 
             // --- SHORTEST PATH RENDERING LAYER (GREEN) ---
             if (shortestDebugPathEdges != null && shortestDebugPathEdges.Count > 0)
@@ -625,9 +656,8 @@ namespace Map
                 Gizmos.color = Color.green;
                 foreach (var edge in shortestDebugPathEdges)
                 {
-                    // Scaled at 1.015f to sit slightly above standard roads
-                    Vector3 p1 = edge.StartTile.PositionOnSphere * 1.015f;
-                    Vector3 p2 = edge.EndTile.PositionOnSphere * 1.015f;
+                    Vector3 p1 = GetProjectedPosition(edge.StartTile.PositionOnSphere, 1.015f);
+                    Vector3 p2 = GetProjectedPosition(edge.EndTile.PositionOnSphere, 1.015f);
 
                     Gizmos.DrawLine(p1, p2);
                     Gizmos.DrawSphere(p1, radius * 0.006f);
@@ -641,9 +671,8 @@ namespace Map
                 Gizmos.color = Color.red;
                 foreach (var edge in cheapestDebugPathEdges)
                 {
-                    // Scaled slightly higher (1.018f) so overlapping paths don't Z-fight in the viewport
-                    Vector3 p1 = edge.StartTile.PositionOnSphere * 1.018f;
-                    Vector3 p2 = edge.EndTile.PositionOnSphere * 1.018f;
+                    Vector3 p1 = GetProjectedPosition(edge.StartTile.PositionOnSphere, 1.018f);
+                    Vector3 p2 = GetProjectedPosition(edge.EndTile.PositionOnSphere, 1.018f);
 
                     Gizmos.DrawLine(p1, p2);
                     Gizmos.DrawSphere(p1, radius * 0.006f);
@@ -651,30 +680,41 @@ namespace Map
                 }
             }
 
-            var orange = new Color(1.0f, 0.2f, 0.0f); 
+            var orange = new Color(1.0f, 0.2f, 0.0f);
 
+            // --- PRODUCERS ---
             foreach (var producer in infrastructure.Producers)
+            {
                 if (producer.Tile != null)
                 {
+                    Vector3 basePos = GetProjectedPosition(producer.Tile.PositionOnSphere, 1.0f);
                     Gizmos.color = Color.green;
-                    Gizmos.DrawSphere(producer.Tile.PositionOnSphere, 0.015f);
-                    if(producer.Good != Good.None)
+                    Gizmos.DrawSphere(basePos, 0.015f);
+
+                    if (producer.Good != Good.None)
                     {
-                        switch(producer.Good)
+                        switch (producer.Good)
                         {
                             case Good.Apple: Gizmos.color = Color.red; break;
                             case Good.Orange: Gizmos.color = orange; break;
                             case Good.Banana: Gizmos.color = Color.yellow; break;
                         }
-                        Gizmos.DrawSphere(producer.Tile.PositionOnSphere * 1.02f, 0.005f);
+                        Vector3 cargoPos = GetProjectedPosition(producer.Tile.PositionOnSphere, 1.02f);
+                        Gizmos.color = Gizmos.color; // Keep targeted good color context
+                        Gizmos.DrawSphere(cargoPos, 0.005f);
                     }
                 }
+            }
 
+            // --- CONSUMERS ---
             foreach (var consumer in infrastructure.Consumers)
+            {
                 if (consumer.Tile != null)
                 {
+                    Vector3 basePos = GetProjectedPosition(consumer.Tile.PositionOnSphere, 1.0f);
                     Gizmos.color = Color.blue;
-                    Gizmos.DrawSphere(consumer.Tile.PositionOnSphere, 0.015f);
+                    Gizmos.DrawSphere(basePos, 0.015f);
+
                     if (consumer.RequestedGood != Good.None)
                     {
                         switch (consumer.RequestedGood)
@@ -683,11 +723,11 @@ namespace Map
                             case Good.Orange: Gizmos.color = orange; break;
                             case Good.Banana: Gizmos.color = Color.yellow; break;
                         }
-                        Gizmos.DrawSphere(consumer.Tile.PositionOnSphere * 1.02f, 0.005f);
+                        Vector3 cargoPos = GetProjectedPosition(consumer.Tile.PositionOnSphere, 1.02f);
+                        Gizmos.DrawSphere(cargoPos, 0.005f);
                     }
                 }
-
-            // Debug.Log("Drawing gizmos");
+            }
         }
 
 #if UNITY_EDITOR
