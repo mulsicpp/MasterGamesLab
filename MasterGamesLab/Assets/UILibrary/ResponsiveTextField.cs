@@ -50,7 +50,7 @@ public partial class ResponsiveTextField : VisualElement
         }
     }
 
-    // --- NEW: CURSOR CUSTOM ATTRIBUTES ---
+    // --- CURSOR CUSTOM ATTRIBUTES ---
 
     [UxmlAttribute("cursor-blink-rate")]
     private long _cursorBlinkRateMs = 500;
@@ -65,7 +65,7 @@ public partial class ResponsiveTextField : VisualElement
     }
 
     [UxmlAttribute("cursor-color")]
-    private Color _cursorColor = Color.white; // Default base color for the cursor
+    private Color _cursorColor = Color.white;
     public Color CursorColor
     {
         get => _cursorColor;
@@ -76,16 +76,18 @@ public partial class ResponsiveTextField : VisualElement
         }
     }
 
-    // --- SPACING VARIABLES EXPOSED TO THE INSPECTOR ---
+    // --- UPDATED: SPACING VARIABLES EXPOSED WITH LENGTH SUPPORT (px / %) ---
 
     [UxmlAttribute("text-side-padding")]
-    private float _textSidePadding = 0f;
-    public float TextSidePadding
+    private Length _textSidePadding = new Length(0, LengthUnit.Pixel); // Uses Length instead of float
+    public Length TextSidePadding
     {
         get => _textSidePadding;
         set
         {
-            _textSidePadding = Mathf.Max(0f, value);
+            // Keep padding values non-negative
+            if (value.value < 0f) value = new Length(0f, value.unit);
+            _textSidePadding = value;
             UpdateLayout();
         }
     }
@@ -206,7 +208,6 @@ public partial class ResponsiveTextField : VisualElement
     private void OnFieldBlurred(BlurEvent evt)
     {
         _blinkTask?.Pause();
-        // Restore cursor color to default state when unfocused so it doesn't stay stuck invisible
         _isCursorVisible = true;
         ApplyCursorStyle();
     }
@@ -227,15 +228,12 @@ public partial class ResponsiveTextField : VisualElement
     {
         if (_inputField == null) return;
 
-        // Direct access to the caret drawing engine properties
         Color currentBlinkVisualColor = _isCursorVisible ? _cursorColor : Color.clear;
         _inputField.textSelection.cursorColor = currentBlinkVisualColor;
-
     }
 
     public new void Focus()
     {
-        Debug.Log(_inputField?.focusable);
         _inputField?.Focus();
     }
 
@@ -244,6 +242,7 @@ public partial class ResponsiveTextField : VisualElement
         float totalWidth = resolvedStyle.width;
         float totalHeight = resolvedStyle.height;
 
+        // Directly pass the Length object to the visual style! Unity automatically resolves px vs % here.
         style.paddingLeft = _textSidePadding;
         style.paddingRight = _textSidePadding;
 
@@ -251,11 +250,16 @@ public partial class ResponsiveTextField : VisualElement
 
         if (totalWidth > 0)
         {
-            float usableWidth = totalWidth - (_textSidePadding * 2f);
+            // To calculate max width boundaries safely, determine the absolute layout padding value in pixels
+            float calculatedPaddingPx = _textSidePadding.unit == LengthUnit.Percent 
+                ? (totalWidth * (_textSidePadding.value / 100f)) 
+                : _textSidePadding.value;
+
+            float usableWidth = totalWidth - (calculatedPaddingPx * 2f);
             float maxLabelWidth = usableWidth * _labelWidthPercentage;
 
             _label.style.width = StyleKeyword.Null;
-            _label.style.maxWidth = maxLabelWidth;
+            _label.style.maxWidth = Mathf.Max(0f, maxLabelWidth);
         }
 
         if (totalHeight > 0)

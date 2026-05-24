@@ -3,7 +3,7 @@
     <ui:GroupBox name="root" class="unity-ui-document__root element" style="flex-direction: row; height: 100%; width: 100%;">
         <ui:GroupBox name="GroupBox" class="element" style="flex-direction: row; height: 80%; width: 100%; justify-content: space-between;">
             <ui:VisualElement name="VisualElement" class="text-field" style="flex-grow: 0; flex-direction: row; flex-shrink: 0; width: 76%; height: 100%; align-items: stretch; justify-content: space-between;">
-                <ResponsiveLabel name="LobbyName" text="Lobby Name" height-percentage="0.7" class="element label" style="width: 82%; height: 100%; -unity-text-align: middle-left;"/>
+                <ResponsiveLabel name="LobbyName" text="Lobby Name" height-percentage="0.7" class="element label" style="width: 82%; height: 100%; -unity-text-align: middle-left; padding-left: 0.8%;"/>
                 <ResponsiveLabel text="1/4" name="PlayerCount" height-percentage="0.7" class="element label" style="width: 18%; height: 100%; -unity-text-align: middle-center;"/>
             </ui:VisualElement>
             <ResponsiveButton text="Join" name="Join" height-percentage="0.7" focusable="false" class="element button" style="width: 22%; height: 100%;"/>
