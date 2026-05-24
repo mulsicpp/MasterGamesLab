@@ -14,7 +14,7 @@
                     <ui:VisualElement class="element devider" style="flex-grow: 0; width: 100%; height: 2px;"/>
                 </ui:VisualElement>
                 <ui:GroupBox class="element" style="width: 100%; height: 18.3%; flex-direction: row; align-items: stretch; justify-content: flex-start;">
-                    <ResponsiveTextField label-width-percentage="0.9" label-text="Code:" name="LobbyCode" text-height-percentage="0.7" text-side-padding="2" class="element text-field" style="min-width: auto; min-height: auto; flex-shrink: 0; width: 75.24%; height: 100%;"/>
+                    <ResponsiveTextField label-width-percentage="0.9" label-text="Code:" name="LobbyCode" text-height-percentage="0.7" text-side-padding="0.8%" class="element text-field" style="min-width: auto; min-height: auto; flex-shrink: 0; width: 75.24%; height: 100%;"/>
                     <ui:VisualElement name="div" style="flex-grow: 0; flex-shrink: 0; width: 1.98%; height: 100%;"/>
                     <ResponsiveButton text="Join" name="JoinButton" height-percentage="0.7" focusable="false" class="element button" style="width: 21.78%; height: 100%; -unity-text-align: middle-center;"/>
                 </ui:GroupBox>
