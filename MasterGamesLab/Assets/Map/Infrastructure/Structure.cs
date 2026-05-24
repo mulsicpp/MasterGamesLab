@@ -16,9 +16,17 @@ namespace Map.Infrastructure
             None
         }
 
-        public interface INetData {
+        public interface IStructureState: IState
+        {
             public StructureType Type { get; }
-            public void SetIndex(StructureIndex index);
+        }
+
+        public struct CommonStructureState : IState, INetworkSerializeByMemcpy
+        {
+            public StructureIndex Index;
+            public TileId TileId;
+
+            public int ArrayIndex { get => Index; set => Index = new StructureIndex((byte)value); }
         }
 
         public abstract StructureType Type { get; }
@@ -49,6 +57,12 @@ namespace Map.Infrastructure
         }
 
         public bool Exists => tile != null;
+
+        public CommonStructureState CommonState
+        {
+            get => new CommonStructureState { Index = Index, TileId = Tile?.Id ?? TileId.NONE };
+            set => Tile = value.TileId != TileId.NONE && Map.Instance.Tiles[value.TileId] is Tile t ? t : null;
+        }
 
         protected Structure(StructureIndex index)
         {
