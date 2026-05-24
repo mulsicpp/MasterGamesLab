@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,6 +14,8 @@ public class StartUI : MonoBehaviour
 
     private VisualElement root;
 
+    // Cache the class name string to avoid typos
+    private const string HighlightClass = "highlighted-text-field";
 
     void OnEnable()
     {
@@ -22,9 +25,11 @@ public class StartUI : MonoBehaviour
         joinButton = root.Q<ResponsiveButton>("Join");
         playerName = root.Q<ResponsiveTextField>("Name");
 
-
         hostButton.clicked += OnHostPressedAsync;
         joinButton.clicked += OnJoinPressed;
+
+        // Register a callback to clear the glow highlight as soon as the user starts typing
+        playerName.RegisterValueChangedCallback(OnNameValueChanged);
     }
 
     void OnDisable()
@@ -37,7 +42,10 @@ public class StartUI : MonoBehaviour
     private async void OnHostPressedAsync()
     {
         if (playerName.Value.IsNullOrEmpty())
+        {
+            TriggerValidationHighlight();
             return;
+        }
 
         hostButton.SetEnabled(false);
         joinButton.SetEnabled(false);
@@ -58,15 +66,29 @@ public class StartUI : MonoBehaviour
     private async void OnJoinPressed()
     {
         if (playerName.Value.IsNullOrEmpty())
+        {
+            TriggerValidationHighlight();
             return;
-        LobbyLogic.Instance.PlayerName = playerName.Value;
+        }
 
+        LobbyLogic.Instance.PlayerName = playerName.Value;
         await LobbyLogic.Instance.GoToJoinMenu();
-        // if (playerName.text.IsNullOrEmpty())
-        //     return;
-        // LobbyLogic.Instance.PlayerName = playerName.text;
-        // joinUI.Show();
-        // Hide();
+    }
+
+    private void TriggerValidationHighlight()
+    {
+        playerName.AddToClassList(HighlightClass);
+
+        playerName.Focus();
+    }
+
+    private void OnNameValueChanged(ChangeEvent<string> evt)
+    {
+        // Clear the glow warning layout when text is present
+        if (!evt.newValue.IsNullOrEmpty())
+        {
+            playerName.RemoveFromClassList(HighlightClass);
+        }
     }
 
     public void Show()
@@ -77,7 +99,8 @@ public class StartUI : MonoBehaviour
 
     public void Hide()
     {
+        // Clean up the error highlight state if the window gets hidden/closed
+        playerName.RemoveFromClassList(HighlightClass);
         root.style.display = DisplayStyle.None;
-
     }
 }
