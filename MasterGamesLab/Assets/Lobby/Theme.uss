@@ -15,8 +15,7 @@
     --white-space: nowrap;
     --overflow: hidden;
     --text-overflow: ellipsis;
-
-    --copy-hovered:rgba(255, 255, 255, 0.16);
+    --copy-hovered: rgba(255, 255, 255, 0.16);
 }
 
 .element {
@@ -202,4 +201,24 @@
 
 .copy-button:hover > .text-label {
     color: var(--copy-hovered);
+}
+
+.name-text-field {
+    width: 100%;
+    height: 29.8%;
+    background-color: var(--background-button-color);
+    box-shadow-color: rgba(255, 218, 0, 0);
+    box-shadow-blur: 0;
+    box-shadow-offset: 0 0;
+    transition-property: border-color, border-width, box-shadow-color, box-shadow-blur, scale, background-color;
+    transition-duration: 0.3s;
+    transition-timing-function: ease-out;
+}
+
+.highlighted-text-field {
+    border-color: rgb(255, 73, 73);
+    border-width: 2px;
+    color: rgb(255, 73, 73);
+    background-color: rgba(0, 0, 0, 0.4);
+    scale: 1.02 1.02;
 }
