@@ -1,31 +1,33 @@
 
 using System.Runtime.InteropServices;
 using Unity.Netcode;
+using static Map.Infrastructure.Structure;
 
 namespace Map.Infrastructure
 {
     public class Producer : Structure, INetObject<Producer.NetData>
     {
+        public override StructureType Type => StructureType.Producer;
+
         private Good good;
         public Good Good { get { return good; } set { good = value; Timestamp = Map.Instance.Timestamp; } }
 
         public struct NetData : INetworkSerializeByMemcpy, INetData
         {
-            public byte Offset;
+            public StructureIndex Index;
             public TileId TileId;
 
             public Good Good;
 
-            public StructureId Id { get => new StructureId(StructureType.Producer, Offset); }
-            public void SetOffset(byte offset) => Offset = offset;
+            public StructureType Type => StructureType.Producer;
+            public void SetIndex(StructureIndex index) => Index = index;
         }
 
-        public Producer(byte offset, Tile tile, Good good) : base(new StructureId(StructureType.Producer, offset), tile)
+        public Producer(StructureIndex index) : base(index)
         {
-            this.good = good;
+            good = Good.None;
         }
 
-        public NetData GetNetData() => new NetData { Offset = Id.Offset, TileId = Tile.Id, Good = good };
-
+        public NetData GetNetData() => new NetData { Index = Index, TileId = Tile.Id, Good = good };
     }
 }

@@ -21,10 +21,10 @@ namespace Map.Infrastructure
         public Infrastructure()
         {
             producers = new Producer[Constants.MAX_PRODUCER_COUNT];
-            for (var i = 0; i < producers.Length; i++) producers[i] = new Producer((byte)i, null, Good.None);
+            for (var i = 0; i < producers.Length; i++) producers[i] = new Producer(new StructureIndex((byte)i));
 
             consumers = new Consumer[Constants.MAX_CONSUMER_COUNT];
-            for (var i = 0; i < consumers.Length; i++) consumers[i] = new Consumer((byte)i, null, Good.None);
+            for (var i = 0; i < consumers.Length; i++) consumers[i] = new Consumer(new StructureIndex((byte)i));
         }
 
         public int GetFirstAvailableStructureOffset(Structure.StructureType type)
@@ -44,7 +44,7 @@ namespace Map.Infrastructure
 
             for (int i = 0; i < structures.Length; i++)
             {
-                if (structures[i].Tile == null)
+                if (!structures[i].Exists)
                     return i;
             }
             return -1;
@@ -52,28 +52,28 @@ namespace Map.Infrastructure
 
         public void SetNetObject<T>(T netData) where T : Structure.INetData
         {
-            if (netData is Producer.NetData p) SetProducer(p.Offset, p.TileId, p.Good);
-            else if (netData is Consumer.NetData c) SetConsumer(c.Offset, c.TileId, c.RequestedGood);
+            if (netData is Producer.NetData p) SetProducer(p.Index, p.TileId, p.Good);
+            else if (netData is Consumer.NetData c) SetConsumer(c.Index, c.TileId, c.RequestedGood);
             else throw new ArgumentException("Given Structure.INetData is not supported: " + netData.GetType().FullName);
         }
 
 
 
-        public void SetProducer(byte offset, TileId tileId, Good good)
+        public void SetProducer(StructureIndex index, TileId tileId, Good good)
         {
-            if (offset >= producers.Length) return;
+            if (index >= producers.Length) return;
 
-            var producer = producers[offset];
+            var producer = producers[index];
 
             producer.Tile = tileId != TileId.NONE && Map.Instance.Tiles[tileId] is Tile t ? t : null;
             producer.Good = good;
         }
 
-        public void SetConsumer(byte offset, TileId tileId, Good requestedGood)
+        public void SetConsumer(StructureIndex index, TileId tileId, Good requestedGood)
         {
-            if (offset >= consumers.Length) return;
+            if (index >= consumers.Length) return;
 
-            var consumer = consumers[offset];
+            var consumer = consumers[index];
 
             consumer.Tile = tileId != TileId.NONE && Map.Instance.Tiles[tileId] is Tile t ? t : null;
             consumer.RequestedGood = requestedGood;

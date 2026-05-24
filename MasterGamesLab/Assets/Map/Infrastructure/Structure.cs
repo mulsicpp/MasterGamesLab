@@ -17,11 +17,13 @@ namespace Map.Infrastructure
         }
 
         public interface INetData {
-            public StructureId Id { get; }
-            public void SetOffset(byte offset);
+            public StructureType Type { get; }
+            public void SetIndex(StructureIndex index);
         }
 
-        public readonly StructureId Id;
+        public abstract StructureType Type { get; }
+
+        public readonly StructureIndex Index;
 
         public Timestamp Timestamp { get; protected set; }
 
@@ -46,10 +48,12 @@ namespace Map.Infrastructure
             }
         }
 
-        protected Structure(StructureId id, Tile tile = null)
+        public bool Exists => tile != null;
+
+        protected Structure(StructureIndex index)
         {
-            Id = id;
-            Tile = tile;
+            Index = index;
+            Tile = null;
             Timestamp = Map.Instance.Timestamp;
         }
     }

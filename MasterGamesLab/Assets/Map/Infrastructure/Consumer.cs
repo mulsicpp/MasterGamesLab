@@ -5,26 +5,28 @@ namespace Map.Infrastructure
 {
     public class Consumer : Structure, INetObject<Consumer.NetData>
     {
+        public override StructureType Type => StructureType.Consumer;
+
         private Good requestedGood;
         public Good RequestedGood { get { return requestedGood; } set { requestedGood = value; Timestamp = Map.Instance.Timestamp; } }
 
         public struct NetData : INetworkSerializeByMemcpy, INetData
         {
-            public byte Offset;
+            public StructureIndex Index;
             public TileId TileId;
 
             public Good RequestedGood;
 
-            public StructureId Id { get => new StructureId(StructureType.Consumer, Offset); }
-            public void SetOffset(byte offset) => Offset = offset;
+            public StructureType Type => StructureType.Consumer;
+            public void SetIndex(StructureIndex index) => Index = index;
         }
 
-        public Consumer(byte offset, Tile tile, Good requestedGood) : base(new StructureId(StructureType.Consumer, offset), tile)
+        public Consumer(StructureIndex index) : base(index)
         {
-            this.requestedGood = requestedGood;
+            requestedGood = Good.None;
         }
 
-        public NetData GetNetData() => new NetData { Offset = Id.Offset, TileId = Tile.Id, RequestedGood = requestedGood };
+        public NetData GetNetData() => new NetData { Index = Index, TileId = Tile.Id, RequestedGood = requestedGood };
 
     }
 }

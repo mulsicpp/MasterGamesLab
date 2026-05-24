@@ -59,36 +59,26 @@ public struct EdgeId : INetworkSerializeByMemcpy, IEquatable<EdgeId>, IComparabl
 
 
 [System.Serializable]
-public struct StructureId : INetworkSerializeByMemcpy, IEquatable<StructureId>, IComparable<StructureId>
+public struct StructureIndex : INetworkSerializeByMemcpy, IEquatable<StructureIndex>, IComparable<StructureIndex>
 {
     [UnityEngine.SerializeField]
-    private Structure.StructureType type;
-    public Structure.StructureType Type => type;
+    private StructureIndexPrimitive value;
+    public StructureIndexPrimitive Value => value;
 
-    [UnityEngine.SerializeField]
-    private StructureIndexPrimitive offset;
-    public StructureIndexPrimitive Offset => offset;
+    public static readonly StructureIndex NONE = new StructureIndex { value = StructureIndexPrimitive.MaxValue };
 
-    public static readonly StructureId NONE = new StructureId { type = Structure.StructureType.None, offset = 0 };
+    public static bool operator ==(StructureIndex left, StructureIndex right) => left.value == right.value;
+    public static bool operator !=(StructureIndex left, StructureIndex right) => left.value != right.value;
 
-    public static bool operator ==(StructureId left, StructureId right) => left.type == right.type && left.offset == right.offset;
-    public static bool operator !=(StructureId left, StructureId right) => !(left == right);
+    public override bool Equals(object obj) => obj is StructureIndex id && value == id.value;
+    public override int GetHashCode() => HashCode.Combine(value);
 
-    public override bool Equals(object obj) => obj is StructureId id && this == id;
-    public override int GetHashCode() => HashCode.Combine(type, offset);
+    public bool Equals(StructureIndex other) => this == other;
+    public int CompareTo(StructureIndex other) => value.CompareTo(other.value);
 
-    public bool Equals(StructureId other) => this == other;
-    public int CompareTo(StructureId other)
-    {
-        var c = type.CompareTo(other.type);
-        if(c != 0) return c;
-        return offset.CompareTo(other.offset);
-    }
+    public static implicit operator StructureIndexPrimitive(StructureIndex value) => value.value;
 
-    public StructureId(Structure.StructureType type, StructureIndexPrimitive offset) {
-        this.type = type;
-        this.offset = offset;
-    }
+    public StructureIndex(StructureIndexPrimitive value) => this.value = value;
 }
 
 [System.Serializable]

@@ -258,7 +258,7 @@ namespace Map
 
         public bool SpawnStructureLocal<T>(T data) where T : struct, Structure.INetData
         {
-            int producerOffset = infrastructure.GetFirstAvailableStructureOffset(data.Id.Type);
+            int producerOffset = infrastructure.GetFirstAvailableStructureOffset(data.Type);
             if (producerOffset > -1)
             {
                 infrastructure.SetNetObject(data);
@@ -271,10 +271,10 @@ namespace Map
         {
             if (!IsServer) return false;
 
-            int offset = infrastructure.GetFirstAvailableStructureOffset(data.Id.Type);
+            int offset = infrastructure.GetFirstAvailableStructureOffset(data.Type);
             if (offset > -1)
             {
-                data.SetOffset((byte)offset);
+                data.SetIndex(new StructureIndex((byte)offset));
 
                 var nextTimestamp = timestamp.Next();
                 UpdateGenericDataClient(nextTimestamp, new[] { data });
