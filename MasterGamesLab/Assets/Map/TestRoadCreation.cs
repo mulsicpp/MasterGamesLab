@@ -59,7 +59,7 @@ public class TestRoadCreation : NetworkBehaviour
 
             if(tile.CanSpawnStructure(Structure.StructureType.Producer))
             {
-                Map.Map.Instance.SpawnStructureGlobal(new Producer.NetData { TileId = tile.Id, Good = good });
+                Map.Map.Instance.Infrastructure.SpawnGlobal(new Producer.ProducerState { Common = { TileId = tile.Id }, Good = good });
             }
         }
 
@@ -70,7 +70,7 @@ public class TestRoadCreation : NetworkBehaviour
 
             if(tile.CanSpawnStructure(Structure.StructureType.Consumer))
             {
-                Map.Map.Instance.SpawnStructureGlobal(new Consumer.NetData { TileId = tile.Id, RequestedGood = good });
+                Map.Map.Instance.Infrastructure.SpawnGlobal(new Consumer.ConsumerState { Common = { TileId = tile.Id }, RequestedGood = good });
             }
         }
     }

@@ -1,22 +1,26 @@
 using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using Unity.Services.Qos.V2.Models;
 
 namespace Map.Infrastructure
 {
     public class Infrastructure : IReadOnlyInfrastructure
     {
-        public IReadOnlyList<Producer> Producers => producers;
-        public IReadOnlyList<Consumer> Consumers => consumers;
-        // public IReadOnlyList<Garage> Garages => garages;
-        // public IReadOnlyList<Port> Ports => ports;
-        // public IReadOnlyList<TrainStation> TrainStations => trainStations;
-
         private Producer[] producers;
+        public IReadOnlyList<Producer> Producers => producers;
+
         private Consumer[] consumers;
+        public IReadOnlyList<Consumer> Consumers => consumers;
+
         // Garage[] garages;
+        // public IReadOnlyList<Garage> Garages => garages;
+
         // Port[] ports;
+        // public IReadOnlyList<Port> Ports => ports;
+
         // TrainStation[] trainStations;
+        // public IReadOnlyList<TrainStation> TrainStations => trainStations;
 
         public Infrastructure()
         {
@@ -27,7 +31,7 @@ namespace Map.Infrastructure
             for (var i = 0; i < consumers.Length; i++) consumers[i] = new Consumer(new StructureIndex((byte)i));
         }
 
-        public int GetFirstAvailableStructureOffset(Structure.StructureType type)
+        public int GetFirstEmptyIndex(Structure.StructureType type)
         {
             Structure[] structures = null;
 
@@ -50,33 +54,36 @@ namespace Map.Infrastructure
             return -1;
         }
 
-        public void SetNetObject<T>(T netData) where T : Structure.INetData
+        public void UpdateStructure<T>(T state) where T : Structure.IStructureState
         {
-            if (netData is Producer.NetData p) SetProducer(p.Index, p.TileId, p.Good);
-            else if (netData is Consumer.NetData c) SetConsumer(c.Index, c.TileId, c.RequestedGood);
-            else throw new ArgumentException("Given Structure.INetData is not supported: " + netData.GetType().FullName);
+            if (state is Producer.ProducerState p) producers[p.ArrayIndex].State = p;
+            else if (state is Consumer.ConsumerState c) consumers[c.ArrayIndex].State = c;
+            else throw new ArgumentException("Given IStructureState is not supported: " + state.GetType().FullName);
         }
 
-
-
-        public void SetProducer(StructureIndex index, TileId tileId, Good good)
+        public bool SpawnLocal<T>(T state) where T : struct, Structure.IStructureState
         {
-            if (index >= producers.Length) return;
-
-            var producer = producers[index];
-
-            producer.Tile = tileId != TileId.NONE && Map.Instance.Tiles[tileId] is Tile t ? t : null;
-            producer.Good = good;
+            int index = GetFirstEmptyIndex(state.Type);
+            if (index > -1)
+            {
+                UpdateStructure(state);
+                return true;
+            }
+            return false;
         }
 
-        public void SetConsumer(StructureIndex index, TileId tileId, Good requestedGood)
+        public bool SpawnGlobal<T>(T state) where T : struct, Structure.IStructureState
         {
-            if (index >= consumers.Length) return;
+            int index = GetFirstEmptyIndex(state.Type);
+            if (index > -1)
+            {
+                state.ArrayIndex = index;
 
-            var consumer = consumers[index];
-
-            consumer.Tile = tileId != TileId.NONE && Map.Instance.Tiles[tileId] is Tile t ? t : null;
-            consumer.RequestedGood = requestedGood;
+                var nextTimestamp = Map.Instance.Timestamp.Next();
+                Map.Instance.UpdateGenericStatesClient(nextTimestamp, new[] { state });
+                return true;
+            }
+            return false;
         }
     }
 }

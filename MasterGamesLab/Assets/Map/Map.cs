@@ -12,6 +12,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using Unity.VisualScripting;
+using Map.Fleet;
+using System.CodeDom;
 
 namespace Map
 {
@@ -34,8 +36,8 @@ namespace Map
         public Timestamp Timestamp { get => timestamp; }
 
         public IReadOnlyList<Edge> Edges => edges;
-
         public IReadOnlyInfrastructure Infrastructure => infrastructure;
+        public IReadOnlyFleet Fleet => fleet;
 
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
@@ -64,6 +66,7 @@ namespace Map
 
         private Edge[] edges;
         private Infrastructure.Infrastructure infrastructure;
+        private Fleet.Fleet fleet;
 
         // --- HIGH PERFORMANCE PRE-ALLOCATED RUNTIME BUFFERS ---
         private NodeState[] nodeStatesBuffer;
@@ -82,9 +85,10 @@ namespace Map
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
             tiles = new List<Tile>(numPoints);
             chunks = new List<MapChunk>(chunksPoints.Count);
-            edges = new Edge[0];
 
+            edges = new Edge[0];
             infrastructure = new Infrastructure.Infrastructure();
+            fleet = new Fleet.Fleet();
 
             var currentId = 0;
             foreach (var chunkPoints in chunksPoints)
@@ -213,12 +217,15 @@ namespace Map
 
             InitEdges();
 
+            infrastructure = new Infrastructure.Infrastructure();
+            fleet = new Fleet.Fleet();
+
             foreach (var chunk in chunks)
             {
                 chunk.UpdateMesh();
             }
 
-            SpawnStructureLocal(new Producer.NetData { TileId = edges[0].EndTile.Id, Good = Good.Apple });
+            Infrastructure.SpawnLocal(new Producer.ProducerState { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
 
             // Test edge types
 
@@ -242,45 +249,16 @@ namespace Map
             edges = tempEdges.ToArray();
         }
 
-        public bool SetEdge(EdgeId id, Edge.EdgeType edgeType, PlayerId playerId, bool force = false)
+        public bool UpdateEdge(Edge.EdgeState edgeState)
         {
-            if (id >= edges.Length || id < 0) return false;
+            if (edgeState.ArrayIndex >= edges.Length || edgeState.ArrayIndex < 0) return false;
 
-            var edge = edges[id];
+            var edge = edges[edgeState.ArrayIndex];
 
-            if (!force && !edge.CanBecomeType(edgeType)) return false;
+            if (!edge.CanBecomeType(edgeState.Type)) return false;
 
-            edge.Type = edgeType;
-            edge.PlayerId = playerId;
+            edge.State = edgeState;
             return true;
-        }
-
-
-        public bool SpawnStructureLocal<T>(T data) where T : struct, Structure.INetData
-        {
-            int producerOffset = infrastructure.GetFirstAvailableStructureOffset(data.Type);
-            if (producerOffset > -1)
-            {
-                infrastructure.SetNetObject(data);
-                return true;
-            }
-            return false;
-        }
-
-        public bool SpawnStructureGlobal<T>(T data) where T: struct, Structure.INetData
-        {
-            if (!IsServer) return false;
-
-            int offset = infrastructure.GetFirstAvailableStructureOffset(data.Type);
-            if (offset > -1)
-            {
-                data.SetIndex(new StructureIndex((byte)offset));
-
-                var nextTimestamp = timestamp.Next();
-                UpdateGenericDataClient(nextTimestamp, new[] { data });
-                return true;
-            }
-            return false;
         }
 
 
@@ -301,72 +279,67 @@ namespace Map
 
             var rpcParams = GetRpcParams(clientId);
 
-            SyncClientObjects<Edge, Edge.NetData>(clientTimestamp, rpcParams, edges, Constants.MAX_EDGES_PER_RPC);
-            SyncClientObjects<Producer, Producer.NetData>(clientTimestamp, rpcParams, infrastructure.Producers, Constants.MAX_PRODUCERS_PER_RPC);
-            SyncClientObjects<Consumer, Consumer.NetData>(clientTimestamp, rpcParams, infrastructure.Consumers, Constants.MAX_CONSUMERS_PER_RPC);
+            SyncClientObjects<Edge, Edge.EdgeState>(clientTimestamp, rpcParams, edges, Constants.MAX_EDGES_PER_RPC);
+
+            SyncClientObjects<Producer, Producer.ProducerState>(clientTimestamp, rpcParams, infrastructure.Producers, Constants.MAX_PRODUCERS_PER_RPC);
+            SyncClientObjects<Consumer, Consumer.ConsumerState>(clientTimestamp, rpcParams, infrastructure.Consumers, Constants.MAX_CONSUMERS_PER_RPC);
         }
 
-        private void SyncClientObjects<T, U>(Timestamp clientTimestamp, ClientRpcParams rpcParams, IEnumerable<T> objects, int maxObjects = 32) where U : struct where T : INetObject<U>
+        private void SyncClientObjects<T, U>(Timestamp clientTimestamp, ClientRpcParams rpcParams, IEnumerable<T> objects, int maxObjects = 32) where U : struct, IState where T : ISynchableObject<U>
         {
-            var updatedObjects = new List<U>();
-            updatedObjects.Capacity = maxObjects;
+            var updatedStates = new List<U>();
+            updatedStates.Capacity = maxObjects;
 
             foreach (var obj in objects)
             {
                 if (obj.Timestamp > clientTimestamp)
                 {
-                    updatedObjects.Add(obj.GetNetData());
+                    updatedStates.Add(obj.State);
                 }
 
-                if (updatedObjects.Count == maxObjects)
+                if (updatedStates.Count == maxObjects)
                 {
-                    UpdateGenericDataClient(Timestamp, updatedObjects.ToArray(), rpcParams);
-                    updatedObjects.Clear();
+                    UpdateGenericStatesClient(Timestamp, updatedStates.ToArray(), rpcParams);
+                    updatedStates.Clear();
                 }
             }
 
-            if (updatedObjects.Count > 0)
+            if (updatedStates.Count > 0)
             {
-                UpdateGenericDataClient(Timestamp, updatedObjects.ToArray(), rpcParams);
+                UpdateGenericStatesClient(Timestamp, updatedStates.ToArray(), rpcParams);
             }
         }
 
-        private void SetNetObject<T>(T netData)
+        public void UpdateGenericStatesClient<T>(Timestamp timestamp, T[] states, ClientRpcParams rpcParams = default) where T : struct, IState
         {
-            if (netData is Edge.NetData e) SetEdge(e.Id, e.Type, e.PlayerId, true);
-            else if (netData is Structure.INetData s) infrastructure.SetNetObject(s);
-            else throw new ArgumentException("Given NetData is not supported: " + netData.GetType().FullName);
-        }
-
-        private void UpdateGenericDataClient<T>(Timestamp timestamp, T[] netData, ClientRpcParams rpcParams = default) where T : struct
-        {
+            if (!IsServer) return;
             // edges
-            if (netData is Edge.NetData[] e) UpdateEdgeDataClientRpc(timestamp, e, rpcParams);
+            if (states is Edge.EdgeState[] e) UpdateEdgeStatesClientRpc(timestamp, e, rpcParams);
 
             // structures
-            else if (netData is Producer.NetData[] p) UpdateProducerDataClientRpc(timestamp, p, rpcParams);
-            else if (netData is Consumer.NetData[] c) UpdateConsumerDataClientRpc(timestamp, c, rpcParams);
+            else if (states is Producer.ProducerState[] p) UpdateProducerStatesClientRpc(timestamp, p, rpcParams);
+            else if (states is Consumer.ConsumerState[] c) UpdateConsumerStatesClientRpc(timestamp, c, rpcParams);
         }
 
 
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void UpdateEdgeDataClientRpc(Timestamp timestamp, Edge.NetData[] netData, ClientRpcParams rpcParams = default) => UpdateGenericDataLocal(timestamp, netData);
+        private void UpdateEdgeStatesClientRpc(Timestamp timestamp, Edge.EdgeState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Edges, states);
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void UpdateProducerDataClientRpc(Timestamp timestamp, Producer.NetData[] netData, ClientRpcParams rpcParams = default) => UpdateGenericDataLocal(timestamp, netData);
+        private void UpdateProducerStatesClientRpc(Timestamp timestamp, Producer.ProducerState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Infrastructure.Producers, states);
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void UpdateConsumerDataClientRpc(Timestamp timestamp, Consumer.NetData[] netData, ClientRpcParams rpcParams = default) => UpdateGenericDataLocal(timestamp, netData);
+        private void UpdateConsumerStatesClientRpc(Timestamp timestamp, Consumer.ConsumerState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Infrastructure.Consumers, states);
 
 
 
-        private void UpdateGenericDataLocal<T>(Timestamp timestamp, T[] netData) where T : struct
+        private void UpdateGenericStatesLocal<T, U>(Timestamp timestamp, IReadOnlyList<T> objects, U[] states) where U : struct, IState where T : ISynchableObject<U>
         {
             this.timestamp = timestamp;
-            foreach (var data in netData)
+            foreach (var state in states)
             {
-                SetNetObject(data);
+                objects[state.ArrayIndex].State = state;
             }
         }
 
@@ -401,14 +374,14 @@ namespace Map
             Debug.Log("Path is valid: " + validPath);
             if (!validPath) return;
 
-            Edge.NetData[] edgeData = new Edge.NetData[edgeIds.Length];
+            Edge.EdgeState[] edgeStates = new Edge.EdgeState[edgeIds.Length];
             for (var i = 0; i < edgeIds.Length; i++)
             {
-                edgeData[i] = new Edge.NetData { Id = edgeIds[i], Type = edgeType, PlayerId = playerId };
+                edgeStates[i] = new Edge.EdgeState { Id = edgeIds[i], Type = edgeType, Owner = playerId };
             }
 
             var nextTimestamp = Timestamp.Next();
-            UpdateEdgeDataClientRpc(nextTimestamp, edgeData);
+            UpdateEdgeStatesClientRpc(nextTimestamp, edgeStates);
         }
 
         private struct NodeState
@@ -451,7 +424,7 @@ namespace Map
                     int neighborId = neighbor.Id.Value;
 
                     int newRealDistance = currentRealDistance + Constants.ROAD_MOVEMENT_DISTANCE;
-                    int newRealCost = currentRealCost + ((edge.PlayerId == PlayerId.NONE || edge.PlayerId != PlayerManager.Instance.SelfId) ? Constants.ROAD_MOVEMENT_COST : 0);
+                    int newRealCost = currentRealCost + ((edge.Owner == PlayerId.NONE || edge.Owner != PlayerManager.Instance.SelfId) ? Constants.ROAD_MOVEMENT_COST : 0);
 
                     bool hasState = visitedTilesBuffer[neighborId];
 
@@ -503,7 +476,7 @@ namespace Map
                     int neighborId = neighbor.Id.Value;
 
                     int newRealDistance = currentRealDistance + Constants.ROAD_MOVEMENT_DISTANCE;
-                    int newRealCost = currentRealCost + ((edge.PlayerId == PlayerId.NONE || edge.PlayerId != PlayerManager.Instance.SelfId) ? Constants.ROAD_MOVEMENT_COST : 0);
+                    int newRealCost = currentRealCost + ((edge.Owner == PlayerId.NONE || edge.Owner != PlayerManager.Instance.SelfId) ? Constants.ROAD_MOVEMENT_COST : 0);
 
                     bool hasState = visitedTilesBuffer[neighborId];
 

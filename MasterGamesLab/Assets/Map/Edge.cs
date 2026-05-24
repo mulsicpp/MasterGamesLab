@@ -1,9 +1,10 @@
 
+using System.Collections.Generic;
 using Unity.Netcode;
 
 namespace Map
 {
-    public class Edge : INetObject<Edge.NetData>
+    public class Edge : ISynchableObject<Edge.EdgeState>
     {
         [System.Serializable]
         public enum EdgeType : byte
@@ -14,6 +15,15 @@ namespace Map
             Rail
         }
 
+        public struct EdgeState : IState, INetworkSerializeByMemcpy
+        {
+            public EdgeId Id;
+            public EdgeType Type;
+            public PlayerId Owner;
+
+            public int ArrayIndex { get => Id; set => Id = new EdgeId(value); }
+        }
+
         public readonly EdgeId Id;
 
         public readonly Tile StartTile;
@@ -22,17 +32,14 @@ namespace Map
         public Timestamp Timestamp { get; private set; }
 
         private EdgeType type;
-        private PlayerId playerId;
-
         public EdgeType Type { get { return type; } set { type = value; Timestamp = Map.Instance.Timestamp; } }
-        public PlayerId PlayerId { get { return playerId; } set { playerId = value; Timestamp = Map.Instance.Timestamp; } }
 
+        private PlayerId owner;
+        public PlayerId Owner { get { return owner; } set { owner = value; Timestamp = Map.Instance.Timestamp; } }
 
-        public struct NetData : INetworkSerializeByMemcpy
-        {
-            public EdgeId Id;
-            public EdgeType Type;
-            public PlayerId PlayerId;
+        public EdgeState State { 
+            get => new EdgeState { Id = Id, Type = type, Owner = owner };
+            set { Type = value.Type; Owner = value.Owner; }
         }
 
         public Edge(EdgeId id, Tile startTile, Tile endTile, EdgeType type, PlayerId playerId)
@@ -41,7 +48,7 @@ namespace Map
             StartTile = startTile;
             EndTile = endTile;
             this.type = type;
-            this.playerId = playerId;
+            this.owner = playerId;
             Timestamp = Map.Instance.Timestamp;
         }
 
@@ -77,7 +84,5 @@ namespace Map
             }
             return true;
         }
-
-        public NetData GetNetData() => new NetData { Id = Id, Type = type, PlayerId = playerId };
     }
 }

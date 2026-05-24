@@ -3,17 +3,20 @@ using UnityEngine.UIElements;
 
 public static class Constants
 {
-    public const int MIN_PLAYER_COUNT = 2;
-    public const int MAX_PLAYER_COUNT = 4;
+    public const byte MIN_PLAYER_COUNT = 2;
+    public const byte MAX_PLAYER_COUNT = 4;
 
     public static readonly Color[] PLAYER_COLORS = { Color.Red, Color.Blue, Color.Yellow, Color.Green };
     public const uint PLAYER_START_MONEY = 100;
 
-    public const uint MAX_TRUCKS_PER_PLAYER = 64;
-    public const uint MAX_FREIGHTERS_PER_PLAYER = 16;
+    public const byte MAX_TRUCKS_PER_PLAYER = 32;
+    public const byte MAX_FREIGHTERS_PER_PLAYER = 8;
 
     public const byte MAX_PRODUCER_COUNT = 64;
     public const byte MAX_CONSUMER_COUNT = 128;
+
+    public const byte MAX_TRUCK_COUNT = MAX_TRUCKS_PER_PLAYER * MAX_PLAYER_COUNT;
+    public const byte MAX_FREIGHTER_COUNT = MAX_FREIGHTERS_PER_PLAYER * MAX_PLAYER_COUNT;
 
 
     public const int MAX_EDGES_PER_RPC = 32;
