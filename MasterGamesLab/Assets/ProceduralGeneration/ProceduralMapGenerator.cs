@@ -9,7 +9,8 @@ public static class ProceduralMapGenerator
         var generationPasses = new List<IGenerationPass>
         {
             new GraphSetupPass(),
-            new ContinentPass()
+            new ContinentPass(),
+            new ForestMountainPass()
         };
 
         foreach (var pass in generationPasses)
