@@ -5,7 +5,8 @@ using Map.Infrastructure;
 
 using TileIdPrimitive = System.Int32;
 using EdgeIdPrimitive = System.Int32;
-using StructureOffsetPrimitive = System.Byte;
+using StructureIndexPrimitive = System.Byte;
+using VehicleIndexPrimitive = System.Byte;
 
 using PlayerIdPrimitive = System.Byte;
 using ClientIdPrimitive = System.UInt64;
@@ -65,8 +66,8 @@ public struct StructureId : INetworkSerializeByMemcpy, IEquatable<StructureId>, 
     public Structure.StructureType Type => type;
 
     [UnityEngine.SerializeField]
-    private StructureOffsetPrimitive offset;
-    public StructureOffsetPrimitive Offset => offset;
+    private StructureIndexPrimitive offset;
+    public StructureIndexPrimitive Offset => offset;
 
     public static readonly StructureId NONE = new StructureId { type = Structure.StructureType.None, offset = 0 };
 
@@ -84,10 +85,33 @@ public struct StructureId : INetworkSerializeByMemcpy, IEquatable<StructureId>, 
         return offset.CompareTo(other.offset);
     }
 
-    public StructureId(Structure.StructureType type, StructureOffsetPrimitive offset) {
+    public StructureId(Structure.StructureType type, StructureIndexPrimitive offset) {
         this.type = type;
         this.offset = offset;
     }
+}
+
+[System.Serializable]
+public struct VehicleIndex : INetworkSerializeByMemcpy, IEquatable<VehicleIndex>, IComparable<VehicleIndex>
+{
+    [UnityEngine.SerializeField]
+    private VehicleIndexPrimitive value;
+    public VehicleIndexPrimitive Value => value;
+
+    public static readonly VehicleIndex NONE = new VehicleIndex { value = VehicleIndexPrimitive.MaxValue };
+
+    public static bool operator ==(VehicleIndex left, VehicleIndex right) => left.value == right.value;
+    public static bool operator !=(VehicleIndex left, VehicleIndex right) => left.value != right.value;
+
+    public override bool Equals(object obj) => obj is VehicleIndex id && value == id.value;
+    public override int GetHashCode() => HashCode.Combine(value);
+
+    public bool Equals(VehicleIndex other) => this == other;
+    public int CompareTo(VehicleIndex other) => value.CompareTo(other.value);
+
+    public static implicit operator VehicleIndexPrimitive(VehicleIndex value) => value.value;
+
+    public VehicleIndex(VehicleIndexPrimitive value) => this.value = value;
 }
 
 [System.Serializable]
