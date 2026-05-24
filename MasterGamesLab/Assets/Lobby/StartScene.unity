@@ -419,8 +419,8 @@ MonoBehaviour:
   radius: 1
   resolution: 20
   chunkPrefab: {fileID: 5519249646154030829, guid: 65a832fee843f45478962ed766b9ddce, type: 3}
-  fullSphereDistance: 0.41
-  fullProjectionDistance: 0.15
+  fullSphereDistance: 2.6
+  fullProjectionDistance: 2.3
   testStartTileId: -1
   testTargetTileId: -1
 --- !u!114 &916988257
@@ -475,7 +475,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a25d8933776021e4b870e455befe1645, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestRoadCreation
+  ShowTopMostFoldoutHeaderGroup: 1
   type: 1
+  good: 1
 --- !u!1 &1118779276
 GameObject:
   m_ObjectHideFlags: 0
