@@ -3,7 +3,7 @@ using Unity.Netcode;
 
 namespace Map
 {
-    public class Edge
+    public class Edge : INetObject<Edge.NetData>
     {
         [System.Serializable]
         public enum EdgeType : byte

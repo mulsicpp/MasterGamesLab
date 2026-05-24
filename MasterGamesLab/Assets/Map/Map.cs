@@ -313,7 +313,7 @@ namespace Map
                 };
 
                 var nextTimestamp = timestamp.Next();
-                UpdateProducersClientRpc(nextTimestamp, new[] { producerData });
+                UpdateObjectsClientRpc(nextTimestamp, new[] { producerData });
                 return true;
             }
             return false;
@@ -339,82 +339,54 @@ namespace Map
 
             var rpcParams = GetRpcParams(clientId);
 
-            SyncClientEdges(clientTimestamp, rpcParams);
-            SyncClientProducers(clientTimestamp, rpcParams);
+            SyncClientObjects<Edge, Edge.NetData>(clientTimestamp, rpcParams, edges, Constants.MAX_EDGES_PER_RPC);
+            SyncClientObjects<Producer, Producer.NetData>(clientTimestamp, rpcParams, producers, Constants.MAX_EDGES_PER_RPC);
         }
 
-        private void SyncClientEdges(Timestamp clientTimestamp, ClientRpcParams rpcParams)
+        private void SyncClientObjects<T, U>(Timestamp clientTimestamp, ClientRpcParams rpcParams, T[] objects, int maxObjects = 32) where U : struct where T : INetObject<U>
         {
-            var updatedEdges = new List<Edge.NetData>();
-            updatedEdges.Capacity = Constants.MAX_EDGES_PER_RPC;
+            var updatedObjects = new List<U>();
+            updatedObjects.Capacity = maxObjects;
 
-            foreach (var edge in edges)
+            foreach (var obj in objects)
             {
-                if(edge.Timestamp > clientTimestamp)
+                if (obj.Timestamp > clientTimestamp)
                 {
-                    updatedEdges.Add(edge.GetNetData());
+                    updatedObjects.Add(obj.GetNetData());
                 }
 
-                if(updatedEdges.Count == Constants.MAX_EDGES_PER_RPC)
+                if (updatedObjects.Count == maxObjects)
                 {
-                    UpdateEdgesClientRpc(Timestamp, updatedEdges.ToArray(), rpcParams);
-                    updatedEdges.Clear();
+                    UpdateObjectsClientRpc(Timestamp, updatedObjects.ToArray(), rpcParams);
+                    updatedObjects.Clear();
                 }
             }
 
-            if (updatedEdges.Count > 0)
+            if (updatedObjects.Count > 0)
             {
-                UpdateEdgesClientRpc(Timestamp, updatedEdges.ToArray(), rpcParams);
+                UpdateObjectsClientRpc(Timestamp, updatedObjects.ToArray(), rpcParams);
             }
         }
 
-        private void SyncClientProducers(Timestamp clientTimestamp, ClientRpcParams rpcParams)
+        private void SetNetObject<T>(T netData) where T : struct
         {
-            var updatedProducers = new List<Producer.NetData>();
-            updatedProducers.Capacity = Constants.MAX_PRODUCERS_PER_RPC;
+            if (netData is Edge.NetData e) SetEdge(e.Id, e.Type, e.PlayerId, true);
+            else if (netData is Producer.NetData p) SetProducer(p.Id.Offset, p.TileId, p.Good);
 
-            foreach (var producer in producers)
-            {
-                if (producer.Timestamp > clientTimestamp)
-                {
-                    updatedProducers.Add(producer.GetNetData());
-                }
-
-                if (updatedProducers.Count == Constants.MAX_PRODUCERS_PER_RPC)
-                {
-                    UpdateProducersClientRpc(Timestamp, updatedProducers.ToArray(), rpcParams);
-                    updatedProducers.Clear();
-                }
-            }
-
-            if (updatedProducers.Count > 0)
-            {
-                UpdateProducersClientRpc(Timestamp, updatedProducers.ToArray(), rpcParams);
-            }
         }
 
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void UpdateEdgesClientRpc(Timestamp timestamp, Edge.NetData[] edgeData, ClientRpcParams rpcParams = default)
+        private void UpdateObjectsClientRpc<T>(Timestamp timestamp, T[] netData, ClientRpcParams rpcParams = default) where T : struct
         {
             this.timestamp = timestamp;
-            Debug.Log("Received " + edgeData.Length + " edges");
-            foreach (var e in edgeData)
+            foreach (var data in netData)
             {
-                SetEdge(e.Id, e.Type, e.PlayerId, true);
+                SetNetObject(data);
             }
         }
 
-        [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void UpdateProducersClientRpc(Timestamp timestamp, Producer.NetData[] producerData, ClientRpcParams rpcParams = default)
-        {
-            this.timestamp = timestamp;
-            Debug.Log("Received " + producerData.Length + " producers");
-            foreach (var p in producerData)
-            {
-                SetProducer(p.Id.Offset, p.TileId, p.Good);
-            }
-        }
+
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
         public void RequestNewEdgesServerRpc(Edge.EdgeType edgeType, EdgeId[] edgeIds, RpcParams rpcParams = default)
@@ -453,7 +425,7 @@ namespace Map
             }
 
             var nextTimestamp = Timestamp.Next();
-            UpdateEdgesClientRpc(nextTimestamp, edgeData);
+            UpdateObjectsClientRpc(nextTimestamp, edgeData);
         }
 
         private struct NodeState

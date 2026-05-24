@@ -3,7 +3,7 @@ using Unity.Netcode;
 
 namespace Map.Structures
 {
-    public class Producer : Structure
+    public class Producer : Structure, INetObject<Producer.NetData>
     {
         private Good good;
         public Good Good { get { return good; } set { good = value; Timestamp = Map.Instance.Timestamp; } }
@@ -22,6 +22,6 @@ namespace Map.Structures
         }
 
         public NetData GetNetData() => new NetData { Id = Id, TileId = Tile.Id, Good = good };
-    }
 
+    }
 }
