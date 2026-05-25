@@ -29,6 +29,8 @@ namespace Map
         public Vector3 PositionOnSphere { get; private set; }
         public readonly List<Triangle> Faces;
 
+        public int ContinentId { get; set; } = -1;
+
         public IReadOnlyList<Edge> Edges => edges;
 
         public Structure Structure { get; set; }

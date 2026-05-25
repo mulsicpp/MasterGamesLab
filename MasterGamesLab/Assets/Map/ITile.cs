@@ -16,6 +16,8 @@ namespace Map
 
         public IReadOnlyList<ITile> Neighbors { get; }
 
+        int ContinentId { get; set; }
+
         public IReadOnlyList<Edge> Edges { get; }
 
         public Structure Structure { get; }
