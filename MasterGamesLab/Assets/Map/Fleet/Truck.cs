@@ -52,5 +52,22 @@ namespace Map.Fleet
         }
 
         public void ApplyServerState(TruckState state) { State = state; ResetDirty(); }
+
+        protected override void OnParked()
+        {
+            if(ParkedTile.Structure == null) return;
+
+            if(ParkedTile.Structure is Producer p) Good = p.Good;
+            else if(ParkedTile.Structure is Consumer c)
+            {
+                if(c.RequestedGood != Good.None && c.RequestedGood == Good)
+                {
+                    c.RequestedGood = Good.None;
+                    Good = Good.None;
+                    PlayerManager.Instance.Players[Owner].Money += 10; // TODO calculate reward properly
+                }
+            }
+
+        }
     }
 }

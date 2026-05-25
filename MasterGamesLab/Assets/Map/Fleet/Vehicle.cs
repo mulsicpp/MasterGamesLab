@@ -108,9 +108,12 @@ namespace Map.Fleet
             get { return parkedTile; }
             set 
             {
-                if (value != null)
-                    route = null;
                 parkedTile = value;
+                if (value != null)
+                {
+                    route = null;
+                    OnParked();
+                }
                 Touch();
             }
         }
@@ -210,18 +213,15 @@ namespace Map.Fleet
             if (IsDriving)
             {
                 if (Route.Length == 0) { Route = null; return; }
-                if (Route.Length == 1 || RouteProgress < -0.01f) { ParkOn(Route[0]); return; }
+                if (Route.Length == 1 || RouteProgress < -0.01f) { ParkedTile = Route[0]; return; }
 
                 RouteProgress += tickDuration * SpeedTPS;
                 int lastIndex = Route.Length - 1;
 
-                if (RouteProgress >= lastIndex) ParkOn(Route[lastIndex]);
+                if (RouteProgress >= lastIndex) ParkedTile = Route[lastIndex];
             }
         }
 
-        public virtual void ParkOn(Tile tile)
-        {
-            ParkedTile = tile; Route = null;
-        }
+        protected abstract void OnParked();
     }
 }
