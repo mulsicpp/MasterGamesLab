@@ -1,9 +1,6 @@
 
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Unity.Netcode;
-using static Map.Edge;
-using static Map.Infrastructure.Structure;
+using static Map.Fleet.Truck;
 
 namespace Map.Infrastructure
 {
@@ -14,8 +11,10 @@ namespace Map.Infrastructure
             public CommonStructureState Common;
             public Good Good;
 
-            public int ArrayIndex { get => Common.ArrayIndex; set => Common.ArrayIndex = value; }
             public StructureType Type => StructureType.Producer;
+
+            public int ArrayIndex { get => Common.ArrayIndex; set => Common.ArrayIndex = value; }
+            public int SerializedSize => FastBufferWriter.GetWriteSize(this);
         }
 
         public override StructureType Type => StructureType.Producer;
@@ -33,5 +32,7 @@ namespace Map.Infrastructure
         {
             good = Good.None;
         }
+
+        public void ApplyServerState(ProducerState state) { State = state; ResetDirty(); }
     }
 }

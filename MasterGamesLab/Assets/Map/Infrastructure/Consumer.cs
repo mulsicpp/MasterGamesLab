@@ -1,5 +1,6 @@
 
 using Unity.Netcode;
+using static Map.Infrastructure.Producer;
 
 namespace Map.Infrastructure
 {
@@ -10,8 +11,10 @@ namespace Map.Infrastructure
             public CommonStructureState Common;
             public Good RequestedGood;
 
-            public int ArrayIndex { get => Common.ArrayIndex; set => Common.ArrayIndex = value; }
             public StructureType Type => StructureType.Consumer;
+
+            public int ArrayIndex { get => Common.ArrayIndex; set => Common.ArrayIndex = value; }
+            public int SerializedSize => FastBufferWriter.GetWriteSize(this);
         }
 
         public override StructureType Type => StructureType.Consumer;
@@ -29,5 +32,7 @@ namespace Map.Infrastructure
         {
             requestedGood = Good.None;
         }
+
+        public void ApplyServerState(ConsumerState state) { State = state; ResetDirty(); }
     }
 }

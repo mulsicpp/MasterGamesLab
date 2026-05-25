@@ -1,4 +1,5 @@
 using Map.Infrastructure;
+using Unity.Collections;
 using Unity.Netcode;
 
 namespace Map.Fleet
@@ -14,6 +15,18 @@ namespace Map.Fleet
             public int ArrayIndex { get => Common.ArrayIndex; set => Common.ArrayIndex = value; }
             public VehicleType Type => VehicleType.Truck;
 
+            public int SerializedSize
+            {
+                get
+                {
+                    using (var writer = new FastBufferWriter(1300, Allocator.Temp))
+                    {
+                        writer.WriteNetworkSerializable(this);
+                        return writer.Position;
+                    }
+                }
+            }
+
             public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
             {
                 serializer.SerializeValue(ref Common);
@@ -22,6 +35,7 @@ namespace Map.Fleet
         }
 
         public override VehicleType Type => VehicleType.Truck;
+        public override float SpeedTPS => Constants.TRUCK_SPEED_TPS;
 
         private Good good;
         public Good Good { get => good; set { good = value; Touch(); } }
@@ -36,5 +50,7 @@ namespace Map.Fleet
         {
             good = Good.None;
         }
+
+        public void ApplyServerState(TruckState state) { State = state; ResetDirty(); }
     }
 }

@@ -78,7 +78,7 @@ namespace Map.Fleet
                 state.ArrayIndex = index;
 
                 var nextTimestamp = Map.Instance.Timestamp.Next();
-                Map.Instance.UpdateGenericStatesClient(nextTimestamp, new[] { state });
+                Map.Instance.UpdateGenericStatesOnClient(nextTimestamp, new[] { state });
                 return true;
             }
             return false;

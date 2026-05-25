@@ -1,6 +1,6 @@
 
-using System.Collections.Generic;
 using Unity.Netcode;
+using static Map.Fleet.Truck;
 
 namespace Map
 {
@@ -22,6 +22,7 @@ namespace Map
             public PlayerId Owner;
 
             public int ArrayIndex { get => Id; set => Id = new EdgeId(value); }
+            public int SerializedSize => FastBufferWriter.GetWriteSize(this);
         }
 
         public readonly EdgeId Id;
@@ -51,6 +52,8 @@ namespace Map
             this.owner = playerId;
             Touch();
         }
+
+        public void ApplyServerState(EdgeState state) { State = state; ResetDirty(); }
 
         public bool CanBecomeRoad()
         {

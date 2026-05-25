@@ -1,4 +1,6 @@
+using Map;
 using Map.Infrastructure;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -80,6 +82,20 @@ public class TestRoadCreation : NetworkBehaviour
             if (tile == null) return;
 
             Map.Map.Instance.RequestNewTruckServerRpc(tile.Id);
+        }
+
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            var tile = (Tile)Map.Map.Instance.GetCurrentlyHoveredTile();
+            if (tile == null) return;
+
+            var truck = Map.Map.Instance.Fleet.Trucks.First(truck => truck.Owner == PlayerManager.Instance.SelfId && truck.IsParked);
+
+            TileId[] tileIds;
+
+            Map.Map.Instance.FindShortestPath(truck.ParkedTile, tile, out tileIds);
+
+            Map.Map.Instance.RequestTruckRouteServerRpc(truck.Index, tileIds);
         }
     }
 }

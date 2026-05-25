@@ -27,6 +27,7 @@ namespace Map.Infrastructure
             public TileId TileId;
 
             public int ArrayIndex { get => Index; set => Index = new StructureIndex((byte)value); }
+            public int SerializedSize => FastBufferWriter.GetWriteSize(this);
         }
 
         public abstract StructureType Type { get; }

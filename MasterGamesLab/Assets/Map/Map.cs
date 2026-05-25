@@ -7,6 +7,9 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using Map.Fleet;
+using System;
+using Unity.Collections;
+using System.Data;
 
 namespace Map
 {
@@ -237,11 +240,12 @@ namespace Map
 
             Debug.Log("Map Tick");
 
-            List<Vehicle.VehicleProgressState> progressStates = new List<Vehicle.VehicleProgressState>();
             foreach (var vehicle in Fleet.Vehicles)
             {
                 vehicle.Tick(tickDuration);
             }
+
+            UpdateDirtyObjectsOnClient();
         }
 
         private void InitEdges()
@@ -286,40 +290,77 @@ namespace Map
 
             var rpcParams = GetRpcParams(clientId);
 
-            SyncClientObjects<Edge, Edge.EdgeState>(clientTimestamp, rpcParams, edges, Constants.MAX_EDGES_PER_RPC);
+            Predicate<Timestamped> condition = obj => obj.Timestamp > clientTimestamp;
 
-            SyncClientObjects<Producer, Producer.ProducerState>(clientTimestamp, rpcParams, infrastructure.Producers, Constants.MAX_PRODUCERS_PER_RPC);
-            SyncClientObjects<Consumer, Consumer.ConsumerState>(clientTimestamp, rpcParams, infrastructure.Consumers, Constants.MAX_CONSUMERS_PER_RPC);
+            SyncObjectsOnClientFiltered<Edge, Edge.EdgeState>(edges, condition, rpcParams);
 
-            SyncClientObjects<Truck, Truck.TruckState>(clientTimestamp, rpcParams, fleet.Trucks, Constants.MAX_TRUCKS_PER_RPC);
+            SyncObjectsOnClientFiltered<Producer, Producer.ProducerState>(infrastructure.Producers, condition, rpcParams);
+            SyncObjectsOnClientFiltered<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition, rpcParams);
+
+            SyncObjectsOnClientFiltered<Truck, Truck.TruckState>(fleet.Trucks, condition, rpcParams);
         }
 
-        private void SyncClientObjects<T, U>(Timestamp clientTimestamp, ClientRpcParams rpcParams, IEnumerable<T> objects, int maxObjects = 32) where U : struct, IState where T : ISynchableObject<U>
+        public void UpdateDirtyObjectsOnClient()
         {
-            var updatedStates = new List<U>();
-            updatedStates.Capacity = maxObjects;
+            if (!IsServer) return;
+
+            Predicate<Timestamped> condition = obj => obj.Dirty;
+
+            timestamp = Timestamp.Next();
+            SyncObjectsOnClientFiltered<Edge, Edge.EdgeState>(edges, condition);
+
+            timestamp = Timestamp.Next();
+            SyncObjectsOnClientFiltered<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
+            timestamp = Timestamp.Next();
+            SyncObjectsOnClientFiltered<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
+
+            timestamp = Timestamp.Next();
+            SyncObjectsOnClientFiltered<Vehicle, Vehicle.VehicleProgressState>(fleet.Vehicles, v => v.ProgressDirty);
+            timestamp = Timestamp.Next();
+            SyncObjectsOnClientFiltered<Truck, Truck.TruckState>(fleet.Trucks, condition);
+        }
+
+        public void SyncObjectsOnClientFiltered<T, U>(IEnumerable<T> objects, Predicate<T> condition, ClientRpcParams rpcParams = default) where U : struct, IState where T : ISynchableObject<U>
+        {
+            int currentSize = 0;
+            List<U> states = new List<U>();
 
             foreach (var obj in objects)
             {
-                if (obj.Timestamp > clientTimestamp)
+                if (!condition(obj)) continue;
+                var state = obj.State;
+                int objSize = state.SerializedSize;
+
+                if (objSize > Constants.MAX_SYNC_STATE_BYTES_PER_RPC)
                 {
-                    updatedStates.Add(obj.State);
+                    if (states.Count > 0)
+                    {
+                        UpdateGenericStatesOnClient(Timestamp, states.ToArray(), rpcParams);
+                        states.Clear();
+                        currentSize = 0;
+                    }
+                    UpdateGenericStatesOnClient(Timestamp, new U[] { state }, rpcParams);
+                    continue;
                 }
 
-                if (updatedStates.Count == maxObjects)
+                if (currentSize + objSize > Constants.MAX_SYNC_STATE_BYTES_PER_RPC)
                 {
-                    UpdateGenericStatesClient(Timestamp, updatedStates.ToArray(), rpcParams);
-                    updatedStates.Clear();
+                    UpdateGenericStatesOnClient(Timestamp, states.ToArray(), rpcParams);
+                    states.Clear();
+                    currentSize = 0;
                 }
+
+                states.Add(state);
+                currentSize += objSize;
             }
 
-            if (updatedStates.Count > 0)
+            if (states.Count > 0)
             {
-                UpdateGenericStatesClient(Timestamp, updatedStates.ToArray(), rpcParams);
+                UpdateGenericStatesOnClient(Timestamp, states.ToArray(), rpcParams);
             }
         }
 
-        public void UpdateGenericStatesClient<T>(Timestamp timestamp, T[] states, ClientRpcParams rpcParams = default) where T : struct, IState
+        public void UpdateGenericStatesOnClient<T>(Timestamp timestamp, T[] states, ClientRpcParams rpcParams = default) where T : struct, IState
         {
             if (!IsServer) return;
             // edges
@@ -330,6 +371,7 @@ namespace Map
             else if (states is Consumer.ConsumerState[] c) UpdateConsumerStatesClientRpc(timestamp, c, rpcParams);
 
             // vehicles
+            else if (states is Vehicle.VehicleProgressState[] progress) UpdateVehicleProgressStatesClientRpc(timestamp, progress, rpcParams);
             else if (states is Truck.TruckState[] t) UpdateTruckStatesClientRpc(timestamp, t, rpcParams);
         }
 
@@ -343,6 +385,9 @@ namespace Map
         private void UpdateConsumerStatesClientRpc(Timestamp timestamp, Consumer.ConsumerState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Infrastructure.Consumers, states);
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        private void UpdateVehicleProgressStatesClientRpc(Timestamp timestamp, Vehicle.VehicleProgressState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Fleet.Vehicles, states);
+
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
         private void UpdateTruckStatesClientRpc(Timestamp timestamp, Truck.TruckState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Fleet.Trucks, states);
 
 
@@ -352,8 +397,7 @@ namespace Map
             this.timestamp = timestamp;
             foreach (var state in states)
             {
-                objects[state.ArrayIndex].State = state;
-                objects[state.ArrayIndex].ResetDirty();
+                objects[state.ArrayIndex].ApplyServerState(state);
             }
         }
 
@@ -424,6 +468,30 @@ namespace Map
             UpdateTruckStatesClientRpc(nextTimestamp, new[] { truckState });
         }
 
+        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
+        public void RequestTruckRouteServerRpc(VehicleIndex index, TileId[] routeIds, RpcParams rpcParams = default)
+        {
+            var playerId = PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
+            Debug.Log("Received new truck request from player " + playerId.Value);
+
+            if (playerId == PlayerId.NONE) return;
+
+            var truck = Fleet.Trucks[index];
+
+            if (!truck.IsParked || truck.Owner != playerId) return;
+
+            if (routeIds?.Length < 2) return;
+
+            var truckState = truck.State;
+
+            truckState.Common.ParkedTileId = TileId.NONE;
+            truckState.Common.RouteIds = routeIds;
+            truckState.Common.RouteProgress = 0.0f;
+
+            var nextTimestamp = Timestamp.Next();
+            UpdateTruckStatesClientRpc(nextTimestamp, new[] { truckState });
+        }
+
         private struct NodeState
         {
             public int RealDistance;
@@ -434,8 +502,9 @@ namespace Map
 
         public enum RoutePriorityMode { Shortest, Cheapest }
 
-        public EdgeId[] FindShortestPath(Tile start, Tile target)
+        public EdgeId[] FindShortestPath(Tile start, Tile target, out TileId[] pathTiles)
         {
+            pathTiles = null;
             if (!IsValidRequest(start, target)) return null;
 
             System.Array.Clear(visitedTilesBuffer, 0, visitedTilesBuffer.Length);
@@ -451,7 +520,11 @@ namespace Map
                 Tile current = tileQueue.Dequeue();
                 int currentId = current.Id.Value;
 
-                if (current == target) return ReconstructPathArray(startId, target.Id.Value);
+                if (current == target)
+                {
+                    pathTiles = ReconstructPathArrayTiles(startId, target.Id.Value);
+                    return ReconstructPathArray(startId, target.Id.Value);
+                }
 
                 int currentRealDistance = nodeStatesBuffer[currentId].RealDistance;
                 int currentRealCost = nodeStatesBuffer[currentId].RealCost;
@@ -485,9 +558,10 @@ namespace Map
             return null;
         }
 
-        public EdgeId[] FindCheapestPath(Tile start, Tile target)
+        public EdgeId[] FindCheapestPath(Tile start, Tile target, out TileId[] pathTiles)
         {
-            if (!IsValidRequest(start, target)) return null;
+            pathTiles = null;
+            if (!IsValidRequest(start, target)) { pathTiles = null; return null; }
 
             System.Array.Clear(visitedTilesBuffer, 0, visitedTilesBuffer.Length);
             tileQueue.Clear();
@@ -502,7 +576,11 @@ namespace Map
                 Tile current = tileQueue.Dequeue();
                 int currentId = current.Id.Value;
 
-                if (current == target) return ReconstructPathArray(startId, target.Id.Value);
+                if (current == target)
+                {
+                    pathTiles = ReconstructPathArrayTiles(startId, target.Id.Value);
+                    return ReconstructPathArray(startId, target.Id.Value);
+                }
 
                 int currentRealDistance = nodeStatesBuffer[currentId].RealDistance;
                 int currentRealCost = nodeStatesBuffer[currentId].RealCost;
@@ -536,6 +614,9 @@ namespace Map
             return null;
         }
 
+        public EdgeId[] FindShortestPath(Tile start, Tile target) => FindShortestPath(start, target, out _);
+        public EdgeId[] FindCheapestPath(Tile start, Tile target) => FindCheapestPath(start, target, out _);
+
         private bool IsValidRequest(Tile start, Tile target)
         {
             if (start == null || target == null || start == target) return false;
@@ -552,6 +633,23 @@ namespace Map
             {
                 result.Add(nodeStatesBuffer[currId].ReachedViaEdgeId);
                 currId = nodeStatesBuffer[currId].CameFromId;
+            }
+            result.Reverse();
+            return result.ToArray();
+        }
+
+        private TileId[] ReconstructPathArrayTiles(int startId, int targetId)
+        {
+            var result = new List<TileId>
+            {
+                new TileId(targetId)
+            };
+
+            int currId = targetId;
+            while (currId != startId)
+            {
+                currId = nodeStatesBuffer[currId].CameFromId;
+                result.Add(new TileId(currId));
             }
             result.Reverse();
             return result.ToArray();
@@ -774,24 +872,41 @@ namespace Map
 
             foreach (var truck in Fleet.Trucks)
             {
-                if (truck.ParkedTile != null)
+                if (!truck.Exists) continue;
+                Vector3 basePos = Vector3.zero;
+                if (truck.IsParked)
+                    basePos = GetProjectedPosition(truck.ParkedTile.PositionOnSphere, 1.0f);
+                else if (truck.IsDriving)
                 {
-                    Vector3 basePos = GetProjectedPosition(truck.ParkedTile.PositionOnSphere, 1.0f);
-                    Gizmos.color = Constants.PLAYER_COLORS[truck.Owner % Constants.MAX_PLAYER_COUNT];
-                    Gizmos.DrawSphere(basePos, 0.01f);
-
-                    if (truck.Good != Good.None)
+                    if (truck.RouteProgress <= 0.0f)
+                        basePos = GetProjectedPosition(truck.Route[0].PositionOnSphere, 1.0f);
+                    else if (truck.RouteProgress >= truck.Route.Length - 1)
+                        basePos = GetProjectedPosition(truck.Route[truck.Route.Length - 1].PositionOnSphere, 1.0f);
+                    else
                     {
-                        switch (truck.Good)
-                        {
-                            case Good.Apple: Gizmos.color = Color.red; break;
-                            case Good.Orange: Gizmos.color = orange; break;
-                            case Good.Banana: Gizmos.color = Color.yellow; break;
-                        }
-                        Vector3 cargoPos = GetProjectedPosition(basePos, 1.02f);
-                        Gizmos.DrawSphere(cargoPos, 0.005f);
+                        int index = (int)truck.RouteProgress;
+                        float localProgress = truck.RouteProgress - index;
 
+                        var pos1 = GetProjectedPosition(truck.Route[index].PositionOnSphere, 1.0f);
+                        var pos2 = GetProjectedPosition(truck.Route[index + 1].PositionOnSphere, 1.0f);
+
+                        basePos = pos1 * (1.0f - localProgress) + pos2 * localProgress;
                     }
+                }
+                Gizmos.color = Constants.PLAYER_COLORS[truck.Owner % Constants.MAX_PLAYER_COUNT];
+                Gizmos.DrawSphere(basePos, 0.01f);
+
+                if (truck.Good != Good.None)
+                {
+                    switch (truck.Good)
+                    {
+                        case Good.Apple: Gizmos.color = Color.red; break;
+                        case Good.Orange: Gizmos.color = orange; break;
+                        case Good.Banana: Gizmos.color = Color.yellow; break;
+                    }
+                    Vector3 cargoPos = GetProjectedPosition(basePos, 1.02f);
+                    Gizmos.DrawSphere(cargoPos, 0.005f);
+
                 }
             }
         }

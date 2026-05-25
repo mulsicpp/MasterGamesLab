@@ -1,8 +1,10 @@
+using Unity.Collections;
 using Unity.Netcode;
+using static Map.Infrastructure.Consumer;
 
 namespace Map.Fleet
 {
-    public abstract class Vehicle : Timestamped
+    public abstract class Vehicle : Timestamped, ISynchableObject<Vehicle.VehicleProgressState>
     {
         [System.Serializable]
         public enum VehicleType : byte
@@ -27,6 +29,18 @@ namespace Map.Fleet
 
             public int ArrayIndex { get => Index; set => Index = new VehicleIndex((byte)value); }
 
+            public int SerializedSize
+            {
+                get
+                {
+                    using (var writer = new FastBufferWriter(1300, Allocator.Temp))
+                    {
+                        writer.WriteNetworkSerializable(this);
+                        return writer.Position;
+                    }
+                }
+            }
+
             public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
             {
                 TileId[] routeIds = null;
@@ -47,12 +61,15 @@ namespace Map.Fleet
             }
         }
 
-        public struct VehicleProgressState : INetworkSerializeByMemcpy
+        public struct VehicleProgressState : IState, INetworkSerializeByMemcpy
         {
             public VehicleType Type;
             public VehicleIndex Index;
 
             public float Progress;
+
+            public int ArrayIndex { get => GetOffsetFromType(Type) + Index; set => Type = GetTypeFromIndex(value, out Index); }
+            public int SerializedSize => FastBufferWriter.GetWriteSize(this);
         }
 
         public abstract VehicleType Type { get; }
@@ -66,7 +83,15 @@ namespace Map.Fleet
         public new Timestamp Timestamp => base.Timestamp;
 
         private Tile[] route;
-        public Tile[] Route { get { return route; } set { route = value; Touch(); } }
+        public Tile[] Route { 
+            get { return route; }
+            set 
+            {
+                if (value == null || value.Length < 2) route = null;
+                else { route = value; parkedTile = null; }
+                Touch();
+            }
+        }
         public bool IsDriving => route != null;
 
         private bool progressDirty;
@@ -75,9 +100,20 @@ namespace Map.Fleet
         private float routeProgress;
         public float RouteProgress { get { return routeProgress; } set { routeProgress = value; PutTimestamp(); progressDirty = true; } }
 
+        public abstract float SpeedTPS { get; }
+
 
         private Tile parkedTile;
-        public Tile ParkedTile { get { return parkedTile; } set { parkedTile = value; Touch(); } }
+        public Tile ParkedTile { 
+            get { return parkedTile; }
+            set 
+            {
+                if (value != null)
+                    route = null;
+                parkedTile = value;
+                Touch();
+            }
+        }
         public bool IsParked => parkedTile != null;
 
         public CommonVehicleState CommonState
@@ -117,7 +153,39 @@ namespace Map.Fleet
             }
         }
 
-        public VehicleProgressState ProgressState => new VehicleProgressState { Type = Type, Index = Index, Progress = RouteProgress };
+        public VehicleProgressState ProgressState
+        {
+            get => new VehicleProgressState { Type = Type, Index = Index, Progress = RouteProgress };
+            set { RouteProgress = value.Progress; }
+        }
+
+        VehicleProgressState ISynchableObject<VehicleProgressState>.State { get => ProgressState; set => ProgressState = value; }
+
+        public void ApplyServerState(VehicleProgressState state) { ProgressState = state; ResetProgressDirty(); }
+
+        public static int GetOffsetFromType(VehicleType type)
+        {
+            int offset = 0;
+            if (type == VehicleType.Truck) return offset;
+            offset += Constants.MAX_TRUCK_COUNT;
+            if (type == VehicleType.Freighter) return offset;
+            offset += Constants.MAX_FREIGHTER_COUNT;
+            return offset;
+        }
+
+        public static VehicleType GetTypeFromIndex(int index, out VehicleIndex localIndex)
+        {
+            if (index < Constants.MAX_TRUCK_COUNT)
+            {
+                localIndex = new((byte)index);
+                return VehicleType.Truck;
+            }
+            else
+            {
+                localIndex = new((byte)(index - Constants.MAX_TRUCK_COUNT));
+                return VehicleType.Freighter;
+            }
+        }
 
         protected Vehicle(VehicleIndex index)
         {
@@ -138,13 +206,13 @@ namespace Map.Fleet
 
         public virtual void Tick(float tickDuration)
         {
-            if(!Exists) return;
+            if (!Exists) return;
             if (IsDriving)
             {
                 if (Route.Length == 0) { Route = null; return; }
                 if (Route.Length == 1 || RouteProgress < -0.01f) { ParkOn(Route[0]); return; }
 
-                RouteProgress += tickDuration * Constants.TRUCK_SPEED_TPS;
+                RouteProgress += tickDuration * SpeedTPS;
                 int lastIndex = Route.Length - 1;
 
                 if (RouteProgress >= lastIndex) ParkOn(Route[lastIndex]);
