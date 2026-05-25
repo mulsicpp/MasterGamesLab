@@ -73,5 +73,13 @@ public class TestRoadCreation : NetworkBehaviour
                 Map.Map.Instance.Infrastructure.SpawnGlobal(new Consumer.ConsumerState { Common = { TileId = tile.Id }, RequestedGood = good });
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
+            if (tile == null) return;
+
+            Map.Map.Instance.RequestNewTruckServerRpc(tile.Id);
+        }
     }
 }

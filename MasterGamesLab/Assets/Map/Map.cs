@@ -283,6 +283,8 @@ namespace Map
 
             SyncClientObjects<Producer, Producer.ProducerState>(clientTimestamp, rpcParams, infrastructure.Producers, Constants.MAX_PRODUCERS_PER_RPC);
             SyncClientObjects<Consumer, Consumer.ConsumerState>(clientTimestamp, rpcParams, infrastructure.Consumers, Constants.MAX_CONSUMERS_PER_RPC);
+
+            SyncClientObjects<Truck, Truck.TruckState>(clientTimestamp, rpcParams, fleet.Trucks, Constants.MAX_TRUCKS_PER_RPC);
         }
 
         private void SyncClientObjects<T, U>(Timestamp clientTimestamp, ClientRpcParams rpcParams, IEnumerable<T> objects, int maxObjects = 32) where U : struct, IState where T : ISynchableObject<U>
@@ -319,6 +321,9 @@ namespace Map
             // structures
             else if (states is Producer.ProducerState[] p) UpdateProducerStatesClientRpc(timestamp, p, rpcParams);
             else if (states is Consumer.ConsumerState[] c) UpdateConsumerStatesClientRpc(timestamp, c, rpcParams);
+
+            // vehicles
+            else if (states is Truck.TruckState[] t) UpdateTruckStatesClientRpc(timestamp, t, rpcParams);
         }
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
@@ -330,6 +335,9 @@ namespace Map
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
         private void UpdateConsumerStatesClientRpc(Timestamp timestamp, Consumer.ConsumerState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Infrastructure.Consumers, states);
 
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        private void UpdateTruckStatesClientRpc(Timestamp timestamp, Truck.TruckState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Fleet.Trucks, states);
+
 
 
         private void UpdateGenericStatesLocal<T, U>(Timestamp timestamp, IReadOnlyList<T> objects, U[] states) where U : struct, IState where T : ISynchableObject<U>
@@ -340,6 +348,8 @@ namespace Map
                 objects[state.ArrayIndex].State = state;
             }
         }
+
+
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
         public void RequestNewEdgesServerRpc(Edge.EdgeType edgeType, EdgeId[] edgeIds, RpcParams rpcParams = default)
@@ -379,6 +389,20 @@ namespace Map
 
             var nextTimestamp = Timestamp.Next();
             UpdateEdgeStatesClientRpc(nextTimestamp, edgeStates);
+        }
+
+        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
+        public void RequestNewTruckServerRpc(TileId parkedTileId, RpcParams rpcParams = default)
+        {
+            var playerId = PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
+            Debug.Log("Received new truck request from player " + playerId.Value);
+
+            if (playerId == PlayerId.NONE) return;
+
+            var truckState = new Truck.TruckState { Common = { Index = new((byte)fleet.GetFirstEmptyIndex(Vehicle.VehicleType.Truck)), Owner = playerId, ParkedTileId = parkedTileId }, Good = Good.None };
+
+            var nextTimestamp = Timestamp.Next();
+            UpdateTruckStatesClientRpc(nextTimestamp, new[] { truckState });
         }
 
         private struct NodeState
@@ -688,7 +712,7 @@ namespace Map
                 if (producer.Tile != null)
                 {
                     Vector3 basePos = GetProjectedPosition(producer.Tile.PositionOnSphere, 1.0f);
-                    Gizmos.color = Color.green;
+                    Gizmos.color = Color.white;
                     Gizmos.DrawSphere(basePos, 0.015f);
 
                     if (producer.Good != Good.None)
@@ -712,7 +736,7 @@ namespace Map
                 if (consumer.Tile != null)
                 {
                     Vector3 basePos = GetProjectedPosition(consumer.Tile.PositionOnSphere, 1.0f);
-                    Gizmos.color = Color.blue;
+                    Gizmos.color = Color.black;
                     Gizmos.DrawSphere(basePos, 0.015f);
 
                     if (consumer.RequestedGood != Good.None)
@@ -725,6 +749,29 @@ namespace Map
                         }
                         Vector3 cargoPos = GetProjectedPosition(consumer.Tile.PositionOnSphere, 1.02f);
                         Gizmos.DrawSphere(cargoPos, 0.005f);
+                    }
+                }
+            }
+
+            foreach (var truck in Fleet.Trucks)
+            {
+                if (truck.ParkedTile != null)
+                {
+                    Vector3 basePos = GetProjectedPosition(truck.ParkedTile.PositionOnSphere, 1.0f);
+                    Gizmos.color = Constants.PLAYER_COLORS[truck.Owner % Constants.MAX_PLAYER_COUNT];
+                    Gizmos.DrawSphere(basePos, 0.01f);
+
+                    if (truck.Good != Good.None)
+                    {
+                        switch (truck.Good)
+                        {
+                            case Good.Apple: Gizmos.color = Color.red; break;
+                            case Good.Orange: Gizmos.color = orange; break;
+                            case Good.Banana: Gizmos.color = Color.yellow; break;
+                        }
+                        Vector3 cargoPos = GetProjectedPosition(basePos, 1.02f);
+                        Gizmos.DrawSphere(cargoPos, 0.005f);
+
                     }
                 }
             }

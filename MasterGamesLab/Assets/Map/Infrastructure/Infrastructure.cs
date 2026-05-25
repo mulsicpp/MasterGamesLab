@@ -54,7 +54,7 @@ namespace Map.Infrastructure
             return -1;
         }
 
-        public void UpdateStructure<T>(T state) where T : Structure.IStructureState
+        public void UpdateStructure<T>(T state) where T : struct, Structure.IStructureState
         {
             if (state is Producer.ProducerState p) producers[p.ArrayIndex].State = p;
             else if (state is Consumer.ConsumerState c) consumers[c.ArrayIndex].State = c;

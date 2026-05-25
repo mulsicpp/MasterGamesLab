@@ -1,12 +1,11 @@
-using System.Drawing;
-using UnityEngine.UIElements;
+using UnityEngine;
 
 public static class Constants
 {
     public const byte MIN_PLAYER_COUNT = 2;
     public const byte MAX_PLAYER_COUNT = 4;
 
-    public static readonly Color[] PLAYER_COLORS = { Color.Red, Color.Blue, Color.Yellow, Color.Green };
+    public static readonly Color[] PLAYER_COLORS = { Color.red, Color.blue, Color.yellow, Color.green };
     public const uint PLAYER_START_MONEY = 100;
 
     public const byte MAX_TRUCKS_PER_PLAYER = 32;
@@ -22,6 +21,8 @@ public static class Constants
     public const int MAX_EDGES_PER_RPC = 32;
     public const int MAX_PRODUCERS_PER_RPC = 32;
     public const int MAX_CONSUMERS_PER_RPC = 32;
+
+    public const int MAX_TRUCKS_PER_RPC = 8;
 
 
     public const int ROAD_MOVEMENT_COST = 1;

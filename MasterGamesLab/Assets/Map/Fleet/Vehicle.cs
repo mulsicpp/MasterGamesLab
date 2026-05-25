@@ -12,7 +12,7 @@ namespace Map.Fleet
             None
         }
 
-        public interface IVehicleState
+        public interface IVehicleState : IState
         {
             public VehicleType Type { get; }
         }
@@ -29,9 +29,19 @@ namespace Map.Fleet
 
             public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
             {
+                TileId[] routeIds = null;
                 serializer.SerializeValue(ref Index);
                 serializer.SerializeValue(ref Owner);
-                serializer.SerializeValue(ref RouteIds);
+                if(serializer.IsWriter)
+                {
+                    routeIds = RouteIds ?? new TileId[] { };
+                    serializer.SerializeValue(ref routeIds);
+                }
+                else
+                {
+                    serializer.SerializeValue(ref routeIds);
+                    RouteIds = routeIds.Length > 0 ? routeIds : null;
+                }
                 serializer.SerializeValue(ref RouteProgress);
                 serializer.SerializeValue(ref ParkedTileId);
             }

@@ -15,7 +15,7 @@ namespace Map.Fleet
             for (int i = 0; i < trucks.Length; i++) trucks[i] = new Truck(new VehicleIndex((byte)i));
         }
 
-        public int GetFirstAvailableStructureOffset(Vehicle.VehicleType type)
+        public int GetFirstEmptyIndex(Vehicle.VehicleType type)
         {
             Vehicle[] vehicles = null;
 
@@ -32,6 +32,37 @@ namespace Map.Fleet
                     return i;
             }
             return -1;
+        }
+
+        public void UpdateVehicle<T>(T state) where T : struct, Vehicle.IVehicleState
+        {
+            if (state is Truck.TruckState t) trucks[t.ArrayIndex].State = t;
+            else throw new ArgumentException("Given IVehicleState is not supported: " + state.GetType().FullName);
+        }
+
+        public bool SpawnLocal<T>(T state) where T : struct, Vehicle.IVehicleState
+        {
+            int index = GetFirstEmptyIndex(state.Type);
+            if (index > -1)
+            {
+                UpdateVehicle(state);
+                return true;
+            }
+            return false;
+        }
+
+        public bool SpawnGlobal<T>(T state) where T : struct, Vehicle.IVehicleState
+        {
+            int index = GetFirstEmptyIndex(state.Type);
+            if (index > -1)
+            {
+                state.ArrayIndex = index;
+
+                var nextTimestamp = Map.Instance.Timestamp.Next();
+                Map.Instance.UpdateGenericStatesClient(nextTimestamp, new[] { state });
+                return true;
+            }
+            return false;
         }
     }
 }
