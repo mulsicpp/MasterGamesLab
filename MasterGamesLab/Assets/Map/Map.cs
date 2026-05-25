@@ -458,10 +458,16 @@ namespace Map
         public void RequestNewVehicleServerRpc(Vehicle.VehicleType type, TileId parkedTileId, RpcParams rpcParams = default)
         {
             var playerId = PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-            Debug.Log("Received new truck request from player " + playerId.Value);
+            Debug.Log("Received new vehicle request from player " + playerId.Value);
             if (playerId == PlayerId.NONE) return;
 
-            var commonState = new Vehicle.CommonVehicleState { Index = new((byte)fleet.GetFirstEmptyIndex(type)), Owner = playerId, ParkedTileId = parkedTileId, RouteIds = null };
+            int index = fleet.GetFirstEmptyIndex(type, playerId);
+
+            if (index == -1) return;
+
+            Debug.Log("Found free index for vehicle:" + index);
+
+            var commonState = new Vehicle.CommonVehicleState { Index = new((byte)index), Exists = true, ParkedTileId = parkedTileId, RouteIds = null };
 
             var nextTimestamp = Timestamp.Next();
             if(type == Vehicle.VehicleType.Truck)
@@ -474,7 +480,7 @@ namespace Map
         public void RequestTruckRouteServerRpc(VehicleIndex index, TileId[] routeIds, RpcParams rpcParams = default)
         {
             var playerId = PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-            Debug.Log("Received new truck request from player " + playerId.Value);
+            Debug.Log("Received truck route request from player " + playerId.Value);
 
             if (playerId == PlayerId.NONE) return;
 

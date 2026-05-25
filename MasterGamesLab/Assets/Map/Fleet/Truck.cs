@@ -36,6 +36,7 @@ namespace Map.Fleet
         }
 
         public override VehicleType Type => VehicleType.Truck;
+        public override PlayerId Owner => new PlayerId((byte)(Index / Constants.MAX_TRUCKS_PER_PLAYER));
         public override float SpeedTPS => Constants.TRUCK_SPEED_TPS;
 
         private Good good;
