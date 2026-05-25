@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 using Map;
 
 public static class ProceduralMapGenerator

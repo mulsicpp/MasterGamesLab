@@ -380,7 +380,6 @@ GameObject:
   - component: {fileID: 916988258}
   - component: {fileID: 916988257}
   - component: {fileID: 916988256}
-  - component: {fileID: 916988255}
   - component: {fileID: 916988259}
   m_Layer: 0
   m_Name: Map
@@ -389,18 +388,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &916988255
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 916988254}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7e152d4c45a10944b316a2244d4ba28, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ProceduralMapGenerator
 --- !u!114 &916988256
 MonoBehaviour:
   m_ObjectHideFlags: 0
