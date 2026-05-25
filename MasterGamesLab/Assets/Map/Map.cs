@@ -246,6 +246,11 @@ namespace Map
             }
 
             UpdateDirtyObjectsOnClient();
+
+            foreach (var vehicle in Fleet.Vehicles)
+            {
+                vehicle.ResetProgressDirty();
+            }
         }
 
         private void InitEdges()
@@ -384,7 +389,7 @@ namespace Map
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
         private void UpdateConsumerStatesClientRpc(Timestamp timestamp, Consumer.ConsumerState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Infrastructure.Consumers, states);
 
-        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        [ClientRpc(Delivery = RpcDelivery.Unreliable)]
         private void UpdateVehicleProgressStatesClientRpc(Timestamp timestamp, Vehicle.VehicleProgressState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Fleet.Vehicles, states);
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
@@ -398,17 +403,6 @@ namespace Map
             foreach (var state in states)
             {
                 objects[state.ArrayIndex].ApplyServerState(state);
-            }
-        }
-
-
-        [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void UpdateVehicleProgressClientRpc(Timestamp timestamp, Vehicle.VehicleProgressState[] progressStates, ClientRpcParams rpcParams = default)
-        {
-            this.timestamp = timestamp;
-            foreach (var state in progressStates)
-            {
-                fleet.UpdateVehicleProgress(state);
             }
         }
 

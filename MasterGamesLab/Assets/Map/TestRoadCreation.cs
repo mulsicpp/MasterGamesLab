@@ -95,6 +95,8 @@ public class TestRoadCreation : NetworkBehaviour
 
             Map.Map.Instance.FindShortestPath(truck.ParkedTile, tile, out tileIds);
 
+            if (tileIds == null) return;
+
             Map.Map.Instance.RequestTruckRouteServerRpc(truck.Index, tileIds);
         }
     }
