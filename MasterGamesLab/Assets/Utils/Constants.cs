@@ -19,6 +19,8 @@ public static class Constants
 
 
     public const float TRUCK_SPEED_TPS = 1.0f;
+    public const float FREIGHTER_SPEED_TPS = 1.0f;
+
 
     public const int MAX_SYNC_STATE_BYTES_PER_RPC = 1000;
 

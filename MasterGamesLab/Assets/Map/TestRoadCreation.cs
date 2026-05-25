@@ -81,7 +81,15 @@ public class TestRoadCreation : NetworkBehaviour
             var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
             if (tile == null) return;
 
-            Map.Map.Instance.RequestNewTruckServerRpc(tile.Id);
+            Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Truck, tile.Id);
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
+            if (tile == null) return;
+
+            Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
         }
 
         if (Input.GetKeyDown(KeyCode.D))
@@ -89,7 +97,9 @@ public class TestRoadCreation : NetworkBehaviour
             var tile = (Tile)Map.Map.Instance.GetCurrentlyHoveredTile();
             if (tile == null) return;
 
-            var truck = Map.Map.Instance.Fleet.Trucks.First(truck => truck.Owner == PlayerManager.Instance.SelfId && truck.IsParked);
+            var truck = Map.Map.Instance.Fleet.Trucks.FirstOrDefault(truck => truck.Owner == PlayerManager.Instance.SelfId && truck.IsParked);
+
+            if (truck == null) return;
 
             TileId[] tileIds;
 

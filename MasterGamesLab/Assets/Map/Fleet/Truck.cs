@@ -6,7 +6,7 @@ namespace Map.Fleet
 {
     public class Truck : Vehicle, ISynchableObject<Truck.TruckState>
     {
-        public struct TruckState : IState, INetworkSerializable
+        public struct TruckState : IState, IVehicleState, INetworkSerializable
         {
             public CommonVehicleState Common;
 
@@ -14,6 +14,7 @@ namespace Map.Fleet
 
             public int ArrayIndex { get => Common.ArrayIndex; set => Common.ArrayIndex = value; }
             public VehicleType Type => VehicleType.Truck;
+            public CommonVehicleState CommonState => Common;
 
             public int SerializedSize
             {

@@ -9,6 +9,9 @@ namespace Map.Fleet
         private Truck[] trucks;
         public IReadOnlyList<Truck> Trucks => trucks;
 
+        private Freighter[] freighters;
+        public IReadOnlyList<Freighter> Freighters => freighters;
+
         private Vehicle[] vehicles;
         public IReadOnlyList<Vehicle> Vehicles => vehicles;
 
@@ -17,9 +20,13 @@ namespace Map.Fleet
             trucks = new Truck[Constants.MAX_TRUCK_COUNT];
             for (int i = 0; i < trucks.Length; i++) trucks[i] = new Truck(new VehicleIndex((byte)i));
 
-            vehicles = new Vehicle[trucks.Length];
+            freighters = new Freighter[Constants.MAX_FREIGHTER_COUNT];
+            for (int i = 0; i < freighters.Length; i++) freighters[i] = new Freighter(new VehicleIndex((byte)i));
+
+            vehicles = new Vehicle[trucks.Length + freighters.Length];
             Array.Copy(trucks, 0, vehicles, 0, trucks.Length);
-    }
+            Array.Copy(freighters, 0, vehicles, trucks.Length, freighters.Length);
+        }
 
         public int GetFirstEmptyIndex(Vehicle.VehicleType type)
         {
@@ -28,6 +35,7 @@ namespace Map.Fleet
             switch (type)
             {
                 case Vehicle.VehicleType.Truck: vehicles = trucks; break;
+                case Vehicle.VehicleType.Freighter: vehicles = freighters; break;
             }
 
             if (vehicles == null) return -1;
@@ -43,19 +51,8 @@ namespace Map.Fleet
         public void UpdateVehicle<T>(T state) where T : struct, Vehicle.IVehicleState
         {
             if (state is Truck.TruckState t) trucks[t.ArrayIndex].State = t;
+            else if (state is Freighter.FreighterState f) freighters[f.ArrayIndex].State = f;
             else throw new ArgumentException("Given IVehicleState is not supported: " + state.GetType().FullName);
-        }
-
-        public void UpdateVehicleProgress(Vehicle.VehicleProgressState progessState)
-        {
-            switch (progessState.Type)
-            {
-                case Vehicle.VehicleType.Truck:
-                    trucks[progessState.Index].RouteProgress = progessState.Progress;
-                    trucks[progessState.Index].ResetProgressDirty();
-                    return;
-                default: throw new ArgumentException("Given VehicleProgressState.Type is not supported: " + progessState.Type.ToString());
-            }
         }
 
 

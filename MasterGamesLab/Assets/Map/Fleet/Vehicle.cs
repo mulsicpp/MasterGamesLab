@@ -10,13 +10,13 @@ namespace Map.Fleet
         public enum VehicleType : byte
         {
             Truck,
-            Freighter,
-            None
+            Freighter
         }
 
         public interface IVehicleState : IState
         {
             public VehicleType Type { get; }
+            public CommonVehicleState CommonState { get; }
         }
 
         public struct CommonVehicleState : IState, INetworkSerializable

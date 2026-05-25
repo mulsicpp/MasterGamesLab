@@ -10,6 +10,7 @@ using Map.Fleet;
 using System;
 using Unity.Collections;
 using System.Data;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace Map
 {
@@ -383,17 +384,22 @@ namespace Map
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
         private void UpdateEdgeStatesClientRpc(Timestamp timestamp, Edge.EdgeState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Edges, states);
 
+
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
         private void UpdateProducerStatesClientRpc(Timestamp timestamp, Producer.ProducerState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Infrastructure.Producers, states);
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
         private void UpdateConsumerStatesClientRpc(Timestamp timestamp, Consumer.ConsumerState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Infrastructure.Consumers, states);
 
+
         [ClientRpc(Delivery = RpcDelivery.Unreliable)]
         private void UpdateVehicleProgressStatesClientRpc(Timestamp timestamp, Vehicle.VehicleProgressState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Fleet.Vehicles, states);
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
         private void UpdateTruckStatesClientRpc(Timestamp timestamp, Truck.TruckState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Fleet.Trucks, states);
+
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        private void UpdateFreighterStatesClientRpc(Timestamp timestamp, Freighter.FreighterState[] states, ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, Fleet.Freighters, states);
 
 
 
@@ -449,17 +455,19 @@ namespace Map
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void RequestNewTruckServerRpc(TileId parkedTileId, RpcParams rpcParams = default)
+        public void RequestNewVehicleServerRpc(Vehicle.VehicleType type, TileId parkedTileId, RpcParams rpcParams = default)
         {
             var playerId = PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
             Debug.Log("Received new truck request from player " + playerId.Value);
-
             if (playerId == PlayerId.NONE) return;
 
-            var truckState = new Truck.TruckState { Common = { Index = new((byte)fleet.GetFirstEmptyIndex(Vehicle.VehicleType.Truck)), Owner = playerId, ParkedTileId = parkedTileId }, Good = Good.None };
+            var commonState = new Vehicle.CommonVehicleState { Index = new((byte)fleet.GetFirstEmptyIndex(type)), Owner = playerId, ParkedTileId = parkedTileId, RouteIds = null };
 
             var nextTimestamp = Timestamp.Next();
-            UpdateTruckStatesClientRpc(nextTimestamp, new[] { truckState });
+            if(type == Vehicle.VehicleType.Truck)
+                UpdateTruckStatesClientRpc(nextTimestamp, new[] { new Truck.TruckState { Common = commonState, Good = Good.None } });
+            else
+                UpdateFreighterStatesClientRpc(nextTimestamp, new[] { new Freighter.FreighterState { Common = commonState } });
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
@@ -473,8 +481,7 @@ namespace Map
             var truck = Fleet.Trucks[index];
 
             if (!truck.IsParked || truck.Owner != playerId) return;
-
-            if (routeIds?.Length < 2) return;
+            if (routeIds == null || routeIds.Length < 2) return;
 
             var truckState = truck.State;
 
@@ -864,33 +871,33 @@ namespace Map
                 }
             }
 
-            foreach (var truck in Fleet.Trucks)
+            foreach (var vehicle in Fleet.Vehicles)
             {
-                if (!truck.Exists) continue;
+                if (!vehicle.Exists) continue;
                 Vector3 basePos = Vector3.zero;
-                if (truck.IsParked)
-                    basePos = GetProjectedPosition(truck.ParkedTile.PositionOnSphere, 1.0f);
-                else if (truck.IsDriving)
+                if (vehicle.IsParked)
+                    basePos = GetProjectedPosition(vehicle.ParkedTile.PositionOnSphere, 1.0f);
+                else if (vehicle.IsDriving)
                 {
-                    if (truck.RouteProgress <= 0.0f)
-                        basePos = GetProjectedPosition(truck.Route[0].PositionOnSphere, 1.0f);
-                    else if (truck.RouteProgress >= truck.Route.Length - 1)
-                        basePos = GetProjectedPosition(truck.Route[truck.Route.Length - 1].PositionOnSphere, 1.0f);
+                    if (vehicle.RouteProgress <= 0.0f)
+                        basePos = GetProjectedPosition(vehicle.Route[0].PositionOnSphere, 1.0f);
+                    else if (vehicle.RouteProgress >= vehicle.Route.Length - 1)
+                        basePos = GetProjectedPosition(vehicle.Route[vehicle.Route.Length - 1].PositionOnSphere, 1.0f);
                     else
                     {
-                        int index = (int)truck.RouteProgress;
-                        float localProgress = truck.RouteProgress - index;
+                        int index = (int)vehicle.RouteProgress;
+                        float localProgress = vehicle.RouteProgress - index;
 
-                        var pos1 = GetProjectedPosition(truck.Route[index].PositionOnSphere, 1.0f);
-                        var pos2 = GetProjectedPosition(truck.Route[index + 1].PositionOnSphere, 1.0f);
+                        var pos1 = GetProjectedPosition(vehicle.Route[index].PositionOnSphere, 1.0f);
+                        var pos2 = GetProjectedPosition(vehicle.Route[index + 1].PositionOnSphere, 1.0f);
 
                         basePos = pos1 * (1.0f - localProgress) + pos2 * localProgress;
                     }
                 }
-                Gizmos.color = Constants.PLAYER_COLORS[truck.Owner % Constants.MAX_PLAYER_COUNT];
+                Gizmos.color = Constants.PLAYER_COLORS[vehicle.Owner % Constants.MAX_PLAYER_COUNT];
                 Gizmos.DrawSphere(basePos, 0.01f);
 
-                if (truck.Good != Good.None)
+                if (vehicle is Truck truck && truck.Good != Good.None)
                 {
                     switch (truck.Good)
                     {
@@ -900,7 +907,12 @@ namespace Map
                     }
                     Vector3 cargoPos = GetProjectedPosition(basePos, 1.02f);
                     Gizmos.DrawSphere(cargoPos, 0.005f);
+                }
 
+                if(vehicle is Freighter)
+                {
+                    Gizmos.color = Color.black;
+                    Gizmos.DrawSphere(GetProjectedPosition(basePos, 1.014f), 0.005f);
                 }
             }
         }

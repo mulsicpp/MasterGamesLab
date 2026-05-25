@@ -12,8 +12,7 @@ namespace Map.Infrastructure
             Consumer,
             Garage,
             Port,
-            TrainStation,
-            None
+            TrainStation
         }
 
         public interface IStructureState: IState
