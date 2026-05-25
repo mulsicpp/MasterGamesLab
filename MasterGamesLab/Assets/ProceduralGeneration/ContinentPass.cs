@@ -14,17 +14,17 @@ public class ContinentPass : IGenerationPass
     //1 is a circle
     public int organicHarshness = 6;
 
-    public void Execute(MapData data)
+    public void Execute(IMap map)
     {
-        int totalTiles = data.Map.Tiles.Count;
-        int targetLandTiles = Mathf.FloorToInt(totalTiles * landPercentage);
-        int currentLandTiles = 0;
+        var totalTiles = map.Tiles.Count;
+        var targetLandTiles = Mathf.FloorToInt(totalTiles * landPercentage);
+        var currentLandTiles = 0;
 
         List<ITile> frontier = new List<ITile>();
 
         //seeds startpoints 
-        ITile seed1 = data.Map.Tiles[0];
-        ITile seed2 = data.Map.Tiles[totalTiles / 2];
+        var seed1 = map.Tiles[0];
+        var seed2 = map.Tiles[totalTiles / 2];
 
         seed1.Type = Tile.TileType.Plain;
         seed2.Type = Tile.TileType.Plain;
@@ -38,20 +38,20 @@ public class ContinentPass : IGenerationPass
 
         while (frontier.Count > 0 && currentLandTiles < targetLandTiles)
         {
-            int bestIndex = 0;
-            float bestNoise = -999f;
+            var bestIndex = 0;
+            var bestNoise = -999f;
 
             //organicHarshness is the number of random samples taken from the frontier for expansion
-            int samples = Mathf.Min(frontier.Count, organicHarshness);
-            for (int i = 0; i < samples; i++)
+            var samples = Mathf.Min(frontier.Count, organicHarshness);
+            for (var i = 0; i < samples; i++)
             {
-                int randIdx = UnityEngine.Random.Range(0, frontier.Count);
-                ITile testTile = frontier[randIdx];
+                var randIdx = UnityEngine.Random.Range(0, frontier.Count);
+                var testTile = frontier[randIdx];
 
-                float3 pos = new float3(testTile.PositionOnSphere.x, testTile.PositionOnSphere.y, testTile.PositionOnSphere.z);
+                var pos = new float3(testTile.PositionOnSphere.x, testTile.PositionOnSphere.y, testTile.PositionOnSphere.z);
 
                 //3D Noise 
-                float n = noise.snoise((pos * noiseScale) + noiseOffset);
+                var n = noise.snoise((pos * noiseScale) + noiseOffset);
 
                 if (n > bestNoise)
                 {
@@ -60,11 +60,11 @@ public class ContinentPass : IGenerationPass
                 }
             }
 
-            ITile current = frontier[bestIndex];
+            var current = frontier[bestIndex];
 
             //find water neighbors
-            List<ITile> waterNeighbors = new List<ITile>();
-            foreach (ITile neighbor in data.TileNeighbors[current])
+            var waterNeighbors = new List<ITile>();
+            foreach (var neighbor in current.Neighbors)
             {
                 if (neighbor.Type == Tile.TileType.Water)
                 {
@@ -80,7 +80,7 @@ public class ContinentPass : IGenerationPass
             else
             {
                 //expand to a random water neighbor
-                ITile nextLand = waterNeighbors[UnityEngine.Random.Range(0, waterNeighbors.Count)];
+                var nextLand = waterNeighbors[UnityEngine.Random.Range(0, waterNeighbors.Count)];
                 nextLand.Type = Tile.TileType.Plain;
                 currentLandTiles++;
 
