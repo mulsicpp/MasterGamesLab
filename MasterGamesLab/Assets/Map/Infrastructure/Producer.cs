@@ -21,7 +21,7 @@ namespace Map.Infrastructure
         public override StructureType Type => StructureType.Producer;
 
         private Good good;
-        public Good Good { get { return good; } set { good = value; Timestamp = Map.Instance.Timestamp; } }
+        public Good Good { get { return good; } set { good = value; Touch(); } }
 
         public ProducerState State
         {

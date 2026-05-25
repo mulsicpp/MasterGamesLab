@@ -57,12 +57,14 @@ public class PlayerManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton?.NetworkTickSystem == null) return;
         NetworkManager.Singleton.NetworkTickSystem.Tick += OnNetworkTick;
+        NetworkManager.Singleton.NetworkTickSystem.Tick += Map.Map.Instance.Tick;
     }
 
     public void OnServerStopped(bool _)
     {
         if (NetworkManager.Singleton?.NetworkTickSystem == null) return;
         NetworkManager.Singleton.NetworkTickSystem.Tick -= OnNetworkTick;
+        NetworkManager.Singleton.NetworkTickSystem.Tick -= Map.Map.Instance.Tick;
     }
 
 

@@ -4,7 +4,7 @@ using Unity.Netcode;
 
 namespace Map
 {
-    public class Edge : ISynchableObject<Edge.EdgeState>
+    public class Edge : Timestamped, ISynchableObject<Edge.EdgeState>
     {
         [System.Serializable]
         public enum EdgeType : byte
@@ -29,13 +29,13 @@ namespace Map
         public readonly Tile StartTile;
         public readonly Tile EndTile;
 
-        public Timestamp Timestamp { get; private set; }
+        public new Timestamp Timestamp => base.Timestamp;
 
         private EdgeType type;
-        public EdgeType Type { get { return type; } set { type = value; Timestamp = Map.Instance.Timestamp; } }
+        public EdgeType Type { get { return type; } set { type = value; Touch(); } }
 
         private PlayerId owner;
-        public PlayerId Owner { get { return owner; } set { owner = value; Timestamp = Map.Instance.Timestamp; } }
+        public PlayerId Owner { get { return owner; } set { owner = value; Touch(); } }
 
         public EdgeState State { 
             get => new EdgeState { Id = Id, Type = type, Owner = owner };
@@ -49,7 +49,7 @@ namespace Map
             EndTile = endTile;
             this.type = type;
             this.owner = playerId;
-            Timestamp = Map.Instance.Timestamp;
+            Touch();
         }
 
         public bool CanBecomeRoad()

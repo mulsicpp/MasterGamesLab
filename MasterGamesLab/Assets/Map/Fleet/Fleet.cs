@@ -9,11 +9,17 @@ namespace Map.Fleet
         private Truck[] trucks;
         public IReadOnlyList<Truck> Trucks => trucks;
 
+        private Vehicle[] vehicles;
+        public IReadOnlyList<Vehicle> Vehicles => vehicles;
+
         public Fleet()
         {
             trucks = new Truck[Constants.MAX_TRUCK_COUNT];
             for (int i = 0; i < trucks.Length; i++) trucks[i] = new Truck(new VehicleIndex((byte)i));
-        }
+
+            vehicles = new Vehicle[trucks.Length];
+            Array.Copy(trucks, 0, vehicles, 0, trucks.Length);
+    }
 
         public int GetFirstEmptyIndex(Vehicle.VehicleType type)
         {
@@ -39,6 +45,19 @@ namespace Map.Fleet
             if (state is Truck.TruckState t) trucks[t.ArrayIndex].State = t;
             else throw new ArgumentException("Given IVehicleState is not supported: " + state.GetType().FullName);
         }
+
+        public void UpdateVehicleProgress(Vehicle.VehicleProgressState progessState)
+        {
+            switch (progessState.Type)
+            {
+                case Vehicle.VehicleType.Truck:
+                    trucks[progessState.Index].RouteProgress = progessState.Progress;
+                    trucks[progessState.Index].ResetProgressDirty();
+                    return;
+                default: throw new ArgumentException("Given VehicleProgressState.Type is not supported: " + progessState.Type.ToString());
+            }
+        }
+
 
         public bool SpawnLocal<T>(T state) where T : struct, Vehicle.IVehicleState
         {

@@ -17,7 +17,7 @@ namespace Map.Infrastructure
         public override StructureType Type => StructureType.Consumer;
 
         private Good requestedGood;
-        public Good RequestedGood { get { return requestedGood; } set { requestedGood = value; Timestamp = Map.Instance.Timestamp; } }
+        public Good RequestedGood { get { return requestedGood; } set { requestedGood = value; Touch(); } }
 
         public ConsumerState State
         {

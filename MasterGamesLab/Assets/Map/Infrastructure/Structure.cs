@@ -3,7 +3,7 @@ using Unity.Netcode;
 
 namespace Map.Infrastructure
 {
-    public abstract class Structure
+    public abstract class Structure : Timestamped
     {
         [System.Serializable]
         public enum StructureType : byte
@@ -33,7 +33,7 @@ namespace Map.Infrastructure
 
         public readonly StructureIndex Index;
 
-        public Timestamp Timestamp { get; protected set; }
+        public new Timestamp Timestamp => base.Timestamp;
 
         private Tile tile;
         public Tile Tile
@@ -52,7 +52,7 @@ namespace Map.Infrastructure
                     value.Structure = this;
                 }
                 tile = value;
-                Timestamp = Map.Instance.Timestamp;
+                Touch();
             }
         }
 
@@ -68,7 +68,7 @@ namespace Map.Infrastructure
         {
             Index = index;
             Tile = null;
-            Timestamp = Map.Instance.Timestamp;
+            Touch();
         }
     }
 }

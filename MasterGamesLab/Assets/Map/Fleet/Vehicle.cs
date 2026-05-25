@@ -2,7 +2,7 @@ using Unity.Netcode;
 
 namespace Map.Fleet
 {
-    public abstract class Vehicle
+    public abstract class Vehicle : Timestamped
     {
         [System.Serializable]
         public enum VehicleType : byte
@@ -32,7 +32,7 @@ namespace Map.Fleet
                 TileId[] routeIds = null;
                 serializer.SerializeValue(ref Index);
                 serializer.SerializeValue(ref Owner);
-                if(serializer.IsWriter)
+                if (serializer.IsWriter)
                 {
                     routeIds = RouteIds ?? new TileId[] { };
                     serializer.SerializeValue(ref routeIds);
@@ -47,25 +47,37 @@ namespace Map.Fleet
             }
         }
 
+        public struct VehicleProgressState : INetworkSerializeByMemcpy
+        {
+            public VehicleType Type;
+            public VehicleIndex Index;
+
+            public float Progress;
+        }
+
         public abstract VehicleType Type { get; }
         public readonly VehicleIndex Index;
 
         private PlayerId owner;
-        public PlayerId Owner { get { return owner; } set { owner = value; Timestamp = Map.Instance.Timestamp; } }
+        public PlayerId Owner { get { return owner; } set { owner = value; Touch(); } }
 
         public bool Exists { get => Owner != PlayerId.NONE; }
 
-        public Timestamp Timestamp { get; protected set; }
+        public new Timestamp Timestamp => base.Timestamp;
 
         private Tile[] route;
-        public Tile[] Route { get { return route; } set { route = value; Timestamp = Map.Instance.Timestamp; } }
+        public Tile[] Route { get { return route; } set { route = value; Touch(); } }
         public bool IsDriving => route != null;
 
+        private bool progressDirty;
+        public bool ProgressDirty => progressDirty;
+
         private float routeProgress;
-        public float RouteProgress { get { return routeProgress; } set { routeProgress = value; Timestamp = Map.Instance.Timestamp; } }
+        public float RouteProgress { get { return routeProgress; } set { routeProgress = value; PutTimestamp(); progressDirty = true; } }
+
 
         private Tile parkedTile;
-        public Tile ParkedTile {  get { return parkedTile; } set { parkedTile = value; Timestamp = Map.Instance.Timestamp; } }
+        public Tile ParkedTile { get { return parkedTile; } set { parkedTile = value; Touch(); } }
         public bool IsParked => parkedTile != null;
 
         public CommonVehicleState CommonState
@@ -105,6 +117,8 @@ namespace Map.Fleet
             }
         }
 
+        public VehicleProgressState ProgressState => new VehicleProgressState { Type = Type, Index = Index, Progress = RouteProgress };
+
         protected Vehicle(VehicleIndex index)
         {
             Index = index;
@@ -112,7 +126,34 @@ namespace Map.Fleet
             route = null;
             routeProgress = 0;
             parkedTile = null;
-            Timestamp = Map.Instance.Timestamp;
+            Touch();
+        }
+
+        public override void ResetDirty() { base.ResetDirty(); ResetProgressDirty(); }
+
+        public void ResetProgressDirty()
+        {
+            progressDirty = false;
+        }
+
+        public virtual void Tick(float tickDuration)
+        {
+            if(!Exists) return;
+            if (IsDriving)
+            {
+                if (Route.Length == 0) { Route = null; return; }
+                if (Route.Length == 1 || RouteProgress < -0.01f) { ParkOn(Route[0]); return; }
+
+                RouteProgress += tickDuration * Constants.TRUCK_SPEED_TPS;
+                int lastIndex = Route.Length - 1;
+
+                if (RouteProgress >= lastIndex) ParkOn(Route[lastIndex]);
+            }
+        }
+
+        public virtual void ParkOn(Tile tile)
+        {
+            ParkedTile = tile; Route = null;
         }
     }
 }

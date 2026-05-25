@@ -24,7 +24,7 @@ namespace Map.Fleet
         public override VehicleType Type => VehicleType.Truck;
 
         private Good good;
-        public Good Good { get => good; set { good = value; Timestamp = Map.Instance.Timestamp; } }
+        public Good Good { get => good; set { good = value; Touch(); } }
 
         public TruckState State
         {

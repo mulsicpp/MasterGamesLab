@@ -18,12 +18,13 @@ public static class Constants
     public const byte MAX_FREIGHTER_COUNT = MAX_FREIGHTERS_PER_PLAYER * MAX_PLAYER_COUNT;
 
 
+    public const float TRUCK_SPEED_TPS = 1.0f;
+
+
     public const int MAX_EDGES_PER_RPC = 32;
     public const int MAX_PRODUCERS_PER_RPC = 32;
     public const int MAX_CONSUMERS_PER_RPC = 32;
-
     public const int MAX_TRUCKS_PER_RPC = 8;
-
 
     public const int ROAD_MOVEMENT_COST = 1;
     public const int ROAD_MOVEMENT_DISTANCE = 1;

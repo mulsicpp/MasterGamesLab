@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using InGameCamera;
 using Map.GeometryGeneration;
-using Unity.Burst.CompilerServices;
 using Map.Infrastructure;
 using Unity.Netcode;
-using Unity.VisualScripting.Antlr3.Runtime;
-using UnityEditor.PackageManager;
-using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
-using Unity.VisualScripting;
 using Map.Fleet;
-using System.CodeDom;
 
 namespace Map
 {
@@ -237,6 +230,20 @@ namespace Map
             // }
         }
 
+        public void Tick()
+        {
+            uint tickRate = NetworkManager.Singleton.NetworkTickSystem.TickRate;
+            float tickDuration = 1.0f / tickRate;
+
+            Debug.Log("Map Tick");
+
+            List<Vehicle.VehicleProgressState> progressStates = new List<Vehicle.VehicleProgressState>();
+            foreach (var vehicle in Fleet.Vehicles)
+            {
+                vehicle.Tick(tickDuration);
+            }
+        }
+
         private void InitEdges()
         {
             var tempEdges = new List<Edge>();
@@ -340,12 +347,24 @@ namespace Map
 
 
 
-        private void UpdateGenericStatesLocal<T, U>(Timestamp timestamp, IReadOnlyList<T> objects, U[] states) where U : struct, IState where T : ISynchableObject<U>
+        private void UpdateGenericStatesLocal<T, U>(Timestamp timestamp, IReadOnlyList<T> objects, U[] states) where U : struct, IState where T : Timestamped, ISynchableObject<U>
         {
             this.timestamp = timestamp;
             foreach (var state in states)
             {
                 objects[state.ArrayIndex].State = state;
+                objects[state.ArrayIndex].ResetDirty();
+            }
+        }
+
+
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        private void UpdateVehicleProgressClientRpc(Timestamp timestamp, Vehicle.VehicleProgressState[] progressStates, ClientRpcParams rpcParams = default)
+        {
+            this.timestamp = timestamp;
+            foreach (var state in progressStates)
+            {
+                fleet.UpdateVehicleProgress(state);
             }
         }
 
