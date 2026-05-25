@@ -22,7 +22,7 @@ namespace Map.Fleet
         public struct CommonVehicleState : IState, INetworkSerializable
         {
             public VehicleIndex Index;
-            public PlayerId Owner;
+            public bool Exists;
             public TileId[] RouteIds;
             public float RouteProgress;
             public TileId ParkedTileId;
@@ -45,7 +45,7 @@ namespace Map.Fleet
             {
                 TileId[] routeIds = null;
                 serializer.SerializeValue(ref Index);
-                serializer.SerializeValue(ref Owner);
+                serializer.SerializeValue(ref Exists);
                 if (serializer.IsWriter)
                 {
                     routeIds = RouteIds ?? new TileId[] { };
@@ -75,10 +75,10 @@ namespace Map.Fleet
         public abstract VehicleType Type { get; }
         public readonly VehicleIndex Index;
 
-        private PlayerId owner;
-        public PlayerId Owner { get { return owner; } set { owner = value; Touch(); } }
+        public abstract PlayerId Owner { get; }
 
-        public bool Exists { get => Owner != PlayerId.NONE; }
+        private bool exists;
+        public bool Exists { get { return exists; } set { exists = value; Touch(); } }
 
         public new Timestamp Timestamp => base.Timestamp;
 
@@ -133,7 +133,7 @@ namespace Map.Fleet
                 return new CommonVehicleState
                 {
                     Index = Index,
-                    Owner = owner,
+                    Exists = exists,
                     RouteIds = routeIds,
                     RouteProgress = routeProgress,
                     ParkedTileId = parkedTile?.Id ?? TileId.NONE
@@ -149,7 +149,7 @@ namespace Map.Fleet
                     for (int i = 0; i < route.Length; i++) route[i] = Map.Instance.Tiles[value.RouteIds[i]] is Tile r ? r : throw new System.NullReferenceException("Vehicle route cannot contain null tiles");
                 }
 
-                Owner = value.Owner;
+                Exists = value.Exists;
                 Route = route;
                 RouteProgress = value.RouteProgress;
                 ParkedTile = value.ParkedTileId != TileId.NONE && Map.Instance.Tiles[value.ParkedTileId] is Tile t ? t : null;
@@ -190,10 +190,16 @@ namespace Map.Fleet
             }
         }
 
+        public static int GetMaxCountPerPlayer(VehicleType type)
+        {
+            if(type == VehicleType.Truck) return Constants.MAX_TRUCKS_PER_PLAYER;
+            else return Constants.MAX_FREIGHTERS_PER_PLAYER;
+        }
+
         protected Vehicle(VehicleIndex index)
         {
             Index = index;
-            owner = PlayerId.NONE;
+            exists = false;
             route = null;
             routeProgress = 0;
             parkedTile = null;

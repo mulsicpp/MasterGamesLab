@@ -28,7 +28,7 @@ namespace Map.Fleet
             Array.Copy(freighters, 0, vehicles, trucks.Length, freighters.Length);
         }
 
-        public int GetFirstEmptyIndex(Vehicle.VehicleType type)
+        public int GetFirstEmptyIndex(Vehicle.VehicleType type, PlayerId owner)
         {
             Vehicle[] vehicles = null;
 
@@ -40,7 +40,8 @@ namespace Map.Fleet
 
             if (vehicles == null) return -1;
 
-            for (int i = 0; i < vehicles.Length; i++)
+            int countPerPlayer = Vehicle.GetMaxCountPerPlayer(type);
+            for (int i = owner * countPerPlayer; i < ((int)owner + 1) * countPerPlayer; i++)
             {
                 if (!vehicles[i].Exists)
                     return i;
@@ -56,9 +57,9 @@ namespace Map.Fleet
         }
 
 
-        public bool SpawnLocal<T>(T state) where T : struct, Vehicle.IVehicleState
+        public bool SpawnLocal<T>(T state, PlayerId owner) where T : struct, Vehicle.IVehicleState
         {
-            int index = GetFirstEmptyIndex(state.Type);
+            int index = GetFirstEmptyIndex(state.Type, owner);
             if (index > -1)
             {
                 UpdateVehicle(state);
@@ -67,9 +68,9 @@ namespace Map.Fleet
             return false;
         }
 
-        public bool SpawnGlobal<T>(T state) where T : struct, Vehicle.IVehicleState
+        public bool SpawnGlobal<T>(T state, PlayerId owner) where T : struct, Vehicle.IVehicleState
         {
-            int index = GetFirstEmptyIndex(state.Type);
+            int index = GetFirstEmptyIndex(state.Type, owner);
             if (index > -1)
             {
                 state.ArrayIndex = index;
