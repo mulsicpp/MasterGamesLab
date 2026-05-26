@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Map.GeometryGeneration;
 using UnityEngine;
 
@@ -17,6 +18,13 @@ namespace Map
             Mountain
         }
 
+        public struct NeighborTile
+        {
+            public Tile Tile;
+            public Vector3 LeftVertex;
+            public Vector3 RightVertex;
+        }
+
         // Point data
         public Vector3 Position;
         private readonly List<Triangle> neighborTriangles;
@@ -26,7 +34,6 @@ namespace Map
         public MapChunk Chunk;
         public IReadOnlyList<ITile> Neighbors => neighbors;
         public Vector3 PositionOnSphere { get; private set; }
-        public readonly List<Triangle> Faces;
 
         public IReadOnlyList<Edge> Edges => edges;
 
@@ -59,15 +66,13 @@ namespace Map
             }
         }
 
+        public readonly float RandomValue;
+        public readonly List<NeighborTile> NeighborTiles;
         private readonly List<Tile> neighbors;
-        private readonly List<Vector3> cornerPositions;
-        private Vector3 cornersCenter;
         private TileType tileType;
         private bool active;
-
-        private readonly float randomValue;
-
         private List<Edge> edges;
+        private int amountOfVertices;
 
         public Tile(Vector3 position)
         {
@@ -78,9 +83,8 @@ namespace Map
             Id = -1;
             Chunk = null;
             neighbors = new List<Tile>(6);
-            cornerPositions = new List<Vector3>(6);
-            Faces = new List<Triangle>(4);
-            randomValue = UnityEngine.Random.Range(0f, 1f);
+            NeighborTiles = new List<NeighborTile>(6);
+            RandomValue = UnityEngine.Random.Range(0f, 1f);
         }
 
         // Point Functions
@@ -108,6 +112,7 @@ namespace Map
             Id = id;
             Chunk = chunk;
             PositionOnSphere = ProjectToSphere(Position, sphereRadius);
+            amountOfVertices = -1;
 
             if (neighborTriangles.Count == 0)
             {
@@ -125,52 +130,92 @@ namespace Map
             tangent.Normalize();
             var bitangent = Vector3.Cross(normal, tangent);
 
-            neighborTriangles.Sort((a, b) =>
-            {
-                var vA = a.Center - Position;
-                var angleA = Mathf.Atan2(Vector3.Dot(vA, bitangent), Vector3.Dot(vA, tangent));
-                var vB = b.Center - Position;
-                var angleB = Mathf.Atan2(Vector3.Dot(vB, bitangent), Vector3.Dot(vB, tangent));
-                return angleA.CompareTo(angleB);
-            });
+            neighborTriangles.Sort((a, b) => Comparison(a.Center, b.Center));
 
-            cornerPositions.Clear();
-            cornersCenter = Vector3.zero;
-            foreach (var triangle in neighborTriangles)
+            neighbors.Clear();
+            NeighborTiles.Clear();
+
+            for (var i = 0; i < neighborTriangles.Count; i++)
             {
-                var current = ProjectToSphere(triangle.Center, sphereRadius);
-                cornerPositions.Add(current);
-                cornersCenter += current;
+                var t1 = neighborTriangles[i];
+                var t2 = neighborTriangles[(i + 1) % neighborTriangles.Count];
+
+                Tile commonTile = null;
+                foreach (var p1 in t1.Points)
+                {
+                    if (p1 == this) continue;
+                    foreach (var p2 in t2.Points)
+                    {
+                        if (p1 == p2)
+                        {
+                            commonTile = p1;
+                            break;
+                        }
+                    }
+
+                    if (commonTile != null) break;
+                }
+
+                if (commonTile != null)
+                {
+                    neighbors.Add(commonTile);
+                    NeighborTiles.Add(new NeighborTile
+                    {
+                        Tile = commonTile,
+                        LeftVertex = ProjectToSphere(t1.Center, sphereRadius),
+                        RightVertex = ProjectToSphere(t2.Center, sphereRadius)
+                    });
+                }
             }
 
-            cornersCenter /= cornerPositions.Count;
+            return;
+
+            int Comparison(Vector3 a, Vector3 b)
+            {
+                var vA = a - Position;
+                var angleA = Mathf.Atan2(Vector3.Dot(vA, bitangent), Vector3.Dot(vA, tangent));
+                var vB = b - Position;
+                var angleB = Mathf.Atan2(Vector3.Dot(vB, bitangent), Vector3.Dot(vB, tangent));
+                return angleA.CompareTo(angleB);
+            }
         }
 
-        public void InitializeNeighbors()
+        /*public void InitializeNeighbors()
         {
             neighbors.Clear();
-            foreach (var neighbor in neighborTriangles)
+            neighborTiles.Clear();
+
+            foreach (var triangle in neighborTriangles)
             {
-                foreach (var point in neighbor.Points)
+                foreach (var point in triangle.Points)
                 {
                     if (!neighbors.Contains(point) && point != this)
                     {
                         neighbors.Add(point);
+
+                        neighborTiles.Add(new NeighborTile
+                        {
+                            Tile = point,
+                            LeftVertex = ProjectToSphere(triangle.Center, sphereRadius),
+                        })
+                    }
+                    else if (neighbors.Contains(point))
+                    {
                     }
                 }
             }
-        }
+        }*/
 
         public void InitializeEdges(List<Edge> edgeList)
         {
             edges = new List<Edge>();
-            foreach (Tile n in neighbors)
+            foreach (var n in neighbors)
             {
                 if (n.Id < Id) continue;
                 if (n.Type == TileType.Water && Type == TileType.Water) continue;
                 if (n.Type == TileType.Mountain || Type == TileType.Mountain) continue;
 
-                Edge edge = new Edge(edgeList.Count, this, n, byte.MaxValue, Edge.EdgeType.None);
+                var edge = new Edge(edgeList.Count, this, n, byte.MaxValue, Edge.EdgeType.None);
 
                 edges.Add(edge);
                 n.edges.Add(edge);
@@ -178,71 +223,15 @@ namespace Map
             }
         }
 
-        private static readonly float TanPI3 = Mathf.Tan(Mathf.PI / 3);
-
-        private static readonly Vector2[] HexagonCoordinates = new Vector2[]
+        public void BuildFaces(MapChunk.ChunkGeometry cg)
         {
-            new(-256, 0),
-            new(-128, 128 * TanPI3),
-            new(128, 128 * TanPI3),
-            new(256, 0),
-            new(128, -128 * TanPI3),
-            new(-128, -128 * TanPI3),
-        };
-
-        private static readonly Vector2 WaterCenter = new(256, 128 * TanPI3);
-        private static readonly Vector2 MountainCenter = new(256, 512 + 128 * TanPI3);
-        private static readonly Vector2 PlainCenter = new(512 + 256, 128 * TanPI3);
-
-        private static readonly Vector2 TextureSize = new(1024, 1024);
-        private static readonly Vector2 InvTextureSize = new(1f / TextureSize.x, 1f / TextureSize.y);
-
-        public void BuildFaces(List<Vector3> vertices, List<int> triangles, List<Vector4> tileData,
-            List<Vector4> materialData)
-        {
-            var startIdx = vertices.Count;
-            var tileDataVec = GetTileData();
-
-            vertices.Add(cornersCenter);
-            tileData.Add(tileDataVec);
-            materialData.Add(new Vector4(MountainCenter.x, MountainCenter.y, 0, 0) * InvTextureSize);
-
-            for (var i = 0; i < cornerPositions.Count; i++)
-            {
-                vertices.Add(cornerPositions[i]);
-                tileData.Add(tileDataVec);
-                materialData.Add(new Vector4(MountainCenter.x + HexagonCoordinates[i].x,
-                    MountainCenter.y + HexagonCoordinates[i].y, 0, 0) * InvTextureSize);
-            }
-
-            for (var i = 0; i < cornerPositions.Count; i++)
-            {
-                var current = i + 1;
-                var next = (i + 1) % cornerPositions.Count + 1;
-
-                triangles.Add(startIdx + 0);
-                triangles.Add(startIdx + current);
-                triangles.Add(startIdx + next);
-            }
-
-            var geometryVertices = new List<Tile>(cornerPositions.Count);
-            foreach (var point in cornerPositions)
-            {
-                geometryVertices.Add(new Tile(point));
-            }
-
-            Faces.Clear();
-
-            for (var i = 0; i < geometryVertices.Count - 2; i++)
-            {
-                Faces.Add(new Triangle(geometryVertices[0], geometryVertices[i + 1], geometryVertices[i + 2]));
-            }
+            amountOfVertices = TileGeometryFactory.BuildFaces(this, cg);
         }
 
         public Vector4 GetTileData()
         {
             //return new Vector4(Id + Map.ID_OFFSET, randomValue, active ? 1 : 0, 0);
-            return new Vector4(Id + Map.ID_OFFSET, (float)Type, active ? 1 : 0, randomValue);
+            return new Vector4(Id + Map.ID_OFFSET, (float)Type, active ? 1 : 0, RandomValue);
         }
     }
 }

@@ -14,6 +14,8 @@ namespace InGameCamera
 
         [SerializeField] private Camera mainCamera;
         [SerializeField] private Camera tileIdCamera;
+        [SerializeField] private Light[] lights;
+        [SerializeField] private Vector3[] lightOffsetAngles;
 
         private RenderTexture tileIdTexture1X1;
         private PlanetCameraController planetCameraController;
@@ -40,6 +42,14 @@ namespace InGameCamera
             {
                 tileIdTexture1X1.Release();
                 Destroy(tileIdTexture1X1);
+            }
+        }
+
+        private void LateUpdate()
+        {
+            for (var i = 0; i < lights.Length; i++)
+            {
+                lights[i].transform.rotation = mainCamera.transform.rotation * Quaternion.Euler(lightOffsetAngles[i]);
             }
         }
 

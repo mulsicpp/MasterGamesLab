@@ -779,6 +779,9 @@
         },
         {
             "m_Id": "5339bc6b994e43d58a82eff17045d194"
+        },
+        {
+            "m_Id": "8fbe18bd14a74db8a38eb76dec49bf40"
         }
     ],
     "synonyms": [
@@ -984,6 +987,22 @@
     "m_KeepLightingVariants": false,
     "m_DefaultDecalBlending": false,
     "m_DefaultSSAO": false
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+    "m_ObjectId": "8fbe18bd14a74db8a38eb76dec49bf40",
+    "m_Id": 7,
+    "m_DisplayName": "out_d",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "out_d",
+    "m_StageCapability": 3,
+    "m_Value": 0.0,
+    "m_DefaultValue": 0.0,
+    "m_Labels": [],
+    "m_LiteralMode": false
 }
 
 {

@@ -18,7 +18,6 @@ namespace Map
 
         public static Map Instance { get; private set; } = null!;
 
-
         public IReadOnlyList<ITile> Tiles => tiles;
         public IReadOnlyList<ITile> ActiveTiles => activeTiles;
         public float Radius => radius;
@@ -32,6 +31,15 @@ namespace Map
 
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
+
+        public struct TreeData
+        {
+            public Vector3 Position;
+            public Vector3 Normal;
+            public float Scale;
+            public float Yaw;
+            public float Random;
+        }
 
         private List<Tile> tiles;
         private List<Tile> activeTiles;
@@ -54,7 +62,7 @@ namespace Map
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
             tiles = new List<Tile>(numPoints);
             chunks = new List<MapChunk>(chunksPoints.Count);
-            edges = new Edge[0];
+            edges = Array.Empty<Edge>();
 
             var currentId = 0;
             foreach (var chunkPoints in chunksPoints)
@@ -74,12 +82,29 @@ namespace Map
                 chunks.Add(chunk);
             }
 
-            foreach (var tile in tiles)
+            /*foreach (var tile in tiles)
             {
                 tile.InitializeNeighbors();
-            }
-            
+            }*/
+
             ProceduralMapGenerator.GenerateMap();
+
+            foreach (var tile in tiles)
+            {
+                var r = UnityEngine.Random.Range(0f, 1f);
+                if (r < 0.5)
+                {
+                    continue;
+                }
+                else if (r < 0.75)
+                {
+                    tile.Type = Tile.TileType.Forest;
+                }
+                else
+                {
+                    tile.Type = Tile.TileType.Mountain;
+                }
+            }
 
             foreach (var chunk in chunks)
             {
@@ -104,8 +129,11 @@ namespace Map
                 }
                 else if (chunk.Dirty)
                 {
-                    chunk.UpdateTileData();
+                    //chunk.UpdateTileData();
+                    //chunk.UpdateMesh();
                 }
+
+                chunk.RenderTrees();
             }
 
             // Update the currently hovered tile
@@ -118,6 +146,7 @@ namespace Map
             // Update the projection
             UpdateProjectionUniforms();
         }
+
 
         public ITile GetCurrentlyHoveredTile()
         {
@@ -191,7 +220,7 @@ namespace Map
         private void InitEdges()
         {
             var tempEdges = new List<Edge>();
-            for (int i = 0; i < tiles.Count; i++)
+            for (var i = 0; i < tiles.Count; i++)
             {
                 tiles[i].InitializeEdges(tempEdges);
             }
@@ -201,9 +230,9 @@ namespace Map
             edges = tempEdges.ToArray();
         }
 
-        public void OnDrawGizmos()
+        /*public void OnDrawGizmos()
         {
-            if(edges == null) return;
+            if (edges == null) return;
 
             List<Vector3> nonePoints = new List<Vector3>();
             List<Vector3> roadPoints = new List<Vector3>();
@@ -219,6 +248,7 @@ namespace Map
                     case Edge.EdgeType.Canal: points = canalPoints; break;
                     case Edge.EdgeType.Rail: points = railPoints; break;
                 }
+
                 points.Add(edges[i].StartTile.PositionOnSphere * 1.01f);
                 points.Add(edges[i].EndTile.PositionOnSphere * 1.01f);
             }
@@ -236,7 +266,7 @@ namespace Map
             Gizmos.DrawLineList(railPoints.ToArray().AsSpan());
 
             Debug.Log("Drawing gizmos");
-        }
+        }*/
 
 #if UNITY_EDITOR
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
