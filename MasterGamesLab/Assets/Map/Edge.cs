@@ -18,7 +18,7 @@ namespace Map
         {
             None,
             RouteSelected,
-            RouteLeft,
+            RouteSuggested,
             RouteCompleted,
             Planned, // 2tes mal isch geklickt gworden
             Hologram, // währendn dragen
