@@ -10,6 +10,8 @@ using Unity.Netcode.Transports.UTP;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 public class LobbyLogic : MonoBehaviour
 {
@@ -30,6 +32,9 @@ public class LobbyLogic : MonoBehaviour
     [SerializeField]
     private LobbyUI lobbyUI;
 
+    [SerializeField]
+    private bool suppressReconnect = false;
+
     async void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
@@ -44,6 +49,9 @@ public class LobbyLogic : MonoBehaviour
 
         lobbyHeartbeat = StartCoroutine(LobbyHeartbeat());
         connectToIngame = StartCoroutine(ConnectToIngame());
+        startUI.Show();
+        joinUI.Hide();
+        lobbyUI.Hide();
     }
 
     private void OnDestroy()
@@ -194,6 +202,8 @@ public class LobbyLogic : MonoBehaviour
 
         var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
+
+        SetConnectionData();
         NetworkManager.Singleton.StartHost();
 
         HideUI();
@@ -207,7 +217,7 @@ public class LobbyLogic : MonoBehaviour
         {
             if (IsHost())
             {
-                Debug.Log("Sending heartbeat");
+                // Debug.Log("Sending heartbeat");
                 Task heartbeatTask = LobbyService.Instance.SendHeartbeatPingAsync(Lobby.Id);
 
                 yield return new WaitUntil(() => heartbeatTask.IsCompleted);
@@ -231,7 +241,7 @@ public class LobbyLogic : MonoBehaviour
 
         while (true)
         {
-            yield return new WaitUntil (() => (Lobby?.Data?.ContainsKey("JoinCode") ?? false) && (!NetworkManager.Singleton?.IsListening ?? false) && !IsHost());
+            yield return new WaitUntil (() => !suppressReconnect && (Lobby?.Data?.ContainsKey("JoinCode") ?? false) && (!NetworkManager.Singleton?.IsListening ?? false) && !IsHost());
             ConnectingToGame = true;
 
             Debug.Log("Connecting to host...");
@@ -252,6 +262,8 @@ public class LobbyLogic : MonoBehaviour
             }
 
             transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocationTask.Result, "dtls"));
+
+            SetConnectionData();
 
             if (!NetworkManager.Singleton.StartClient())
             {
@@ -300,7 +312,6 @@ public class LobbyLogic : MonoBehaviour
     {
         if (Lobby != null)
         {
-            NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(AuthenticationService.Instance.PlayerId);
             LobbyEventCallbacks callbacks = new LobbyEventCallbacks();
             callbacks.LobbyChanged += OnLobbyChanged;
 
@@ -379,5 +390,19 @@ public class LobbyLogic : MonoBehaviour
     public bool IsHost()
     {
         return Lobby != null && AuthenticationService.Instance.PlayerId == Lobby?.HostId;
+    }
+
+    private void SetConnectionData()
+    {
+        PlayerConnectData connectData = new PlayerConnectData
+        {
+            PlayerAuthId = AuthenticationService.Instance.PlayerId,
+            Timestamp = Map.Map.Instance.Timestamp,
+        };
+
+        byte[] rawData = new byte[Marshal.SizeOf<PlayerConnectData>()];
+        MemoryMarshal.Write(rawData, ref connectData);
+
+        NetworkManager.Singleton.NetworkConfig.ConnectionData = rawData;
     }
 }

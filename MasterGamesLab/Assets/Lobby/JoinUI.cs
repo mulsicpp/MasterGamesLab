@@ -133,6 +133,7 @@ public class JoinUI : MonoBehaviour
     public void Show()
     {
         root.style.display = DisplayStyle.Flex;
+        lobbyCodeInput.schedule.Execute(() => lobbyCodeInput.Focus());
     }
 
     public void Hide()

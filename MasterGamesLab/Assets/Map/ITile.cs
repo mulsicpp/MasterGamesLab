@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using Map.Infrastructure;
+using System.Collections.Generic;
 using Map.GeometryGeneration;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace Map
 {
     public interface ITile
     {
-        public int Id { get; }
+        public TileId Id { get; }
 
         public Vector3 PositionOnSphere { get; }
 
@@ -16,6 +17,14 @@ namespace Map
 
         public IReadOnlyList<ITile> Neighbors { get; }
 
+        int ContinentId { get; set; }
+
+        public IReadOnlyList<Edge> Edges { get; }
+
+        public Structure Structure { get; }
+
+        public bool CanSpawnStructure(Structure.StructureType type);
+        
         public void BuildFaces(MapChunk.ChunkGeometry cg);
 
         public void FillTileData(List<Vector4> tileDataList, List<Map.TreeData> treeDataList);

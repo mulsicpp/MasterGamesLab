@@ -176,7 +176,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
   ShowTopMostFoldoutHeaderGroup: 1
   Players: []
-  SelfIndex: -1
+  SelfId:
+    value: 255
 --- !u!4 &2800778
 Transform:
   m_ObjectHideFlags: 0
@@ -352,6 +353,7 @@ MonoBehaviour:
   startUI: {fileID: 1740609994}
   joinUI: {fileID: 1118779277}
   lobbyUI: {fileID: 1877013772}
+  suppressReconnect: 0
 --- !u!4 &747665313
 Transform:
   m_ObjectHideFlags: 0
@@ -378,7 +380,7 @@ GameObject:
   - component: {fileID: 916988258}
   - component: {fileID: 916988257}
   - component: {fileID: 916988256}
-  - component: {fileID: 916988255}
+  - component: {fileID: 916988259}
   m_Layer: 0
   m_Name: Map
   m_TagString: Untagged
@@ -386,18 +388,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &916988255
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 916988254}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7e152d4c45a10944b316a2244d4ba28, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ProceduralMapGenerator
 --- !u!114 &916988256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -411,12 +401,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map.Map
   ShowTopMostFoldoutHeaderGroup: 1
+  timestamp:
+    Value: 0
   radius: 1
   resolution: 20
-  hexSize: 1
   chunkPrefab: {fileID: 5519249646154030829, guid: 65a832fee843f45478962ed766b9ddce, type: 3}
-  fullSphereDistance: 0.41
-  fullProjectionDistance: 0.15
+  fullSphereDistance: 0.79
+  fullProjectionDistance: 0.35
+  testStartTileId: -1
+  testTargetTileId: -1
 --- !u!114 &916988257
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -457,6 +450,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &916988259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 916988254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a25d8933776021e4b870e455befe1645, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TestRoadCreation
+  ShowTopMostFoldoutHeaderGroup: 1
+  type: 1
+  good: 1
 --- !u!1 &1118779276
 GameObject:
   m_ObjectHideFlags: 0
@@ -597,7 +605,7 @@ MonoBehaviour:
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: 93dc52b72bc21364f859a227bad33623, type: 2}
-    TickRate: 30
+    TickRate: 5
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 1
     ConnectionData: 

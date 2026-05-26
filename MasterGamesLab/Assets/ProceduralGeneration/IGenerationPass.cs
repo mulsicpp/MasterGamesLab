@@ -1,4 +1,6 @@
+using Map;
+
 public interface IGenerationPass
 {
-    void Execute(MapData data);
+    void Execute(IMap map);
 }

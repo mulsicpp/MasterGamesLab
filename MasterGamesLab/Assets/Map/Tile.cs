@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Map.GeometryGeneration;
+using Map.Infrastructure;
 using UnityEngine;
 
 namespace Map
@@ -30,12 +30,16 @@ namespace Map
         private readonly List<Triangle> neighborTriangles;
 
         // Tile data
-        public int Id { get; private set; }
+        public TileId Id { get; private set; }
         public MapChunk Chunk;
         public IReadOnlyList<ITile> Neighbors => neighbors;
         public Vector3 PositionOnSphere { get; private set; }
 
+        public int ContinentId { get; set; } = -1;
+
         public IReadOnlyList<Edge> Edges => edges;
+
+        public Structure Structure { get; set; }
 
         public TileType Type
         {
@@ -80,11 +84,15 @@ namespace Map
             neighborTriangles = new List<Triangle>();
 
             // Initialize tile data for later
-            Id = -1;
+            Id = TileId.NONE;
             Chunk = null;
             neighbors = new List<Tile>(6);
             NeighborTiles = new List<NeighborTile>(6);
             RandomValue = UnityEngine.Random.Range(0f, 1f);
+            
+            edges = new List<Edge>();
+
+            Structure = null;
         }
 
         // Point Functions
@@ -107,7 +115,7 @@ namespace Map
         }
 
         // Tile Functions
-        public void InitializeTile(int id, float sphereRadius, MapChunk chunk)
+        public void InitializeTile(TileId id, float sphereRadius, MapChunk chunk)
         {
             Id = id;
             Chunk = chunk;
@@ -183,42 +191,35 @@ namespace Map
             }
         }
 
-        /*public void InitializeNeighbors()
+        public void InitializeNeighbors()
         {
             neighbors.Clear();
-            neighborTiles.Clear();
-
-            foreach (var triangle in neighborTriangles)
+            foreach (var neighbor in neighborTriangles)
             {
-                foreach (var point in triangle.Points)
+                foreach (var point in neighbor.Points)
                 {
                     if (!neighbors.Contains(point) && point != this)
                     {
                         neighbors.Add(point);
-
-                        neighborTiles.Add(new NeighborTile
-                        {
-                            Tile = point,
-                            LeftVertex = ProjectToSphere(triangle.Center, sphereRadius),
-                        })
-                    }
-                    else if (neighbors.Contains(point))
-                    {
                     }
                 }
             }
-        }*/
+        }
+
+        public void ClearEdges()
+        {
+            edges.Clear();
+        }
 
         public void InitializeEdges(List<Edge> edgeList)
         {
-            edges = new List<Edge>();
             foreach (var n in neighbors)
             {
                 if (n.Id < Id) continue;
                 if (n.Type == TileType.Water && Type == TileType.Water) continue;
                 if (n.Type == TileType.Mountain || Type == TileType.Mountain) continue;
 
-                var edge = new Edge(edgeList.Count, this, n, byte.MaxValue, Edge.EdgeType.None);
+                var edge = new Edge(new EdgeId(edgeList.Count), this, n, Edge.EdgeType.None, PlayerId.NONE);
 
                 edges.Add(edge);
                 n.edges.Add(edge);
@@ -226,6 +227,33 @@ namespace Map
             }
         }
 
+        public int CountEdgesWithType(Edge.EdgeType type)
+        {
+            int count = 0;
+            foreach(var edge in edges) if(edge.Type == type) count++;
+            return count;
+        }
+
+
+        public bool CanSpawnStructure(Structure.StructureType type)
+        {
+            if(Structure != null) return false;
+
+            switch (type)
+            {
+                case Structure.StructureType.Producer:
+                case Structure.StructureType.Consumer:
+                    return Type == TileType.Plain || Type == TileType.Forest;
+            }
+
+            return false;
+        }
+
+
+        private static readonly float TanPI3 = Mathf.Tan(Mathf.PI / 3);
+
+        private static readonly Vector2[] HexagonCoordinates = new Vector2[]
+            
         public void BuildFaces(MapChunk.ChunkGeometry cg)
         {
             tileGeometryInformation = TileGeometryFactory.BuildFaces(this, cg);

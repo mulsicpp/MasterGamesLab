@@ -1,16 +1,21 @@
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class PlayerManager : NetworkBehaviour
 {
     public static PlayerManager Instance;
 
+    private Dictionary<ClientId, Map.Timestamp> clientTimestamps = new Dictionary<ClientId, Map.Timestamp>();
+
     public PlayerData[] Players;
-    public int SelfIndex = -1;
+    public PlayerId SelfId = PlayerId.NONE;
 
     public void Awake()
     {
@@ -52,20 +57,25 @@ public class PlayerManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton?.NetworkTickSystem == null) return;
         NetworkManager.Singleton.NetworkTickSystem.Tick += OnNetworkTick;
+        NetworkManager.Singleton.NetworkTickSystem.Tick += Map.Map.Instance.Tick;
     }
 
     public void OnServerStopped(bool _)
     {
         if (NetworkManager.Singleton?.NetworkTickSystem == null) return;
         NetworkManager.Singleton.NetworkTickSystem.Tick -= OnNetworkTick;
+        NetworkManager.Singleton.NetworkTickSystem.Tick -= Map.Map.Instance.Tick;
     }
 
 
     public void ApproveConnection(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
     {
-        var playerId = System.Text.Encoding.ASCII.GetString(request.Payload);
+        var data = System.Runtime.InteropServices.MemoryMarshal.Read<PlayerConnectData>(request.Payload);
+        string playerAuthId = data.PlayerAuthId.ToString();
 
-        int index = Array.FindIndex(Players, data => data.PlayerId == playerId);
+        Debug.Log("Incoming connection PlayerId: '" + playerAuthId + "'");
+
+        int index = Array.FindIndex(Players, playerData => playerData.PlayerAuthId == playerAuthId);
 
         if(index == -1)
         {
@@ -73,10 +83,14 @@ public class PlayerManager : NetworkBehaviour
             response.CreatePlayerObject = false;
             response.Reason = "PlayerID could not be found";
 
+            Debug.Log(response.Reason);
+
             return;
         }
+        var clientId = new ClientId(request.ClientNetworkId);
+        Players[index].ClientId = clientId;
 
-        Players[index].ClientId = request.ClientNetworkId;
+        clientTimestamps[clientId] = data.Timestamp;
 
         response.Approved = true;
         response.CreatePlayerObject = false;
@@ -86,9 +100,14 @@ public class PlayerManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton == null) return;
         if (!IsServer) return;
+
         UpdatePlayersClientRpc(Players);
 
-        // TODO Synchronize game state
+        if (clientid == NetworkManager.Singleton.LocalClientId) return;
+
+        var clientId = new ClientId(clientid);
+        Map.Map.Instance.SyncClientMap(clientTimestamps[clientId], clientId);
+        clientTimestamps.Remove(clientId);
     }
 
     public void OnClientDisconnect(ulong clientid)
@@ -99,7 +118,7 @@ public class PlayerManager : NetworkBehaviour
             int index = Array.FindIndex(Players, data => data.ClientId == clientid);
             if (index != -1)
             {
-                Players[index].ClientId = Constants.NO_CLIENT_ID;
+                Players[index].ClientId = ClientId.NONE;
             }
 
             if (NetworkManager.Singleton.IsListening)
@@ -119,46 +138,62 @@ public class PlayerManager : NetworkBehaviour
     }
 
 
+    // TODO Maybe create two different RPCs:
+    // - UpdatePlayerStatus (on Connect/Disconnect)
+    // - UpdatePlayerData (every server tick)
     [Rpc(SendTo.ClientsAndHost)]
     public void UpdatePlayersClientRpc(PlayerData[] players)
     {
         this.Players = players;
-        SelfIndex = Array.FindIndex(players, data => data.PlayerId == AuthenticationService.Instance.PlayerId);
+        var index = Array.FindIndex(players, data => data.PlayerAuthId == AuthenticationService.Instance.PlayerId);
+        SelfId = index == -1 ? PlayerId.NONE : new PlayerId((byte)index);
     }
 
     public PlayerData? GetSelf()
     {
-        return SelfIndex != -1 ? Players[SelfIndex] : null;
+        return SelfId != PlayerId.NONE ? Players[SelfId] : null;
+    }
+
+    public PlayerId GetPlayerIdFromClientId(ClientId clientId)
+    {
+        int index = Array.FindIndex(Players, data => data.ClientId == clientId);
+        return index == -1 ? PlayerId.NONE : new PlayerId((byte)index);
     }
 }
 
 [System.Serializable]
 public struct PlayerData : INetworkSerializable
 {
-    public ulong ClientId;
-    public string PlayerId;
+    public ClientId ClientId;
+    public string PlayerAuthId;
     public string Name;
 
     public ulong Money;
 
     public PlayerData(Player player)
     {
-        ClientId = Constants.NO_CLIENT_ID;
-        PlayerId = player.Id;
+        ClientId = ClientId.NONE;
+        PlayerAuthId = player.Id;
         Name = player.Data?["Name"]?.Value;
         Money = Constants.PLAYER_START_MONEY;
     }
 
     public bool IsConnected()
     {
-        return ClientId != Constants.NO_CLIENT_ID;
+        return ClientId != ClientId.NONE;
     }
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
         serializer.SerializeValue(ref ClientId);
-        serializer.SerializeValue(ref PlayerId);
+        serializer.SerializeValue(ref PlayerAuthId);
         serializer.SerializeValue(ref Name);
         serializer.SerializeValue(ref Money);
     }
+}
+
+public struct PlayerConnectData
+{
+    public FixedString64Bytes PlayerAuthId;
+    public Map.Timestamp Timestamp;
 }
