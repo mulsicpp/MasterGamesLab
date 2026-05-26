@@ -1,5 +1,6 @@
-﻿using Map.Infrastructure;
+using Map.Infrastructure;
 using System.Collections.Generic;
+using Map.GeometryGeneration;
 using UnityEngine;
 
 namespace Map
@@ -22,9 +23,10 @@ namespace Map
 
         public Structure Structure { get; }
 
-        public void BuildFaces(List<Vector3> vertices, List<int> triangles, List<Vector4> tileData,
-            List<Vector4> materialData);
-
         public bool CanSpawnStructure(Structure.StructureType type);
+        
+        public void BuildFaces(MapChunk.ChunkGeometry cg);
+
+        public void FillTileData(List<Vector4> tileDataList, List<Map.TreeData> treeDataList);
     }
 }

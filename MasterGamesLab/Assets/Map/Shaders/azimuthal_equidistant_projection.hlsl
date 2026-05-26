@@ -1,28 +1,40 @@
 #ifndef AZIMUTHAL_EQUIDISTANT_PROJECTION_INCLUDED
 #define AZIMUTHAL_EQUIDISTANT_PROJECTION_INCLUDED
 
-// SphereProjection.hlsl
 void azimuthal_equidistant_projection_float(float3 world_pos, float3 world_normal, float3 projection_center,
                                             float sphere_radius, float projection_factor, out float3 out_position,
-                                            out float3 out_normal)
+                                            out float3 out_normal, out float out_d) 
 {
-    // 1. Calculate projection mapping
-    float3 p_norm = normalize(world_pos); // Assuming planet center is at (0,0,0)
+    float3 p_norm = normalize(world_pos);
     float d = dot(projection_center, p_norm);
     d = clamp(d, -1.0, 1.0);
     float angle = acos(d);
+    
+    // Output 'd' so we can use it to clip stretched pixels in the fragment shader
+    out_d = d; 
 
-    // Distance along the surface of the sphere
     float arc_length = sphere_radius * angle;
-
-    // Direction outward from the focus point on the tangent plane
     float3 to_point = p_norm - projection_center * d;
     float length_to_point = length(to_point);
 
     float3 flat_pos;
+    
+    // FIX: Differentiate between the North Pole and South Pole
     if (length_to_point < 0.0001)
     {
-        flat_pos = projection_center * sphere_radius; // Center point
+        if (d > 0.0) 
+        {
+            // North pole maps to the center
+            flat_pos = projection_center * sphere_radius; 
+        } 
+        else 
+        {
+            // South pole maps to the outer ring. We create an arbitrary tangent direction 
+            // so it doesn't snap back to the center of the map.
+            float3 arbitrary_up = abs(projection_center.y) > 0.9 ? float3(1,0,0) : float3(0,1,0);
+            float3 dir_on_plane = normalize(cross(projection_center, arbitrary_up));
+            flat_pos = (projection_center * sphere_radius) + (dir_on_plane * arc_length);
+        }
     }
     else
     {

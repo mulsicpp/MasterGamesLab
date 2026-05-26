@@ -38,7 +38,7 @@ namespace Map.Infrastructure
         private Tile tile;
         public Tile Tile
         {
-            get { return tile; }
+            get => tile;
             set
             {
                 if (tile != null)

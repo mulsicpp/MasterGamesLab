@@ -103,3 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d360f2377080487482fb66086c13399e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map.GeometryGeneration.MapChunk
+  treeMesh: {fileID: -2432090755550338912, guid: 2c213cdcd0417be4eb1fa85f8f28b735, type: 3}
+  treeMaterial: {fileID: 2100000, guid: 3ba4adc430107674a957187e0a3b24ac, type: 2}
+  GeometryChanged: 0
+  Dirty: 0
