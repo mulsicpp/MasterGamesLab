@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Map.Fleet;
 using Map.GeometryGeneration;
 using Map.Infrastructure;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace Map
 {
@@ -196,6 +199,9 @@ namespace Map
             return count;
         }
 
+        public Edge FindEdgeTo(ITile other)
+            => edges.FirstOrDefault(edge => (edge.StartTile == this && edge.EndTile == other) || (edge.StartTile == other && edge.EndTile == this));
+
 
         public bool CanSpawnStructure(Structure.StructureType type)
         {
@@ -206,6 +212,17 @@ namespace Map
                 case Structure.StructureType.Producer:
                 case Structure.StructureType.Consumer:
                     return Type == TileType.Plain || Type == TileType.Forest;
+            }
+
+            return false;
+        }
+
+        public bool CanSpawnVehicle(Vehicle.VehicleType type)
+        {
+            switch (type)
+            {
+                case Vehicle.VehicleType.Truck: return Type == TileType.Plain || Type == TileType.Forest;
+                case Vehicle.VehicleType.Freighter: return Type == TileType.Water;
             }
 
             return false;

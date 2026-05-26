@@ -11,6 +11,7 @@ using System;
 using Unity.Collections;
 using System.Data;
 using static UnityEngine.UI.GridLayoutGroup;
+using System.Linq;
 
 namespace Map
 {
@@ -462,15 +463,19 @@ namespace Map
             if (playerId == PlayerId.NONE) return;
 
             int index = fleet.GetFirstEmptyIndex(type, playerId);
-
             if (index == -1) return;
+
+            if (parkedTileId >= tiles.Count || parkedTileId < 0) return;
+
+            var tile = tiles[parkedTileId];
+            if (!tile.CanSpawnVehicle(type)) return;
 
             Debug.Log("Found free index for vehicle:" + index);
 
             var commonState = new Vehicle.CommonVehicleState { Index = new((byte)index), Exists = true, ParkedTileId = parkedTileId, RouteIds = null };
 
             var nextTimestamp = Timestamp.Next();
-            if(type == Vehicle.VehicleType.Truck)
+            if (type == Vehicle.VehicleType.Truck)
                 UpdateTruckStatesClientRpc(nextTimestamp, new[] { new Truck.TruckState { Common = commonState, Good = Good.None } });
             else
                 UpdateFreighterStatesClientRpc(nextTimestamp, new[] { new Freighter.FreighterState { Common = commonState } });
@@ -489,6 +494,19 @@ namespace Map
             if (!truck.IsParked || truck.Owner != playerId) return;
             if (routeIds == null || routeIds.Length < 2) return;
 
+            Tile[] route = new Tile[routeIds.Length];
+
+            for(int i = 0; i < routeIds.Length; i++)
+            {
+                if (routeIds[i] < 0 || routeIds[i] >= tiles.Count) return;
+                route[i] = tiles[routeIds[i]];
+            }
+
+            for (int i = 1; i < routeIds.Length; i++)
+            {
+                if (!Vehicle.CanCross(route[i - 1], route[i], Vehicle.VehicleType.Truck)) return;
+            }
+
             var truckState = truck.State;
 
             truckState.Common.ParkedTileId = TileId.NONE;
@@ -498,6 +516,8 @@ namespace Map
             var nextTimestamp = Timestamp.Next();
             UpdateTruckStatesClientRpc(nextTimestamp, new[] { truckState });
         }
+
+
 
         private struct NodeState
         {
@@ -796,6 +816,16 @@ namespace Map
                 Vector3 p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.01f);
                 Vector3 p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.01f);
                 Gizmos.DrawLine(p1, p2);
+
+                if (edges[i].Type != Edge.EdgeType.None)
+                {
+                    Gizmos.color = Constants.PLAYER_COLORS[edges[i].Owner % Constants.MAX_PLAYER_COUNT];
+
+                    var midPoint = (3 * p1 + p2) / 4.0f;
+                    Gizmos.DrawSphere(midPoint, 0.004f);
+                    midPoint = (p1 + 3 * p2) / 4.0f;
+                    Gizmos.DrawSphere(midPoint, 0.004f);
+                }
             }
 
             // --- SHORTEST PATH RENDERING LAYER (GREEN) ---
@@ -882,26 +912,26 @@ namespace Map
                 if (!vehicle.Exists) continue;
                 Vector3 basePos = Vector3.zero;
                 if (vehicle.IsParked)
-                    basePos = GetProjectedPosition(vehicle.ParkedTile.PositionOnSphere, 1.0f);
+                    basePos = vehicle.ParkedTile.PositionOnSphere;
                 else if (vehicle.IsDriving)
                 {
                     if (vehicle.RouteProgress <= 0.0f)
-                        basePos = GetProjectedPosition(vehicle.Route[0].PositionOnSphere, 1.0f);
+                        basePos = vehicle.Route[0].PositionOnSphere;
                     else if (vehicle.RouteProgress >= vehicle.Route.Length - 1)
-                        basePos = GetProjectedPosition(vehicle.Route[vehicle.Route.Length - 1].PositionOnSphere, 1.0f);
+                        basePos = vehicle.Route[vehicle.Route.Length - 1].PositionOnSphere;
                     else
                     {
                         int index = (int)vehicle.RouteProgress;
                         float localProgress = vehicle.RouteProgress - index;
 
-                        var pos1 = GetProjectedPosition(vehicle.Route[index].PositionOnSphere, 1.0f);
-                        var pos2 = GetProjectedPosition(vehicle.Route[index + 1].PositionOnSphere, 1.0f);
+                        var pos1 = vehicle.Route[index].PositionOnSphere;
+                        var pos2 = vehicle.Route[index + 1].PositionOnSphere;
 
                         basePos = pos1 * (1.0f - localProgress) + pos2 * localProgress;
                     }
                 }
                 Gizmos.color = Constants.PLAYER_COLORS[vehicle.Owner % Constants.MAX_PLAYER_COUNT];
-                Gizmos.DrawSphere(basePos, 0.01f);
+                Gizmos.DrawSphere(GetProjectedPosition(basePos, 1.0f), 0.01f);
 
                 if (vehicle is Truck truck && truck.Good != Good.None)
                 {
@@ -915,7 +945,7 @@ namespace Map
                     Gizmos.DrawSphere(cargoPos, 0.005f);
                 }
 
-                if(vehicle is Freighter)
+                if (vehicle is Freighter)
                 {
                     Gizmos.color = Color.black;
                     Gizmos.DrawSphere(GetProjectedPosition(basePos, 1.014f), 0.005f);

@@ -1,6 +1,5 @@
 
 using Unity.Netcode;
-using static Map.Fleet.Truck;
 
 namespace Map
 {

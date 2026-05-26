@@ -196,6 +196,19 @@ namespace Map.Fleet
             else return Constants.MAX_FREIGHTERS_PER_PLAYER;
         }
 
+        public static bool CanCross(ITile src, ITile dst, VehicleType type)
+        {
+            switch(type)
+            {
+                case VehicleType.Truck: return src?.FindEdgeTo(dst)?.Type == Edge.EdgeType.Road;
+                case VehicleType.Freighter:
+                    if (src?.Type == Tile.TileType.Water && dst?.Type == Tile.TileType.Water) return true;
+                    else return src?.FindEdgeTo(dst)?.Type == Edge.EdgeType.Canal;
+            }
+
+            return false;
+        }
+
         protected Vehicle(VehicleIndex index)
         {
             Index = index;

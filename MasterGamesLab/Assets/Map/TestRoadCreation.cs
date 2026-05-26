@@ -32,15 +32,7 @@ public class TestRoadCreation : NetworkBehaviour
             {
                 var endTile = tile;
 
-                Map.Edge edge = null;
-                foreach (var e in startTile.Edges)
-                {
-                    if ((e.StartTile == startTile && e.EndTile == endTile) || (e.StartTile == endTile && e.EndTile == startTile))
-                    {
-                        edge = e;
-                        break;
-                    }
-                }
+                Map.Edge edge = startTile.FindEdgeTo(endTile);
                 if (edge != null && edge.CanBecomeType(type))
                 {
                     Debug.Log("Valid edge selected");
@@ -103,7 +95,10 @@ public class TestRoadCreation : NetworkBehaviour
 
             TileId[] tileIds;
 
-            Map.Map.Instance.FindShortestPath(truck.ParkedTile, tile, out tileIds);
+            if(Input.GetKey(KeyCode.LeftShift))
+                Map.Map.Instance.FindCheapestPath(truck.ParkedTile, tile, out tileIds);
+            else
+                Map.Map.Instance.FindShortestPath(truck.ParkedTile, tile, out tileIds);
 
             if (tileIds == null) return;
 
