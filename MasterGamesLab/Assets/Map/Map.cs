@@ -167,6 +167,7 @@ namespace Map
             }
 
             MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
+            MainCamera.Instance.PlanetControllerEnabled = Running;
 
             // Update the projection
             UpdateProjectionUniforms();

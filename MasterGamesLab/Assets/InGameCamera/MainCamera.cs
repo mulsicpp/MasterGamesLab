@@ -20,6 +20,12 @@ namespace InGameCamera
         private RenderTexture tileIdTexture1X1;
         private PlanetCameraController planetCameraController;
 
+        public bool PlanetControllerEnabled
+        {
+            get => planetCameraController.enabled;
+            set => planetCameraController.enabled = value;
+        }
+
         private Vector3 lastCamPos;
         private Quaternion lastCamRot;
         private float lastFOV;
@@ -97,6 +103,7 @@ namespace InGameCamera
                 onReadbackComplete
             );
         }
+
 
         private bool CheckIfCameraMoved()
         {
