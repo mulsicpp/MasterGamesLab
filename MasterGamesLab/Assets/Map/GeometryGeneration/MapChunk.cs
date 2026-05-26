@@ -94,7 +94,7 @@ namespace Map.GeometryGeneration
             mesh.SetUVs(1, tileData);
             mesh.SetUVs(2, materialData);
             meshFilter.mesh = mesh;
-            
+
             SetTreeBuffer();
 
             GeometryChanged = false;
@@ -145,8 +145,14 @@ namespace Map.GeometryGeneration
                 treeBuffer.Release();
                 treeBuffer = null;
             }
+            
+            if (treeData == null || treeData.Count == 0)
+            {
+                return;
+            }
 
             mpb = new MaterialPropertyBlock();
+
             var stride = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Map.TreeData));
             treeBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, treeData.Count, stride);
             treeBuffer.SetData(treeData);
