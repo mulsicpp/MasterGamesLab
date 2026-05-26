@@ -56,7 +56,7 @@ namespace Map.GeometryGeneration
         private const float MIN_TREE_SCALE = 0.019f;
         private const float MAX_TREE_SCALE = 0.023f;
 
-        public static int BuildFaces(Tile tile, MapChunk.ChunkGeometry cg)
+        public static MapChunk.TileGeometryInformation BuildFaces(Tile tile, MapChunk.ChunkGeometry cg)
         {
             var tileDataVec = tile.GetTileData();
 
@@ -99,6 +99,7 @@ namespace Map.GeometryGeneration
 
             addedVertices += BuildTileBorders(tile, cg, perimeterHeight, tileDataVec);
 
+            var starTreeIdx = cg.TreeData.Count;
             if (tile.Type == Tile.TileType.Forest)
             {
                 var centerPos = tile.PositionOnSphere;
@@ -118,19 +119,25 @@ namespace Map.GeometryGeneration
 
                         pos = pos.normalized * tile.Chunk.Parent.Radius;
 
-                        tile.Chunk.AddTree(new Map.TreeData
+                        cg.TreeData.Add(new Map.TreeData
                         {
                             Position = pos,
                             Normal = pos.normalized,
                             Scale = UnityEngine.Random.Range(MIN_TREE_SCALE, MAX_TREE_SCALE),
                             Yaw = UnityEngine.Random.Range(0f, 360f),
                             Random = UnityEngine.Random.Range(0f, 1f),
+                            Active = tile.Active ? 1 : 0,
                         });
                     }
                 }
             }
 
-            return addedVertices;
+            return new MapChunk.TileGeometryInformation
+            {
+                NumVertices = addedVertices,
+                StartTreeIdx = starTreeIdx,
+                EndTreeIdx = cg.TreeData.Count,
+            };
         }
 
         private static int BuildFullHexagon(Tile tile, MapChunk.ChunkGeometry cg, Vector2 center, float centerHeight,

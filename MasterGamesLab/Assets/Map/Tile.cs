@@ -43,7 +43,7 @@ namespace Map
             set
             {
                 tileType = value;
-                Chunk.Dirty = true;
+                Chunk.GeometryChanged = true;
             }
         }
 
@@ -72,7 +72,7 @@ namespace Map
         private TileType tileType;
         private bool active;
         private List<Edge> edges;
-        private int amountOfVertices;
+        private MapChunk.TileGeometryInformation tileGeometryInformation;
 
         public Tile(Vector3 position)
         {
@@ -112,7 +112,10 @@ namespace Map
             Id = id;
             Chunk = chunk;
             PositionOnSphere = ProjectToSphere(Position, sphereRadius);
-            amountOfVertices = -1;
+            tileGeometryInformation = new MapChunk.TileGeometryInformation
+            {
+                NumVertices = -1,
+            };
 
             if (neighborTriangles.Count == 0)
             {
@@ -225,7 +228,23 @@ namespace Map
 
         public void BuildFaces(MapChunk.ChunkGeometry cg)
         {
-            amountOfVertices = TileGeometryFactory.BuildFaces(this, cg);
+            tileGeometryInformation = TileGeometryFactory.BuildFaces(this, cg);
+        }
+
+        public void FillTileData(List<Vector4> tileDataList, List<Map.TreeData> treeDataList)
+        {
+            var tileData = GetTileData();
+            for (var i = 0; i < tileGeometryInformation.NumVertices; i++)
+            {
+                tileDataList.Add(tileData);
+            }
+
+            for (var i = tileGeometryInformation.StartTreeIdx; i < tileGeometryInformation.EndTreeIdx; i++)
+            {
+                var tree = treeDataList[i];
+                tree.Active = active ? 1 : 0;
+                treeDataList[i] = tree;
+            }
         }
 
         public Vector4 GetTileData()

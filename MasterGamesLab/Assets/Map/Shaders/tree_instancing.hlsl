@@ -9,19 +9,22 @@ struct tree_data
     float Scale;
     float Yaw; // Random rotation around its own up-axis
     float Random; // Random float for color variation
+    float Active;
 };
 
 // The memory buffer containing all our trees
 StructuredBuffer<tree_data> _TreeBuffer;
 
 void get_tree_world_transform_float(float instance_id, float3 local_pos, float3 local_norm, float3 projection_center,
-                                    out float3 out_world_pos, out float3 out_world_norm, out float out_random)
+                                    out float3 out_world_pos, out float3 out_world_norm, out float out_random,
+                                    out float out_active)
 {
     #ifdef SHADERGRAPH_PREVIEW
     // Default preview behavior
     out_world_pos = local_pos;
     out_world_norm = local_norm;
     out_random = 0.0;
+    out_active = 0.0;
     #else
     // 1. Fetch the data for this specific tree
     tree_data tree = _TreeBuffer[(uint)instance_id];
@@ -58,6 +61,7 @@ void get_tree_world_transform_float(float instance_id, float3 local_pos, float3 
     out_world_norm = (rot_right * local_norm.x) + (up * local_norm.y) + (rot_forward * local_norm.z);
     out_world_norm = normalize(out_world_norm);
     out_random = tree.Random;
+    out_active = tree.Active;
     #endif
 }
 #endif

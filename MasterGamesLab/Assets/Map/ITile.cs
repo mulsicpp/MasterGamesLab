@@ -17,5 +17,7 @@ namespace Map
         public IReadOnlyList<ITile> Neighbors { get; }
 
         public void BuildFaces(MapChunk.ChunkGeometry cg);
+
+        public void FillTileData(List<Vector4> tileDataList, List<Map.TreeData> treeDataList);
     }
 }

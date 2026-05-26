@@ -14,6 +14,14 @@ namespace Map.GeometryGeneration
             public List<int> Triangles;
             public List<Vector4> TileData;
             public List<Vector4> MaterialData;
+            public List<Map.TreeData> TreeData;
+        }
+
+        public struct TileGeometryInformation
+        {
+            public int NumVertices;
+            public int StartTreeIdx;
+            public int EndTreeIdx;
         }
 
         [SerializeField] private Mesh treeMesh;
@@ -64,7 +72,6 @@ namespace Map.GeometryGeneration
             materialData = new List<Vector4>(materialData.Count);
             treeData = new List<Map.TreeData>();
 
-            // var vertIdx = 0;
             for (var i = startIdx; i < endIdx; i++)
             {
                 var tile = Parent.Tiles[i];
@@ -73,7 +80,8 @@ namespace Map.GeometryGeneration
                     Vertices = vertices,
                     Triangles = triangles,
                     TileData = tileData,
-                    MaterialData = materialData
+                    MaterialData = materialData,
+                    TreeData = treeData,
                 });
             }
 
@@ -86,27 +94,8 @@ namespace Map.GeometryGeneration
             mesh.SetUVs(1, tileData);
             mesh.SetUVs(2, materialData);
             meshFilter.mesh = mesh;
-
-            // 2. Create the GPU Buffer (Stride is the size of the struct in bytes)
-            // 3 floats (pos) + 3 floats (norm) + 1 float (scale) + 1 float (yaw) = 8 floats. 
-            // 8 floats * 4 bytes per float = 32 bytes total.
-            // int stride = 32;
-            if (treeBuffer != null)
-            {
-                treeBuffer.Release();
-                treeBuffer = null;
-            }
-
-            mpb = new MaterialPropertyBlock();
-
-
-            var stride = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Map.TreeData));
-            treeBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, treeData.Count, stride);
-            treeBuffer.SetData(treeData);
-            // 3. Assign this chunk's specific buffer to its own Property Block, 
-            // NOT to the shared material!
-            mpb.SetBuffer(TreeBuffer, treeBuffer);
-            // treeMaterial.SetBuffer(TreeBuffer, treeBuffer);
+            
+            SetTreeBuffer();
 
             GeometryChanged = false;
             Dirty = false;
@@ -114,22 +103,16 @@ namespace Map.GeometryGeneration
 
         public void UpdateTileData()
         {
-            /*tileData = new List<Vector4>(tileData.Count);
+            tileData = new List<Vector4>(tileData.Count);
 
             for (var i = startIdx; i < endIdx; i++)
             {
-                var tile = parent.Tiles[i];
-                var tileData = tile.GetTileData();
-
-                foreach (var face in tile.Faces)
-                {
-                    this.tileData.Add(tileData);
-                    this.tileData.Add(tileData);
-                    this.tileData.Add(tileData);
-                }
+                var tile = Parent.Tiles[i];
+                tile.FillTileData(tileData, treeData);
             }
 
-            mesh.SetUVs(1, tileData);*/
+            mesh.SetUVs(1, tileData);
+            SetTreeBuffer();
             Dirty = false;
         }
 
@@ -155,6 +138,19 @@ namespace Map.GeometryGeneration
             Graphics.RenderMeshPrimitives(renderParams, treeMesh, 0, treeBuffer.count);
         }
 
-        public void AddTree(Map.TreeData tree) => treeData.Add(tree);
+        private void SetTreeBuffer()
+        {
+            if (treeBuffer != null)
+            {
+                treeBuffer.Release();
+                treeBuffer = null;
+            }
+
+            mpb = new MaterialPropertyBlock();
+            var stride = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Map.TreeData));
+            treeBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, treeData.Count, stride);
+            treeBuffer.SetData(treeData);
+            mpb.SetBuffer(TreeBuffer, treeBuffer);
+        }
     }
 }

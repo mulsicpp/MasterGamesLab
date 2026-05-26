@@ -39,6 +39,7 @@ namespace Map
             public float Scale;
             public float Yaw;
             public float Random;
+            public float Active;
         }
 
         private List<Tile> tiles;
@@ -129,8 +130,7 @@ namespace Map
                 }
                 else if (chunk.Dirty)
                 {
-                    //chunk.UpdateTileData();
-                    //chunk.UpdateMesh();
+                    chunk.UpdateTileData();
                 }
 
                 chunk.RenderTrees();
@@ -139,14 +139,12 @@ namespace Map
             // Update the currently hovered tile
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
-                Debug.Log("Click");
                 MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
             }
 
             // Update the projection
             UpdateProjectionUniforms();
         }
-
 
         public ITile GetCurrentlyHoveredTile()
         {
