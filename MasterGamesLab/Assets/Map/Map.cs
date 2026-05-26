@@ -29,9 +29,12 @@ namespace Map
         public float Radius => radius;
         public int Resolution => resolution;
 
-        [SerializeField]
-        private Timestamp timestamp = new Timestamp(0);
-        public Timestamp Timestamp { get => timestamp; }
+        [SerializeField] private Timestamp timestamp = new Timestamp(0);
+
+        public Timestamp Timestamp
+        {
+            get => timestamp;
+        }
 
         public IReadOnlyList<Edge> Edges => edges;
         public IReadOnlyInfrastructure Infrastructure => infrastructure;
@@ -44,10 +47,22 @@ namespace Map
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
 
+        public struct TreeData
+        {
+            public Vector3 Position;
+            public Vector3 Normal;
+            public float Scale;
+            public float Yaw;
+            public float Random;
+            public float Active;
+        }
+
         // --- DEBUG PATHFINDING TESTING FIELDS ---
         [Header("Pathfinding Debugger")]
         [Tooltip("Drag a Tile reference here, or use the context menu via the Inspector dots to test.")]
-        [SerializeField] public int testStartTileId = -1;
+        [SerializeField]
+        public int testStartTileId = -1;
+
         [SerializeField] public int testTargetTileId = -1;
 
         // Two independent trace buffers so both paths can be drawn at once
@@ -83,8 +98,7 @@ namespace Map
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
             tiles = new List<Tile>(numPoints);
             chunks = new List<MapChunk>(chunksPoints.Count);
-
-            edges = new Edge[0];
+            edges = Array.Empty<Edge>();
             infrastructure = new Infrastructure.Infrastructure();
             fleet = new Fleet.Fleet();
 
@@ -103,11 +117,6 @@ namespace Map
 
                 chunk.Init(this, startId, currentId);
                 chunks.Add(chunk);
-            }
-
-            foreach (var tile in tiles)
-            {
-                tile.InitializeNeighbors();
             }
 
             ProceduralMapGenerator.GenerateMap(this);
@@ -141,20 +150,23 @@ namespace Map
                 {
                     chunk.UpdateTileData();
                 }
+
+                chunk.RenderTrees();
             }
 
+            // Update the currently hovered tile
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
-                MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
-
                 // Optional dynamic update line: recalculates debug paths on click if paths exist
                 if (shortestDebugPathEdges.Count > 0 || cheapestDebugPathEdges.Count > 0)
                 {
                     RecalculateDebugPaths();
                 }
             }
+
             MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
 
+            // Update the projection
             UpdateProjectionUniforms();
         }
 
@@ -223,7 +235,8 @@ namespace Map
                 chunk.UpdateMesh();
             }
 
-            Infrastructure.SpawnLocal(new Producer.ProducerState { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
+            Infrastructure.SpawnLocal(new Producer.ProducerState
+                { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
 
             // Test edge types
 
@@ -259,8 +272,8 @@ namespace Map
         {
             var tempEdges = new List<Edge>();
 
-            foreach (Tile t in tiles) t.ClearEdges();
-            foreach (Tile t in tiles) t.InitializeEdges(tempEdges);
+            foreach (var t in tiles) t.ClearEdges();
+            foreach (var t in tiles) t.InitializeEdges(tempEdges);
 
             Debug.Log("Initialized " + tempEdges.Count + " edges");
 

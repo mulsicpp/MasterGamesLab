@@ -9,7 +9,8 @@ public static class ProceduralMapGenerator
         {
             new GraphSetupPass(),
             new ContinentPass(),
-            new ForestMountainPass()
+            new ForestMountainPass(),
+            new CellularAutomataPass()
         };
 
         foreach (var pass in generationPasses)

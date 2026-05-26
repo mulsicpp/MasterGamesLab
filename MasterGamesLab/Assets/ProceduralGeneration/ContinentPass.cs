@@ -6,37 +6,104 @@ using Map;
 public class ContinentPass : IGenerationPass
 {
     //continet settings
-    public float landPercentage = 0.35f;
+    //public float totalLandPercentage = 0.35f;
+    public float totalLandPercentage = 0.45f;
 
-    //how jagged
-    public float noiseScale = 2.5f;
+    //for main continent body
+    //public float noiseScale = 1.5f;
+    public float mainNoiseScale = 1.2f;
+    public int mainOrganicHarshness = 3;
 
-    //1 is a circle
-    public int organicHarshness = 6;
+  
+    //for extra landmasses
+    public float extraNoiseScale = 2.5f;
+    public int extraOrganicHarshness = 6;
+
+    //how big are the continents
+    public Dictionary<int, int> ContinentSizes = new Dictionary<int, int>();
 
     public void Execute(IMap map)
     {
-        var totalTiles = map.Tiles.Count;
-        var targetLandTiles = Mathf.FloorToInt(totalTiles * landPercentage);
-        var currentLandTiles = 0;
+        foreach (var t in map.Tiles) t.ContinentId = -1;
 
-        List<ITile> frontier = new List<ITile>();
+        var totalTiles = map.Tiles.Count;
+        var targetTotalLand = Mathf.FloorToInt(totalTiles * totalLandPercentage);
+
+        //random chance for extra landmasses
+        var randomChance = UnityEngine.Random.Range(0, 100);
+        var extraCount = 0;
+        if (randomChance > 40) extraCount = 2;      
+        else if (randomChance > 10) extraCount = 1;
+
+        //main continent
+        var combinedMainSize = Mathf.FloorToInt(targetTotalLand * 0.80f); //80% of land for main continent, rest for extra
+        var sizeVariation = UnityEngine.Random.Range(0.40f, 0.60f);
+        var size1 = Mathf.FloorToInt(combinedMainSize * sizeVariation);
+        var size2 = combinedMainSize - size1;
+
+        //var mainContinentSize = Mathf.FloorToInt(targetTotalLand * 0.40f);
+        //var remainingLand = targetTotalLand - (mainContinentSize * 2);
+        var remainingLand = targetTotalLand - combinedMainSize;
+        var extraContinentSize = extraCount > 0 ? (remainingLand / extraCount) : 0;
+
+        ContinentSizes.Clear();
+        //List<ITile> frontier = new List<ITile>();
 
         //seeds startpoints 
-        var seed1 = map.Tiles[0];
-        var seed2 = map.Tiles[totalTiles / 2];
+        var seed1 = map.Tiles[UnityEngine.Random.Range(0, totalTiles)];
+        var seed2 = GetClosestTile(map, -seed1.PositionOnSphere);
 
-        seed1.Type = Tile.TileType.Plain;
-        seed2.Type = Tile.TileType.Plain;
+        //seed1.Type = Tile.TileType.Plain;
+        //seed2.Type = Tile.TileType.Plain;
+        var count1 = GrowContinent(seed1, 1, size1, mainNoiseScale, mainOrganicHarshness);
+        ContinentSizes[1] = count1;
 
-        frontier.Add(seed1);
-        frontier.Add(seed2);
-        currentLandTiles += 2;
+        var count2 = GrowContinent(seed2, 2, size2, mainNoiseScale, mainOrganicHarshness);
+        ContinentSizes[2] = count2;
 
-        //random offset for noise
-        float3 noiseOffset = new float3(UnityEngine.Random.Range(-100f, 100f), UnityEngine.Random.Range(-100f, 100f), UnityEngine.Random.Range(-100f, 100f));
+        //extra landmasses
+        for (var i = 0; i < extraCount; i++)
+        {
+            var continentId = 3 + i;
+            var extraSeed = GetTileFurthestFromLand(map);
+            var countExtra = GrowContinent(extraSeed, continentId, extraContinentSize, extraNoiseScale, extraOrganicHarshness);
+            ContinentSizes[continentId] = countExtra;
+        }
 
-        while (frontier.Count > 0 && currentLandTiles < targetLandTiles)
+        Debug.Log($"extraContinentCount: {extraCount}");
+        foreach (var kvp in ContinentSizes)
+        {
+            Debug.Log($"Continent {kvp.Key} has {kvp.Value} Land-Tiles.");
+        }
+    }
+
+    //frontier.Add(seed1);
+    //frontier.Add(seed2);
+    //currentLandTiles += 2;
+
+    //random offset for noise
+    private int GrowContinent(ITile seed, int continentId, int targetSize, float noiseScale, int organicHarshness)
+    {
+        var frontier = new List<ITile>();
+        var currentLandTiles = 0;
+
+        if (seed.Type == Tile.TileType.Water)
+        {
+            seed.Type = Tile.TileType.Plain;
+            seed.ContinentId = continentId; 
+            frontier.Add(seed);
+            currentLandTiles++;
+        }
+
+        var noiseOffset = new float3(
+            UnityEngine.Random.Range(-100f, 100f),
+            UnityEngine.Random.Range(-100f, 100f),
+            UnityEngine.Random.Range(-100f, 100f)
+        );
+        var isMainContinent = (continentId == 1 || continentId == 2);
+        var otherMainContinentId = (continentId == 1) ? 2 : 1;
+
+        while (frontier.Count > 0 && currentLandTiles < targetSize)
         {
             var bestIndex = 0;
             var bestNoise = -999f;
@@ -68,13 +135,34 @@ public class ContinentPass : IGenerationPass
             {
                 if (neighbor.Type == Tile.TileType.Water)
                 {
+                    var touchesOtherContinent = false;
+                    foreach (var nextDoorNeighbor in neighbor.Neighbors)
+                    {
+                        if (nextDoorNeighbor.Type != Tile.TileType.Water &&
+                            nextDoorNeighbor.ContinentId != -1 &&
+                            nextDoorNeighbor.ContinentId != continentId)
+                        {
+                            touchesOtherContinent = true;
+                            break; 
+                        }
+                    }
+
+                    if (touchesOtherContinent) continue;
+                    
+                    if (isMainContinent)
+                    {
+                        //3 tiles distance to the other main continent
+                        if (IsWithinDistanceOfContinent(neighbor, otherMainContinentId, 3))
+                        {
+                            continue; 
+                        }
+                    }
                     waterNeighbors.Add(neighbor);
                 }
             }
 
             if (waterNeighbors.Count == 0)
             {
-                //remove from frontier if no water neighbors
                 frontier.RemoveAt(bestIndex);
             }
             else
@@ -82,6 +170,7 @@ public class ContinentPass : IGenerationPass
                 //expand to a random water neighbor
                 var nextLand = waterNeighbors[UnityEngine.Random.Range(0, waterNeighbors.Count)];
                 nextLand.Type = Tile.TileType.Plain;
+                nextLand.ContinentId = continentId;
                 currentLandTiles++;
 
                 frontier.Add(nextLand);
@@ -89,5 +178,95 @@ public class ContinentPass : IGenerationPass
         }
 
         Debug.Log($"Land-Tiles: {currentLandTiles}");
+        return currentLandTiles;
+    }
+
+    private ITile GetClosestTile(IMap map, Vector3 targetPos)
+    {
+        ITile closest = null;
+        var minDist = float.MaxValue;
+
+        foreach (var tile in map.Tiles)
+        {
+            var dist = Vector3.Distance(tile.PositionOnSphere, targetPos);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closest = tile;
+            }
+        }
+        return closest;
+    }
+
+    private ITile GetTileFurthestFromLand(IMap map)
+    {
+        ITile bestTile = null;
+        var maxDistToLand = -1f;
+        var landTiles = new List<ITile>();
+
+        foreach (var t in map.Tiles)
+        {
+            if (t.Type != Tile.TileType.Water) landTiles.Add(t);
+        }
+
+        if (landTiles.Count == 0) return map.Tiles[UnityEngine.Random.Range(0, map.Tiles.Count)];
+
+        //100 random tiles 
+        for (var i = 0; i < 100; i++)
+        {
+            var testTile = map.Tiles[UnityEngine.Random.Range(0, map.Tiles.Count)];
+            if (testTile.Type != Tile.TileType.Water) continue;
+
+            var closestLandDist = float.MaxValue;
+
+            foreach (var land in landTiles)
+            {
+                var dist = Vector3.Distance(testTile.PositionOnSphere, land.PositionOnSphere);
+                if (dist < closestLandDist) closestLandDist = dist;
+            }
+
+            //farthest away from any land tile
+            if (closestLandDist > maxDistToLand)
+            {
+                maxDistToLand = closestLandDist;
+                bestTile = testTile;
+            }
+        }
+
+        return bestTile ?? map.Tiles[UnityEngine.Random.Range(0, map.Tiles.Count)];
+    }
+
+    //BFS
+    private bool IsWithinDistanceOfContinent(ITile startTile, int targetContinentId, int maxDistance)
+    {
+        var visited = new HashSet<ITile>();
+        var queue = new Queue<(ITile tile, int distance)>();
+
+        queue.Enqueue((startTile, 0));
+        visited.Add(startTile);
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+
+            if (current.tile.ContinentId == targetContinentId)
+            {
+                return true;
+            }
+
+            if (current.distance < maxDistance)
+            {
+                foreach (var neighbor in current.tile.Neighbors)
+                {
+                    if (!visited.Contains(neighbor))
+                    {
+                        visited.Add(neighbor);
+                        queue.Enqueue((neighbor, current.distance + 1));
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
