@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 using Unity.Netcode;
 using Unity.Services.Authentication;
@@ -17,11 +18,16 @@ public class PlayerManager : NetworkBehaviour
     public PlayerData[] Players;
     public PlayerId SelfId = PlayerId.NONE;
 
+    public int ConnectedPlayerCount => Players.Where(d => d.IsConnected).Count();
+
+    public bool GameCanStart => (NetworkManager.Singleton?.IsListening ?? false) && Players.Length > 0 && ConnectedPlayerCount == Players.Length;
+
     public void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        Players = new PlayerData[0];
     }
 
     public void SetPlayersFromLobby(Lobby lobby)
@@ -178,10 +184,7 @@ public struct PlayerData : INetworkSerializable
         Money = Constants.PLAYER_START_MONEY;
     }
 
-    public bool IsConnected()
-    {
-        return ClientId != ClientId.NONE;
-    }
+    public bool IsConnected => ClientId != ClientId.NONE;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
