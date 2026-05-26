@@ -118,11 +118,6 @@ namespace Map
                 chunks.Add(chunk);
             }
 
-            /*foreach (var tile in tiles)
-            {
-                tile.InitializeNeighbors();
-            }*/
-
             ProceduralMapGenerator.GenerateMap(this);
 
             foreach (var chunk in chunks)

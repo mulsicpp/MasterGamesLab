@@ -89,7 +89,7 @@ namespace Map
             neighbors = new List<Tile>(6);
             NeighborTiles = new List<NeighborTile>(6);
             RandomValue = UnityEngine.Random.Range(0f, 1f);
-            
+
             edges = new List<Edge>();
 
             Structure = null;
@@ -191,21 +191,6 @@ namespace Map
             }
         }
 
-        public void InitializeNeighbors()
-        {
-            neighbors.Clear();
-            foreach (var neighbor in neighborTriangles)
-            {
-                foreach (var point in neighbor.Points)
-                {
-                    if (!neighbors.Contains(point) && point != this)
-                    {
-                        neighbors.Add(point);
-                    }
-                }
-            }
-        }
-
         public void ClearEdges()
         {
             edges.Clear();
@@ -230,14 +215,16 @@ namespace Map
         public int CountEdgesWithType(Edge.EdgeType type)
         {
             int count = 0;
-            foreach(var edge in edges) if(edge.Type == type) count++;
+            foreach (var edge in edges)
+                if (edge.Type == type)
+                    count++;
             return count;
         }
 
 
         public bool CanSpawnStructure(Structure.StructureType type)
         {
-            if(Structure != null) return false;
+            if (Structure != null) return false;
 
             switch (type)
             {
@@ -249,11 +236,6 @@ namespace Map
             return false;
         }
 
-
-        private static readonly float TanPI3 = Mathf.Tan(Mathf.PI / 3);
-
-        private static readonly Vector2[] HexagonCoordinates = new Vector2[]
-            
         public void BuildFaces(MapChunk.ChunkGeometry cg)
         {
             tileGeometryInformation = TileGeometryFactory.BuildFaces(this, cg);
