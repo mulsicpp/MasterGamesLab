@@ -75,7 +75,7 @@ namespace Map
         private readonly List<Tile> neighbors;
         private TileType tileType;
         private bool active;
-        private List<Edge> edges;
+        private readonly List<Edge> edges;
         private MapChunk.TileGeometryInformation tileGeometryInformation;
 
         public Tile(Vector3 position)
@@ -214,10 +214,14 @@ namespace Map
 
         public int CountEdgesWithType(Edge.EdgeType type)
         {
-            int count = 0;
+            var count = 0;
             foreach (var edge in edges)
+            {
                 if (edge.Type == type)
+                {
                     count++;
+                }
+            }
             return count;
         }
 
@@ -226,14 +230,12 @@ namespace Map
         {
             if (Structure != null) return false;
 
-            switch (type)
+            return type switch
             {
-                case Structure.StructureType.Producer:
-                case Structure.StructureType.Consumer:
-                    return Type == TileType.Plain || Type == TileType.Forest;
-            }
-
-            return false;
+                Structure.StructureType.Producer or Structure.StructureType.Consumer => Type is TileType.Plain
+                    or TileType.Forest,
+                _ => false
+            };
         }
 
         public void BuildFaces(MapChunk.ChunkGeometry cg)

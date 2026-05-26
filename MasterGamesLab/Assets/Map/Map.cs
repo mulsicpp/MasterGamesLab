@@ -8,9 +8,6 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using Map.Fleet;
 using System;
-using Unity.Collections;
-using System.Data;
-using static UnityEngine.UI.GridLayoutGroup;
 
 namespace Map
 {
