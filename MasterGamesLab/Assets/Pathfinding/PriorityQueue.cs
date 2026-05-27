@@ -4,20 +4,19 @@ using System.Collections.Generic;
 namespace Map
 {
     /// <summary>
-    /// A lightweight, ultra-fast Min-Heap Priority Queue for Unity with an integrated secondary tie-breaker layer.
+    /// A lightweight, ultra-fast Min-Heap Priority Queue for Unity.
     /// </summary>
-    public class PriorityQueue<TElement, TPriority, TTieBreaker> 
+    public class PriorityQueue<TElement, TPriority> 
         where TPriority : IComparable<TPriority>
-        where TTieBreaker : IComparable<TTieBreaker>
     {
-        // Internal storage expanded to also hold the tie-breaker priority state
-        private readonly List<(TElement Element, TPriority Priority, TTieBreaker TieBreaker)> _nodes = new();
+        // Internal storage holding the element and its primary priority
+        private readonly List<(TElement Element, TPriority Priority)> _nodes = new();
 
         public int Count => _nodes.Count;
 
-        public void Enqueue(TElement element, TPriority priority, TTieBreaker tieBreaker)
+        public void Enqueue(TElement element, TPriority priority)
         {
-            _nodes.Add((element, priority, tieBreaker));
+            _nodes.Add((element, priority));
             BubbleUp(_nodes.Count - 1);
         }
 
@@ -45,16 +44,11 @@ namespace Map
         }
 
         /// <summary>
-        /// Composed comparison method that evaluates Priority 1 first, falling back to Priority 2 on a draw.
+        /// Composed comparison method that evaluates Priority.
         /// </summary>
         private int CompareNodes(int indexA, int indexB)
         {
-            // 1. Check Primary Priority (e.g., path distance)
-            int primaryCompare = _nodes[indexA].Priority.CompareTo(_nodes[indexB].Priority);
-            if (primaryCompare != 0) return primaryCompare;
-
-            // 2. Tie-Breaker Priority (e.g., unowned edge counts)
-            return _nodes[indexA].TieBreaker.CompareTo(_nodes[indexB].TieBreaker);
+            return _nodes[indexA].Priority.CompareTo(_nodes[indexB].Priority);
         }
 
         private void BubbleUp(int index)
@@ -63,7 +57,6 @@ namespace Map
             {
                 int parentIdx = (index - 1) / 2;
                 
-                // Use our new layered node comparison mechanism
                 if (CompareNodes(index, parentIdx) >= 0) break;
 
                 Swap(index, parentIdx);

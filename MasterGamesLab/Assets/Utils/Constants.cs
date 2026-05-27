@@ -30,6 +30,8 @@ public static class Constants
     public const int MAX_CONSUMERS_PER_RPC = 32;
     public const int MAX_TRUCKS_PER_RPC = 8;
 
-    public const int ROAD_MOVEMENT_COST = 1;
+    public const int ENEMY_ROAD_MOVEMENT_COST = 1;
+    public const int OWN_ROAD_MOVEMENT_COST = 0;
+    public const int PUBLIC_ROAD_MOVEMENT_COST = 0;
     public const int ROAD_MOVEMENT_DISTANCE = 1;
 }
