@@ -14,6 +14,17 @@ namespace Map
             Rail
         }
 
+        public enum RoadState : byte
+        {
+            None,
+            RouteSelected,
+            RouteSuggested,
+            RouteCompleted,
+            Planned, // 2tes mal isch geklickt gworden
+            Hologram, // währendn dragen
+            Overlapping // währendn dragen über a gebauten road
+        }
+
         public struct EdgeState : IState, INetworkSerializeByMemcpy
         {
             public EdgeId Id;

@@ -1,5 +1,6 @@
 using Map;
 using Map.Infrastructure;
+using System;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
@@ -46,23 +47,23 @@ public class TestRoadCreation : NetworkBehaviour
                 Map.Map.Instance.testTargetTileId = tile.Id.Value;
         }
 
-        if(Input.GetKeyDown(KeyCode.P) && IsServer)
+        if (Input.GetKeyDown(KeyCode.P) && IsServer)
         {
             var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
             if (tile == null) return;
 
-            if(tile.CanSpawnStructure(Structure.StructureType.Producer))
+            if (tile.CanSpawnStructure(Structure.StructureType.Producer))
             {
                 Map.Map.Instance.Infrastructure.SpawnGlobal(new Producer.ProducerState { Common = { TileId = tile.Id }, Good = good });
             }
         }
 
-        if(Input.GetKeyDown(KeyCode.C) && IsServer)
+        if (Input.GetKeyDown(KeyCode.C) && IsServer)
         {
             var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
             if (tile == null) return;
 
-            if(tile.CanSpawnStructure(Structure.StructureType.Consumer))
+            if (tile.CanSpawnStructure(Structure.StructureType.Consumer))
             {
                 Map.Map.Instance.Infrastructure.SpawnGlobal(new Consumer.ConsumerState { Common = { TileId = tile.Id }, RequestedGood = good });
             }
@@ -93,12 +94,39 @@ public class TestRoadCreation : NetworkBehaviour
 
             if (truck == null) return;
 
-            TileId[] tileIds;
+            TileId[] tileIds = null;
 
-            if(Input.GetKey(KeyCode.LeftShift))
-                Map.Map.Instance.FindCheapestPath(truck.ParkedTile, tile, out tileIds);
+            PlayerId myId = PlayerManager.Instance.SelfId;
+
+            Func<Tile, Tile, long> shortestCost = (Tile t1, Tile t2) =>
+            {
+                Edge edge = t1.FindEdgeTo(t2);
+                if (edge == null || edge.Type != Edge.EdgeType.Road) return -1;
+
+                long primary = (long)Constants.ROAD_MOVEMENT_DISTANCE << 32;
+                long secondary = edge.Owner == PlayerId.NONE ? Constants.PUBLIC_ROAD_MOVEMENT_COST :
+                                 edge.Owner == myId ? Constants.OWN_ROAD_MOVEMENT_COST :
+                                                                 Constants.ENEMY_ROAD_MOVEMENT_COST;
+
+                return primary | (secondary & 0xFFFFFFFFL);
+            };
+
+            Func<Tile, Tile, long> cheapestCost = (Tile t1, Tile t2) =>
+            {
+                Edge edge = t1.FindEdgeTo(t2);
+                if (edge == null || edge.Type != Edge.EdgeType.Road) return -1;
+                long primary = edge.Owner == PlayerId.NONE ? Constants.PUBLIC_ROAD_MOVEMENT_COST :
+                               edge.Owner == myId ? Constants.OWN_ROAD_MOVEMENT_COST :
+                                                           Constants.ENEMY_ROAD_MOVEMENT_COST;
+                long secondary = (long)Constants.ROAD_MOVEMENT_DISTANCE;
+
+                return (primary << 32) | (secondary & 0xFFFFFFFFL);
+            };
+
+            if (Input.GetKey(KeyCode.LeftShift))
+                tileIds = Pathfinding.FindPath(truck.ParkedTile, tile, (Tile t1, Tile t2) => { if (t1.FindEdgeTo(t2) != null && t1.FindEdgeTo(t2).Type == Edge.EdgeType.Road) return Constants.ROAD_MOVEMENT_DISTANCE; else return -1; });
             else
-                Map.Map.Instance.FindShortestPath(truck.ParkedTile, tile, out tileIds);
+                tileIds = Pathfinding.FindPath(truck.ParkedTile, tile, (Tile t1, Tile t2) => { if (t1.FindEdgeTo(t2) != null && t1.FindEdgeTo(t2).Type == Edge.EdgeType.Road) return Constants.ROAD_MOVEMENT_DISTANCE; else return -1; });
 
             if (tileIds == null) return;
 
