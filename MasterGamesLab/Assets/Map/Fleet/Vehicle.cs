@@ -1,6 +1,6 @@
 using Unity.Collections;
 using Unity.Netcode;
-using static Map.Infrastructure.Consumer;
+using UnityEngine;
 
 namespace Map.Fleet
 {
@@ -83,12 +83,12 @@ namespace Map.Fleet
         public new Timestamp Timestamp => base.Timestamp;
 
         private Tile[] route;
-        public Tile[] Route { 
+        public Tile[] Route {
             get { return route; }
-            set 
+            set
             {
                 if (value == null || value.Length < 2) route = null;
-                else { route = value; parkedTile = null; }
+                else { route = value; parkedTile = null; smoothDriving.Reset(); }
                 Touch();
             }
         }
@@ -98,15 +98,22 @@ namespace Map.Fleet
         public bool ProgressDirty => progressDirty;
 
         private float routeProgress;
-        public float RouteProgress { get { return routeProgress; } set { routeProgress = value; PutTimestamp(); progressDirty = true; } }
+        public float RouteProgress { 
+            get { return routeProgress; }
+            set { 
+                routeProgress = value;
+                PutTimestamp();
+                progressDirty = true;
+            }
+        }
 
         public abstract float SpeedTPS { get; }
 
 
         private Tile parkedTile;
-        public Tile ParkedTile { 
+        public Tile ParkedTile {
             get { return parkedTile; }
-            set 
+            set
             {
                 parkedTile = value;
                 if (value != null)
@@ -118,6 +125,8 @@ namespace Map.Fleet
             }
         }
         public bool IsParked => parkedTile != null;
+
+        private SmoothDriving smoothDriving;
 
         public CommonVehicleState CommonState
         {
@@ -164,7 +173,12 @@ namespace Map.Fleet
 
         VehicleProgressState ISynchableObject<VehicleProgressState>.State { get => ProgressState; set => ProgressState = value; }
 
-        public void ApplyServerState(VehicleProgressState state) { ProgressState = state; ResetProgressDirty(); }
+        public void ApplyServerState(VehicleProgressState state, double serverTime) {
+
+            ProgressState = state;
+            ResetProgressDirty();
+            smoothDriving.AddProgressUpdate(state, serverTime);
+        }
 
         public static int GetOffsetFromType(VehicleType type)
         {
@@ -192,13 +206,13 @@ namespace Map.Fleet
 
         public static int GetMaxCountPerPlayer(VehicleType type)
         {
-            if(type == VehicleType.Truck) return Constants.MAX_TRUCKS_PER_PLAYER;
+            if (type == VehicleType.Truck) return Constants.MAX_TRUCKS_PER_PLAYER;
             else return Constants.MAX_FREIGHTERS_PER_PLAYER;
         }
 
         public static bool CanCross(ITile src, ITile dst, VehicleType type)
         {
-            switch(type)
+            switch (type)
             {
                 case VehicleType.Truck: return src?.FindEdgeTo(dst)?.Type == Edge.EdgeType.Road;
                 case VehicleType.Freighter:
@@ -216,6 +230,7 @@ namespace Map.Fleet
             route = null;
             routeProgress = 0;
             parkedTile = null;
+            smoothDriving = new SmoothDrivingPredictNewest(this);
             Touch();
         }
 
@@ -242,5 +257,31 @@ namespace Map.Fleet
         }
 
         protected abstract void OnParked();
+
+        public Vector3? PositionOnSphere
+        {
+            get
+            {
+                if (!Exists) return null;
+                if (IsParked) return ParkedTile.PositionOnSphere;
+                else if (IsDriving)
+                {
+                    float visualProgress = smoothDriving?.VisualProgress ?? RouteProgress;
+                    if (visualProgress <= 0.0f) return Route[0].PositionOnSphere;
+                    else if (visualProgress >= Route.Length - 1) return Route[Route.Length - 1].PositionOnSphere;
+                    else
+                    {
+                        int index = (int)visualProgress;
+                        float localProgress = visualProgress - index;
+
+                        var pos1 = Route[index].PositionOnSphere;
+                        var pos2 = Route[index + 1].PositionOnSphere;
+
+                        return pos1 * (1.0f - localProgress) + pos2 * localProgress;
+                    }
+                }
+                return null;
+            }
+        }
     }
 }

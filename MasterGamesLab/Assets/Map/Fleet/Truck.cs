@@ -53,7 +53,7 @@ namespace Map.Fleet
             good = Good.None;
         }
 
-        public void ApplyServerState(TruckState state) { State = state; ResetDirty(); }
+        public void ApplyServerState(TruckState state, double _) { State = state; ResetDirty(); }
 
         protected override void OnParked()
         {
