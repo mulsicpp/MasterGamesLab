@@ -87,7 +87,7 @@ public class JoinUI : MonoBehaviour
     private async void OnJoinPressed()
     {
         if (!lobbyCodeInput.Value.IsNullOrEmpty())
-            await LobbyLogic.Instance.JoinLobbyByCode(lobbyCodeInput.Value);
+            await LobbyLogic.Instance.JoinLobbyByCodeAsync(lobbyCodeInput.Value);
     }
 
     private async void OnRefreshPressed()
@@ -95,7 +95,7 @@ public class JoinUI : MonoBehaviour
         Debug.Log(LobbyLogic.Instance.PublicLobbies.Count);
         refreshButton.SetEnabled(false);
         refreshButton.SetLoading(true);
-        await LobbyLogic.Instance.LoadPublicLobbies();
+        await LobbyLogic.Instance.LoadPublicLobbiesAsync();
         refreshButton.SetLoading(false);
         refreshButton.SetEnabled(true);
     }
@@ -124,7 +124,7 @@ public class JoinUI : MonoBehaviour
                 rowJoinButton.clickable = null;
                 rowJoinButton.clicked += async () =>
                 {
-                    await LobbyLogic.Instance.JoinLobbyById(lobbyData.Id);
+                    await LobbyLogic.Instance.JoinLobbyByIdAsync(lobbyData.Id);
                 };
             }
         };

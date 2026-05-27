@@ -47,7 +47,7 @@ public class LobbyUI : MonoBehaviour
 
     private void Update()
     {
-        startButton.SetEnabled(LobbyLogic.Instance.IsHost() && (!NetworkManager.Singleton?.IsListening ?? false));
+        startButton.SetEnabled(LobbyLogic.Instance.IsHost() && !LobbyLogic.Instance.IsStartingHost);
     }
 
     private void OnLobbyCodePressed()
@@ -102,15 +102,13 @@ public class LobbyUI : MonoBehaviour
     private async void OnLeavePressed()
     {
         Debug.Log("Back button clicked. Returning to Main Menu...");
-        await LobbyLogic.Instance.LeaveLobby();
+        await LobbyLogic.Instance.LeaveLobbyAsync();
     }
 
-    private async void OnStartPressed()
+    private void OnStartPressed()
     {
         Debug.Log("Start Game button pressed!");
-        startButton.SetEnabled(false);
-        await LobbyLogic.Instance.StartHost();
-        startButton.SetEnabled(LobbyLogic.Instance.IsHost() && !NetworkManager.Singleton.IsListening);
+        StartCoroutine(LobbyLogic.Instance.StartHost());
     }
 
     public void SetLobbyInfo(string lobbyName, string joinCode)

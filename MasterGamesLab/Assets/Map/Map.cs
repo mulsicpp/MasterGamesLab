@@ -29,6 +29,8 @@ namespace Map
         [SerializeField] private Timestamp timestamp = new Timestamp(0);
         public Timestamp Timestamp => timestamp;
 
+        [SerializeField] public bool Running = true;
+
         public IReadOnlyList<Edge> Edges => edges;
         public IReadOnlyInfrastructure Infrastructure => infrastructure;
         public IReadOnlyFleet Fleet => fleet;
@@ -145,6 +147,9 @@ namespace Map
             }
 
             MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
+            MainCamera.Instance.PlanetControllerEnabled = Running;
+
+            // Update the projection
             UpdateProjectionUniforms();
         }
 
@@ -213,12 +218,15 @@ namespace Map
                 chunk.UpdateMesh();
             }
 
+
             Infrastructure.SpawnLocal(new Producer.ProducerState
                 { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
         }
 
         public void Tick()
         {
+            if(!Running) return;
+
             uint tickRate = NetworkManager.Singleton.NetworkTickSystem.TickRate;
             float tickDuration = 1.0f / tickRate;
 
