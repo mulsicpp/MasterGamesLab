@@ -211,6 +211,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   timestamp:
     Value: 0
+  Running: 1
   radius: 1
   resolution: 20
   chunkPrefab: {fileID: 5519249646154030829, guid: 65a832fee843f45478962ed766b9ddce, type: 3}
@@ -381,6 +382,22 @@ PrefabInstance:
     - target: {fileID: 4333298005325406493, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
       propertyPath: m_Name
       value: Camera
+      objectReference: {fileID: 0}
+    - target: {fileID: 6831849078529806540, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
+      propertyPath: maxZoom
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6831849078529806540, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
+      propertyPath: minZoom
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6831849078529806540, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
+      propertyPath: zoomBase
+      value: 1.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 6831849078529806540, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
+      propertyPath: zoomFactor
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: 8619474705160191104, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
       propertyPath: m_LocalPosition.x

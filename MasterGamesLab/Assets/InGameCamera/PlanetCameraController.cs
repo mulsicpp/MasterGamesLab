@@ -20,14 +20,22 @@ namespace InGameCamera
 
         [SerializeField] private float minZoom = 1.1f;
         [SerializeField] private float maxZoom = 5f;
+#pragma warning disable CS0414
         [SerializeField] private float minZoomSpeed = 0.05f;
+#pragma warning disable CS0414
         [SerializeField] private float maxZoomSpeed = 1;
+
+        [SerializeField] private float zoomBase = 1.1f;
+        [SerializeField] private float zoomFactor = 2.5f;
+        [SerializeField] private float zoomOffset = 0.5f;
 
         [SerializeField] private float minRotationSpeed = 0.03f;
         [SerializeField] private float maxRotationSpeed = 0.3f;
 
         [SerializeField] private float minPitch = -90f;
         [SerializeField] private float maxPitch = 90f;
+
+        private float zoomExp;
 
         // Internal tracking variables
         private float currentYaw = 0f;
@@ -52,6 +60,8 @@ namespace InGameCamera
             var angles = transform.eulerAngles;
             currentPitch = angles.x;
             currentYaw = angles.y;
+
+            zoomExp = 0.0f;
         }
 
         private void LateUpdate()
@@ -82,12 +92,21 @@ namespace InGameCamera
 
             var scrollDelta = zoomAction.ReadValue<Vector2>();
 
-            if (Mathf.Abs(scrollDelta.y) > 0.001f)
+            // if (Mathf.Abs(scrollDelta.y) > 0.001f)
+            // {
+            //     var currentZoomSpeed =
+            //         ExponentialMapRange(CurrentDistance, minZoom, maxZoom, minZoomSpeed, maxZoomSpeed);
+            //     CurrentDistance -= scrollDelta.y * currentZoomSpeed;
+            //     CurrentDistance = Mathf.Clamp(CurrentDistance, minZoom, maxZoom);
+            // }
+
+            float minZoomExp = Mathf.Log((minZoom - zoomOffset) / zoomFactor, zoomBase);
+            float maxZoomExp = Mathf.Log((maxZoom - zoomOffset) / zoomFactor, zoomBase);
+
+            if (zoomExp - scrollDelta.y <= maxZoomExp && zoomExp - scrollDelta.y >= minZoomExp)
             {
-                var currentZoomSpeed =
-                    ExponentialMapRange(CurrentDistance, minZoom, maxZoom, minZoomSpeed, maxZoomSpeed);
-                CurrentDistance -= scrollDelta.y * currentZoomSpeed;
-                CurrentDistance = Mathf.Clamp(CurrentDistance, minZoom, maxZoom);
+                zoomExp -= scrollDelta.y;
+                CurrentDistance = Mathf.Pow(zoomBase, zoomExp) * zoomFactor + zoomOffset;
             }
         }
 
