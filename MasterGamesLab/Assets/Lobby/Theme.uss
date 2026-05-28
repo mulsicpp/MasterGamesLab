@@ -16,7 +16,7 @@
     --overflow: hidden;
     --text-overflow: ellipsis;
     --copy-hovered: rgba(255, 255, 255, 0.16);
-    --error-color:rgb(255, 73, 73);
+    --error-color: rgb(255, 73, 73);
 }
 
 .element {
@@ -222,4 +222,23 @@
     color: var(--error-color);
     background-color: rgba(0, 0, 0, 0.4);
     scale: 1.02 1.02;
+}
+
+.ingame-build-button {
+    width: 100%;
+    height: 100%;
+}
+
+.ingame-build-button--active {
+    border-left-color: rgb(255, 0, 0);
+    border-right-color: rgb(255, 0, 0);
+    border-top-color: rgb(255, 0, 0);
+    border-bottom-color: rgb(255, 0, 0);
+}
+
+.ingame-build-button-parent {
+    width: auto;
+    flex-shrink: 0;
+    height: 7%;
+    margin-bottom: 19%;
 }

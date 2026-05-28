@@ -1,5 +1,22 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement name="Root" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: space-between; color: rgb(32, 32, 32); align-items: flex-start;">
-        <ResponsiveLabel height-percentage="1" text="Ingame UI hehe" style="height: 10%; color: rgb(255, 255, 255); -unity-text-align: middle-left; white-space: pre;"/>
+    <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
+    <ui:VisualElement name="Root" class="unity-ui-document__root" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: space-between; color: rgb(32, 32, 32); align-items: flex-start;">
+        <ui:GroupBox name="BuildMenu" class="element" style="width: 7%; height: 100%; margin-left: 2%; margin-top: 2%;">
+            <SquareElement class="ingame-build-button-parent element">
+                <ui:Button text="Road" name="BuildRoadButton" class="button element ingame-build-button"/>
+            </SquareElement>
+            <SquareElement class="ingame-build-button-parent element">
+                <ui:Button text="Canal" name="BuildCanalButton" class="button element ingame-build-button"/>
+            </SquareElement>
+            <SquareElement name="SquareElement" class="ingame-build-button-parent element">
+                <ui:Button text="Port" name="BuildPortButton" class="button element ingame-build-button"/>
+            </SquareElement>
+            <SquareElement class="ingame-build-button-parent element">
+                <ui:Button text="Truck" name="BuyTruckButton" class="button element ingame-build-button"/>
+            </SquareElement>
+            <SquareElement class="ingame-build-button-parent element">
+                <ui:Button text="Freighter" name="BuyFreighterButton" class="button element ingame-build-button"/>
+            </SquareElement>
+        </ui:GroupBox>
     </ui:VisualElement>
 </ui:UXML>

@@ -8,5 +8,7 @@ namespace UI
         Canal,
         Garage,
         Port,
+        Freighter,
+        Truck
     }
 }
