@@ -34,4 +34,6 @@ public static class Constants
     public const int OWN_ROAD_MOVEMENT_COST = 0;
     public const int PUBLIC_ROAD_MOVEMENT_COST = 0;
     public const int ROAD_MOVEMENT_DISTANCE = 1;
+
+    public const int MAX_PRIORITYS_FOR_PATHFINDING = 4;
 }

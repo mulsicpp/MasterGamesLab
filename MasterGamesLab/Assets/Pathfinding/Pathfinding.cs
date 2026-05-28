@@ -2,44 +2,61 @@ using System;
 using System.Collections.Generic;
 using Map;
 
-
 public static class Pathfinding
 {
+    public delegate void PathfindingRule(Tile current, Tile neighbor, ref PathScore stepScore, int targetSlot);
 
-    // --- HIGH PERFORMANCE PRE-ALLOCATED RUNTIME BUFFERS ---
+    public struct RuleMapping
+    {
+        public PathfindingRule RuleExecutable;
+        public int TargetSlot;
+    }
+
     private static NodeState[] nodeStatesBuffer;
     private static bool[] visitedTilesBuffer;
-    private static PriorityQueue<Tile, long> tileQueue = new PriorityQueue<Tile, long>();
+    private static PriorityQueue<Tile, PathScore> tileQueue = new PriorityQueue<Tile, PathScore>();
+
     private struct NodeState
     {
-        public long RealCost;
+        public PathScore RealCost;
         public TileId CameFromId;
     }
 
-    public enum RoutePriorityMode { Shortest, Cheapest }
-
-
+    /// <summary>
+    /// Allocates the static search buffers once at startup based on map sizes.
+    /// </summary>
     public static void InitBuffers(int tileCount)
     {
         nodeStatesBuffer = new NodeState[tileCount];
         visitedTilesBuffer = new bool[tileCount];
     }
 
-
-    public static TileId[] FindPath(Tile start, Tile target, Func<Tile, Tile, long> costFunction, Func<Tile, Tile, long> heuristicFunction = null)
+    /// <summary>
+    /// Evaluates the optimal path through your tiled world based on your movement profiles.
+    /// Leaving heuristicFunction null transforms this automatically into pure Dijkstra.
+    /// </summary>
+    public static TileId[] FindPath(
+        Tile start, 
+        Tile target, 
+        MovementProfile profile, 
+        Func<Tile, Tile, PathScore> heuristicFunction = null)
     {
-        heuristicFunction ??= (_, _) => 0;
+        if (start == null || target == null || profile == null) return null;
 
-        if (start == null || target == null)
-            return null;
+        // Instant hard block fast-exit check
+        if (profile.IsHardBlocked != null && profile.IsHardBlocked(start, target)) return null;
+
+        // Reset tracking layers without allocating new memory objects
         Array.Clear(visitedTilesBuffer, 0, visitedTilesBuffer.Length);
         tileQueue.Clear();
 
         TileId startId = start.Id;
-        nodeStatesBuffer[startId] = new NodeState { RealCost = 0, CameFromId = TileId.NONE };
+        nodeStatesBuffer[startId] = new NodeState { RealCost = new PathScore(), CameFromId = TileId.NONE };
         visitedTilesBuffer[startId] = true;
-        tileQueue.Enqueue(start, 0);
+        
+        tileQueue.Enqueue(start, new PathScore());
 
+        var activeRules = profile.GetRules();
 
         while (tileQueue.Count > 0)
         {
@@ -51,19 +68,26 @@ public static class Pathfinding
                 return ReconstructPathArray(startId, target.Id);
             }
 
-            long currentRealCost = nodeStatesBuffer[currentId].RealCost;
+            PathScore currentRealCost = nodeStatesBuffer[currentId].RealCost;
 
-            foreach (Tile neighbortile in current.Neighbors)
+            foreach (Tile neighborTile in current.Neighbors)
             {
-                long stotcost = costFunction(current, neighbortile);
-                if (stotcost < 0) continue;
-                TileId neighborId = neighbortile.Id;
+                if (profile.IsHardBlocked != null && profile.IsHardBlocked(current, neighborTile)) continue;
 
-                long newRealCost = currentRealCost + stotcost;
+                TileId neighborId = neighborTile.Id;
 
+                PathScore stepScore = new PathScore();
+                for (int i = 0; i < activeRules.Count; i++)
+                {
+                    RuleMapping mapping = activeRules[i];
+                    
+                    mapping.RuleExecutable(current, neighborTile, ref stepScore, mapping.TargetSlot);
+                }
+
+                PathScore newRealCost = currentRealCost + stepScore;
                 bool hasState = visitedTilesBuffer[neighborId];
 
-                if (!hasState || newRealCost < nodeStatesBuffer[neighborId].RealCost)
+                if (!hasState || newRealCost.CompareTo(nodeStatesBuffer[neighborId].RealCost) < 0)
                 {
                     visitedTilesBuffer[neighborId] = true;
                     nodeStatesBuffer[neighborId] = new NodeState
@@ -71,12 +95,19 @@ public static class Pathfinding
                         RealCost = newRealCost,
                         CameFromId = currentId
                     };
-                    tileQueue.Enqueue(neighbortile, newRealCost + heuristicFunction(neighbortile, target));
+
+                    PathScore priorityScore = newRealCost;
+                    
+                    if (heuristicFunction != null)
+                    {
+                        priorityScore += heuristicFunction(neighborTile, target);
+                    }
+
+                    tileQueue.Enqueue(neighborTile, priorityScore);
                 }
             }
         }
         return null;
-
     }
 
     private static TileId[] ReconstructPathArray(TileId startId, TileId targetId)
@@ -91,5 +122,4 @@ public static class Pathfinding
         result.Reverse();
         return result.ToArray();
     }
-
 }

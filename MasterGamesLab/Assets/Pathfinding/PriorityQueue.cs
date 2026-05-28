@@ -6,10 +6,9 @@ namespace Map
     /// <summary>
     /// A lightweight, ultra-fast Min-Heap Priority Queue for Unity.
     /// </summary>
-    public class PriorityQueue<TElement, TPriority> 
-        where TPriority : IComparable<TPriority>
+    public class PriorityQueue<TElement, TPriority>
+        where TPriority : struct, IComparable<TPriority>
     {
-        // Internal storage holding the element and its primary priority
         private readonly List<(TElement Element, TPriority Priority)> _nodes = new();
 
         public int Count => _nodes.Count;
@@ -26,7 +25,7 @@ namespace Map
 
             TElement root = _nodes[0].Element;
             int lastIdx = _nodes.Count - 1;
-            
+
             _nodes[0] = _nodes[lastIdx];
             _nodes.RemoveAt(lastIdx);
 
@@ -43,9 +42,6 @@ namespace Map
             _nodes.Clear();
         }
 
-        /// <summary>
-        /// Composed comparison method that evaluates Priority.
-        /// </summary>
         private int CompareNodes(int indexA, int indexB)
         {
             return _nodes[indexA].Priority.CompareTo(_nodes[indexB].Priority);
@@ -56,7 +52,7 @@ namespace Map
             while (index > 0)
             {
                 int parentIdx = (index - 1) / 2;
-                
+
                 if (CompareNodes(index, parentIdx) >= 0) break;
 
                 Swap(index, parentIdx);
