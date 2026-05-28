@@ -1,0 +1,5 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="Root" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: space-between; color: rgb(32, 32, 32); align-items: flex-start;">
+        <ResponsiveLabel height-percentage="1" text="Ingame UI hehe" style="height: 10%; color: rgb(255, 255, 255); -unity-text-align: middle-left; white-space: pre;"/>
+    </ui:VisualElement>
+</ui:UXML>

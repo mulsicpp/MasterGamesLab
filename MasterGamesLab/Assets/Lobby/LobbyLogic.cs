@@ -34,6 +34,8 @@ public class LobbyLogic : MonoBehaviour
     private LobbyUI lobbyUI;
     [SerializeField]
     private LoadingUI loadingUI;
+    [SerializeField]
+    private UI.IngameUI ingameUI;
 
     [SerializeField]
     private bool suppressReconnect = false;
@@ -309,7 +311,7 @@ public class LobbyLogic : MonoBehaviour
         yield return new WaitUntil(() => PlayerManager.Instance.GameCanStart);
 
         Map.Map.Instance.Running = true;
-        HideUI();
+        ShowIngameUI();
 
         yield break;
     }
@@ -431,6 +433,7 @@ public class LobbyLogic : MonoBehaviour
         joinUI.Hide();
         lobbyUI.Hide();
         loadingUI.Hide();
+        ingameUI.Hide();
     }
 
     public void ShowStartUI()
@@ -458,6 +461,13 @@ public class LobbyLogic : MonoBehaviour
         Debug.Log("Showing loading screen");
         HideUI();
         loadingUI.Show();
+    }
+
+    public void ShowIngameUI()
+    {
+        Debug.Log("Showing ingame ui");
+        HideUI();
+        ingameUI.Show();
     }
 
     public bool IsHost()
