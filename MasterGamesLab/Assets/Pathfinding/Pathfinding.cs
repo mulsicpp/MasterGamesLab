@@ -44,7 +44,7 @@ public static class Pathfinding
         if (start == null || target == null || profile == null) return null;
 
         // Instant hard block fast-exit check
-        if (profile.IsHardBlocked != null && profile.IsHardBlocked(start, target)) return null;
+        // if (profile.IsHardBlocked != null && profile.IsHardBlocked(start, target)) return null;
 
         // Reset tracking layers without allocating new memory objects
         Array.Clear(visitedTilesBuffer, 0, visitedTilesBuffer.Length);
