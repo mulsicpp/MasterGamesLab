@@ -7,5 +7,5 @@ public interface ISynchableObject<T> where T : struct, IState
 
     public T State { get; set; }
 
-    public void ApplyServerState(T state);
+    public void ApplyServerState(T state, double serverTime);
 }

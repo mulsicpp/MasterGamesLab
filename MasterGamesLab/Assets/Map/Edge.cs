@@ -63,7 +63,7 @@ namespace Map
             Touch();
         }
 
-        public void ApplyServerState(EdgeState state) { State = state; ResetDirty(); }
+        public void ApplyServerState(EdgeState state, double _) { State = state; ResetDirty(); }
 
         public bool CanBecomeRoad()
         {

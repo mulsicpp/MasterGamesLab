@@ -47,7 +47,7 @@ namespace Map.Fleet
 
         }
 
-        public void ApplyServerState(FreighterState state) { State = state; ResetDirty(); }
+        public void ApplyServerState(FreighterState state, double _) { State = state; ResetDirty(); }
 
         protected override void OnParked()
         {

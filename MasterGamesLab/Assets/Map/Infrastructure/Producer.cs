@@ -33,6 +33,6 @@ namespace Map.Infrastructure
             good = Good.None;
         }
 
-        public void ApplyServerState(ProducerState state) { State = state; ResetDirty(); }
+        public void ApplyServerState(ProducerState state, double _) { State = state; ResetDirty(); }
     }
 }
