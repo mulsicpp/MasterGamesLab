@@ -52,16 +52,6 @@ namespace Map
             public float Active;
         }
 
-        // --- DEBUG PATHFINDING TESTING FIELDS ---
-        [Header("Pathfinding Debugger")]
-        [Tooltip("Drag a Tile reference here, or use the context menu via the Inspector dots to test.")]
-        [SerializeField] public int testStartTileId = -1;
-        [SerializeField] public int testTargetTileId = -1;
-
-        private readonly List<Edge> shortestDebugPathEdges = new();
-        private readonly List<Edge> cheapestDebugPathEdges = new();
-        // ----------------------------------------
-
         private List<Tile> tiles;
         private List<Tile> activeTiles;
         private List<MapChunk> chunks;
@@ -120,6 +110,7 @@ namespace Map
 
             // Pre-allocate tracking arrays using the total tile capacity count
             Pathfinding.InitBuffers(tiles.Count);
+            MovementProfileRegistry.Initialize();
         }
 
         private void Update()
@@ -136,14 +127,6 @@ namespace Map
                 }
 
                 chunk.RenderTrees();
-            }
-
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-            {
-                if (shortestDebugPathEdges.Count > 0 || cheapestDebugPathEdges.Count > 0)
-                {
-                    RecalculateDebugPaths();
-                }
             }
 
             MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
@@ -503,60 +486,6 @@ namespace Map
             UpdateTruckStatesClientRpc(nextTimestamp, Time.timeAsDouble, new[] { truckState });
         }
 
-        // --- CONVERTED RUNTIME PATH ROUTING FUNCTIONS ---
-
-        public EdgeId[] FindShortestPath(Tile start, Tile target) => FindShortestPath(start, target, out _);
-        public EdgeId[] FindCheapestPath(Tile start, Tile target) => FindCheapestPath(start, target, out _);
-
-        public EdgeId[] FindShortestPath(Tile start, Tile target, out long cost)
-        {
-            cost = 0;
-            // Shortest Path calculation: Step count distance is always 1 per traversed edge
-            TileId[] path = Pathfinding.FindPath(start, target, (c, n) => 1, (n, t) => (long)Vector3.Distance(n.PositionOnSphere, t.PositionOnSphere));
-            if (path == null) return null;
-
-            return ConvertTilePathToEdgePath(path, out cost, (c, n) => 1);
-        }
-
-        public EdgeId[] FindCheapestPath(Tile start, Tile target, out long cost)
-        {
-            cost = 0;
-            // Cheapest Path calculation uses custom layout movement heuristics (e.g., base tile distance costs)
-            Func<Tile, Tile, long> baseCostFunc = (c, n) => (long)Vector3.Distance(c.PositionOnSphere, n.PositionOnSphere);
-            
-            TileId[] path = Pathfinding.FindPath(start, target, baseCostFunc, (n, t) => (long)Vector3.Distance(n.PositionOnSphere, t.PositionOnSphere));
-            if (path == null) return null;
-
-            return ConvertTilePathToEdgePath(path, out cost, baseCostFunc);
-        }
-
-        private EdgeId[] ConvertTilePathToEdgePath(TileId[] tilePath, out long totalCost, Func<Tile, Tile, long> costFunction)
-        {
-            totalCost = 0;
-            if (tilePath == null || tilePath.Length < 2) return Array.Empty<EdgeId>();
-
-            EdgeId[] edgePath = new EdgeId[tilePath.Length - 1];
-
-            for (int i = 0; i < tilePath.Length - 1; i++)
-            {
-                Tile current = tiles[tilePath[i].Value];
-                Tile next = tiles[tilePath[i + 1].Value];
-
-                // Check common connecting edges between adjacent path segments
-                Edge connectingEdge = current.Edges.FirstOrDefault(e => e.StartTile == next || e.EndTile == next);
-                
-                if (connectingEdge == null)
-                {
-                    Debug.LogError($"Path reconstruction failed. No shared connection found between Tile {current.Id.Value} and Tile {next.Id.Value}.");
-                    return null;
-                }
-
-                edgePath[i] = connectingEdge.Id;
-                totalCost += costFunction(current, next);
-            }
-
-            return edgePath;
-        }
 
         private Vector3 GetProjectedPosition(Vector3 positionOnSphere, float heightOffsetFactor = 1.0f)
         {
@@ -595,55 +524,6 @@ namespace Map
             return Vector3.Lerp(worldPos, flatPos, projectionFactor);
         }
 
-        // --- IN-EDITOR RUNTIME TESTING TOOLS ---
-
-        [ContextMenu("Test Path Between IDs")]
-        public void RecalculateDebugPaths()
-        {
-            if (!Application.isPlaying)
-            {
-                Debug.LogWarning("Please enter Play Mode before executing a pathfinding calculation test.");
-                return;
-            }
-
-            if (tiles == null || testStartTileId < 0 || testStartTileId >= tiles.Count || testTargetTileId < 0 || testTargetTileId >= tiles.Count)
-            {
-                Debug.LogError("Invalid Node ID ranges configured inside the Map components debug window.");
-                return;
-            }
-
-            shortestDebugPathEdges.Clear();
-            cheapestDebugPathEdges.Clear();
-
-            Tile startTile = tiles[testStartTileId];
-            Tile targetTile = tiles[testTargetTileId];
-
-            System.Diagnostics.Stopwatch swShortest = System.Diagnostics.Stopwatch.StartNew();
-            EdgeId[] shortestResult = FindShortestPath(startTile, targetTile);
-            swShortest.Stop();
-
-            if (shortestResult != null)
-            {
-                Debug.Log($"[A* Shortest] <color=lime>Success!</color> Found route containing {shortestResult.Length} steps in <b>{swShortest.Elapsed.TotalMilliseconds:F4} ms</b>.");
-                foreach (var id in shortestResult) shortestDebugPathEdges.Add(edges[id.Value]);
-            }
-
-            System.Diagnostics.Stopwatch swCheapest = System.Diagnostics.Stopwatch.StartNew();
-            EdgeId[] cheapestResult = FindCheapestPath(startTile, targetTile);
-            swCheapest.Stop();
-
-            if (cheapestResult != null)
-            {
-                Debug.Log($"[A* Cheapest] <color=orange>Success!</color> Found route containing {cheapestResult.Length} steps in <b>{swCheapest.Elapsed.TotalMilliseconds:F4} ms</b>.");
-                foreach (var id in cheapestResult) cheapestDebugPathEdges.Add(edges[id.Value]);
-            }
-
-            if (shortestResult == null && cheapestResult == null)
-            {
-                Debug.LogWarning($"Pathfinding failed or route isolated between Node {testStartTileId} and Node {testTargetTileId}. Check terrain settings.");
-            }
-        }
-
         public void OnDrawGizmos()
         {
             if (edges == null) return;
@@ -678,34 +558,6 @@ namespace Map
                     Gizmos.DrawSphere(midPoint, 0.004f);
                     midPoint = (p1 + 3 * p2) / 4.0f;
                     Gizmos.DrawSphere(midPoint, 0.004f);
-                }
-            }
-
-            if (shortestDebugPathEdges != null && shortestDebugPathEdges.Count > 0)
-            {
-                Gizmos.color = Color.green;
-                foreach (var edge in shortestDebugPathEdges)
-                {
-                    Vector3 p1 = GetProjectedPosition(edge.StartTile.PositionOnSphere, 1.015f);
-                    Vector3 p2 = GetProjectedPosition(edge.EndTile.PositionOnSphere, 1.015f);
-
-                    Gizmos.DrawLine(p1, p2);
-                    Gizmos.DrawSphere(p1, radius * 0.006f);
-                    Gizmos.DrawSphere(p2, radius * 0.006f);
-                }
-            }
-
-            if (cheapestDebugPathEdges != null && cheapestDebugPathEdges.Count > 0)
-            {
-                Gizmos.color = Color.red;
-                foreach (var edge in cheapestDebugPathEdges)
-                {
-                    Vector3 p1 = GetProjectedPosition(edge.StartTile.PositionOnSphere, 1.018f);
-                    Vector3 p2 = GetProjectedPosition(edge.EndTile.PositionOnSphere, 1.018f);
-
-                    Gizmos.DrawLine(p1, p2);
-                    Gizmos.DrawSphere(p1, radius * 0.006f);
-                    Gizmos.DrawSphere(p2, radius * 0.006f);
                 }
             }
 

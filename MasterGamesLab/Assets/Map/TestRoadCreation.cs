@@ -41,10 +41,6 @@ public class TestRoadCreation : NetworkBehaviour
                 }
                 startTile = null;
             }
-            if (Map.Map.Instance.testStartTileId == -1)
-                Map.Map.Instance.testStartTileId = tile.Id.Value;
-            else
-                Map.Map.Instance.testTargetTileId = tile.Id.Value;
         }
 
         if (Input.GetKeyDown(KeyCode.P) && IsServer)
@@ -123,10 +119,11 @@ public class TestRoadCreation : NetworkBehaviour
                 return (primary << 32) | (secondary & 0xFFFFFFFFL);
             };
 
+
             if (Input.GetKey(KeyCode.LeftShift))
-                tileIds = Pathfinding.FindPath(truck.ParkedTile, tile, (Tile t1, Tile t2) => { if (t1.FindEdgeTo(t2) != null && t1.FindEdgeTo(t2).Type == Edge.EdgeType.Road) return Constants.ROAD_MOVEMENT_DISTANCE; else return -1; });
+                tileIds = Pathfinding.FindPath(truck.ParkedTile, tile, MovementProfileRegistry.TruckCheapestRoute);
             else
-                tileIds = Pathfinding.FindPath(truck.ParkedTile, tile, (Tile t1, Tile t2) => { if (t1.FindEdgeTo(t2) != null && t1.FindEdgeTo(t2).Type == Edge.EdgeType.Road) return Constants.ROAD_MOVEMENT_DISTANCE; else return -1; });
+                tileIds = Pathfinding.FindPath(truck.ParkedTile, tile, MovementProfileRegistry.TruckFastestRoute);
 
             if (tileIds == null) return;
 
