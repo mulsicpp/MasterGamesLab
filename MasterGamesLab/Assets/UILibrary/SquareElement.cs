@@ -1,12 +1,21 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[UxmlElement]
+[UxmlElement] // Replaces the UxmlFactory class
 public partial class SquareElement : VisualElement
 {
     public SquareElement()
     {
-        // Force the layout engine to keep this element perfectly square (1:1 ratio)
-        style.aspectRatio = 1f;
+        RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+    }
+
+    private void OnGeometryChanged(GeometryChangedEvent evt)
+    {
+        float height = resolvedStyle.height;
+
+        if (height > 0)
+        {
+            style.width = height;
+        }
     }
 }
