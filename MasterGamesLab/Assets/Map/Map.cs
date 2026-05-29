@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using Map.Fleet;
+using Map.Blueprint;
 
 namespace Map
 {
@@ -34,6 +35,8 @@ namespace Map
         public IReadOnlyList<Edge> Edges => edges;
         public IReadOnlyInfrastructure Infrastructure => infrastructure;
         public IReadOnlyFleet Fleet => fleet;
+
+        public Blueprint.Blueprint Blueprint;
 
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
@@ -80,6 +83,8 @@ namespace Map
             infrastructure = new Infrastructure.Infrastructure();
             fleet = new Fleet.Fleet();
 
+            Blueprint = new Blueprint.Blueprint();
+
             var currentId = 0;
             foreach (var chunkPoints in chunksPoints)
             {
@@ -97,7 +102,7 @@ namespace Map
                 chunks.Add(chunk);
             }
 
-            ProceduralMapGenerator.GenerateMap(this);
+            //ProceduralMapGenerator.GenerateMap(this);
 
             foreach (var chunk in chunks)
             {
@@ -129,14 +134,6 @@ namespace Map
 
                 chunk.RenderTrees();
             }
-
-            var edgeMeshData = new List<Edge.EdgeMeshData>();
-            foreach(var edge in edges)
-            {
-                if (edge.MeshChanged) edgeMeshData.Add(edge.RetrieveMeshData());
-            }
-
-            UpdateEdgeMesh(edgeMeshData);
 
             MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
             MainCamera.Instance.PlanetControllerEnabled = Running;
@@ -190,38 +187,21 @@ namespace Map
             currentlyHoveredTileId = ((pixelColor.r << 16) | (pixelColor.g << 8) | pixelColor.b) - ID_OFFSET;
         }
 
-        
-        public void UpdateEdgeMesh(List<Edge.EdgeMeshData> edgeMeshData)
-        {
-            // TODO 
-        }
 
-        public void ClearHoveredMesh()
-        {
-            // TODO
-        }
-
-        public void SetHoveredMesh(List<Blueprint.HoveredEdge> hoveredEdges)
-        {
-            // TODO
-        }
-
-        public void SetHoveredMesh(Blueprint.HoveredStructure structure)
-        {
-            // TODO
-        }
 
         public void Generate(int seed)
         {
             Debug.Log("Generating world with seed " + seed + " ...");
 
-            foreach (var tile in tiles)
-            {
-                if (tile.PositionOnSphere.z < -0.97f) tile.Type = Tile.TileType.Mountain;
-                else if (tile.PositionOnSphere.z < -0.9f) tile.Type = Tile.TileType.Forest;
-                else if (tile.PositionOnSphere.z < -0.7f) tile.Type = Tile.TileType.Plain;
-                else tile.Type = Tile.TileType.Water;
-            }
+            //foreach (var tile in tiles)
+            //{
+            //    if (tile.PositionOnSphere.z < -0.97f) tile.Type = Tile.TileType.Mountain;
+            //    else if (tile.PositionOnSphere.z < -0.9f) tile.Type = Tile.TileType.Forest;
+            //    else if (tile.PositionOnSphere.z < -0.7f) tile.Type = Tile.TileType.Plain;
+            //    else tile.Type = Tile.TileType.Water;
+            //}
+            UnityEngine.Random.InitState(seed);
+            ProceduralMapGenerator.GenerateMap(this);
 
             InitEdges();
 
@@ -616,6 +596,22 @@ namespace Map
                     midPoint = (p1 + 3 * p2) / 4.0f;
                     Gizmos.DrawSphere(midPoint, 0.004f);
                 }
+
+                if (edges[i].BlueprintType != Edge.EdgeType.None)
+                {
+                    Gizmos.color = edges[i].BlueprintVisualState switch
+                    {
+                        VisualState.Preview => Color.purple,
+                        VisualState.Valid => Color.lightBlue,
+                        VisualState.Overlapping => Color.white,
+                        _ => Color.red,
+                    };
+
+                    p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.012f);
+                    p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.012f);
+                    Gizmos.DrawLine(p1, p2);
+                }
+
             }
 
             var orange = new Color(1.0f, 0.2f, 0.0f);
