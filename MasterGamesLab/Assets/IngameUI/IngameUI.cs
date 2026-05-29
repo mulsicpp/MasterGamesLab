@@ -32,7 +32,6 @@ namespace UI
 
         private Button currentActiveButton;
         private BuildMode buildMode = BuildMode.None;
-        private bool showpath = false;
 
         private const string activeClass = "ingame-build-button--active";
 
@@ -115,6 +114,14 @@ namespace UI
             hideButton.clicked -= OnHidePressed;
         }
 
+        public void OnLeftClickPressed()
+        {
+            if(BuildMode == BuildMode.Road || BuildMode == BuildMode.Canal)
+            {
+
+            }
+        }
+
         public void OnConfirmPressed()
         {
             BuildMode = BuildMode.None;
@@ -150,12 +157,6 @@ namespace UI
             DisplayStyle style = visible ? DisplayStyle.Flex : DisplayStyle.None;
             confirmButton.style.display = style;
             cancelButton.style.display = style;
-        }
-
-        private void buildRoad(InputAction.CallbackContext context)
-        {
-            if (BuildMode != BuildMode.Road) return;
-            showpath = true;
         }
 
         public void Show() => root.style.display = DisplayStyle.Flex;

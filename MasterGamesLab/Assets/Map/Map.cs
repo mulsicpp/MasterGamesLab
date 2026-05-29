@@ -134,14 +134,6 @@ namespace Map
                 chunk.RenderTrees();
             }
 
-            var edgeMeshData = new List<Edge.EdgeMeshData>();
-            foreach(var edge in edges)
-            {
-                if (edge.MeshChanged) edgeMeshData.Add(edge.RetrieveMeshData());
-            }
-
-            UpdateEdgeMesh(edgeMeshData);
-
             MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
             MainCamera.Instance.PlanetControllerEnabled = Running;
 
@@ -192,26 +184,7 @@ namespace Map
             currentlyHoveredTileId = ((pixelColor.r << 16) | (pixelColor.g << 8) | pixelColor.b) - ID_OFFSET;
         }
 
-        
-        public void UpdateEdgeMesh(List<Edge.EdgeMeshData> edgeMeshData)
-        {
-            // TODO 
-        }
 
-        public void ClearHoveredMesh()
-        {
-            // TODO
-        }
-
-        public void SetHoveredMesh(List<Blueprint.HoveredEdge> hoveredEdges)
-        {
-            // TODO
-        }
-
-        public void SetHoveredMesh(Blueprint.HoveredStructure structure)
-        {
-            // TODO
-        }
 
         public void Generate(int seed)
         {
@@ -596,12 +569,12 @@ namespace Map
 
                 if (edges[i].BlueprintType != Edge.EdgeType.None)
                 {
-                    Gizmos.color = edges[i].VisualState switch
+                    Gizmos.color = edges[i].BlueprintVisualState switch
                     {
+                        VisualState.Preview => Color.purple,
                         VisualState.Valid => Color.lightBlue,
-                        VisualState.Invalid => Color.red,
                         VisualState.Overlapping => Color.white,
-                        _ => new Color(0, 0, 0, 0),
+                        _ => Color.red,
                     };
 
                     p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.012f);
@@ -609,24 +582,6 @@ namespace Map
                     Gizmos.DrawLine(p1, p2);
                 }
 
-            }
-
-            if(Blueprint.HoveredObject is HoveredEdges hoveredEdges)
-            {
-                foreach (var edge in hoveredEdges.Edges)
-                {
-                    Gizmos.color = edge.VisualState switch
-                    {
-                        VisualState.Valid => Color.lightBlue,
-                        VisualState.Invalid => Color.red,
-                        VisualState.Overlapping => Color.white,
-                        _ => new Color(0,0,0,0),
-                    };
-
-                    var p1 = GetProjectedPosition(edge.StartTile.PositionOnSphere, 1.014f);
-                    var p2 = GetProjectedPosition(edge.EndTile.PositionOnSphere, 1.014f);
-                    Gizmos.DrawLine(p1, p2);
-                }
             }
 
             var orange = new Color(1.0f, 0.2f, 0.0f);

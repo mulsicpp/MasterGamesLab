@@ -1,3 +1,4 @@
+using Map;
 using UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -33,6 +34,7 @@ public class IngameInputs : MonoBehaviour
         hideBuildPlanAction = controlsActionMap.FindAction("HideBuild");
         cancelAction = controlsActionMap.FindAction("Cancel");
 
+        leftClickAction.performed += ctx => OnLeftClick();
         buildRoadAction.started += ctx => IngameUI.Instance.BuildMode = BuildMode.Road;
         buildCanalAction.started += ctx => IngameUI.Instance.BuildMode = BuildMode.Canal;
         buildPortAction.started += ctx => IngameUI.Instance.BuildMode = BuildMode.Port;
@@ -46,6 +48,15 @@ public class IngameInputs : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
+    }
 
+    public void OnLeftClick()
+    {
+        switch(IngameUI.Instance.BuildMode)
+        {
+            case BuildMode.Road: Construction.StartNewSegment((Tile)Map.Map.Instance.GetCurrentlyHoveredTile(), Edge.EdgeType.Road); break;
+            case BuildMode.Canal: Construction.StartNewSegment((Tile)Map.Map.Instance.GetCurrentlyHoveredTile(), Edge.EdgeType.Canal); break;
+        }
     }
 }
