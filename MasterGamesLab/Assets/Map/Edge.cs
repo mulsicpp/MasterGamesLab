@@ -14,25 +14,23 @@ namespace Map
             Rail
         }
 
-        public enum RoadState : byte
-        {
-            None,
-            RouteSelected,
-            RouteSuggested,
-            RouteCompleted,
-            Planned, // 2tes mal isch geklickt gworden
-            Hologram, // währendn dragen
-            Overlapping // währendn dragen über a gebauten road
-        }
-
         public struct EdgeState : IState, INetworkSerializeByMemcpy
         {
-            public EdgeId Id;
+            public EdgeId Id; 
             public EdgeType Type;
             public PlayerId Owner;
 
             public int ArrayIndex { get => Id; set => Id = new EdgeId(value); }
             public int SerializedSize => FastBufferWriter.GetWriteSize(this);
+        }
+
+        public struct EdgeMeshData
+        {
+            public EdgeId Id; 
+            public EdgeType Type;
+            public PlayerId Owner; // every player has a color; use PlayerManager.Instance.GetPlayerColor(PlayerId)
+            public EdgeType BlueprintType; // the type of the edge in the blueprint
+            public Blueprint.VisualState VisualState; // how should the blueprint edge be displayed
         }
 
         public readonly EdgeId Id;
@@ -43,10 +41,27 @@ namespace Map
         public new Timestamp Timestamp => base.Timestamp;
 
         private EdgeType type;
-        public EdgeType Type { get { return type; } set { type = value; Touch(); } }
+        public EdgeType Type { get { return type; } set { type = value; Touch(); meshChanged = true; } }
 
         private PlayerId owner;
-        public PlayerId Owner { get { return owner; } set { owner = value; Touch(); } }
+        public PlayerId Owner { get { return owner; } set { owner = value; Touch(); meshChanged = true; } }
+
+        private EdgeType blueprintType;
+        public EdgeType BlueprintType { get { return blueprintType; } set { blueprintType = value; meshChanged = true; } }
+
+        public Blueprint.VisualState VisualState
+        {
+            get
+            {
+                if (blueprintType == EdgeType.None) return Blueprint.VisualState.None;
+                if (type == EdgeType.None) return Blueprint.VisualState.Valid;
+                if (type == blueprintType) return Blueprint.VisualState.Overlapping;
+                return Blueprint.VisualState.Invalid;
+            }
+        }
+
+        private bool meshChanged;
+        public bool MeshChanged => meshChanged;
 
         public EdgeState State { 
             get => new EdgeState { Id = Id, Type = type, Owner = owner };
@@ -96,6 +111,18 @@ namespace Map
                 case EdgeType.Rail: return CanBecomeRail();
             }
             return true;
+        }
+
+        public EdgeMeshData RetrieveMeshData()
+        {
+            meshChanged = false;
+            return new EdgeMeshData { 
+                Id = Id,
+                Type = Type,
+                Owner = Owner,
+                BlueprintType = BlueprintType,
+                VisualState = VisualState,
+            };
         }
     }
 }
