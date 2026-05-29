@@ -1,5 +1,8 @@
-
+using System;
+using System.Collections.Generic;
+using Map.GeometryGeneration.Edges;
 using Unity.Netcode;
+using UnityEngine;
 
 namespace Map
 {
@@ -25,12 +28,23 @@ namespace Map
 
         public struct EdgeState : IState, INetworkSerializeByMemcpy
         {
-            public EdgeId Id; 
+            public EdgeId Id;
             public EdgeType Type;
             public PlayerId Owner;
 
-            public int ArrayIndex { get => Id; set => Id = new EdgeId(value); }
+            public int ArrayIndex
+            {
+                get => Id;
+                set => Id = new EdgeId(value);
+            }
+
             public int SerializedSize => FastBufferWriter.GetWriteSize(this);
+        }
+
+        public struct PartialEdgeGeometry
+        {
+            public List<Vector3> Vertices;
+            public List<int> Triangles;
         }
 
         public readonly EdgeId Id;
@@ -41,16 +55,54 @@ namespace Map
         public new Timestamp Timestamp => base.Timestamp;
 
         private EdgeType type;
-        public EdgeType Type { get { return type; } set { type = value; Touch(); TriggerGeometryChange(); } }
+
+        public EdgeType Type
+        {
+            get { return type; }
+            set
+            {
+                type = value;
+                Touch();
+                TriggerGeometryChange();
+            }
+        }
 
         private PlayerId owner;
-        public PlayerId Owner { get { return owner; } set { owner = value; Touch(); TriggerDirty(); } }
+
+        public PlayerId Owner
+        {
+            get { return owner; }
+            set
+            {
+                owner = value;
+                Touch();
+                TriggerDirty();
+            }
+        }
 
         private VisualEdgeState visualState;
-        public VisualEdgeState VisualState { get { return visualState; } set { visualState = value; TriggerDirty(); } }
+
+        public VisualEdgeState VisualState
+        {
+            get { return visualState; }
+            set
+            {
+                visualState = value;
+                TriggerDirty();
+            }
+        }
 
         private EdgeType blueprintType;
-        public EdgeType BlueprintType { get { return blueprintType; } set { blueprintType = value; TriggerGeometryChange(); } }
+
+        public EdgeType BlueprintType
+        {
+            get { return blueprintType; }
+            set
+            {
+                blueprintType = value;
+                TriggerGeometryChange();
+            }
+        }
 
         public bool BlueprintPreview;
 
@@ -66,32 +118,54 @@ namespace Map
             }
         }
 
-        public EdgeState State { 
+        public EdgeState State
+        {
             get => new EdgeState { Id = Id, Type = type, Owner = owner };
-            set { Type = value.Type; Owner = value.Owner; }
+            set
+            {
+                Type = value.Type;
+                Owner = value.Owner;
+            }
         }
 
-        public Edge(EdgeId id, Tile startTile, Tile endTile, EdgeType type, PlayerId playerId)
+        public bool EdgeDirty;
+
+        public Vector3 VertexA { get; private set; }
+        public Vector3 VertexB { get; private set; }
+        private EdgeGeometry geometry;
+        private EdgeGeometry blueprintGeometry;
+
+        public Edge(EdgeId id, Tile startTile, Tile endTile, EdgeType type, PlayerId playerId, Vector3 vertexA,
+            Vector3 vertexB)
         {
             Id = id;
             StartTile = startTile;
             EndTile = endTile;
             this.type = type;
-            this.owner = playerId;
+            owner = playerId;
+            this.VertexA = vertexA;
+            this.VertexB = vertexB;
             Touch();
         }
 
-        public void ApplyServerState(EdgeState state, double _) { State = state; ResetDirty(); }
+        public void ApplyServerState(EdgeState state, double _)
+        {
+            State = state;
+            ResetDirty();
+        }
 
         public bool CanBecomeRoad()
         {
-            return Type == EdgeType.None && StartTile.Type != Tile.TileType.Mountain && StartTile.Type != Tile.TileType.Water && EndTile.Type != Tile.TileType.Mountain && EndTile.Type != Tile.TileType.Water;
+            return Type == EdgeType.None && StartTile.Type != Tile.TileType.Mountain &&
+                   StartTile.Type != Tile.TileType.Water && EndTile.Type != Tile.TileType.Mountain &&
+                   EndTile.Type != Tile.TileType.Water;
         }
 
         public bool CanBecomeCanal()
         {
             if (Type != EdgeType.None) return false;
-            var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWithType(EdgeType.Canal) > 0;
+            var startHasWater = StartTile.Type == Tile.TileType.Water ||
+                                StartTile.CountEdgesWithType(EdgeType.Canal) > 0;
             var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWithType(EdgeType.Canal) > 0;
 
             var startCanBuild = StartTile.Type == Tile.TileType.Plain || StartTile.Type == Tile.TileType.Forest;
@@ -113,7 +187,85 @@ namespace Map
                 case EdgeType.Canal: return CanBecomeCanal();
                 case EdgeType.Rail: return CanBecomeRail();
             }
+
             return true;
+        }
+
+        public void SetGeometryFrom(PartialEdgeGeometry partialGeometry, Tile sender)
+        {
+            if (geometry == null)
+            {
+                geometry = sender.Chunk.RequestNewEdgeGeometry();
+            }
+
+            if (sender.Id == StartTile.Id)
+            {
+                geometry.SetStartMesh(partialGeometry);
+            }
+            else
+            {
+                geometry.SetEndMesh(partialGeometry);
+            }
+
+            geometry.SetRoadColor(PlayerManager.Instance.GetPlayerColor(Owner));
+
+            if (Type == EdgeType.Canal)
+            {
+                geometry.SetRoadColor(new Color(0, 0, 255, 1));
+                geometry.SetLayer(EdgeGeometry.outlineLayer); 
+                geometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
+            }
+
+            // geometry.SetLayer(EdgeGeometry.outlineLayer);
+            // geometry.SetRoadColor(Constants.ROAD_BLUEPRINT_INVALID_COLOR);
+            // geometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_INVALID_OUTLINE);
+        }
+
+        public void SetBluePrintGeometryFrom(PartialEdgeGeometry partialGeometry, Tile sender)
+        {
+            if (blueprintGeometry == null)
+            {
+                blueprintGeometry = sender.Chunk.RequestNewEdgeGeometry();
+            }
+
+            if (sender.Id == StartTile.Id)
+            {
+                blueprintGeometry.SetStartMesh(partialGeometry);
+            }
+            else
+            {
+                blueprintGeometry.SetEndMesh(partialGeometry);
+            }
+
+            switch (BlueprintVisualState)
+            {
+                case Blueprint.VisualState.Valid:
+                    blueprintGeometry.SetLayer(EdgeGeometry.defaultLayer);
+                    blueprintGeometry.SetRoadColor(Constants.ROAD_BLUEPRINT_COLOR);
+                    break;
+                case Blueprint.VisualState.Preview:
+                    blueprintGeometry.SetLayer(EdgeGeometry.defaultLayer);
+                    blueprintGeometry.SetRoadColor(Constants.ROAD_BLUEPRINT_PREVIEW_COLOR);
+                    break;
+                case Blueprint.VisualState.Overlapping:
+                    blueprintGeometry.SetLayer(EdgeGeometry.outlineTransparentLayer);
+                    blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
+                    break;
+                case Blueprint.VisualState.Invalid:
+                    blueprintGeometry.SetLayer(EdgeGeometry.outlineLayer);
+                    blueprintGeometry.SetRoadColor(Constants.ROAD_BLUEPRINT_INVALID_COLOR);
+                    blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_INVALID_OUTLINE);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            blueprintGeometry.SetRoadColor(PlayerManager.Instance.GetPlayerColor(Owner));
+        }
+
+        public void ChangeVisualState()
+        {
+            EdgeDirty = false;
         }
 
         private void TriggerGeometryChange()
@@ -124,8 +276,9 @@ namespace Map
 
         private void TriggerDirty()
         {
-            StartTile.EdgeDirty = true;
-            EndTile.EdgeDirty = true;
+            EdgeDirty = true;
+            // StartTile.EdgeDirty = true;
+            // EndTile.EdgeDirty = true;
         }
     }
 }

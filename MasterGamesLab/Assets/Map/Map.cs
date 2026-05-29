@@ -41,7 +41,7 @@ namespace Map
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
         [SerializeField] private GameObject chunkPrefab;
-        [SerializeField] private GameObject tileRoadsPrefab;
+        [SerializeField] private GameObject edgeGeometryPrefab;
 
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
@@ -135,6 +135,22 @@ namespace Map
                 chunk.RenderTrees();
             }
 
+            foreach (var tile in tiles)
+            {
+                if (tile.GeometryChanged)
+                {
+                    tile.BuildGeometryData();
+                }
+            }
+
+            foreach (var edge in edges)
+            {
+                if (edge.EdgeDirty)
+                {
+                    edge.ResetDirty();
+                }
+            }
+
             MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
             MainCamera.Instance.PlanetControllerEnabled = Running;
 
@@ -150,7 +166,7 @@ namespace Map
         public void AddActiveTile(Tile tile) => activeTiles.Add(tile);
         public void RemoveActiveTile(Tile tile) => activeTiles.Remove(tile);
 
-        public GameObject GetTileRoadsPrefab() => tileRoadsPrefab;
+        public GameObject GetEdgeGeometryPrefab() => edgeGeometryPrefab;
 
         private void UpdateProjectionUniforms()
         {
@@ -186,7 +202,6 @@ namespace Map
 
             currentlyHoveredTileId = ((pixelColor.r << 16) | (pixelColor.g << 8) | pixelColor.b) - ID_OFFSET;
         }
-
 
 
         public void Generate(int seed)
@@ -611,7 +626,6 @@ namespace Map
                     p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.012f);
                     Gizmos.DrawLine(p1, p2);
                 }
-
             }
 
             var orange = new Color(1.0f, 0.2f, 0.0f);

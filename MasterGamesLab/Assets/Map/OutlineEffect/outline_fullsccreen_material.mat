@@ -76,14 +76,14 @@ Material:
     m_Ints: []
     m_Floats:
     - _Float: 0.23
-    - _OutlineThickness: 8
+    - _OutlineThickness: 5
     - _OverlapFactor: 0.5
     - _OverlapFactorInner: 0.15
     - _OverlapFactorInnerColor: 0.1
     - _OverlapFactorOutline: 0.3
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _SampleCount: 2.22
+    - _SampleCount: 4
     - _TextureScale: 0.05
     m_Colors:
     - _Vector3: {r: 0.08, g: 0.37, b: 0.05, a: 0}

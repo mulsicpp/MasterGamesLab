@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Map.Fleet;
 using Map.GeometryGeneration;
-using Map.GeometryGeneration.Roads;
+using Map.GeometryGeneration.Edges;
 using Map.Infrastructure;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -81,7 +81,7 @@ namespace Map
 
         public bool GeometryChanged;
 
-        public bool EdgeDirty;
+        // public bool EdgeDirty;
         public bool StructureDirty;
 
         private readonly List<Tile> neighbors;
@@ -89,9 +89,6 @@ namespace Map
         private bool active;
         private readonly List<Edge> edges;
         private MapChunk.TileGeometryInformation tileGeometryInformation;
-
-        private TileRoads roadsGeometry;
-        private TileRoads fakeRoadsGeometry;
 
         public Tile(Vector3 position)
         {
@@ -219,7 +216,10 @@ namespace Map
                 if (n.Type == TileType.Water && Type == TileType.Water) continue;
                 if (n.Type == TileType.Mountain || Type == TileType.Mountain) continue;
 
-                var edge = new Edge(new EdgeId(edgeList.Count), this, n, Edge.EdgeType.None, PlayerId.NONE);
+                var neighborTile = NeighborTiles.First(nt => nt.Tile == n);
+
+                var edge = new Edge(new EdgeId(edgeList.Count), this, n, Edge.EdgeType.None, PlayerId.NONE,
+                    neighborTile.LeftVertex, neighborTile.RightVertex);
 
                 edges.Add(edge);
                 n.edges.Add(edge);
@@ -273,16 +273,6 @@ namespace Map
             tileGeometryInformation = TileGeometryFactory.BuildFaces(this, cg);
         }
 
-        public void RemoveAndBuildRoads()
-        {
-            if (roadsGeometry == null)
-            {
-                roadsGeometry = Chunk.RequestNewTileRoads();
-            }
-
-            roadsGeometry.BuildRoads(this);
-        }
-
         public void FillTileData(List<Vector4> tileDataList, List<Map.TreeData> treeDataList)
         {
             var tileData = GetTileData();
@@ -296,6 +286,26 @@ namespace Map
                 var tree = treeDataList[i];
                 tree.Active = active ? 1 : 0;
                 treeDataList[i] = tree;
+            }
+        }
+
+        public void BuildGeometryData()
+        {
+            GeometryChanged = false;
+
+            foreach (var edge in edges)
+            {
+                if (edge.Type != Edge.EdgeType.None)
+                {
+                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
+                    edge.SetGeometryFrom(eg, this);
+                }
+
+                if (edge.BlueprintType != Edge.EdgeType.None)
+                {
+                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
+                    edge.SetBluePrintGeometryFrom(eg, this);
+                }
             }
         }
 

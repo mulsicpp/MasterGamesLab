@@ -1,15 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
 
-namespace Map.GeometryGeneration.Roads
+namespace Map.GeometryGeneration.Edges
 {
-    public class TileRoads : MonoBehaviour
+    public class EdgeGeometry : MonoBehaviour
     {
         private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
         private static readonly int InnerColor = Shader.PropertyToID("_InnerColor");
         private static readonly int TextureId = Shader.PropertyToID("_TextureId");
         private static readonly int RoadColor = Shader.PropertyToID("_PlayerColor");
+
+        public static int defaultLayer = -1;
+        public static int outlineLayer;
+        public static int outlineTransparentLayer;
 
         private Color outlineColor;
         private Color innerColor;
@@ -24,15 +27,38 @@ namespace Map.GeometryGeneration.Roads
         private List<Vector3> vertices = new List<Vector3>();
         private List<int> triangles = new List<int>();
 
+        private Edge.PartialEdgeGeometry? startGeometry;
+        private Edge.PartialEdgeGeometry? endGeometry;
+
         private void Awake()
         {
+            if (defaultLayer == -1)
+            {
+                defaultLayer = gameObject.layer;
+                outlineLayer = LayerMask.NameToLayer("Outline");
+                outlineTransparentLayer = LayerMask.NameToLayer("Outline Transparent");
+            }
+
             objRenderer = GetComponent<Renderer>();
             meshFilter = GetComponent<MeshFilter>();
+
+            mesh = new Mesh { name = "CombinedEdgeMesh" };
+            meshFilter.sharedMesh = mesh;
+
+            // Apply initial material properties
+            SetMaterialPropertyBlock();
         }
 
-        // Update is called once per frame
-        private void Update()
+        public void SetStartMesh(Edge.PartialEdgeGeometry startGeometry)
         {
+            this.startGeometry = startGeometry;
+            RebuildMesh();
+        }
+
+        public void SetEndMesh(Edge.PartialEdgeGeometry endGeometry)
+        {
+            this.endGeometry = endGeometry;
+            RebuildMesh();
         }
 
         public void BuildRoads(Tile tile)
@@ -43,7 +69,7 @@ namespace Map.GeometryGeneration.Roads
             var d = tile.NeighborTiles[0];
             var center = tile.PositionOnSphere;
             var edgeMidpoint = (d.LeftVertex + d.RightVertex) / 2;
-            
+
             var up = center.normalized;
             var forward = (center - edgeMidpoint).normalized;
             var right = Vector3.Cross(up, forward).normalized;
@@ -65,7 +91,7 @@ namespace Map.GeometryGeneration.Roads
             Vector3 v6 = center + right * width - up * thickness;
             Vector3 v7 = center - right * width - up * thickness;
 
-            vertices.AddRange(new [] { v0, v1, v2, v3, v4, v5, v6, v7 });
+            vertices.AddRange(new[] { v0, v1, v2, v3, v4, v5, v6, v7 });
 
             // 6 faces, 2 triangles each
             triangles.AddRange(new[]
@@ -91,10 +117,9 @@ namespace Map.GeometryGeneration.Roads
             };
             mesh.RecalculateNormals();
             meshFilter.mesh = mesh;
-
-            SetRoadColor(new Color(1, 0, 0));
-            SetOutlineParameters(Color.white, Color.white, 0);
         }
+
+        public void SetLayer(int layer) => gameObject.layer = layer;
 
         public void SetRoadColor(Color color)
         {
@@ -108,6 +133,51 @@ namespace Map.GeometryGeneration.Roads
             innerColor = colorInner;
             textureId = outlineTextureId;
             SetMaterialPropertyBlock();
+        }
+
+        public void SetOutlineParameters(Constants.OutlineData outlineData)
+        {
+            outlineColor = outlineData.OutlineColor;
+            innerColor = outlineData.InnerColor;
+            textureId = outlineData.TextureId;
+            SetMaterialPropertyBlock();
+        }
+
+        private void RebuildMesh()
+        {
+            vertices.Clear();
+            triangles.Clear();
+
+            var vertexOffset = 0;
+
+            if (startGeometry is { Vertices: not null })
+            {
+                vertices.AddRange(startGeometry.Value.Vertices);
+
+                foreach (var tri in startGeometry.Value.Triangles)
+                {
+                    triangles.Add(tri);
+                }
+
+                vertexOffset += startGeometry.Value.Vertices.Count;
+            }
+
+            if (endGeometry is { Vertices: not null })
+            {
+                vertices.AddRange(endGeometry.Value.Vertices);
+
+                foreach (var tri in endGeometry.Value.Triangles)
+                {
+                    triangles.Add(tri + vertexOffset);
+                }
+            }
+
+            mesh.Clear();
+            mesh.SetVertices(vertices);
+            mesh.SetTriangles(triangles, 0);
+
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
         }
 
         private void SetMaterialPropertyBlock()

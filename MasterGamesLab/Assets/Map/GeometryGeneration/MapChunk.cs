@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Map.GeometryGeneration.Roads;
+using Map.GeometryGeneration.Edges;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -135,10 +135,10 @@ namespace Map.GeometryGeneration
             Graphics.RenderMeshPrimitives(renderParams, treeMesh, 0, treeBuffer.count);
         }
 
-        public TileRoads RequestNewTileRoads()
+        public EdgeGeometry RequestNewEdgeGeometry()
         {
-            var roadsGameObject = Instantiate(Map.Instance.GetTileRoadsPrefab(), transform);
-            return roadsGameObject.GetComponent<TileRoads>();
+            var edgesGameObject = Instantiate(Map.Instance.GetEdgeGeometryPrefab(), transform);
+            return edgesGameObject.GetComponent<EdgeGeometry>();
         }
 
         private void SetTreeBuffer()

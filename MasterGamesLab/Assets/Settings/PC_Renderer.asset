@@ -38,7 +38,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   m_OpaqueLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 695
   m_TransparentLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -73,7 +73,7 @@ MonoBehaviour:
   overrideMaterial: {fileID: 2100000, guid: 164ad1dbebd573f43a1133e4e2fc6628, type: 2}
   outlineLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 2560
 --- !u!114 &6123390037938076137
 MonoBehaviour:
   m_ObjectHideFlags: 0
