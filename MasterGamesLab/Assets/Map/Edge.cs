@@ -14,6 +14,15 @@ namespace Map
             Rail
         }
 
+        public enum VisualEdgeState
+        {
+            None,
+            Hovered,
+            RouteSelected,
+            RouteSuggested,
+            RouteCompleted,
+        }
+
         public struct EdgeState : IState, INetworkSerializeByMemcpy
         {
             public EdgeId Id; 
@@ -24,15 +33,6 @@ namespace Map
             public int SerializedSize => FastBufferWriter.GetWriteSize(this);
         }
 
-        public struct EdgeMeshData
-        {
-            public EdgeId Id; 
-            public EdgeType Type;
-            public PlayerId Owner; // every player has a color; use PlayerManager.Instance.GetPlayerColor(PlayerId)
-            public EdgeType BlueprintType; // the type of the edge in the blueprint
-            public Blueprint.VisualState VisualState; // how should the blueprint edge be displayed
-        }
-
         public readonly EdgeId Id;
 
         public readonly Tile StartTile;
@@ -41,27 +41,30 @@ namespace Map
         public new Timestamp Timestamp => base.Timestamp;
 
         private EdgeType type;
-        public EdgeType Type { get { return type; } set { type = value; Touch(); meshChanged = true; } }
+        public EdgeType Type { get { return type; } set { type = value; Touch(); TriggerGeometryChange(); } }
 
         private PlayerId owner;
-        public PlayerId Owner { get { return owner; } set { owner = value; Touch(); meshChanged = true; } }
+        public PlayerId Owner { get { return owner; } set { owner = value; Touch(); TriggerDirty(); } }
+
+        private VisualEdgeState visualState;
+        public VisualEdgeState VisualState { get { return visualState; } set { visualState = value; TriggerDirty(); } }
 
         private EdgeType blueprintType;
-        public EdgeType BlueprintType { get { return blueprintType; } set { blueprintType = value; meshChanged = true; } }
+        public EdgeType BlueprintType { get { return blueprintType; } set { blueprintType = value; TriggerGeometryChange(); } }
 
-        public Blueprint.VisualState VisualState
+        public bool BlueprintPreview;
+
+        public Blueprint.VisualState BlueprintVisualState
         {
             get
             {
-                if (blueprintType == EdgeType.None) return Blueprint.VisualState.None;
+                if (blueprintType == EdgeType.None) return Blueprint.VisualState.Valid;
+                if (BlueprintPreview) return Blueprint.VisualState.Preview;
                 if (type == EdgeType.None) return Blueprint.VisualState.Valid;
                 if (type == blueprintType) return Blueprint.VisualState.Overlapping;
                 return Blueprint.VisualState.Invalid;
             }
         }
-
-        private bool meshChanged;
-        public bool MeshChanged => meshChanged;
 
         public EdgeState State { 
             get => new EdgeState { Id = Id, Type = type, Owner = owner };
@@ -113,16 +116,16 @@ namespace Map
             return true;
         }
 
-        public EdgeMeshData RetrieveMeshData()
+        private void TriggerGeometryChange()
         {
-            meshChanged = false;
-            return new EdgeMeshData { 
-                Id = Id,
-                Type = Type,
-                Owner = Owner,
-                BlueprintType = BlueprintType,
-                VisualState = VisualState,
-            };
+            StartTile.GeometryChanged = true;
+            EndTile.GeometryChanged = true;
+        }
+
+        private void TriggerDirty()
+        {
+            StartTile.EdgeDirty = true;
+            EndTile.EdgeDirty = true;
         }
     }
 }

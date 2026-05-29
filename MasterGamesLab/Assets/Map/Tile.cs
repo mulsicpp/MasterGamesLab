@@ -42,7 +42,14 @@ namespace Map
 
         public IReadOnlyList<Edge> Edges => edges;
 
-        public Structure Structure { get; set; }
+        private Structure structure { get; set; }
+        public Structure Structure { get => structure; set { structure = value; GeometryChanged = true; } }
+
+        private Structure.StructureType? blueprintStructureType;
+        public Structure.StructureType? BlueprintStructureType { get => blueprintStructureType; set { blueprintStructureType = value; GeometryChanged = true; } }
+
+        private bool blueprintPreview;
+        public bool BlueprintPreview { get => blueprintPreview; set { blueprintPreview = value; StructureDirty = true; } }
 
         public TileType Type
         {
@@ -75,6 +82,12 @@ namespace Map
 
         public readonly float RandomValue;
         public readonly List<NeighborTile> NeighborTiles;
+
+        public bool GeometryChanged;
+
+        public bool EdgeDirty;
+        public bool StructureDirty;
+
         private readonly List<Tile> neighbors;
         private TileType tileType;
         private bool active;
