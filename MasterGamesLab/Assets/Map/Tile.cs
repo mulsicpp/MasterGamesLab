@@ -43,9 +43,14 @@ namespace Map
 
         public IReadOnlyList<Edge> Edges => edges;
 
-        public Structure Structure { get; set; }
-        public Structure.StructureType? BlueprintStructureType;
-        public bool BlueprintPreview;
+        private Structure structure { get; set; }
+        public Structure Structure { get => structure; set { structure = value; GeometryChanged = true; } }
+
+        private Structure.StructureType? blueprintStructureType;
+        public Structure.StructureType? BlueprintStructureType { get => blueprintStructureType; set { blueprintStructureType = value; GeometryChanged = true; } }
+
+        private bool blueprintPreview;
+        public bool BlueprintPreview { get => blueprintPreview; set { blueprintPreview = value; StructureDirty = true; } }
 
         public TileType Type
         {

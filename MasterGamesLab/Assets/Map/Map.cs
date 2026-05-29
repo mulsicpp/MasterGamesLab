@@ -117,6 +117,12 @@ namespace Map
             // Pre-allocate tracking arrays using the total tile capacity count
             Pathfinding.InitBuffers(tiles.Count);
             MovementProfileRegistry.Initialize();
+
+            //debug
+            if (LobbyLogic.Instance == null)
+            {
+                Generate(UnityEngine.Random.Range(int.MinValue, int.MaxValue));
+            }
         }
 
         private void Update()
@@ -215,6 +221,7 @@ namespace Map
             //    else if (tile.PositionOnSphere.z < -0.7f) tile.Type = Tile.TileType.Plain;
             //    else tile.Type = Tile.TileType.Water;
             //}
+
             UnityEngine.Random.InitState(seed);
             ProceduralMapGenerator.GenerateMap(this);
 
