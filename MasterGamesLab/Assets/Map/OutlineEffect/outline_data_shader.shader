@@ -1,0 +1,89 @@
+Shader "Hidden/OutlineDataShader"
+{
+    Properties
+    {
+        _OutlineColor ("Outline Color", Color) = (1,1,1,1)
+        _InnerColor ("Inner Color", Color) = (1,0,0,0.5)
+        _TextureId ("Texture ID", Float) = 0
+    }
+    SubShader
+    {
+        Tags
+        {
+            "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline"
+        }
+        LOD 100
+
+        Pass
+        {
+            Name "OutlineData"
+            Tags
+            {
+                "LightMode" = "UniversalForward"
+            }
+
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            // Required so the MaterialPropertyBlock on your objects works
+            #pragma multi_compile_instancing
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct Varyings
+            {
+                float4 positionCS : SV_POSITION;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            // Declare our properties so they can be changed per-object
+            UNITY_INSTANCING_BUFFER_START(Props)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _OutlineColor)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _InnerColor)
+                UNITY_DEFINE_INSTANCED_PROP(float, _TextureId)
+            UNITY_INSTANCING_BUFFER_END(Props)
+
+            Varyings vert(Attributes input)
+            {
+                Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                return output;
+            }
+
+            // This struct allows us to output to 3 Render Targets at once
+            struct FragmentOutput
+            {
+                float4 color0 : SV_Target0;
+                float4 color1 : SV_Target1;
+                float4 color2 : SV_Target2;
+            };
+
+            FragmentOutput frag(Varyings input)
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
+                FragmentOutput output;
+
+                // Target 0: Outline Color (RGBA)
+                output.color0 = UNITY_ACCESS_INSTANCED_PROP(Props, _OutlineColor);
+
+                // Target 1: Inner Color (RGBA)
+                output.color1 = UNITY_ACCESS_INSTANCED_PROP(Props, _InnerColor);
+
+                // Target 2: R = TextureID, G = 1.0 (Our Mask), B = 0, A = 0
+                float texID = UNITY_ACCESS_INSTANCED_PROP(Props, _TextureId);
+                output.color2 = float4(texID / 255.0, 1.0, 0.0, 0.0);
+
+                return output;
+            }
+            ENDHLSL
+        }
+    }
+}

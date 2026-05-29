@@ -18,5 +18,16 @@
                 <ui:Button text="Freighter" name="BuyFreighterButton" class="button element ingame-build-button"/>
             </SquareElement>
         </ui:GroupBox>
+        <ui:GroupBox name="ConfirmMenu" class="element" style="position: absolute; bottom: 0%; width: 100%; height: 5.625%; margin-bottom: 2%; margin-right: 2%; right: 0; align-items: auto; justify-content: flex-end; flex-direction: row;">
+            <SquareElement class="element" style="height: 100%; width: auto; margin-right: 2%;">
+                <ui:Button text="Confirm" name="ConfirmButton" class="element button" style="width: 100%; height: 100%;"/>
+            </SquareElement>
+            <SquareElement class="element" style="height: 100%; width: auto; margin-right: 2%;">
+                <ui:Button text="Cancel" name="CancelButton" class="element button" style="width: 100%; height: 100%;"/>
+            </SquareElement>
+            <SquareElement class="element" style="height: 100%; width: auto;">
+                <ui:Button text="hide" name="HideButton" class="element button" style="width: 100%; height: 100%;"/>
+            </SquareElement>
+        </ui:GroupBox>
     </ui:VisualElement>
 </ui:UXML>
