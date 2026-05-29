@@ -1,38 +1,38 @@
-
 using System;
-using Unity.Networking.Transport.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace UI
 {
+    [RequireComponent(typeof(UIDocument))]
     public class IngameUI : MonoBehaviour
     {
+        public static IngameUI Instance { get; private set; }
+
+        private void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
+        }
+
         private VisualElement root;
         private Button buildRoadButton;
         private Button buildCanalButton;
-
         private Button buildPortButton;
-
         private Button buyTruckButton;
-
         private Button buyFreighterButton;
-
-        private Button currentActiveButton;
         private Button confirmButton;
         private Button cancelButton;
         private Button hideButton;
 
-
-        private BuildMode buildMode;
-
-
-        [SerializeField] private InputActionAsset inputActions;
-        private InputActionMap controlsActionMap;
-        private InputAction leftClickAction;
-
-        bool showpath = false;
+        private Button currentActiveButton;
+        private BuildMode buildMode = BuildMode.None;
+        private bool showpath = false;
 
         private const string activeClass = "ingame-build-button--active";
 
@@ -42,6 +42,7 @@ namespace UI
             set
             {
                 currentActiveButton?.RemoveFromClassList(activeClass);
+
                 if (buildMode == value)
                 {
                     buildMode = BuildMode.None;
@@ -78,6 +79,7 @@ namespace UI
         void OnEnable()
         {
             root = GetComponent<UIDocument>().rootVisualElement;
+
             buildRoadButton = root.Q<Button>("BuildRoadButton");
             buildCanalButton = root.Q<Button>("BuildCanalButton");
             buildPortButton = root.Q<Button>("BuildPortButton");
@@ -87,65 +89,48 @@ namespace UI
             cancelButton = root.Q<Button>("CancelButton");
             hideButton = root.Q<Button>("HideButton");
 
+            buildRoadButton.clicked += () => BuildMode = BuildMode.Road;
+            buildCanalButton.clicked += () => BuildMode = BuildMode.Canal;
+            buildPortButton.clicked += () => BuildMode = BuildMode.Port;
+            buyTruckButton.clicked += () => BuildMode = BuildMode.Truck;
+            buyFreighterButton.clicked += () => BuildMode = BuildMode.Freighter;
 
-            buildRoadButton.clicked += OnBuildRoadButtonPressed;
-            buildCanalButton.clicked += OnBuildCanalButtonPressed;
-            buildPortButton.clicked += OnBuildPortButtonPressed;
-            buyTruckButton.clicked += OnBuyTruckButtonPressed;
-            buyFreighterButton.clicked += OnBuyFreighterButtonPressed;
             confirmButton.clicked += OnConfirmPressed;
             cancelButton.clicked += OnCancelPressed;
             hideButton.clicked += OnHidePressed;
-
-
-
-            controlsActionMap = inputActions.FindActionMap("Controls");
-            leftClickAction = controlsActionMap.FindAction("LeftClick");
         }
 
-        private void OnBuildRoadButtonPressed()
+        void OnDisable()
         {
-            BuildMode = BuildMode.Road;
+            if (buildRoadButton == null) return;
+
+            buildRoadButton.clicked -= () => BuildMode = BuildMode.Road;
+            buildCanalButton.clicked -= () => BuildMode = BuildMode.Canal;
+            buildPortButton.clicked -= () => BuildMode = BuildMode.Port;
+            buyTruckButton.clicked -= () => BuildMode = BuildMode.Truck;
+            buyFreighterButton.clicked -= () => BuildMode = BuildMode.Freighter;
+
+            confirmButton.clicked -= OnConfirmPressed;
+            cancelButton.clicked -= OnCancelPressed;
+            hideButton.clicked -= OnHidePressed;
         }
 
-        private void OnBuildCanalButtonPressed()
-        {
-            BuildMode = BuildMode.Canal;
-        }
-
-        private void OnBuildPortButtonPressed()
-        {
-            BuildMode = BuildMode.Port;
-        }
-
-        private void OnBuyTruckButtonPressed()
-        {
-            BuildMode = BuildMode.Truck;
-        }
-
-        private void OnBuyFreighterButtonPressed()
-        {
-            BuildMode = BuildMode.Freighter;
-        }
-        private void OnConfirmPressed()
+        public void OnConfirmPressed()
         {
             BuildMode = BuildMode.None;
-            confirmButton.style.display = DisplayStyle.None;
-            cancelButton.style.display = DisplayStyle.None;
+            SetActionButtonsVisibility(false);
         }
-        private void OnCancelPressed()
+
+        public void OnCancelPressed()
         {
             BuildMode = BuildMode.None;
-
-            confirmButton.style.display = DisplayStyle.None;
-            cancelButton.style.display = DisplayStyle.None;
-
+            SetActionButtonsVisibility(false);
         }
-        private void OnHidePressed()
+
+        public void OnHidePressed()
         {
-            BuildMode = BuildMode == BuildMode.Hidden ? BuildMode.None : BuildMode.Hidden;
+            BuildMode = (BuildMode == BuildMode.Hidden) ? BuildMode.None : BuildMode.Hidden;
         }
-
 
         private void SetMenuVisibility(bool visible)
         {
@@ -159,23 +144,21 @@ namespace UI
             buyFreighterButton.style.display = style;
             buyTruckButton.style.display = style;
         }
+
+        private void SetActionButtonsVisibility(bool visible)
+        {
+            DisplayStyle style = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            confirmButton.style.display = style;
+            cancelButton.style.display = style;
+        }
+
         private void buildRoad(InputAction.CallbackContext context)
         {
-            if (BuildMode != BuildMode.Road)
-                return;
+            if (BuildMode != BuildMode.Road) return;
             showpath = true;
         }
 
-        public void Show()
-        {
-            root.style.display = DisplayStyle.Flex;
-            leftClickAction.started += buildRoad;
-        }
-
-        public void Hide()
-        {
-            root.style.display = DisplayStyle.None;
-            leftClickAction.started -= buildRoad;
-        }
+        public void Show() => root.style.display = DisplayStyle.Flex;
+        public void Hide() => root.style.display = DisplayStyle.None;
     }
 }

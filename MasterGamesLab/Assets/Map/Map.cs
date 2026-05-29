@@ -130,6 +130,14 @@ namespace Map
                 chunk.RenderTrees();
             }
 
+            var edgeMeshData = new List<Edge.EdgeMeshData>();
+            foreach(var edge in edges)
+            {
+                if (edge.MeshChanged) edgeMeshData.Add(edge.RetrieveMeshData());
+            }
+
+            UpdateEdgeMesh(edgeMeshData);
+
             MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
             MainCamera.Instance.PlanetControllerEnabled = Running;
 
@@ -180,6 +188,27 @@ namespace Map
             var pixelColor = colorData[0];
 
             currentlyHoveredTileId = ((pixelColor.r << 16) | (pixelColor.g << 8) | pixelColor.b) - ID_OFFSET;
+        }
+
+        
+        public void UpdateEdgeMesh(List<Edge.EdgeMeshData> edgeMeshData)
+        {
+            // TODO 
+        }
+
+        public void ClearHoveredMesh()
+        {
+            // TODO
+        }
+
+        public void SetHoveredMesh(List<Blueprint.HoveredEdge> hoveredEdges)
+        {
+            // TODO
+        }
+
+        public void SetHoveredMesh(Blueprint.HoveredStructure structure)
+        {
+            // TODO
         }
 
         public void Generate(int seed)

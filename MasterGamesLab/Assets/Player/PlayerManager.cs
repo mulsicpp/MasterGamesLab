@@ -165,6 +165,11 @@ public class PlayerManager : NetworkBehaviour
         int index = Array.FindIndex(Players, data => data.ClientId == clientId);
         return index == -1 ? PlayerId.NONE : new PlayerId((byte)index);
     }
+
+    public Color GetPlayerColor(PlayerId playerId)
+    {
+        return Constants.PLAYER_COLORS[playerId % Constants.MAX_PLAYER_COUNT];
+    }
 }
 
 [System.Serializable]
