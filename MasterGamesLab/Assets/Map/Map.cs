@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using Map.Fleet;
+using Map.Blueprint;
 
 namespace Map
 {
@@ -34,6 +35,8 @@ namespace Map
         public IReadOnlyList<Edge> Edges => edges;
         public IReadOnlyInfrastructure Infrastructure => infrastructure;
         public IReadOnlyFleet Fleet => fleet;
+
+        public Blueprint.Blueprint Blueprint;
 
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
@@ -78,6 +81,8 @@ namespace Map
             edges = Array.Empty<Edge>();
             infrastructure = new Infrastructure.Infrastructure();
             fleet = new Fleet.Fleet();
+
+            Blueprint = new Blueprint.Blueprint();
 
             var currentId = 0;
             foreach (var chunkPoints in chunksPoints)
@@ -587,6 +592,40 @@ namespace Map
                     Gizmos.DrawSphere(midPoint, 0.004f);
                     midPoint = (p1 + 3 * p2) / 4.0f;
                     Gizmos.DrawSphere(midPoint, 0.004f);
+                }
+
+                if (edges[i].BlueprintType != Edge.EdgeType.None)
+                {
+                    Gizmos.color = edges[i].VisualState switch
+                    {
+                        VisualState.Valid => Color.lightBlue,
+                        VisualState.Invalid => Color.red,
+                        VisualState.Overlapping => Color.white,
+                        _ => new Color(0, 0, 0, 0),
+                    };
+
+                    p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.012f);
+                    p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.012f);
+                    Gizmos.DrawLine(p1, p2);
+                }
+
+            }
+
+            if(Blueprint.HoveredObject is HoveredEdges hoveredEdges)
+            {
+                foreach (var edge in hoveredEdges.Edges)
+                {
+                    Gizmos.color = edge.VisualState switch
+                    {
+                        VisualState.Valid => Color.lightBlue,
+                        VisualState.Invalid => Color.red,
+                        VisualState.Overlapping => Color.white,
+                        _ => new Color(0,0,0,0),
+                    };
+
+                    var p1 = GetProjectedPosition(edge.StartTile.PositionOnSphere, 1.014f);
+                    var p2 = GetProjectedPosition(edge.EndTile.PositionOnSphere, 1.014f);
+                    Gizmos.DrawLine(p1, p2);
                 }
             }
 

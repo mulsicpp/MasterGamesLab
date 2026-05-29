@@ -9,9 +9,13 @@ namespace Map.Blueprint
         private List<EdgeId> edgeIds;
         public IReadOnlyList<EdgeId> EdgeIds => edgeIds;
 
+        private IHoveredObject hoveredObject;
+        public IHoveredObject HoveredObject => hoveredObject;
+
         public Blueprint()
         {
             edgeIds = new List<EdgeId>();
+            hoveredObject = null;
         }
 
         public bool AddEdge(EdgeId id, Edge.EdgeType type)
@@ -33,6 +37,21 @@ namespace Map.Blueprint
             foreach(var id in edgeIds)
                 Map.Instance.Edges[id].BlueprintType = Edge.EdgeType.None;
             edgeIds.Clear();
+        }
+
+        public void SetHoveredObject(IHoveredObject hoveredObject)
+        {
+            if (hoveredObject is HoveredEdges edges)
+                Map.Instance.SetHoveredMesh(edges.Edges);
+            else if (hoveredObject is HoveredStructure structure)
+                Map.Instance.SetHoveredMesh(structure);
+            else
+                Map.Instance.ClearHoveredMesh();
+        }
+
+        public void ApplyHoveredObject()
+        {
+            // TODO implement
         }
     }
 }
