@@ -101,7 +101,7 @@ namespace Map
                 chunks.Add(chunk);
             }
 
-            ProceduralMapGenerator.GenerateMap(this);
+            //ProceduralMapGenerator.GenerateMap(this);
 
             foreach (var chunk in chunks)
             {
@@ -217,13 +217,15 @@ namespace Map
         {
             Debug.Log("Generating world with seed " + seed + " ...");
 
-            foreach (var tile in tiles)
-            {
-                if (tile.PositionOnSphere.z < -0.97f) tile.Type = Tile.TileType.Mountain;
-                else if (tile.PositionOnSphere.z < -0.9f) tile.Type = Tile.TileType.Forest;
-                else if (tile.PositionOnSphere.z < -0.7f) tile.Type = Tile.TileType.Plain;
-                else tile.Type = Tile.TileType.Water;
-            }
+            //foreach (var tile in tiles)
+            //{
+            //    if (tile.PositionOnSphere.z < -0.97f) tile.Type = Tile.TileType.Mountain;
+            //    else if (tile.PositionOnSphere.z < -0.9f) tile.Type = Tile.TileType.Forest;
+            //    else if (tile.PositionOnSphere.z < -0.7f) tile.Type = Tile.TileType.Plain;
+            //    else tile.Type = Tile.TileType.Water;
+            //}
+            UnityEngine.Random.InitState(seed);
+            ProceduralMapGenerator.GenerateMap(this);
 
             InitEdges();
 
