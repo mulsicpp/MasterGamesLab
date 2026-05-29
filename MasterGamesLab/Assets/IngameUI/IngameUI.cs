@@ -1,5 +1,8 @@
 
+using System;
+using Unity.Networking.Transport.Utilities;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace UI
@@ -21,6 +24,13 @@ namespace UI
 
         private BuildMode buildMode;
 
+
+        [SerializeField] private InputActionAsset inputActions;
+        private InputActionMap controlsActionMap;
+        private InputAction leftClickAction;
+
+        bool showpath = false;
+
         private const string activeClass = "ingame-build-button--active";
 
         public BuildMode BuildMode
@@ -28,9 +38,12 @@ namespace UI
             get => buildMode;
             set
             {
-                Debug.Log(value);
-                if (buildMode == value) return;
                 currentActiveButton?.RemoveFromClassList(activeClass);
+                if (buildMode == value)
+                {
+                    BuildMode = BuildMode.None;
+                    return;
+                }
                 switch (value)
                 {
                     case BuildMode.Road:
@@ -73,6 +86,9 @@ namespace UI
             buildPortButton.clicked += OnBuildPortButtonPressed;
             buyTruckButton.clicked += OnBuyTruckButtonPressed;
             buyFreighterButton.clicked += OnBuyFreighterButtonPressed;
+
+            controlsActionMap = inputActions.FindActionMap("Controls");
+            leftClickAction = controlsActionMap.FindAction("LeftClick");
         }
 
         private void OnBuildRoadButtonPressed()
@@ -100,14 +116,23 @@ namespace UI
             BuildMode = BuildMode.Freighter;
         }
 
+        private void buildRoad(InputAction.CallbackContext context)
+        {
+            if (BuildMode != BuildMode.Road)
+                return;
+            showpath = true;
+        }
+
         public void Show()
         {
             root.style.display = DisplayStyle.Flex;
+            leftClickAction.started += buildRoad;
         }
 
         public void Hide()
         {
             root.style.display = DisplayStyle.None;
+            leftClickAction.started -= buildRoad;
         }
     }
 }
