@@ -20,6 +20,9 @@ namespace UI
         private Button buyFreighterButton;
 
         private Button currentActiveButton;
+        private Button confirmButton;
+        private Button cancelButton;
+        private Button hideButton;
 
 
         private BuildMode buildMode;
@@ -41,32 +44,33 @@ namespace UI
                 currentActiveButton?.RemoveFromClassList(activeClass);
                 if (buildMode == value)
                 {
-                    BuildMode = BuildMode.None;
+                    buildMode = BuildMode.None;
+                    currentActiveButton = null;
                     return;
                 }
-                switch (value)
+
+                if (value == BuildMode.Hidden)
                 {
-                    case BuildMode.Road:
-                        currentActiveButton = buildRoadButton;
-                        break;
-                    case BuildMode.Canal:
-                        currentActiveButton = buildCanalButton;
-                        break;
-                    case BuildMode.Port:
-                        currentActiveButton = buildPortButton;
-                        break;
-                    case BuildMode.Freighter:
-                        currentActiveButton = buyFreighterButton;
-                        break;
-                    case BuildMode.Truck:
-                        currentActiveButton = buyTruckButton;
-                        break;
-                    default:
-                        currentActiveButton = null;
-                        break;
+                    SetMenuVisibility(false);
+                    currentActiveButton = null;
                 }
-                currentActiveButton?.AddToClassList(activeClass);
-                Debug.Log(currentActiveButton?.ClassListContains(activeClass));
+                else
+                {
+                    if (buildMode == BuildMode.Hidden) SetMenuVisibility(true);
+
+                    currentActiveButton = value switch
+                    {
+                        BuildMode.Road => buildRoadButton,
+                        BuildMode.Canal => buildCanalButton,
+                        BuildMode.Port => buildPortButton,
+                        BuildMode.Freighter => buyFreighterButton,
+                        BuildMode.Truck => buyTruckButton,
+                        _ => null
+                    };
+
+                    currentActiveButton?.AddToClassList(activeClass);
+                }
+
                 buildMode = value;
             }
         }
@@ -79,6 +83,9 @@ namespace UI
             buildPortButton = root.Q<Button>("BuildPortButton");
             buyTruckButton = root.Q<Button>("BuyTruckButton");
             buyFreighterButton = root.Q<Button>("BuyFreighterButton");
+            confirmButton = root.Q<Button>("ConfirmButton");
+            cancelButton = root.Q<Button>("CancelButton");
+            hideButton = root.Q<Button>("HideButton");
 
 
             buildRoadButton.clicked += OnBuildRoadButtonPressed;
@@ -86,6 +93,11 @@ namespace UI
             buildPortButton.clicked += OnBuildPortButtonPressed;
             buyTruckButton.clicked += OnBuyTruckButtonPressed;
             buyFreighterButton.clicked += OnBuyFreighterButtonPressed;
+            confirmButton.clicked += OnConfirmPressed;
+            cancelButton.clicked += OnCancelPressed;
+            hideButton.clicked += OnHidePressed;
+
+
 
             controlsActionMap = inputActions.FindActionMap("Controls");
             leftClickAction = controlsActionMap.FindAction("LeftClick");
@@ -115,7 +127,38 @@ namespace UI
         {
             BuildMode = BuildMode.Freighter;
         }
+        private void OnConfirmPressed()
+        {
+            BuildMode = BuildMode.None;
+            confirmButton.style.display = DisplayStyle.None;
+            cancelButton.style.display = DisplayStyle.None;
+        }
+        private void OnCancelPressed()
+        {
+            BuildMode = BuildMode.None;
 
+            confirmButton.style.display = DisplayStyle.None;
+            cancelButton.style.display = DisplayStyle.None;
+
+        }
+        private void OnHidePressed()
+        {
+            BuildMode = BuildMode == BuildMode.Hidden ? BuildMode.None : BuildMode.Hidden;
+        }
+
+
+        private void SetMenuVisibility(bool visible)
+        {
+            DisplayStyle style = visible ? DisplayStyle.Flex : DisplayStyle.None;
+
+            confirmButton.style.display = style;
+            cancelButton.style.display = style;
+            buildCanalButton.style.display = style;
+            buildRoadButton.style.display = style;
+            buildPortButton.style.display = style;
+            buyFreighterButton.style.display = style;
+            buyTruckButton.style.display = style;
+        }
         private void buildRoad(InputAction.CallbackContext context)
         {
             if (BuildMode != BuildMode.Road)
