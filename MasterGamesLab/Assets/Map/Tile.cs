@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Map.Fleet;
 using Map.GeometryGeneration;
+using Map.GeometryGeneration.Roads;
 using Map.Infrastructure;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -80,6 +81,9 @@ namespace Map
         private bool active;
         private readonly List<Edge> edges;
         private MapChunk.TileGeometryInformation tileGeometryInformation;
+
+        private TileRoads roadsGeometry;
+        private TileRoads fakeRoadsGeometry;
 
         public Tile(Vector3 position)
         {
@@ -225,11 +229,13 @@ namespace Map
                     count++;
                 }
             }
+
             return count;
         }
 
         public Edge FindEdgeTo(ITile other)
-            => edges.FirstOrDefault(edge => (edge.StartTile == this && edge.EndTile == other) || (edge.StartTile == other && edge.EndTile == this));
+            => edges.FirstOrDefault(edge =>
+                (edge.StartTile == this && edge.EndTile == other) || (edge.StartTile == other && edge.EndTile == this));
 
 
         public bool CanSpawnStructure(Structure.StructureType type)
@@ -246,19 +252,27 @@ namespace Map
 
         public bool CanSpawnVehicle(Vehicle.VehicleType type)
         {
-            switch (type)
+            return type switch
             {
-                case Vehicle.VehicleType.Truck: return Type == TileType.Plain || Type == TileType.Forest;
-                case Vehicle.VehicleType.Freighter: return Type == TileType.Water;
-            }
-
-            return false;
+                Vehicle.VehicleType.Truck => Type is TileType.Plain or TileType.Forest,
+                Vehicle.VehicleType.Freighter => Type == TileType.Water,
+                _ => false
+            };
         }
 
-        
         public void BuildFaces(MapChunk.ChunkGeometry cg)
         {
             tileGeometryInformation = TileGeometryFactory.BuildFaces(this, cg);
+        }
+
+        public void RemoveAndBuildRoads()
+        {
+            if (roadsGeometry == null)
+            {
+                roadsGeometry = Chunk.RequestNewTileRoads();
+            }
+
+            roadsGeometry.BuildRoads(this);
         }
 
         public void FillTileData(List<Vector4> tileDataList, List<Map.TreeData> treeDataList)

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-6570847981549177140
+--- !u!114 &-5502911087543728691
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,13 +20,13 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: outline_fullsccreen_material
-  m_Shader: {fileID: -6465566751694194690, guid: 52605115c92f0a244a1509b851878189, type: 3}
+  m_Name: tile_road_material
+  m_Shader: {fileID: -6465566751694194690, guid: daac058a6dc23184f9ded29a7deeed0a, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
-  m_LightmapFlags: 4
+  m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -37,28 +37,8 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _OutlineData1:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _OutlineData2:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _OutlineData3:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _OutlineDepth:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _PatternTextures:
-        m_Texture: {fileID: 18700000, guid: 4f2ab4c3163e85f41a8efac22c144031, type: 2}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _SampleTexture2D_746269d4822447c1967fae98e4529742_Texture_1_Texture2D:
-        m_Texture: {fileID: 0}
+    - _SampleTexture2D_95c1b6f5bde7487aab7e4eaa797b8443_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 00fd9c154b5124f42975afa25d582086, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -75,17 +55,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Float: 0.23
-    - _OutlineThickness: 8
-    - _OverlapFactor: 0.5
-    - _OverlapFactorInner: 0.15
-    - _OverlapFactorInnerColor: 0.1
-    - _OverlapFactorOutline: 0.3
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _SampleCount: 2.22
-    - _TextureScale: 0.05
-    m_Colors:
-    - _Vector3: {r: 0.08, g: 0.37, b: 0.05, a: 0}
+    - _tile_variation_amount: 0
+    m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
