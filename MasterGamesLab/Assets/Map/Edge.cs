@@ -45,6 +45,9 @@ namespace Map
         {
             public List<Vector3> Vertices;
             public List<int> Triangles;
+
+            public static PartialEdgeGeometry Empty => new PartialEdgeGeometry
+                { Vertices = new List<Vector3>(), Triangles = new List<int>() };
         }
 
         public readonly EdgeId Id;
@@ -229,7 +232,7 @@ namespace Map
             if (Type == EdgeType.Canal)
             {
                 geometry.SetRoadColor(new Color(0, 0, 255, 1));
-                geometry.SetLayer(EdgeGeometry.outlineLayer); 
+                geometry.SetLayer(EdgeGeometry.outlineLayer);
                 geometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
             }
 
@@ -276,8 +279,6 @@ namespace Map
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            blueprintGeometry.SetRoadColor(PlayerManager.Instance.GetPlayerColor(Owner));
         }
 
         public void ChangeVisualState()

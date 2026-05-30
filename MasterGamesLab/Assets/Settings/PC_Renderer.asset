@@ -71,6 +71,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Map.OutlineEffect.OutlineDataFeature
   m_Active: 1
   overrideMaterial: {fileID: 2100000, guid: 164ad1dbebd573f43a1133e4e2fc6628, type: 2}
+  expandMaterialAllChannels: {fileID: 2100000, guid: 3a6dd417c6bb13d4fac362b082d6a2f5, type: 2}
+  expandMaterialDepth: {fileID: 2100000, guid: 0f292494fdc2e614bb6346400adef4d7, type: 2}
   outlineLayer:
     serializedVersion: 2
     m_Bits: 2560

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Map.Blueprint;
 using Map.Fleet;
 using Map.GeometryGeneration;
 using Map.GeometryGeneration.Edges;
@@ -44,13 +45,40 @@ namespace Map
         public IReadOnlyList<Edge> Edges => edges;
 
         private Structure structure { get; set; }
-        public Structure Structure { get => structure; set { structure = value; GeometryChanged = true; } }
+
+        public Structure Structure
+        {
+            get => structure;
+            set
+            {
+                structure = value;
+                GeometryChanged = true;
+            }
+        }
 
         private Structure.StructureType? blueprintStructureType;
-        public Structure.StructureType? BlueprintStructureType { get => blueprintStructureType; set { blueprintStructureType = value; GeometryChanged = true; } }
+
+        public Structure.StructureType? BlueprintStructureType
+        {
+            get => blueprintStructureType;
+            set
+            {
+                blueprintStructureType = value;
+                GeometryChanged = true;
+            }
+        }
 
         private bool blueprintPreview;
-        public bool BlueprintPreview { get => blueprintPreview; set { blueprintPreview = value; StructureDirty = true; } }
+
+        public bool BlueprintPreview
+        {
+            get => blueprintPreview;
+            set
+            {
+                blueprintPreview = value;
+                StructureDirty = true;
+            }
+        }
 
         public TileType Type
         {
@@ -300,17 +328,31 @@ namespace Map
 
             foreach (var edge in edges)
             {
-                if (edge.Type != Edge.EdgeType.None)
+                if (edge.Type == Edge.EdgeType.None)
+                {
+                    edge.SetGeometryFrom(Edge.PartialEdgeGeometry.Empty, this);
+                }
+                else
                 {
                     var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
                     edge.SetGeometryFrom(eg, this);
                 }
 
-                if (edge.BlueprintType != Edge.EdgeType.None)
+                if (edge.BlueprintType == Edge.EdgeType.None)
+                {
+                    edge.SetBluePrintGeometryFrom(Edge.PartialEdgeGeometry.Empty, this);
+                }
+                else
                 {
                     var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
                     edge.SetBluePrintGeometryFrom(eg, this);
                 }
+                /*else
+                {
+                    edge.BlueprintType = Edge.EdgeType.Road;
+                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
+                    edge.SetBluePrintGeometryFrom(eg, this);
+                }*/
             }
         }
 
