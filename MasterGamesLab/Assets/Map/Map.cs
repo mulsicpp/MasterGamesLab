@@ -46,6 +46,8 @@ namespace Map
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
 
+        [SerializeField] private bool renderTrees = true;
+
         public struct TreeData
         {
             public Vector3 Position;
@@ -138,7 +140,8 @@ namespace Map
                     chunk.UpdateTileData();
                 }
 
-                chunk.RenderTrees();
+                if(renderTrees)
+                    chunk.RenderTrees();
             }
 
             foreach (var tile in tiles)
