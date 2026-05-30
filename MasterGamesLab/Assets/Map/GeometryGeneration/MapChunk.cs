@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Map.GeometryGeneration.Edges;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -123,19 +124,21 @@ namespace Map.GeometryGeneration
                 return;
             }
 
-            // 1. Create the new RenderParams struct and assign your material
             var renderParams = new RenderParams(treeMaterial)
             {
-                // 2. Assign the massive bounds we calculated in Start() 
-                // (This is crucial so Unity doesn't cull the trees when unrolled)
                 worldBounds = renderBounds,
                 matProps = mpb,
                 shadowCastingMode = ShadowCastingMode.On,
                 receiveShadows = false,
             };
 
-            // 3. Draw the meshes using the modern Unity 6 API
             Graphics.RenderMeshPrimitives(renderParams, treeMesh, 0, treeBuffer.count);
+        }
+
+        public EdgeGeometry RequestNewEdgeGeometry()
+        {
+            var edgesGameObject = Instantiate(Map.Instance.GetEdgeGeometryPrefab(), transform);
+            return edgesGameObject.GetComponent<EdgeGeometry>();
         }
 
         private void SetTreeBuffer()
@@ -145,7 +148,7 @@ namespace Map.GeometryGeneration
                 treeBuffer.Release();
                 treeBuffer = null;
             }
-            
+
             if (treeData == null || treeData.Count == 0)
             {
                 return;
