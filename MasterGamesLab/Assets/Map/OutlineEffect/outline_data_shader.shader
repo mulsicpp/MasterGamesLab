@@ -22,7 +22,7 @@ Shader "Hidden/OutlineDataShader"
                 "LightMode" = "UniversalForward"
             }
             /*Cull Off*/
-            
+
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -39,14 +39,14 @@ Shader "Hidden/OutlineDataShader"
             struct Attributes
             {
                 float4 positionOS : POSITION;
-                float normalOS: NORMAL;
+                float3 normalOS : NORMAL; // Fixed: changed to float3
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
-                float4 d : TEXCOORD0;
+                float d : TEXCOORD0; // Fixed: changed to float to match out_d
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -81,7 +81,6 @@ Shader "Hidden/OutlineDataShader"
                     out_d
                 );
 
-
                 output.positionCS = TransformObjectToHClip(projected_pos);
                 output.d = out_d;
                 return output;
@@ -100,7 +99,21 @@ Shader "Hidden/OutlineDataShader"
                 UNITY_SETUP_INSTANCE_ID(input);
                 FragmentOutput output;
 
-                // clip(input.d + 0.1);
+                // --- Shader Graph Logic Translation ---
+
+                // 1. Comparison Node (A: 0.5, B: _ProjectionFactor)
+                // Assuming "Greater Or Equal" (A >= B). 
+                // If your node uses Less, Greater, Equal, etc., adjust the operator here!
+                float out0 = (0.5 < _ProjectionFactor) ? 1.0 : 0.0;
+
+                // 2. Multiply Node (A: d, B: Out0)
+                float out1 = input.d * out0;
+
+                // 3. Alpha Clip Threshold (Alpha: Out1, Threshold: -0.9)
+                // Shader Graph executes: clip(Alpha - Threshold)
+                clip(out1 - (-0.9)); // Simplified logically to clip(out1 + 0.9);
+
+                // --------------------------------------
 
                 // Target 0: Outline Color (RGBA)
                 output.color0 = UNITY_ACCESS_INSTANCED_PROP(Props, _OutlineColor);

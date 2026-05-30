@@ -45,6 +45,9 @@ namespace Map
         {
             public List<Vector3> Vertices;
             public List<int> Triangles;
+
+            public static PartialEdgeGeometry Empty => new PartialEdgeGeometry
+                { Vertices = new List<Vector3>(), Triangles = new List<int>() };
         }
 
         public readonly EdgeId Id;
@@ -156,14 +159,18 @@ namespace Map
 
         public bool CanBecomeRoad(bool blueprint = false)
         {
-            return (blueprint ? BlueprintType : Type) == EdgeType.None && StartTile.Type != Tile.TileType.Mountain && StartTile.Type != Tile.TileType.Water && EndTile.Type != Tile.TileType.Mountain && EndTile.Type != Tile.TileType.Water;
+            return (blueprint ? BlueprintType : Type) == EdgeType.None && StartTile.Type != Tile.TileType.Mountain &&
+                   StartTile.Type != Tile.TileType.Water && EndTile.Type != Tile.TileType.Mountain &&
+                   EndTile.Type != Tile.TileType.Water;
         }
 
         public bool CanBecomeCanal(bool blueprint = false)
         {
             if ((blueprint ? BlueprintType : Type) != EdgeType.None) return false;
-            var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWithType(EdgeType.Canal, blueprint) > 0;
-            var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWithType(EdgeType.Canal, blueprint) > 0;
+            var startHasWater = StartTile.Type == Tile.TileType.Water ||
+                                StartTile.CountEdgesWithType(EdgeType.Canal, blueprint) > 0;
+            var endHasWater = EndTile.Type == Tile.TileType.Water ||
+                              EndTile.CountEdgesWithType(EdgeType.Canal, blueprint) > 0;
 
             var startCanBuild = StartTile.Type == Tile.TileType.Plain || StartTile.Type == Tile.TileType.Forest;
             var endCanBuild = EndTile.Type == Tile.TileType.Plain || EndTile.Type == Tile.TileType.Forest;
@@ -209,7 +216,7 @@ namespace Map
             if (Type == EdgeType.Canal)
             {
                 geometry.SetRoadColor(new Color(0, 0, 255, 1));
-                geometry.SetLayer(EdgeGeometry.outlineLayer); 
+                geometry.SetLayer(EdgeGeometry.outlineLayer);
                 geometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
             }
 
@@ -256,8 +263,6 @@ namespace Map
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            blueprintGeometry.SetRoadColor(PlayerManager.Instance.GetPlayerColor(Owner));
         }
 
         public void ChangeVisualState()
