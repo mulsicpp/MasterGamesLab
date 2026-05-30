@@ -99,7 +99,7 @@ namespace Map.Blueprint
             for (int i = 1; i < path.Length; i++)
             {
                 var edge = path[i - 1].FindEdgeTo(path[i]);
-                if (edge != null && !edgeIds.Contains(edge.Id) && (edge.CanBecomeType(type) || edge.CanBecomeType(type, true)))
+                if (edge != null && !edgeIds.Contains(edge.Id) && edge.CanBecomeBlueprintType(type))
                 {
                     edge.BlueprintType = type;
                     edge.BlueprintPreview = true;

@@ -22,15 +22,15 @@ public static class MovementProfileRegistry
         TruckCheapestRoute.AddPriorityRule(1, PathfindingRules.MinimizeDistance);
 
         FindRoadBuildPath = new MovementProfile();
-        FindRoadBuildPath.IsHardBlocked = (s, t) => PathfindingRules.BlockMountains(s, t) || PathfindingRules.BlockCanal(s, t);
+        FindRoadBuildPath.IsHardBlocked = (s, t) => PathfindingRules.BlockCannotBecomeBlueprintType(s, t, Edge.EdgeType.Road);
         FindRoadBuildPath.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
-        FindRoadBuildPath.AddPriorityRule(1, PathfindingRules.AvoidWater);
-        FindRoadBuildPath.AddPriorityRule(2, PathfindingRules.AvoidForest);
+        FindRoadBuildPath.AddPriorityRule(1, PathfindingRules.AvoidForest);
+        //FindRoadBuildPath.AddPriorityRule(1, PathfindingRules.AvoidWater);
 
         FindCanalBuildPath = new MovementProfile();
-        FindCanalBuildPath.IsHardBlocked = (s, t) => PathfindingRules.BlockMountains(s, t) || PathfindingRules.BlockRoad(s, t);
+        FindCanalBuildPath.IsHardBlocked = (s, t) => PathfindingRules.BlockCannotBecomeBlueprintType(s, t, Edge.EdgeType.Canal);
         FindCanalBuildPath.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
-        FindCanalBuildPath.AddPriorityRule(2, PathfindingRules.AvoidForest);
+        FindCanalBuildPath.AddPriorityRule(1, PathfindingRules.AvoidForest);
 
     }
 }

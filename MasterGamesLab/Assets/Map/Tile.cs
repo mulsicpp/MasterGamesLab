@@ -232,12 +232,12 @@ namespace Map
             }
         }
 
-        public int CountEdgesWithType(Edge.EdgeType type, bool blueprint = false)
+        public int CountEdgesWith(Predicate<Edge> condition)
         {
             var count = 0;
             foreach (var edge in edges)
             {
-                if ((blueprint ? edge.BlueprintType : edge.Type) == type)
+                if (condition(edge))
                 {
                     count++;
                 }

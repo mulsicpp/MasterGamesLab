@@ -154,38 +154,58 @@ namespace Map
             ResetDirty();
         }
 
-        public bool CanBecomeRoad(bool blueprint = false)
+        public bool CanBecomeRoad()
         {
-            return (blueprint ? BlueprintType : Type) == EdgeType.None && StartTile.Type != Tile.TileType.Mountain && StartTile.Type != Tile.TileType.Water && EndTile.Type != Tile.TileType.Mountain && EndTile.Type != Tile.TileType.Water;
+            return Type == EdgeType.None && StartTile.Type != Tile.TileType.Mountain && StartTile.Type != Tile.TileType.Water && EndTile.Type != Tile.TileType.Mountain && EndTile.Type != Tile.TileType.Water;
         }
 
-        public bool CanBecomeCanal(bool blueprint = false)
+        public bool CanBecomeCanal()
         {
-            if ((blueprint ? BlueprintType : Type) != EdgeType.None) return false;
-            var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWithType(EdgeType.Canal, blueprint) > 0;
-            var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWithType(EdgeType.Canal, blueprint) > 0;
+            if (Type != EdgeType.None) return false;
+            var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWith(e => e.Type == EdgeType.Canal) > 0;
+            var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWith(e => e.Type == EdgeType.Canal) > 0;
 
             var startCanBuild = StartTile.Type == Tile.TileType.Plain || StartTile.Type == Tile.TileType.Forest;
             var endCanBuild = EndTile.Type == Tile.TileType.Plain || EndTile.Type == Tile.TileType.Forest;
             return (startHasWater && endCanBuild) || (startCanBuild && endHasWater);
         }
 
-        public bool CanBecomeRail(bool blueprint = false)
+        public bool CanBecomeRail()
         {
             // TODO correct rail condition
             return false;
         }
 
-        public bool CanBecomeType(EdgeType type, bool blueprint = false)
+        public bool CanBecomeType(EdgeType type)
         {
             switch (type)
             {
-                case EdgeType.Road: return CanBecomeRoad(blueprint);
-                case EdgeType.Canal: return CanBecomeCanal(blueprint);
-                case EdgeType.Rail: return CanBecomeRail(blueprint);
+                case EdgeType.Road: return CanBecomeRoad();
+                case EdgeType.Canal: return CanBecomeCanal();
+                case EdgeType.Rail: return CanBecomeRail();
             }
 
             return true;
+        }
+
+        public bool CanBecomeBlueprintType(EdgeType type)
+        {
+            if (BlueprintType != EdgeType.None && BlueprintType != type && !BlueprintPreview) return false;
+            if (Type == type) return true;
+
+            if(type == EdgeType.Canal)
+            {
+                if (Type != EdgeType.None) return false;
+
+                var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0;
+                var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0;
+
+                var startCanBuild = StartTile.Type == Tile.TileType.Plain || StartTile.Type == Tile.TileType.Forest;
+                var endCanBuild = EndTile.Type == Tile.TileType.Plain || EndTile.Type == Tile.TileType.Forest;
+                return (startHasWater && endCanBuild) || (startCanBuild && endHasWater);
+            } else if (CanBecomeType(type)) return true;
+
+            return false;
         }
 
         public void SetGeometryFrom(PartialEdgeGeometry partialGeometry, Tile sender)

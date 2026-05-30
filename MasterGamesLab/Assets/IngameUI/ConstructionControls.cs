@@ -36,8 +36,8 @@ public class ConstructionControls : MonoBehaviour
         var tile = (Tile)Map.Map.Instance.GetCurrentlyHoveredTile();
         if (Type is ConstructionType.Road or ConstructionType.Canal)
         {
-            SetPreviewEdges();
-            if(tile != null && leftClickAction.WasPerformedThisFrame())
+            var valid = SetPreviewEdges();
+            if(valid && tile != null && leftClickAction.WasPerformedThisFrame())
             {
                 Debug.Log("Map click");
                 Map.Map.Instance.Blueprint.ApplyPreview();
@@ -55,7 +55,7 @@ public class ConstructionControls : MonoBehaviour
         }
     }
 
-    private void SetPreviewEdges()
+    private bool SetPreviewEdges()
     {
         if (startTile != null)
         {
@@ -63,7 +63,7 @@ public class ConstructionControls : MonoBehaviour
             if (endTile == null)
             {
                 Map.Map.Instance.Blueprint.ClearPreviewEdges();
-                return;
+                return false;
             }
 
             //var edgeType = Type == ConstructionType.Road ? Edge.EdgeType.Road : Edge.EdgeType.Canal;
@@ -75,15 +75,17 @@ public class ConstructionControls : MonoBehaviour
             };
 
             Map.Map.Instance.Blueprint.SetPreviewEdges(path, edgeType);
+            return path?.Length > 1;
         }
         else
         {
             Map.Map.Instance.Blueprint.ClearPreviewEdges();
             Map.Map.Instance.Blueprint.ClearPreviewStructure();
+            return true;
         }
     }
 
-    private void SetPreviewStructure()
+    private bool SetPreviewStructure()
     {
         // var tile = (Tile)Map.Map.Instance.GetCurrentlyHoveredTile();
         // if (tile != null)
@@ -98,6 +100,7 @@ public class ConstructionControls : MonoBehaviour
         // }
         Map.Map.Instance.Blueprint.ClearPreviewEdges();
         Map.Map.Instance.Blueprint.ClearPreviewStructure();
+        return true;
     }
 
 

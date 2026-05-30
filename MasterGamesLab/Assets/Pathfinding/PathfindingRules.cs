@@ -30,6 +30,12 @@ public static class PathfindingRules
         return edge != null && edge.Type == Edge.EdgeType.Rail;
     }
 
+    public static bool BlockCannotBecomeBlueprintType(Tile current, Tile neighbor, Edge.EdgeType type)
+    {
+        Edge edge = current.FindEdgeTo(neighbor);
+        return edge == null || !edge.CanBecomeBlueprintType(type);
+    }
+
     /// <summary>
     /// Strict Rule: Prevents vehicles from stepping into deep water zones completely.
     /// </summary>
