@@ -200,12 +200,12 @@ namespace Map
             {
                 if (Type != EdgeType.None) return false;
 
-                var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0;
-                var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0;
+                //var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0;
+                //var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0;
 
                 var startCanBuild = StartTile.Type == Tile.TileType.Plain || StartTile.Type == Tile.TileType.Forest;
                 var endCanBuild = EndTile.Type == Tile.TileType.Plain || EndTile.Type == Tile.TileType.Forest;
-                return (startHasWater && endCanBuild) || (startCanBuild && endHasWater);
+                return (endCanBuild) || (startCanBuild);
             } else if (CanBecomeType(type)) return true;
 
             return false;

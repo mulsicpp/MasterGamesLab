@@ -6,8 +6,9 @@ using UnityEngine.InputSystem;
 public class IngameInputs : MonoBehaviour
 {
     [SerializeField] private InputActionAsset inputActions;
-    private InputActionMap controlsActionMap;
-    private InputAction leftClickAction;
+    private static InputActionMap controlsActionMap;
+
+    public static InputAction leftClickAction;
     private InputAction buildRoadAction;
     private InputAction buildCanalAction;
     private InputAction buildPortAction;
@@ -15,12 +16,11 @@ public class IngameInputs : MonoBehaviour
     private InputAction buyFreighterAction;
     private InputAction confirmBuildPlanAction;
     private InputAction hideBuildPlanAction;
-
     private InputAction cancelAction;
 
+    [SerializeField] private ConstructionControls constructionControls;
 
-
-    void Start()
+    void Awake()
     {
         controlsActionMap = inputActions.FindActionMap("Controls");
 
@@ -33,26 +33,37 @@ public class IngameInputs : MonoBehaviour
         confirmBuildPlanAction = controlsActionMap.FindAction("ConfirmBuildPlan");
         hideBuildPlanAction = controlsActionMap.FindAction("HideBuild");
         cancelAction = controlsActionMap.FindAction("Cancel");
-
-        leftClickAction.performed += ctx => OnLeftClick();
-        buildRoadAction.started += ctx => IngameUI.Instance.BuildMode = BuildMode.Road;
-        buildCanalAction.started += ctx => IngameUI.Instance.BuildMode = BuildMode.Canal;
-        buildPortAction.started += ctx => IngameUI.Instance.BuildMode = BuildMode.Port;
-        buyTruckAction.started += ctx => IngameUI.Instance.BuildMode = BuildMode.Truck;
-        buyFreighterAction.started += ctx => IngameUI.Instance.BuildMode = BuildMode.Freighter;
-        confirmBuildPlanAction.started += ctx => IngameUI.Instance.OnConfirmPressed();
-        hideBuildPlanAction.started += ctx => IngameUI.Instance.OnHidePressed();
-        cancelAction.started += ctx => IngameUI.Instance.OnCancelPressed();
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnEnable()
     {
-        
+        buildRoadAction.started += OnBuildRoad;
+        buildCanalAction.started += OnBuildCanal;
+        buildPortAction.started += OnBuildPort;
+        buyTruckAction.started += OnBuyTruck;
+        buyFreighterAction.started += OnBuyFreighter;
+        confirmBuildPlanAction.started += OnConfirm;
+        hideBuildPlanAction.started += OnHide;
+        cancelAction.started += OnCancel;
     }
 
-    public void OnLeftClick()
+    void OnDisable()
     {
-        
+        buildRoadAction.started -= OnBuildRoad;
+        buildCanalAction.started -= OnBuildCanal;
+        buildPortAction.started -= OnBuildPort;
+        buyTruckAction.started -= OnBuyTruck;
+        buyFreighterAction.started -= OnBuyFreighter;
+        confirmBuildPlanAction.started -= OnConfirm;
+        hideBuildPlanAction.started -= OnHide;
+        cancelAction.started -= OnCancel;
     }
+
+    private void OnBuildRoad(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Road;
+    private void OnBuildCanal(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Canal;
+    private void OnBuildPort(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Port;
+    private void OnBuyTruck(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Truck;
+    private void OnBuyFreighter(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Freighter;
+    private void OnConfirm(InputAction.CallbackContext ctx) => constructionControls.ConfirmConstruction();
+    private void OnCancel(InputAction.CallbackContext ctx) => constructionControls.CancelConstruction(); private void OnHide(InputAction.CallbackContext ctx) => constructionControls.ToggleHide();
 }

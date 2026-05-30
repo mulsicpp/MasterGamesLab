@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace UI
@@ -11,88 +9,24 @@ namespace UI
     {
         public static IngameUI Instance { get; private set; }
 
+        private ConstructionControls constructionControls;
+        private VisualElement root;
+        private Button buildRoadButton, buildCanalButton, buildPortButton, buyTruckButton, buyFreighterButton, confirmButton, cancelButton, hideButton;
+        private Button currentActiveButton;
+        public const string activeClass = "ingame-build-button--active";
+
         private void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
-        }
-
-        private ConstructionControls constructionControls;
-
-        private VisualElement root;
-        private Button buildRoadButton;
-        private Button buildCanalButton;
-        private Button buildPortButton;
-        private Button buyTruckButton;
-        private Button buyFreighterButton;
-        private Button confirmButton;
-        private Button cancelButton;
-        private Button hideButton;
-
-        private Button currentActiveButton;
-        private BuildMode buildMode = BuildMode.None;
-
-        private const string activeClass = "ingame-build-button--active";
-
-        public BuildMode BuildMode
-        {
-            get => buildMode;
-            set
-            {
-                currentActiveButton?.RemoveFromClassList(activeClass);
-
-                if (buildMode == value)
-                {
-                    buildMode = BuildMode.None;
-                    currentActiveButton = null;
-                    constructionControls.Type = ConstructionControls.ConstructionType.None;
-                    return;
-                }
-
-                if (value == BuildMode.Hidden)
-                {
-                    SetMenuVisibility(false);
-                    currentActiveButton = null;
-                    constructionControls.Type = ConstructionControls.ConstructionType.None;
-                }
-                else
-                {
-                    if (buildMode == BuildMode.Hidden) SetMenuVisibility(true);
-
-                    currentActiveButton = value switch
-                    {
-                        BuildMode.Road => buildRoadButton,
-                        BuildMode.Canal => buildCanalButton,
-                        BuildMode.Port => buildPortButton,
-                        BuildMode.Freighter => buyFreighterButton,
-                        BuildMode.Truck => buyTruckButton,
-                        _ => null
-                    };
-
-                    constructionControls.Type = value switch
-                    {
-                        BuildMode.Road => ConstructionControls.ConstructionType.Road,
-                        BuildMode.Canal => ConstructionControls.ConstructionType.Canal,
-                        BuildMode.Garage => ConstructionControls.ConstructionType.Garage,
-                        BuildMode.Port => ConstructionControls.ConstructionType.Port,
-                        _ => ConstructionControls.ConstructionType.None
-                    };
-
-                    currentActiveButton?.AddToClassList(activeClass);
-                }
-
-                buildMode = value;
-            }
         }
 
         void OnEnable()
         {
             root = GetComponent<UIDocument>().rootVisualElement;
             constructionControls = GetComponent<ConstructionControls>();
+
+            constructionControls.OnConstructionTypeChanged += HandleStateUIUpdate;
 
             buildRoadButton = root.Q<Button>("BuildRoadButton");
             buildCanalButton = root.Q<Button>("BuildCanalButton");
@@ -103,12 +37,11 @@ namespace UI
             cancelButton = root.Q<Button>("CancelButton");
             hideButton = root.Q<Button>("HideButton");
 
-            buildRoadButton.clicked += () => BuildMode = BuildMode.Road;
-            buildCanalButton.clicked += () => BuildMode = BuildMode.Canal;
-            buildPortButton.clicked += () => BuildMode = BuildMode.Port;
-            buyTruckButton.clicked += () => BuildMode = BuildMode.Truck;
-            buyFreighterButton.clicked += () => BuildMode = BuildMode.Freighter;
-
+            buildRoadButton.clicked += OnRoadClicked;
+            buildCanalButton.clicked += OnCanalClicked;
+            buildPortButton.clicked += OnPortClicked;
+            buyTruckButton.clicked += OnTruckClicked;
+            buyFreighterButton.clicked += OnFreighterClicked;
             confirmButton.clicked += OnConfirmPressed;
             cancelButton.clicked += OnCancelPressed;
             hideButton.clicked += OnHidePressed;
@@ -116,50 +49,72 @@ namespace UI
 
         void OnDisable()
         {
+            if (constructionControls != null)
+                constructionControls.OnConstructionTypeChanged -= HandleStateUIUpdate;
+
             if (buildRoadButton == null) return;
-
-            buildRoadButton.clicked -= () => BuildMode = BuildMode.Road;
-            buildCanalButton.clicked -= () => BuildMode = BuildMode.Canal;
-            buildPortButton.clicked -= () => BuildMode = BuildMode.Port;
-            buyTruckButton.clicked -= () => BuildMode = BuildMode.Truck;
-            buyFreighterButton.clicked -= () => BuildMode = BuildMode.Freighter;
-
+            buildRoadButton.clicked -= OnRoadClicked;
+            buildCanalButton.clicked -= OnCanalClicked;
+            buildPortButton.clicked -= OnPortClicked;
+            buyTruckButton.clicked -= OnTruckClicked;
+            buyFreighterButton.clicked -= OnFreighterClicked;
             confirmButton.clicked -= OnConfirmPressed;
             cancelButton.clicked -= OnCancelPressed;
             hideButton.clicked -= OnHidePressed;
         }
 
-        public void OnLeftClickPressed()
+        private void HandleStateUIUpdate(ConstructionControls.ConstructionType state)
         {
-            if(BuildMode == BuildMode.Road || BuildMode == BuildMode.Canal)
+            if (state == ConstructionControls.ConstructionType.Hidden)
             {
-
+                SetMenuVisibility(false);
+                SetActiveButton(ConstructionControls.ConstructionType.None);
+                SetActionButtonsVisibility(false);
+            }
+            else if (state == ConstructionControls.ConstructionType.None)
+            {
+                SetMenuVisibility(true);
+                SetActiveButton(ConstructionControls.ConstructionType.None);
+            }
+            else
+            {
+                SetMenuVisibility(true);
+                SetActiveButton(state);
+                SetActionButtonsVisibility(true);
             }
         }
 
-        public void OnConfirmPressed()
+        // Keep your existing UI button styling logic completely identical below here...
+        private void OnRoadClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Road;
+        private void OnCanalClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Canal;
+        private void OnPortClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Port;
+        private void OnTruckClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Truck;
+        private void OnFreighterClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Freighter;
+        public void OnConfirmPressed() => constructionControls.ConfirmConstruction();
+        public void OnCancelPressed() => constructionControls.CancelConstruction();
+        public void OnHidePressed() => constructionControls.ToggleHide();
+
+        public void SetActiveButton(ConstructionControls.ConstructionType type)
         {
-            BuildMode = BuildMode.None;
-            SetActionButtonsVisibility(false);
+            currentActiveButton?.RemoveFromClassList(activeClass);
+
+            currentActiveButton = type switch
+            {
+                ConstructionControls.ConstructionType.Road => buildRoadButton,
+                ConstructionControls.ConstructionType.Canal => buildCanalButton,
+                ConstructionControls.ConstructionType.Port => buildPortButton,
+                ConstructionControls.ConstructionType.Freighter => buyFreighterButton,
+                ConstructionControls.ConstructionType.Truck => buyTruckButton,
+                _ => null
+            };
+
+            currentActiveButton?.AddToClassList(activeClass);
         }
 
-        public void OnCancelPressed()
-        {
-            BuildMode = BuildMode.None;
-            SetActionButtonsVisibility(false);
-        }
-
-        public void OnHidePressed()
-        {
-            BuildMode = (BuildMode == BuildMode.Hidden) ? BuildMode.None : BuildMode.Hidden;
-        }
-
-        private void SetMenuVisibility(bool visible)
+        public void SetMenuVisibility(bool visible)
         {
             DisplayStyle style = visible ? DisplayStyle.Flex : DisplayStyle.None;
 
-            confirmButton.style.display = style;
-            cancelButton.style.display = style;
             buildCanalButton.style.display = style;
             buildRoadButton.style.display = style;
             buildPortButton.style.display = style;
@@ -167,7 +122,7 @@ namespace UI
             buyTruckButton.style.display = style;
         }
 
-        private void SetActionButtonsVisibility(bool visible)
+        public void SetActionButtonsVisibility(bool visible)
         {
             DisplayStyle style = visible ? DisplayStyle.Flex : DisplayStyle.None;
             confirmButton.style.display = style;
