@@ -5,7 +5,34 @@ public static class Constants
     public const byte MIN_PLAYER_COUNT = 2;
     public const byte MAX_PLAYER_COUNT = 4;
 
+    public static readonly Color ROAD_BLUEPRINT_COLOR = Color.mediumAquamarine;
+    public static readonly Color ROAD_BLUEPRINT_PREVIEW_COLOR = Color.grey;
+
+    public struct OutlineData
+    {
+        public Color OutlineColor;
+        public Color InnerColor;
+        public int TextureId;
+    }
+
+    public static OutlineData ROAD_BLUEPRINT_OVERLAPPING_OUTLINE = new OutlineData()
+    {
+        OutlineColor = Color.black,
+        InnerColor = new Color(0, 0, 0, 0.5f),
+        TextureId = 0,
+    };
+    
+    public static readonly Color ROAD_BLUEPRINT_INVALID_COLOR = Color.orange;
+
+    public static OutlineData ROAD_BLUEPRINT_INVALID_OUTLINE = new OutlineData()
+    {
+        OutlineColor = Color.red,
+        InnerColor = new Color(255, 0, 0, 0.5f),
+        TextureId = 1,
+    };
+
     public static readonly Color[] PLAYER_COLORS = { Color.red, Color.blue, Color.yellow, Color.green };
+
     public const uint PLAYER_START_MONEY = 100;
 
     public const byte MAX_TRUCKS_PER_PLAYER = 32;

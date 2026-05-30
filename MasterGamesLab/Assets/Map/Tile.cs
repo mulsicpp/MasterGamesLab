@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Map.Blueprint;
 using Map.Fleet;
 using Map.GeometryGeneration;
+using Map.GeometryGeneration.Edges;
 using Map.Infrastructure;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -43,13 +45,40 @@ namespace Map
         public IReadOnlyList<Edge> Edges => edges;
 
         private Structure structure { get; set; }
-        public Structure Structure { get => structure; set { structure = value; GeometryChanged = true; } }
+
+        public Structure Structure
+        {
+            get => structure;
+            set
+            {
+                structure = value;
+                GeometryChanged = true;
+            }
+        }
 
         private Structure.StructureType? blueprintStructureType;
-        public Structure.StructureType? BlueprintStructureType { get => blueprintStructureType; set { blueprintStructureType = value; GeometryChanged = true; } }
+
+        public Structure.StructureType? BlueprintStructureType
+        {
+            get => blueprintStructureType;
+            set
+            {
+                blueprintStructureType = value;
+                GeometryChanged = true;
+            }
+        }
 
         private bool blueprintPreview;
-        public bool BlueprintPreview { get => blueprintPreview; set { blueprintPreview = value; StructureDirty = true; } }
+
+        public bool BlueprintPreview
+        {
+            get => blueprintPreview;
+            set
+            {
+                blueprintPreview = value;
+                StructureDirty = true;
+            }
+        }
 
         public TileType Type
         {
@@ -85,7 +114,7 @@ namespace Map
 
         public bool GeometryChanged;
 
-        public bool EdgeDirty;
+        // public bool EdgeDirty;
         public bool StructureDirty;
 
         private readonly List<Tile> neighbors;
@@ -220,7 +249,10 @@ namespace Map
                 if (n.Type == TileType.Water && Type == TileType.Water) continue;
                 if (n.Type == TileType.Mountain || Type == TileType.Mountain) continue;
 
-                var edge = new Edge(new EdgeId(edgeList.Count), this, n, Edge.EdgeType.None, PlayerId.NONE);
+                var neighborTile = NeighborTiles.First(nt => nt.Tile == n);
+
+                var edge = new Edge(new EdgeId(edgeList.Count), this, n, Edge.EdgeType.None, PlayerId.NONE,
+                    neighborTile.LeftVertex, neighborTile.RightVertex);
 
                 edges.Add(edge);
                 n.edges.Add(edge);
@@ -228,21 +260,23 @@ namespace Map
             }
         }
 
-        public int CountEdgesWithType(Edge.EdgeType type)
+        public int CountEdgesWith(Predicate<Edge> condition)
         {
             var count = 0;
             foreach (var edge in edges)
             {
-                if (edge.Type == type)
+                if (condition(edge))
                 {
                     count++;
                 }
             }
+
             return count;
         }
 
         public Edge FindEdgeTo(ITile other)
-            => edges.FirstOrDefault(edge => (edge.StartTile == this && edge.EndTile == other) || (edge.StartTile == other && edge.EndTile == this));
+            => edges.FirstOrDefault(edge =>
+                (edge.StartTile == this && edge.EndTile == other) || (edge.StartTile == other && edge.EndTile == this));
 
 
         public bool CanSpawnStructure(Structure.StructureType type)
@@ -259,16 +293,14 @@ namespace Map
 
         public bool CanSpawnVehicle(Vehicle.VehicleType type)
         {
-            switch (type)
+            return type switch
             {
-                case Vehicle.VehicleType.Truck: return Type == TileType.Plain || Type == TileType.Forest;
-                case Vehicle.VehicleType.Freighter: return Type == TileType.Water;
-            }
-
-            return false;
+                Vehicle.VehicleType.Truck => Type is TileType.Plain or TileType.Forest,
+                Vehicle.VehicleType.Freighter => Type == TileType.Water,
+                _ => false
+            };
         }
 
-        
         public void BuildFaces(MapChunk.ChunkGeometry cg)
         {
             tileGeometryInformation = TileGeometryFactory.BuildFaces(this, cg);
@@ -287,6 +319,40 @@ namespace Map
                 var tree = treeDataList[i];
                 tree.Active = active ? 1 : 0;
                 treeDataList[i] = tree;
+            }
+        }
+
+        public void BuildGeometryData()
+        {
+            GeometryChanged = false;
+
+            foreach (var edge in edges)
+            {
+                if (edge.Type == Edge.EdgeType.None)
+                {
+                    edge.SetGeometryFrom(Edge.PartialEdgeGeometry.Empty, this);
+                }
+                else
+                {
+                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
+                    edge.SetGeometryFrom(eg, this);
+                }
+
+                if (edge.BlueprintType == Edge.EdgeType.None)
+                {
+                    edge.SetBluePrintGeometryFrom(Edge.PartialEdgeGeometry.Empty, this);
+                }
+                else
+                {
+                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
+                    edge.SetBluePrintGeometryFrom(eg, this);
+                }
+                /*else
+                {
+                    edge.BlueprintType = Edge.EdgeType.Road;
+                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
+                    edge.SetBluePrintGeometryFrom(eg, this);
+                }*/
             }
         }
 

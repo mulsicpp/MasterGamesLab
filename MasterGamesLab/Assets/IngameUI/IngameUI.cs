@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 namespace UI
 {
     [RequireComponent(typeof(UIDocument))]
+    [RequireComponent(typeof(ConstructionControls))]
     public class IngameUI : MonoBehaviour
     {
         public static IngameUI Instance { get; private set; }
@@ -19,6 +20,8 @@ namespace UI
             }
             Instance = this;
         }
+
+        private ConstructionControls constructionControls;
 
         private VisualElement root;
         private Button buildRoadButton;
@@ -46,6 +49,7 @@ namespace UI
                 {
                     buildMode = BuildMode.None;
                     currentActiveButton = null;
+                    constructionControls.Type = ConstructionControls.ConstructionType.None;
                     return;
                 }
 
@@ -53,6 +57,7 @@ namespace UI
                 {
                     SetMenuVisibility(false);
                     currentActiveButton = null;
+                    constructionControls.Type = ConstructionControls.ConstructionType.None;
                 }
                 else
                 {
@@ -68,6 +73,15 @@ namespace UI
                         _ => null
                     };
 
+                    constructionControls.Type = value switch
+                    {
+                        BuildMode.Road => ConstructionControls.ConstructionType.Road,
+                        BuildMode.Canal => ConstructionControls.ConstructionType.Canal,
+                        BuildMode.Garage => ConstructionControls.ConstructionType.Garage,
+                        BuildMode.Port => ConstructionControls.ConstructionType.Port,
+                        _ => ConstructionControls.ConstructionType.None
+                    };
+
                     currentActiveButton?.AddToClassList(activeClass);
                 }
 
@@ -78,6 +92,7 @@ namespace UI
         void OnEnable()
         {
             root = GetComponent<UIDocument>().rootVisualElement;
+            constructionControls = GetComponent<ConstructionControls>();
 
             buildRoadButton = root.Q<Button>("BuildRoadButton");
             buildCanalButton = root.Q<Button>("BuildCanalButton");

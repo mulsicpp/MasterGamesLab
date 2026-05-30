@@ -21,6 +21,7 @@ Shader "Hidden/OutlineDataShader"
             {
                 "LightMode" = "UniversalForward"
             }
+            /*Cull Off*/
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -29,16 +30,23 @@ Shader "Hidden/OutlineDataShader"
             #pragma multi_compile_instancing
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Assets/Map/Shaders/azimuthal_equidistant_projection.hlsl"
+
+            float _PlanetRadius;
+            float _ProjectionFactor;
+            float3 _ProjectionCenter;
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
+                float3 normalOS : NORMAL; // Fixed: changed to float3
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
+                float d : TEXCOORD0; // Fixed: changed to float to match out_d
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -54,7 +62,27 @@ Shader "Hidden/OutlineDataShader"
                 Varyings output;
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
-                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+
+                float3 world_pos = TransformObjectToWorld(input.positionOS.xyz);
+                float3 world_normal = TransformObjectToWorldNormal(input.normalOS);
+
+                float3 projected_pos;
+                float3 projected_normal;
+                float out_d;
+
+                azimuthal_equidistant_projection_float(
+                    world_pos,
+                    world_normal,
+                    _ProjectionCenter,
+                    _PlanetRadius,
+                    _ProjectionFactor,
+                    projected_pos,
+                    projected_normal,
+                    out_d
+                );
+
+                output.positionCS = TransformObjectToHClip(projected_pos);
+                output.d = out_d;
                 return output;
             }
 
@@ -70,6 +98,22 @@ Shader "Hidden/OutlineDataShader"
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 FragmentOutput output;
+
+                // --- Shader Graph Logic Translation ---
+
+                // 1. Comparison Node (A: 0.5, B: _ProjectionFactor)
+                // Assuming "Greater Or Equal" (A >= B). 
+                // If your node uses Less, Greater, Equal, etc., adjust the operator here!
+                float out0 = (0.5 < _ProjectionFactor) ? 1.0 : 0.0;
+
+                // 2. Multiply Node (A: d, B: Out0)
+                float out1 = input.d * out0;
+
+                // 3. Alpha Clip Threshold (Alpha: Out1, Threshold: -0.9)
+                // Shader Graph executes: clip(Alpha - Threshold)
+                clip(out1 - (-0.9)); // Simplified logically to clip(out1 + 0.9);
+
+                // --------------------------------------
 
                 // Target 0: Outline Color (RGBA)
                 output.color0 = UNITY_ACCESS_INSTANCED_PROP(Props, _OutlineColor);

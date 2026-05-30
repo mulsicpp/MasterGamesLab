@@ -53,10 +53,6 @@ public class IngameInputs : MonoBehaviour
 
     public void OnLeftClick()
     {
-        switch(IngameUI.Instance.BuildMode)
-        {
-            case BuildMode.Road: Construction.StartNewSegment((Tile)Map.Map.Instance.GetCurrentlyHoveredTile(), Edge.EdgeType.Road); break;
-            case BuildMode.Canal: Construction.StartNewSegment((Tile)Map.Map.Instance.GetCurrentlyHoveredTile(), Edge.EdgeType.Canal); break;
-        }
+        
     }
 }

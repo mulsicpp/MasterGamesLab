@@ -3,6 +3,7 @@ using Map.Infrastructure;
 using System.Collections.Generic;
 using Map.GeometryGeneration;
 using UnityEngine;
+using System;
 
 namespace Map
 {
@@ -24,7 +25,7 @@ namespace Map
 
         public Structure Structure { get; }
 
-        public int CountEdgesWithType(Edge.EdgeType type);
+        public int CountEdgesWith(Predicate<Edge> condition);
         public Edge FindEdgeTo(ITile other);
         
         public bool CanSpawnVehicle(Vehicle.VehicleType type);
