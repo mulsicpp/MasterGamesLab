@@ -416,6 +416,7 @@ GameObject:
   - component: {fileID: 985979803}
   - component: {fileID: 985979805}
   - component: {fileID: 985979806}
+  - component: {fileID: 985979807}
   m_Layer: 5
   m_Name: IngameUI
   m_TagString: Untagged
@@ -486,6 +487,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IngameInputs
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+--- !u!114 &985979807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985979801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4f3d00999949f24cbdc27238df8845a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ConstructionControls
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  type: 0
 --- !u!1 &1118779276
 GameObject:
   m_ObjectHideFlags: 0
