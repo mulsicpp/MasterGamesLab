@@ -228,12 +228,12 @@ namespace Map
             }
         }
 
-        public int CountEdgesWithType(Edge.EdgeType type)
+        public int CountEdgesWithType(Edge.EdgeType type, bool blueprint = false)
         {
             var count = 0;
             foreach (var edge in edges)
             {
-                if (edge.Type == type)
+                if ((blueprint ? edge.BlueprintType : edge.Type) == type)
                 {
                     count++;
                 }

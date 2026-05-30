@@ -1,4 +1,5 @@
 
+using System;
 using Unity.Netcode;
 
 namespace Map
@@ -83,35 +84,35 @@ namespace Map
 
         public void ApplyServerState(EdgeState state, double _) { State = state; ResetDirty(); }
 
-        public bool CanBecomeRoad()
+        public bool CanBecomeRoad(bool blueprint = false)
         {
-            return Type == EdgeType.None && StartTile.Type != Tile.TileType.Mountain && StartTile.Type != Tile.TileType.Water && EndTile.Type != Tile.TileType.Mountain && EndTile.Type != Tile.TileType.Water;
+            return (blueprint ? BlueprintType : Type) == EdgeType.None && StartTile.Type != Tile.TileType.Mountain && StartTile.Type != Tile.TileType.Water && EndTile.Type != Tile.TileType.Mountain && EndTile.Type != Tile.TileType.Water;
         }
 
-        public bool CanBecomeCanal()
+        public bool CanBecomeCanal(bool blueprint = false)
         {
-            if (Type != EdgeType.None) return false;
-            var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWithType(EdgeType.Canal) > 0;
-            var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWithType(EdgeType.Canal) > 0;
+            if ((blueprint ? BlueprintType : Type) != EdgeType.None) return false;
+            var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWithType(EdgeType.Canal, blueprint) > 0;
+            var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWithType(EdgeType.Canal, blueprint) > 0;
 
             var startCanBuild = StartTile.Type == Tile.TileType.Plain || StartTile.Type == Tile.TileType.Forest;
             var endCanBuild = EndTile.Type == Tile.TileType.Plain || EndTile.Type == Tile.TileType.Forest;
             return (startHasWater && endCanBuild) || (startCanBuild && endHasWater);
         }
 
-        public bool CanBecomeRail()
+        public bool CanBecomeRail(bool blueprint = false)
         {
             // TODO correct rail condition
             return false;
         }
 
-        public bool CanBecomeType(EdgeType type)
+        public bool CanBecomeType(EdgeType type, bool blueprint = false)
         {
             switch (type)
             {
-                case EdgeType.Road: return CanBecomeRoad();
-                case EdgeType.Canal: return CanBecomeCanal();
-                case EdgeType.Rail: return CanBecomeRail();
+                case EdgeType.Road: return CanBecomeRoad(blueprint);
+                case EdgeType.Canal: return CanBecomeCanal(blueprint);
+                case EdgeType.Rail: return CanBecomeRail(blueprint);
             }
             return true;
         }

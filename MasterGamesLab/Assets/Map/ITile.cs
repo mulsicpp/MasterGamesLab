@@ -24,7 +24,7 @@ namespace Map
 
         public Structure Structure { get; }
 
-        public int CountEdgesWithType(Edge.EdgeType type);
+        public int CountEdgesWithType(Edge.EdgeType type, bool blueprint = false);
         public Edge FindEdgeTo(ITile other);
         
         public bool CanSpawnVehicle(Vehicle.VehicleType type);

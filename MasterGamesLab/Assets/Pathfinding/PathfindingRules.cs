@@ -12,6 +12,24 @@ public static class PathfindingRules
         return edge == null || edge.Type != Edge.EdgeType.Road;
     }
 
+    public static bool BlockRoad(Tile current, Tile neighbor)
+    {
+        Edge edge = current.FindEdgeTo(neighbor);
+        return edge != null && edge.Type == Edge.EdgeType.Road;
+    }
+
+    public static bool BlockCanal(Tile current, Tile neighbor)
+    {
+        Edge edge = current.FindEdgeTo(neighbor);
+        return edge != null && edge.Type == Edge.EdgeType.Canal;
+    }
+
+    public static bool BlockRail(Tile current, Tile neighbor)
+    {
+        Edge edge = current.FindEdgeTo(neighbor);
+        return edge != null && edge.Type == Edge.EdgeType.Rail;
+    }
+
     /// <summary>
     /// Strict Rule: Prevents vehicles from stepping into deep water zones completely.
     /// </summary>

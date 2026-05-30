@@ -677,7 +677,7 @@
                     "name": "",
                     "id": "281c33cd-2213-418e-953a-41327909d36f",
                     "path": "<Mouse>/leftButton",
-                    "interactions": "",
+                    "interactions": "Tap",
                     "processors": "",
                     "groups": "",
                     "action": "LeftClick",
