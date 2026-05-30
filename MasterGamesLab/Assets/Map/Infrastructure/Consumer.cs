@@ -1,6 +1,6 @@
 
 using Unity.Netcode;
-using static Map.Infrastructure.Producer;
+using Networking;
 
 namespace Map.Infrastructure
 {

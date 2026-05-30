@@ -1,6 +1,6 @@
 
 using Unity.Netcode;
-using static Map.Fleet.Truck;
+using Networking;
 
 namespace Map.Infrastructure
 {
