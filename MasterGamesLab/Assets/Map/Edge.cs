@@ -108,7 +108,16 @@ namespace Map
             }
         }
 
-        public bool BlueprintPreview;
+        private bool blueprintPreview;
+        public bool BlueprintPreview
+        {
+            get { return blueprintPreview; }
+            set
+            {
+                blueprintPreview = value;
+                TriggerDirty();
+            }
+        }
 
         public Blueprint.VisualState BlueprintVisualState
         {

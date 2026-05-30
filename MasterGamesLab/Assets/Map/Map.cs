@@ -161,12 +161,7 @@ namespace Map
             }
 
             foreach (var edge in edges)
-            {
-                if (edge.EdgeDirty)
-                {
-                    edge.ResetDirty();
-                }
-            }
+                edge.EdgeDirty = false;
 
             MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
             MainCamera.Instance.PlanetControllerEnabled = Running;
@@ -252,8 +247,8 @@ namespace Map
             {
                 Debug.Log($"Spieler {i + 1} Spawnpunkt: ID {playerSpawns[i].Id} auf Kontinent {playerSpawns[i].ContinentId}");
 
-                Infrastructure.SpawnLocal(new Producer.ProducerState
-                { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
+                // Infrastructure.SpawnLocal(new Producer.ProducerState
+                // { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
             }
 
             debugSpawnPoints = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
