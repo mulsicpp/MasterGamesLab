@@ -45,6 +45,9 @@ namespace Map
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
 
+        //debug
+        private ITile[] debugSpawnPoints;
+
         public struct TreeData
         {
             public Vector3 Position;
@@ -65,6 +68,7 @@ namespace Map
         private Edge[] edges;
         private Infrastructure.Infrastructure infrastructure;
         private Fleet.Fleet fleet;
+
 
         private void OnEnable()
         {
@@ -217,9 +221,25 @@ namespace Map
                 chunk.UpdateMesh();
             }
 
+            ITile[] playerSpawns = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
 
-            Infrastructure.SpawnLocal(new Producer.ProducerState
+            for (int i = 0; i < playerSpawns.Length; i++)
+            {
+                Debug.Log($"Spieler {i + 1} Spawnpunkt: ID {playerSpawns[i].Id} auf Kontinent {playerSpawns[i].ContinentId}");
+
+                Infrastructure.SpawnLocal(new Producer.ProducerState
                 { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
+            }
+
+            debugSpawnPoints = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
+
+            for (int i = 0; i < debugSpawnPoints.Length; i++)
+            {
+                Debug.Log($"Spieler {i + 1} Spawnpunkt: ID {debugSpawnPoints[i].Id} auf Kontinent {debugSpawnPoints[i].ContinentId}");
+            }
+
+            //Infrastructure.SpawnLocal(new Producer.ProducerState
+            //    { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
         }
 
         public void Tick()
@@ -662,6 +682,24 @@ namespace Map
                 {
                     Gizmos.color = Color.black;
                     Gizmos.DrawSphere(GetProjectedPosition(basePos, 1.014f), 0.005f);
+                }
+            }
+
+            //debug map
+            if (debugSpawnPoints != null)
+            {
+                for (int i = 0; i < debugSpawnPoints.Length; i++)
+                {
+                    var spawnTile = debugSpawnPoints[i];
+                    if (spawnTile != null)
+                    {
+                        Gizmos.color = Color.magenta;
+                        Vector3 debugPos = GetProjectedPosition(spawnTile.PositionOnSphere, 1.05f);
+                        Gizmos.DrawSphere(debugPos, 0.04f);
+
+                        Vector3 groundPos = GetProjectedPosition(spawnTile.PositionOnSphere, 1.0f);
+                        Gizmos.DrawLine(groundPos, debugPos);
+                    }
                 }
             }
         }
