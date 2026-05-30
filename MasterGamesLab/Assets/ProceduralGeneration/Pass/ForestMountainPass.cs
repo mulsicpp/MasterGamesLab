@@ -16,7 +16,7 @@ public class ForestMountainPass : IGenerationPass
     //mountain
     public float mountainNoiseScale = 1.2f;
     public float ridgeThickness = 0.05f; //0 is thin
-    public int minMountainChainLength = 6;
+    public int minMountainChainLength = 7;
 
     public float maskThreshold = -0.5f;
 
