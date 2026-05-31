@@ -49,6 +49,7 @@ namespace Map
         //debug
         private ITile[] debugSpawnPoints;
         [SerializeField] private bool renderTrees = true;
+        private ProducerConsumerSpawnPoint spawnPointManager;
 
         public struct TreeData
         {
@@ -128,6 +129,7 @@ namespace Map
             {
                 Generate(UnityEngine.Random.Range(int.MinValue, int.MaxValue));
             }
+
         }
 
         private void Update()
@@ -245,7 +247,7 @@ namespace Map
 
             for (int i = 0; i < playerSpawns.Length; i++)
             {
-                Debug.Log($"Spieler {i + 1} Spawnpunkt: ID {playerSpawns[i].Id} auf Kontinent {playerSpawns[i].ContinentId}");
+                Debug.Log($"Player {i + 1} Spawnpoint: ID {playerSpawns[i].Id} on Continent {playerSpawns[i].ContinentId}");
 
                 Infrastructure.SpawnLocal(new Producer.ProducerState
                 { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
@@ -255,11 +257,36 @@ namespace Map
 
             for (int i = 0; i < debugSpawnPoints.Length; i++)
             {
-                Debug.Log($"Spieler {i + 1} Spawnpunkt: ID {debugSpawnPoints[i].Id} auf Kontinent {debugSpawnPoints[i].ContinentId}");
+                Debug.Log($"Player  {i + 1} Spawnpoint: ID {debugSpawnPoints[i].Id} on Continent {debugSpawnPoints[i].ContinentId}");
             }
 
             //Infrastructure.SpawnLocal(new Producer.ProducerState
             //    { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
+
+            //debug: Spawn Manager Beispiel
+            //var spawnManager = new ProducerConsumerSpawnPoint(this);
+            spawnPointManager = new ProducerConsumerSpawnPoint(this);
+
+
+            //5 producer
+            for (int i = 0; i < 5; i++)
+            {
+                var prodTile = spawnPointManager.GetSpawnTileProducer();
+                if (prodTile != null)
+                {
+                    spawnPointManager.RegisterProducerSpawned(prodTile);
+                }
+            }
+
+            //5 consumer (groups)
+            for (int i = 0; i < 5; i++)
+            {
+                var consTiles = spawnPointManager.GetSpawnTileConsumer();
+                if (consTiles != null && consTiles.Count > 0)
+                {
+                    spawnPointManager.RegisterConsumerSpawned(consTiles);
+                }
+            }
         }
 
         public void Tick()
@@ -747,6 +774,34 @@ namespace Map
                         Vector3 groundPos = GetProjectedPosition(spawnTile.PositionOnSphere, 1.0f);
                         Gizmos.DrawLine(groundPos, debugPos);
                     }
+                }
+            }
+
+            //debug producer/consumer spawn manager
+            if (spawnPointManager != null)
+            {
+                Gizmos.color = Color.green;
+                foreach (var tile in spawnPointManager.ValidProducerTiles)
+                {
+                    Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.03f);
+                    Gizmos.DrawSphere(pos, 0.01f);
+                }
+                foreach (var tile in spawnPointManager.PlacedProducers)
+                {
+                    Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.06f);
+                    Gizmos.DrawSphere(pos, 0.035f);
+                }
+
+                Gizmos.color = Color.yellow;
+                foreach (var tile in spawnPointManager.ValidConsumerTiles)
+                {
+                    Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.04f);
+                    Gizmos.DrawSphere(pos, 0.008f);
+                }
+                foreach (var tile in spawnPointManager.PlacedConsumers)
+                {
+                    Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.07f);
+                    Gizmos.DrawSphere(pos, 0.03f);
                 }
             }
         }
