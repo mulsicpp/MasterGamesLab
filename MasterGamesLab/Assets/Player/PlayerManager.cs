@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UI;
 using Unity.Collections;
 using Unity.Netcode;
 using Unity.Services.Authentication;
@@ -153,6 +154,7 @@ public class PlayerManager : NetworkBehaviour
         this.Players = players;
         var index = Array.FindIndex(players, data => data.PlayerAuthId == AuthenticationService.Instance.PlayerId);
         SelfId = index == -1 ? PlayerId.NONE : new PlayerId((byte)index);
+        IngameUI.Instance.setMoney(Players[SelfId].Money);
     }
 
     public PlayerData? GetSelf()

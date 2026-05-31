@@ -13,6 +13,7 @@ namespace UI
         private VisualElement root;
         private Button buildRoadButton, buildCanalButton, buildPortButton, buyTruckButton, buyFreighterButton, confirmButton, cancelButton, hideButton;
         private Button currentActiveButton;
+        private Label moneyLabel;
         public const string activeClass = "ingame-build-button--active";
 
         private void Awake()
@@ -36,6 +37,7 @@ namespace UI
             confirmButton = root.Q<Button>("ConfirmButton");
             cancelButton = root.Q<Button>("CancelButton");
             hideButton = root.Q<Button>("HideButton");
+            moneyLabel= root.Q<Label>("MONEY");
 
             buildRoadButton.clicked += OnRoadClicked;
             buildCanalButton.clicked += OnCanalClicked;
@@ -61,6 +63,11 @@ namespace UI
             confirmButton.clicked -= OnConfirmPressed;
             cancelButton.clicked -= OnCancelPressed;
             hideButton.clicked -= OnHidePressed;
+        }
+
+        public void setMoney(ulong money)
+        {
+            moneyLabel.text = "Money: " + money;
         }
 
         private void HandleStateUIUpdate(ConstructionControls.ConstructionType state)
