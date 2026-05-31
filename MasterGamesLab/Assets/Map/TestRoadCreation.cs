@@ -65,7 +65,7 @@ public class TestRoadCreation : NetworkBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKeyDown(KeyCode.L))
         {
             var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
             if (tile == null) return;
@@ -73,13 +73,13 @@ public class TestRoadCreation : NetworkBehaviour
             Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Truck, tile.Id);
         }
 
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
-            if (tile == null) return;
-
-            Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
-        }
+        // if (Input.GetKeyDown(KeyCode.F))
+        // {
+        //     var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
+        //     if (tile == null) return;
+        // 
+        //     Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
+        // }
 
         if (Input.GetKeyDown(KeyCode.D))
         {
