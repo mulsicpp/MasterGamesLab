@@ -572,63 +572,62 @@ namespace Map
         {
             if (edges == null) return;
 
-            for (int i = 0; i < edges.Length; i++)
-            {
-                switch (edges[i].Type)
-                {
-                    case Edge.EdgeType.Road:
-                        Gizmos.color = Color.black;
-                        break;
-                    case Edge.EdgeType.Canal:
-                        Gizmos.color = Color.blue;
-                        break;
-                    case Edge.EdgeType.Rail:
-                        Gizmos.color = new Color(0.1f, 0.1f, 0.1f);
-                        break;
-                    default:
-                        Gizmos.color = new Color(1.0f, 1.0f, 1.0f, 0.05f);
-                        break;
-                }
-
-                Vector3 p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.01f);
-                Vector3 p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.01f);
-                Gizmos.DrawLine(p1, p2);
-
-                if (edges[i].Type != Edge.EdgeType.None)
-                {
-                    Gizmos.color = Constants.PLAYER_COLORS[edges[i].Owner % Constants.MAX_PLAYER_COUNT];
-
-                    var midPoint = (3 * p1 + p2) / 4.0f;
-                    Gizmos.DrawSphere(midPoint, 0.004f);
-                    midPoint = (p1 + 3 * p2) / 4.0f;
-                    Gizmos.DrawSphere(midPoint, 0.004f);
-                }
-
-                if (edges[i].BlueprintType != Edge.EdgeType.None)
-                {
-                    Gizmos.color = edges[i].BlueprintVisualState switch
-                    {
-                        VisualState.Preview => Color.purple,
-                        VisualState.Valid => Color.cyan,
-                        VisualState.Overlapping => Color.green,
-                        _ => Color.red,
-                    };
-
-                    p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.012f);
-                    p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.012f);
-                    Gizmos.DrawLine(p1, p2);
-                }
-            }
-
+            // for (int i = 0; i < edges.Length; i++)
+            // {
+            //     switch (edges[i].Type)
+            //     {
+            //         case Edge.EdgeType.Road:
+            //             Gizmos.color = Color.black;
+            //             break;
+            //         case Edge.EdgeType.Canal:
+            //             Gizmos.color = Color.blue;
+            //             break;
+            //         case Edge.EdgeType.Rail:
+            //             Gizmos.color = new Color(0.1f, 0.1f, 0.1f);
+            //             break;
+            //         default:
+            //             Gizmos.color = new Color(1.0f, 1.0f, 1.0f, 0.05f);
+            //             break;
+            //     }
+            // 
+            //     Vector3 p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.01f);
+            //     Vector3 p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.01f);
+            //     Gizmos.DrawLine(p1, p2);
+            // 
+            //     if (edges[i].Type != Edge.EdgeType.None)
+            //     {
+            //         Gizmos.color = Constants.PLAYER_COLORS[edges[i].Owner % Constants.MAX_PLAYER_COUNT];
+            // 
+            //         var midPoint = (3 * p1 + p2) / 4.0f;
+            //         Gizmos.DrawSphere(midPoint, 0.004f);
+            //         midPoint = (p1 + 3 * p2) / 4.0f;
+            //         Gizmos.DrawSphere(midPoint, 0.004f);
+            //     }
+            // 
+            //     if (edges[i].BlueprintType != Edge.EdgeType.None)
+            //     {
+            //         Gizmos.color = edges[i].BlueprintVisualState switch
+            //         {
+            //             VisualState.Preview => Color.purple,
+            //             VisualState.Valid => Color.cyan,
+            //             VisualState.Overlapping => Color.green,
+            //             _ => Color.red,
+            //         };
+            // 
+            //         p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.012f);
+            //         p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.012f);
+            //         Gizmos.DrawLine(p1, p2);
+            //     }
+            // }
             var orange = new Color(1.0f, 0.2f, 0.0f);
 
             foreach (var producer in infrastructure.Producers)
             {
                 if (producer.Tile != null)
                 {
-                    Vector3 basePos = GetProjectedPosition(producer.Tile.PositionOnSphere, 1.0f);
+                    Vector3 basePos = GetProjectedPosition(producer.Tile.PositionOnSphere, 1.015f);
                     Gizmos.color = Color.white;
-                    Gizmos.DrawSphere(basePos, 0.015f);
+                    Gizmos.DrawSphere(basePos, 0.025f);
 
                     if (producer.Good != Good.None)
                     {
@@ -639,8 +638,8 @@ namespace Map
                             case Good.Banana: Gizmos.color = Color.yellow; break;
                         }
 
-                        Vector3 cargoPos = GetProjectedPosition(producer.Tile.PositionOnSphere, 1.02f);
-                        Gizmos.DrawSphere(cargoPos, 0.005f);
+                        Vector3 cargoPos = GetProjectedPosition(producer.Tile.PositionOnSphere, 1.03f);
+                        Gizmos.DrawSphere(cargoPos, 0.007f);
                     }
                 }
             }
@@ -649,9 +648,9 @@ namespace Map
             {
                 if (consumer.Tile != null)
                 {
-                    Vector3 basePos = GetProjectedPosition(consumer.Tile.PositionOnSphere, 1.0f);
+                    Vector3 basePos = GetProjectedPosition(consumer.Tile.PositionOnSphere, 1.015f);
                     Gizmos.color = Color.black;
-                    Gizmos.DrawSphere(basePos, 0.015f);
+                    Gizmos.DrawSphere(basePos, 0.025f);
 
                     if (consumer.RequestedGood != Good.None)
                     {
@@ -662,8 +661,8 @@ namespace Map
                             case Good.Banana: Gizmos.color = Color.yellow; break;
                         }
 
-                        Vector3 cargoPos = GetProjectedPosition(consumer.Tile.PositionOnSphere, 1.02f);
-                        Gizmos.DrawSphere(cargoPos, 0.005f);
+                        Vector3 cargoPos = GetProjectedPosition(consumer.Tile.PositionOnSphere, 1.03f);
+                        Gizmos.DrawSphere(cargoPos, 0.007f);
                     }
                 }
             }
@@ -673,7 +672,7 @@ namespace Map
                 if (vehicle.PositionOnSphere == null) continue;
                 Vector3 basePos = vehicle.PositionOnSphere ?? Vector3.zero;
                 Gizmos.color = Constants.PLAYER_COLORS[vehicle.Owner % Constants.MAX_PLAYER_COUNT];
-                Gizmos.DrawSphere(GetProjectedPosition(basePos, 1.0f), 0.01f);
+                Gizmos.DrawSphere(GetProjectedPosition(basePos, 1.01f), 0.015f);
 
                 if (vehicle is Truck truck && truck.Good != Good.None)
                 {
@@ -684,8 +683,8 @@ namespace Map
                         case Good.Banana: Gizmos.color = Color.yellow; break;
                     }
 
-                    Vector3 cargoPos = GetProjectedPosition(basePos, 1.02f);
-                    Gizmos.DrawSphere(cargoPos, 0.005f);
+                    Vector3 cargoPos = GetProjectedPosition(basePos, 1.025f);
+                    Gizmos.DrawSphere(cargoPos, 0.007f);
                 }
 
                 if (vehicle is Freighter)
