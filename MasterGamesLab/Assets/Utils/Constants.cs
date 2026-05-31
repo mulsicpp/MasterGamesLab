@@ -5,8 +5,8 @@ public static class Constants
     public const byte MIN_PLAYER_COUNT = 2;
     public const byte MAX_PLAYER_COUNT = 4;
 
-    public static readonly Color ROAD_BLUEPRINT_COLOR = Color.mediumAquamarine;
-    public static readonly Color ROAD_BLUEPRINT_PREVIEW_COLOR = Color.grey;
+    public static readonly Color ROAD_BLUEPRINT_COLOR = Color.darkCyan;
+    public static readonly Color ROAD_BLUEPRINT_PREVIEW_COLOR = Color.mediumAquamarine;
 
     public struct OutlineData
     {
@@ -14,11 +14,18 @@ public static class Constants
         public Color InnerColor;
         public int TextureId;
     }
+    
+    public static OutlineData ROAD_BLUEPRINT_VALID_OUTLINE = new OutlineData()
+    {
+        OutlineColor = Color.blue,
+        InnerColor = new Color(0.5f, 0.5f, 1f, 1f),
+        TextureId = 1,
+    };
 
     public static OutlineData ROAD_BLUEPRINT_OVERLAPPING_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.black,
-        InnerColor = new Color(0, 0, 0, 0.5f),
+        InnerColor = new Color(0, 0, 0, 0.75f),
         TextureId = 0,
     };
     
