@@ -491,6 +491,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IngameInputs
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  constructionControls: {fileID: 985979807}
 --- !u!114 &985979807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -503,7 +504,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4f3d00999949f24cbdc27238df8845a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConstructionControls
-  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   type: 0
 --- !u!1 &1118779276
 GameObject:

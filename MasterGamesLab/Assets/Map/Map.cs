@@ -10,6 +10,8 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using Map.Fleet;
 using Map.Blueprint;
+using static UnityEditor.VersionControl.Asset;
+using Networking;
 
 namespace Map
 {
@@ -27,8 +29,7 @@ namespace Map
         public float Radius => radius;
         public int Resolution => resolution;
 
-        [SerializeField] private Timestamp timestamp = new Timestamp(0);
-        public Timestamp Timestamp => timestamp;
+        public Timestamp Timestamp = new Timestamp(0);
 
         [SerializeField] public bool Running = true;
 
@@ -72,6 +73,8 @@ namespace Map
         private Infrastructure.Infrastructure infrastructure;
         private Fleet.Fleet fleet;
 
+        public Networking.ReliableSender ReliableSender;
+        public Networking.UnreliableSender UnreliableSender;
 
         private void OnEnable()
         {
@@ -88,6 +91,8 @@ namespace Map
             edges = Array.Empty<Edge>();
             infrastructure = new Infrastructure.Infrastructure();
             fleet = new Fleet.Fleet();
+            ReliableSender = new Networking.ReliableSender(true);
+            UnreliableSender = new Networking.UnreliableSender();
 
             Blueprint = new Blueprint.Blueprint();
 
@@ -145,8 +150,10 @@ namespace Map
                     chunk.UpdateTileData();
                 }
 
-                if(renderTrees)
+                if (renderTrees)
+                {
                     chunk.RenderTrees();
+                }
             }
 
             foreach (var tile in tiles)
@@ -161,7 +168,7 @@ namespace Map
             {
                 if (edge.EdgeDirty)
                 {
-                    edge.ResetDirty();
+                    edge.ChangeVisualState();
                 }
             }
 
@@ -249,8 +256,8 @@ namespace Map
             {
                 Debug.Log($"Player {i + 1} Spawnpoint: ID {playerSpawns[i].Id} on Continent {playerSpawns[i].ContinentId}");
 
-                Infrastructure.SpawnLocal(new Producer.ProducerState
-                { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
+                // Infrastructure.SpawnLocal(new Producer.ProducerState
+                // { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
             }
 
             debugSpawnPoints = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
@@ -350,15 +357,18 @@ namespace Map
         {
             if (!IsServer) return;
 
-            var rpcParams = GetRpcParams(clientId);
+            var sender = new Networking.ReliableSender(false, clientId);
             Predicate<Timestamped> condition = obj => obj.Timestamp > clientTimestamp;
 
-            SyncObjectsOnClientFiltered<Edge, Edge.EdgeState>(edges, condition, rpcParams);
-            SyncObjectsOnClientFiltered<Producer, Producer.ProducerState>(infrastructure.Producers, condition,
-                rpcParams);
-            SyncObjectsOnClientFiltered<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition,
-                rpcParams);
-            SyncObjectsOnClientFiltered<Truck, Truck.TruckState>(fleet.Trucks, condition, rpcParams);
+            sender.AddObjects<Edge, Edge.EdgeState>(edges, condition);
+
+            sender.AddObjects<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
+            sender.AddObjects<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
+
+            sender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
+            sender.AddObjects<Freighter, Freighter.FreighterState>(fleet.Freighters, condition);
+
+            sender.Send();
         }
 
         public void UpdateDirtyObjectsOnClient()
@@ -367,118 +377,69 @@ namespace Map
 
             Predicate<Timestamped> condition = obj => obj.Dirty;
 
-            timestamp = Timestamp.Next();
-            SyncObjectsOnClientFiltered<Edge, Edge.EdgeState>(edges, condition);
+            ReliableSender.AddObjects<Edge, Edge.EdgeState>(edges, condition);
 
-            timestamp = Timestamp.Next();
-            SyncObjectsOnClientFiltered<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
-            timestamp = Timestamp.Next();
-            SyncObjectsOnClientFiltered<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
+            ReliableSender.AddObjects<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
+            ReliableSender.AddObjects<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
 
-            timestamp = Timestamp.Next();
-            SyncObjectsOnClientFiltered<Vehicle, Vehicle.VehicleProgressState>(fleet.Vehicles, v => v.ProgressDirty);
-            timestamp = Timestamp.Next();
-            SyncObjectsOnClientFiltered<Truck, Truck.TruckState>(fleet.Trucks, condition);
+            ReliableSender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
+            ReliableSender.AddObjects<Freighter, Freighter.FreighterState>(fleet.Freighters, condition);
+
+            ReliableSender.Send();
+
+
+            UnreliableSender.AddObjects<Vehicle, Vehicle.VehicleProgressState>(fleet.Vehicles,
+                obj => !obj.Dirty && obj.ProgressDirty);
+
+            UnreliableSender.Send();
         }
 
-        public void SyncObjectsOnClientFiltered<T, U>(IEnumerable<T> objects, Predicate<T> condition,
-            ClientRpcParams rpcParams = default) where U : struct, IState where T : ISynchableObject<U>
+
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        public void ApplyReliableStatesClientRpc(
+            Timestamp timestamp,
+            double serverTime,
+            Edge.EdgeState[] edges,
+            Producer.ProducerState[] producers,
+            Consumer.ConsumerState[] consumers,
+            Truck.TruckState[] trucks,
+            Freighter.FreighterState[] freighters,
+            ClientRpcParams rpcParams = default
+        )
         {
-            int currentSize = 0;
-            List<U> states = new List<U>();
+            Timestamp = timestamp;
+            ApplyStatesLocal(serverTime, this.edges, edges);
 
-            foreach (var obj in objects)
-            {
-                if (!condition(obj)) continue;
-                var state = obj.State;
-                int objSize = state.SerializedSize;
+            ApplyStatesLocal(serverTime, Infrastructure.Producers, producers);
+            ApplyStatesLocal(serverTime, Infrastructure.Consumers, consumers);
 
-                if (objSize > Constants.MAX_SYNC_STATE_BYTES_PER_RPC)
-                {
-                    if (states.Count > 0)
-                    {
-                        UpdateGenericStatesOnClient(Timestamp, states.ToArray(), rpcParams);
-                        states.Clear();
-                        currentSize = 0;
-                    }
-
-                    UpdateGenericStatesOnClient(Timestamp, new U[] { state }, rpcParams);
-                    continue;
-                }
-
-                if (currentSize + objSize > Constants.MAX_SYNC_STATE_BYTES_PER_RPC)
-                {
-                    UpdateGenericStatesOnClient(Timestamp, states.ToArray(), rpcParams);
-                    states.Clear();
-                    currentSize = 0;
-                }
-
-                states.Add(state);
-                currentSize += objSize;
-            }
-
-            if (states.Count > 0)
-            {
-                UpdateGenericStatesOnClient(Timestamp, states.ToArray(), rpcParams);
-            }
+            ApplyStatesLocal(serverTime, Fleet.Trucks, trucks);
+            ApplyStatesLocal(serverTime, Fleet.Freighters, freighters);
         }
-
-        public void UpdateGenericStatesOnClient<T>(Timestamp timestamp, T[] states, ClientRpcParams rpcParams = default)
-            where T : struct, IState
-        {
-            if (!IsServer) return;
-
-            double time = Time.timeAsDouble;
-            // edges
-            if (states is Edge.EdgeState[] e) UpdateEdgeStatesClientRpc(timestamp, time, e, rpcParams);
-
-            // structures
-            else if (states is Producer.ProducerState[] p) UpdateProducerStatesClientRpc(timestamp, time, p, rpcParams);
-            else if (states is Consumer.ConsumerState[] c) UpdateConsumerStatesClientRpc(timestamp, time, c, rpcParams);
-
-            // vehicles
-            else if (states is Vehicle.VehicleProgressState[] progress)
-                UpdateVehicleProgressStatesClientRpc(timestamp, time, progress, rpcParams);
-            else if (states is Truck.TruckState[] t) UpdateTruckStatesClientRpc(timestamp, time, t, rpcParams);
-            else if (states is Freighter.FreighterState[] f)
-                UpdateFreighterStatesClientRpc(timestamp, time, f, rpcParams);
-        }
-
-        [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void UpdateEdgeStatesClientRpc(Timestamp timestamp, double serverTime, Edge.EdgeState[] states,
-            ClientRpcParams rpcParams = default) => UpdateGenericStatesLocal(timestamp, serverTime, Edges, states);
-
-        [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void UpdateProducerStatesClientRpc(Timestamp timestamp, double serverTime,
-            Producer.ProducerState[] states, ClientRpcParams rpcParams = default) =>
-            UpdateGenericStatesLocal(timestamp, serverTime, Infrastructure.Producers, states);
-
-        [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void UpdateConsumerStatesClientRpc(Timestamp timestamp, double serverTime,
-            Consumer.ConsumerState[] states, ClientRpcParams rpcParams = default) =>
-            UpdateGenericStatesLocal(timestamp, serverTime, Infrastructure.Consumers, states);
 
         [ClientRpc(Delivery = RpcDelivery.Unreliable)]
-        private void UpdateVehicleProgressStatesClientRpc(Timestamp timestamp, double serverTime,
-            Vehicle.VehicleProgressState[] states, ClientRpcParams rpcParams = default) =>
-            UpdateGenericStatesLocal(timestamp, serverTime, Fleet.Vehicles, states);
+        public void ApplyUnreliableStatesClientRpc(double serverTime, Vehicle.VehicleProgressState[] vehicleProgresses,
+            ClientRpcParams rpcParams = default)
+        {
+            Debug.Log("received unreliable update! state count: " + vehicleProgresses.Length);
+            ApplyStatesLocal(serverTime, Fleet.Vehicles, vehicleProgresses);
+        }
 
-        [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void UpdateTruckStatesClientRpc(Timestamp timestamp, double serverTime, Truck.TruckState[] states,
-            ClientRpcParams rpcParams = default) =>
-            UpdateGenericStatesLocal(timestamp, serverTime, Fleet.Trucks, states);
-
-        [ClientRpc(Delivery = RpcDelivery.Reliable)]
-        private void UpdateFreighterStatesClientRpc(Timestamp timestamp, double serverTime,
-            Freighter.FreighterState[] states, ClientRpcParams rpcParams = default) =>
-            UpdateGenericStatesLocal(timestamp, serverTime, Fleet.Freighters, states);
+        private void ApplyStatesLocal<T, U>(double serverTime, IReadOnlyList<T> objects,
+            U[] states) where U : struct, IState where T : Timestamped, ISynchableObject<U>
+        {
+            foreach (var state in states)
+            {
+                objects[state.ArrayIndex].ApplyServerState(state, serverTime);
+            }
+        }
 
 
         private void UpdateGenericStatesLocal<T, U>(Timestamp timestamp, double serverTime, IReadOnlyList<T> objects,
             U[] states) where U : struct, IState where T : Timestamped, ISynchableObject<U>
         {
-            if (this.timestamp > timestamp) return;
-            this.timestamp = timestamp;
+            if (Timestamp > timestamp) return;
+            Timestamp = timestamp;
             foreach (var state in states)
             {
                 objects[state.ArrayIndex].ApplyServerState(state, serverTime);
@@ -522,8 +483,8 @@ namespace Map
                 edgeStates[i] = new Edge.EdgeState { Id = edgeIds[i], Type = edgeType, Owner = playerId };
             }
 
-            var nextTimestamp = Timestamp.Next();
-            UpdateEdgeStatesClientRpc(nextTimestamp, Time.timeAsDouble, edgeStates);
+            ReliableSender.AddStates(edgeStates);
+            ReliableSender.Send();
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
@@ -548,13 +509,12 @@ namespace Map
             var commonState = new Vehicle.CommonVehicleState
                 { Index = new((byte)index), Exists = true, ParkedTileId = parkedTileId, RouteIds = null };
 
-            var nextTimestamp = Timestamp.Next();
+
             if (type == Vehicle.VehicleType.Truck)
-                UpdateTruckStatesClientRpc(nextTimestamp, Time.timeAsDouble,
-                    new[] { new Truck.TruckState { Common = commonState, Good = Good.None } });
+                ReliableSender.Add(new Truck.TruckState { Common = commonState, Good = Good.None });
             else
-                UpdateFreighterStatesClientRpc(nextTimestamp, Time.timeAsDouble,
-                    new[] { new Freighter.FreighterState { Common = commonState } });
+                ReliableSender.Add(new Freighter.FreighterState { Common = commonState });
+            ReliableSender.Send();
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
@@ -591,7 +551,8 @@ namespace Map
             truckState.Common.RouteProgress = 0.0f;
 
             var nextTimestamp = Timestamp.Next();
-            UpdateTruckStatesClientRpc(nextTimestamp, Time.timeAsDouble, new[] { truckState });
+
+            ReliableSender.Add(truckState);
         }
 
 

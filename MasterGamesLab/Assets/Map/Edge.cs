@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Map.GeometryGeneration.Edges;
 using Unity.Netcode;
 using UnityEngine;
+using Networking;
 
 namespace Map
 {
@@ -107,7 +109,17 @@ namespace Map
             }
         }
 
-        public bool BlueprintPreview;
+        private bool blueprintPreview;
+
+        public bool BlueprintPreview
+        {
+            get { return blueprintPreview; }
+            set
+            {
+                blueprintPreview = value;
+                TriggerDirty();
+            }
+        }
 
         public Blueprint.VisualState BlueprintVisualState
         {
@@ -159,14 +171,18 @@ namespace Map
 
         public bool CanBecomeRoad()
         {
-            return Type == EdgeType.None && StartTile.Type != Tile.TileType.Mountain && StartTile.Type != Tile.TileType.Water && EndTile.Type != Tile.TileType.Mountain && EndTile.Type != Tile.TileType.Water;
+            return Type == EdgeType.None && StartTile.Type != Tile.TileType.Mountain &&
+                   StartTile.Type != Tile.TileType.Water && EndTile.Type != Tile.TileType.Mountain &&
+                   EndTile.Type != Tile.TileType.Water;
         }
 
         public bool CanBecomeCanal()
         {
             if (Type != EdgeType.None) return false;
-            var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWith(e => e.Type == EdgeType.Canal) > 0;
-            var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWith(e => e.Type == EdgeType.Canal) > 0;
+            var startHasWater = StartTile.Type == Tile.TileType.Water ||
+                                StartTile.CountEdgesWith(e => e.Type == EdgeType.Canal) > 0;
+            var endHasWater = EndTile.Type == Tile.TileType.Water ||
+                              EndTile.CountEdgesWith(e => e.Type == EdgeType.Canal) > 0;
 
             var startCanBuild = StartTile.Type == Tile.TileType.Plain || StartTile.Type == Tile.TileType.Forest;
             var endCanBuild = EndTile.Type == Tile.TileType.Plain || EndTile.Type == Tile.TileType.Forest;
@@ -196,17 +212,18 @@ namespace Map
             if (BlueprintType != EdgeType.None && BlueprintType != type && !BlueprintPreview) return false;
             if (Type == type) return true;
 
-            if(type == EdgeType.Canal)
+            if (type == EdgeType.Canal)
             {
                 if (Type != EdgeType.None) return false;
 
-                var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0;
-                var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0;
+                //var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0;
+                //var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0;
 
                 var startCanBuild = StartTile.Type == Tile.TileType.Plain || StartTile.Type == Tile.TileType.Forest;
                 var endCanBuild = EndTile.Type == Tile.TileType.Plain || EndTile.Type == Tile.TileType.Forest;
-                return (startHasWater && endCanBuild) || (startCanBuild && endHasWater);
-            } else if (CanBecomeType(type)) return true;
+                return (endCanBuild) || (startCanBuild);
+            }
+            else if (CanBecomeType(type)) return true;
 
             return false;
         }
@@ -227,7 +244,14 @@ namespace Map
                 geometry.SetEndMesh(partialGeometry);
             }
 
-            geometry.SetRoadColor(PlayerManager.Instance.GetPlayerColor(Owner));
+            if (PlayerManager.Instance != null)
+            {
+                geometry.SetRoadColor(PlayerManager.Instance.GetPlayerColor(Owner));
+            }
+            else
+            {
+                geometry.SetRoadColor(Color.black);
+            }
 
             if (Type == EdgeType.Canal)
             {
@@ -257,11 +281,29 @@ namespace Map
                 blueprintGeometry.SetEndMesh(partialGeometry);
             }
 
+            SetBlueprintColorAndOutline();
+        }
+
+        public void ChangeVisualState()
+        {
+            SetBlueprintColorAndOutline();
+            EdgeDirty = false;
+        }
+
+        private void SetBlueprintColorAndOutline()
+        {
             switch (BlueprintVisualState)
             {
                 case Blueprint.VisualState.Valid:
-                    blueprintGeometry.SetLayer(EdgeGeometry.defaultLayer);
+                    blueprintGeometry.SetLayer(EdgeGeometry.outlineLayer);
                     blueprintGeometry.SetRoadColor(Constants.ROAD_BLUEPRINT_COLOR);
+
+                    var outline = BlueprintType switch
+                    {
+                        EdgeType.Canal => Constants.CANAL_BLUEPRINT_VALID_OUTLINE,
+                        _ => Constants.ROAD_BLUEPRINT_VALID_OUTLINE
+                    };
+                    blueprintGeometry.SetOutlineParameters(outline);
                     break;
                 case Blueprint.VisualState.Preview:
                     blueprintGeometry.SetLayer(EdgeGeometry.defaultLayer);
@@ -279,11 +321,6 @@ namespace Map
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-        }
-
-        public void ChangeVisualState()
-        {
-            EdgeDirty = false;
         }
 
         private void TriggerGeometryChange()
