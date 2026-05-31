@@ -149,7 +149,9 @@ namespace Map
                 }
 
                 if (renderTrees)
+                {
                     chunk.RenderTrees();
+                }
             }
 
             foreach (var tile in tiles)
@@ -161,7 +163,12 @@ namespace Map
             }
 
             foreach (var edge in edges)
-                edge.EdgeDirty = false;
+            {
+                if (edge.EdgeDirty)
+                {
+                    edge.ChangeVisualState();
+                }
+            }
 
             MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
             MainCamera.Instance.PlanetControllerEnabled = Running;
@@ -245,7 +252,8 @@ namespace Map
 
             for (int i = 0; i < playerSpawns.Length; i++)
             {
-                Debug.Log($"Spieler {i + 1} Spawnpunkt: ID {playerSpawns[i].Id} auf Kontinent {playerSpawns[i].ContinentId}");
+                Debug.Log(
+                    $"Spieler {i + 1} Spawnpunkt: ID {playerSpawns[i].Id} auf Kontinent {playerSpawns[i].ContinentId}");
 
                 // Infrastructure.SpawnLocal(new Producer.ProducerState
                 // { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
@@ -255,7 +263,8 @@ namespace Map
 
             for (int i = 0; i < debugSpawnPoints.Length; i++)
             {
-                Debug.Log($"Spieler {i + 1} Spawnpunkt: ID {debugSpawnPoints[i].Id} auf Kontinent {debugSpawnPoints[i].ContinentId}");
+                Debug.Log(
+                    $"Spieler {i + 1} Spawnpunkt: ID {debugSpawnPoints[i].Id} auf Kontinent {debugSpawnPoints[i].ContinentId}");
             }
 
             //Infrastructure.SpawnLocal(new Producer.ProducerState
@@ -354,7 +363,8 @@ namespace Map
             ReliableSender.Send();
 
 
-            UnreliableSender.AddObjects<Vehicle, Vehicle.VehicleProgressState>(fleet.Vehicles, obj => !obj.Dirty && obj.ProgressDirty);
+            UnreliableSender.AddObjects<Vehicle, Vehicle.VehicleProgressState>(fleet.Vehicles,
+                obj => !obj.Dirty && obj.ProgressDirty);
 
             UnreliableSender.Send();
         }
@@ -383,7 +393,8 @@ namespace Map
         }
 
         [ClientRpc(Delivery = RpcDelivery.Unreliable)]
-        public void ApplyUnreliableStatesClientRpc(double serverTime, Vehicle.VehicleProgressState[] vehicleProgresses, ClientRpcParams rpcParams = default)
+        public void ApplyUnreliableStatesClientRpc(double serverTime, Vehicle.VehicleProgressState[] vehicleProgresses,
+            ClientRpcParams rpcParams = default)
         {
             Debug.Log("received unreliable update! state count: " + vehicleProgresses.Length);
             ApplyStatesLocal(serverTime, Fleet.Vehicles, vehicleProgresses);
@@ -471,7 +482,7 @@ namespace Map
             Debug.Log("Found free index for vehicle:" + index);
 
             var commonState = new Vehicle.CommonVehicleState
-            { Index = new((byte)index), Exists = true, ParkedTileId = parkedTileId, RouteIds = null };
+                { Index = new((byte)index), Exists = true, ParkedTileId = parkedTileId, RouteIds = null };
 
 
             if (type == Vehicle.VehicleType.Truck)

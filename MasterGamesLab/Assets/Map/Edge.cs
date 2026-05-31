@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Map.GeometryGeneration.Edges;
 using Unity.Netcode;
 using UnityEngine;
@@ -280,12 +281,29 @@ namespace Map
                 blueprintGeometry.SetEndMesh(partialGeometry);
             }
 
+            SetBlueprintColorAndOutline();
+        }
+
+        public void ChangeVisualState()
+        {
+            SetBlueprintColorAndOutline();
+            EdgeDirty = false;
+        }
+
+        private void SetBlueprintColorAndOutline()
+        {
             switch (BlueprintVisualState)
             {
                 case Blueprint.VisualState.Valid:
                     blueprintGeometry.SetLayer(EdgeGeometry.outlineLayer);
                     blueprintGeometry.SetRoadColor(Constants.ROAD_BLUEPRINT_COLOR);
-                    blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_VALID_OUTLINE);
+
+                    var outline = BlueprintType switch
+                    {
+                        EdgeType.Canal => Constants.CANAL_BLUEPRINT_VALID_OUTLINE,
+                        _ => Constants.ROAD_BLUEPRINT_VALID_OUTLINE
+                    };
+                    blueprintGeometry.SetOutlineParameters(outline);
                     break;
                 case Blueprint.VisualState.Preview:
                     blueprintGeometry.SetLayer(EdgeGeometry.defaultLayer);
@@ -303,11 +321,6 @@ namespace Map
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-        }
-
-        public void ChangeVisualState()
-        {
-            EdgeDirty = false;
         }
 
         private void TriggerGeometryChange()

@@ -14,21 +14,28 @@ public static class Constants
         public Color InnerColor;
         public int TextureId;
     }
-    
+
     public static OutlineData ROAD_BLUEPRINT_VALID_OUTLINE = new OutlineData()
     {
+        OutlineColor = Color.black,
+        InnerColor = new Color(0.5f, 0.5f, 1f, 0.2f),
+        TextureId = 1,
+    };
+
+    public static OutlineData CANAL_BLUEPRINT_VALID_OUTLINE = new OutlineData()
+    {
         OutlineColor = Color.blue,
-        InnerColor = new Color(0.5f, 0.5f, 1f, 1f),
+        InnerColor = new Color(0, 1, 1, 0.2f),
         TextureId = 1,
     };
 
     public static OutlineData ROAD_BLUEPRINT_OVERLAPPING_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.black,
-        InnerColor = new Color(0, 0, 0, 0.75f),
-        TextureId = 0,
+        InnerColor = new Color(0, 0, 0, 1f),
+        TextureId = 1,
     };
-    
+
     public static readonly Color ROAD_BLUEPRINT_INVALID_COLOR = Color.orange;
 
     public static OutlineData ROAD_BLUEPRINT_INVALID_OUTLINE = new OutlineData()
