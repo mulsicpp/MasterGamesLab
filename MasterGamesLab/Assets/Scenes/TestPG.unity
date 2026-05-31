@@ -215,10 +215,10 @@ MonoBehaviour:
   radius: 1
   resolution: 20
   chunkPrefab: {fileID: 5519249646154030829, guid: 65a832fee843f45478962ed766b9ddce, type: 3}
+  edgeGeometryPrefab: {fileID: 420706747741259336, guid: 062ae24f83397864ca7ba25153e53b3e, type: 3}
   fullSphereDistance: 2.6
   fullProjectionDistance: 2.3
-  testStartTileId: -1
-  testTargetTileId: -1
+  renderTrees: 1
 --- !u!114 &1369835668
 MonoBehaviour:
   m_ObjectHideFlags: 0
