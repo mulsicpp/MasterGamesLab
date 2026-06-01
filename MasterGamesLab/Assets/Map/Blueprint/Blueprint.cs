@@ -184,12 +184,12 @@ namespace Map.Blueprint
 
             foreach(var edgeId in edgeIds)
             {
-                lastPacket.AddEdgeToPackets(edgeId, packets);
+                lastPacket = lastPacket.AddEdgeToPackets(edgeId, packets);
             }
 
             foreach (var tileId in structureTileIds)
             {
-                lastPacket.AddStructureToPackets(tileId, packets);
+                lastPacket = lastPacket.AddStructureToPackets(tileId, packets);
             }
 
             if(lastPacket.NettoSize == 0)
