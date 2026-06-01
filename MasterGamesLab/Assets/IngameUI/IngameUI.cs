@@ -67,7 +67,7 @@ namespace UI
 
         public void setMoney(ulong money)
         {
-            moneyLabel.text = "Money: " + money;
+            moneyLabel.text = "MONEY: " + money;
         }
 
         private void HandleStateUIUpdate(ConstructionControls.ConstructionType state)
