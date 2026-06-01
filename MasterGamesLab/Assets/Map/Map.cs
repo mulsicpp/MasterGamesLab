@@ -12,6 +12,8 @@ using Map.Fleet;
 using Map.Blueprint;
 using static UnityEditor.VersionControl.Asset;
 using Networking;
+using Blueprint;
+using UnityEditor.PackageManager;
 
 namespace Map
 {
@@ -38,6 +40,8 @@ namespace Map
         public IReadOnlyFleet Fleet => fleet;
 
         public Blueprint.Blueprint Blueprint;
+
+        private BlueprintPacket[] storedBlueprintPackets;
 
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
@@ -95,6 +99,9 @@ namespace Map
             UnreliableSender = new Networking.UnreliableSender();
 
             Blueprint = new Blueprint.Blueprint();
+            storedBlueprintPackets = new BlueprintPacket[4];
+            for (int i = 0; i < storedBlueprintPackets.Length; i++)
+                storedBlueprintPackets[i] = new BlueprintPacket();
 
             var currentId = 0;
             foreach (var chunkPoints in chunksPoints)
@@ -425,6 +432,12 @@ namespace Map
             ApplyStatesLocal(serverTime, Fleet.Vehicles, vehicleProgresses);
         }
 
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        public void BlueprintAcknowledgementClientRpc(ClientRpcParams rpcParams = default)
+        {
+            Blueprint.Clear();
+        }
+
         private void ApplyStatesLocal<T, U>(double serverTime, IReadOnlyList<T> objects,
             U[] states) where U : struct, IState where T : Timestamped, ISynchableObject<U>
         {
@@ -434,15 +447,66 @@ namespace Map
             }
         }
 
-
-        private void UpdateGenericStatesLocal<T, U>(Timestamp timestamp, double serverTime, IReadOnlyList<T> objects,
-            U[] states) where U : struct, IState where T : Timestamped, ISynchableObject<U>
+        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
+        public void SendBlueprintPacketServerRpc(EdgeId[] roads, EdgeId[] canals, TileId[] ports, bool hasNext,
+            RpcParams rpcParams = default)
         {
-            if (Timestamp > timestamp) return;
-            Timestamp = timestamp;
-            foreach (var state in states)
+            var playerId =
+                PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
+            Debug.Log("Received new blueprint packet from player " + playerId.Value);
+            if (playerId == PlayerId.NONE) return;
+
+            storedBlueprintPackets[playerId].Append(new BlueprintPacket(roads, canals, ports));
+
+            if(!hasNext)
             {
-                objects[state.ArrayIndex].ApplyServerState(state, serverTime);
+                var packet = storedBlueprintPackets[playerId];
+                Debug.Log("Applying blueprint from player " + playerId.Value);
+
+                // TODO validation
+                foreach(var edgeId in packet.RoadEdgeIds)
+                {
+                    if(edgeId < 0 || edgeId > edges.Length) continue;
+                    var edge = edges[edgeId];
+
+                    if(edge.Type == Edge.EdgeType.None)
+                    {
+                        ReliableSender.Add(new Edge.EdgeState { Id = edgeId, Type = Edge.EdgeType.Road, Owner = playerId });
+                    }
+                }
+
+                foreach (var edgeId in packet.CanalEdgeIds)
+                {
+                    if (edgeId < 0 || edgeId > edges.Length) continue;
+                    var edge = edges[edgeId];
+
+                    if (edge.Type == Edge.EdgeType.None)
+                    {
+                        ReliableSender.Add(new Edge.EdgeState { Id = edgeId, Type = Edge.EdgeType.Canal, Owner = playerId });
+                    }
+                }
+
+                // foreach (var tileId in packet.PortTileIds)
+                // {
+                //     if (tileId < 0 || tileId > tiles.Count) continue;
+                //     var tile = tiles[tileId];
+                // 
+                //     if (tile.Structure == null)
+                //     {
+                //         ReliableSender.Add(new Port.PortState { Type = Edge.EdgeType.Canal, Owner = playerId });
+                //     }
+                // }
+                var responseRpcParams = new ClientRpcParams
+                {
+                    Send = new ClientRpcSendParams
+                    {
+                        TargetClientIds = new List<ulong> { rpcParams.Receive.SenderClientId },
+                    }
+                };
+
+                BlueprintAcknowledgementClientRpc(responseRpcParams);
+
+                ReliableSender.Send();
             }
         }
 
@@ -597,53 +661,54 @@ namespace Map
         {
             if (edges == null) return;
 
-            // for (int i = 0; i < edges.Length; i++)
-            // {
-            //     switch (edges[i].Type)
-            //     {
-            //         case Edge.EdgeType.Road:
-            //             Gizmos.color = Color.black;
-            //             break;
-            //         case Edge.EdgeType.Canal:
-            //             Gizmos.color = Color.blue;
-            //             break;
-            //         case Edge.EdgeType.Rail:
-            //             Gizmos.color = new Color(0.1f, 0.1f, 0.1f);
-            //             break;
-            //         default:
-            //             Gizmos.color = new Color(1.0f, 1.0f, 1.0f, 0.05f);
-            //             break;
-            //     }
-            // 
-            //     Vector3 p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.01f);
-            //     Vector3 p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.01f);
-            //     Gizmos.DrawLine(p1, p2);
-            // 
-            //     if (edges[i].Type != Edge.EdgeType.None)
-            //     {
-            //         Gizmos.color = Constants.PLAYER_COLORS[edges[i].Owner % Constants.MAX_PLAYER_COUNT];
-            // 
-            //         var midPoint = (3 * p1 + p2) / 4.0f;
-            //         Gizmos.DrawSphere(midPoint, 0.004f);
-            //         midPoint = (p1 + 3 * p2) / 4.0f;
-            //         Gizmos.DrawSphere(midPoint, 0.004f);
-            //     }
-            // 
-            //     if (edges[i].BlueprintType != Edge.EdgeType.None)
-            //     {
-            //         Gizmos.color = edges[i].BlueprintVisualState switch
-            //         {
-            //             VisualState.Preview => Color.purple,
-            //             VisualState.Valid => Color.cyan,
-            //             VisualState.Overlapping => Color.green,
-            //             _ => Color.red,
-            //         };
-            // 
-            //         p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.012f);
-            //         p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.012f);
-            //         Gizmos.DrawLine(p1, p2);
-            //     }
-            // }
+            for (int i = 0; i < edges.Length; i++)
+            {
+                switch (edges[i].Type)
+                {
+                    case Edge.EdgeType.Road:
+                        Gizmos.color = Color.black;
+                        break;
+                    case Edge.EdgeType.Canal:
+                        Gizmos.color = Color.blue;
+                        break;
+                    case Edge.EdgeType.Rail:
+                        Gizmos.color = new Color(0.1f, 0.1f, 0.1f);
+                        break;
+                    default:
+                        Gizmos.color = new Color(1.0f, 1.0f, 1.0f, 0.05f);
+                        break;
+                }
+            
+                Vector3 p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.01f);
+                Vector3 p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.01f);
+                Gizmos.DrawLine(p1, p2);
+            
+                if (edges[i].Type != Edge.EdgeType.None)
+                {
+                    Gizmos.color = Constants.PLAYER_COLORS[edges[i].Owner % Constants.MAX_PLAYER_COUNT];
+            
+                    var midPoint = (3 * p1 + p2) / 4.0f;
+                    Gizmos.DrawSphere(midPoint, 0.004f);
+                    midPoint = (p1 + 3 * p2) / 4.0f;
+                    Gizmos.DrawSphere(midPoint, 0.004f);
+                }
+            
+                if (edges[i].BlueprintType != Edge.EdgeType.None)
+                {
+                    Gizmos.color = edges[i].BlueprintVisualState switch
+                    {
+                        VisualState.Preview => Color.purple,
+                        VisualState.Valid => Color.cyan,
+                        VisualState.Overlapping => Color.green,
+                        _ => Color.red,
+                    };
+            
+                    p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.012f);
+                    p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.012f);
+                    Gizmos.DrawLine(p1, p2);
+                }
+            }
+
             var orange = new Color(1.0f, 0.2f, 0.0f);
 
             foreach (var producer in infrastructure.Producers)

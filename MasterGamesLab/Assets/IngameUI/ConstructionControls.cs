@@ -112,10 +112,7 @@ public class ConstructionControls : MonoBehaviour
     {
         Debug.Log("Confirming construction: Applying blueprint changes.");
 
-        if (startTile != null)
-        {
-            Map.Map.Instance.Blueprint.ApplyPreview();
-        }
+        Map.Map.Instance.Blueprint.Submit();
 
         Type = ConstructionType.None;
     }
