@@ -501,9 +501,14 @@ namespace Map
                 // 
                 //     if (tile.Structure == null)
                 //     {
-                //         ReliableSender.Add(new Port.PortState { Type = Edge.EdgeType.Canal, Owner = playerId });
+                //         var index = infrastructure.GetFirstEmptyIndex(Structure.StructureType.Port, playerId);
+                //         if (index == -1) continue;
+                // 
+                //         ReliableSender.Add(new Port.PortState { Common = { Index = new StructureIndex((byte)index), TileId = tile.Id } });
                 //     }
                 // }
+
+
                 var responseRpcParams = new ClientRpcParams
                 {
                     Send = new ClientRpcSendParams
@@ -719,6 +724,23 @@ namespace Map
             }
 
             var orange = new Color(1.0f, 0.2f, 0.0f);
+
+            foreach(var tile in tiles)
+            {
+                if(tile.BlueprintStructureType != null)
+                {
+                    Gizmos.color = tile.BlueprintVisualState switch
+                    {
+                        VisualState.Preview => Color.purple,
+                        VisualState.PreviewOverlapping => Color.blue,
+                        VisualState.Valid => Color.cyan,
+                        VisualState.Overlapping => Color.green,
+                        _ => Color.red,
+                    };
+
+                    Gizmos.DrawWireSphere(GetProjectedPosition(tile.PositionOnSphere, 1.015f), 0.025f);
+                }
+            }
 
             foreach (var producer in infrastructure.Producers)
             {
