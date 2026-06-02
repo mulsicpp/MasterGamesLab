@@ -119,5 +119,11 @@ public class TestRoadCreation : NetworkBehaviour
 
             Map.Map.Instance.RequestVehicleRouteServerRpc(Vehicle.GetOffsetFromType(Vehicle.VehicleType.Freighter) + freighter.Index, tileIds);
         }
+
+        if(Input.GetKeyDown(KeyCode.A)) 
+        {
+            Debug.Log("Loading truck");
+            Map.Map.Instance.LoadFirstTruckOnFreighterServerRpc();
+        }
     }
 }

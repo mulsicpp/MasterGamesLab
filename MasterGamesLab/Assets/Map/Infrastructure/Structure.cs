@@ -2,6 +2,7 @@
 using Unity.Netcode;
 using Networking;
 using static Map.Fleet.Vehicle;
+using UnityEngine;
 
 namespace Map.Infrastructure
 {
@@ -53,6 +54,7 @@ namespace Map.Infrastructure
                         value.Structure.tile = null;
                     value.Structure = this;
                 }
+                Debug.Log("tile changed to: " + (int)(value?.Id ?? -1));
                 tile = value;
                 Touch();
             }

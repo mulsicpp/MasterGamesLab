@@ -37,6 +37,8 @@ namespace Map.Fleet
         public override PlayerId Owner => new PlayerId((byte)(Index / Constants.MAX_FREIGHTERS_PER_PLAYER));
         public override float SpeedTPS => Constants.FREIGHTER_SPEED_TPS;
 
+        public Truck Truck;
+
         public FreighterState State
         {
             get => new FreighterState { Common = CommonState };

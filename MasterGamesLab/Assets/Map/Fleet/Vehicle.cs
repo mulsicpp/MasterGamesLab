@@ -259,7 +259,7 @@ namespace Map.Fleet
 
         protected abstract void OnParked();
 
-        public Vector3? PositionOnSphere
+        public virtual Vector3? PositionOnSphere
         {
             get
             {

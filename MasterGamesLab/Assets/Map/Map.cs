@@ -588,7 +588,7 @@ namespace Map
 
 
             if (type == Vehicle.VehicleType.Truck)
-                ReliableSender.Add(new Truck.TruckState { Common = commonState, Good = Good.None });
+                ReliableSender.Add(new Truck.TruckState { Common = commonState, Good = Good.None, FreighterIndex = VehicleIndex.NONE });
             else
                 ReliableSender.Add(new Freighter.FreighterState { Common = commonState });
             ReliableSender.Send();
@@ -644,6 +644,28 @@ namespace Map
 
                 ReliableSender.Add(freighterState);
             }
+            ReliableSender.Send();
+        }
+
+
+        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
+        public void LoadFirstTruckOnFreighterServerRpc(RpcParams rpcParams = default)
+        {
+            var playerId =
+                PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
+            Debug.Log("Received load request from player " + playerId.Value);
+
+            if (playerId == PlayerId.NONE) return;
+
+            var truck = Fleet.Trucks.FirstOrDefault(truck => truck.Owner == playerId);
+            var freighter = Fleet.Freighters.FirstOrDefault(freighter => freighter.Owner == playerId);
+            Debug.Log("Loading truck" + truck.Index.Value + "onto freighter " + freighter.Index.Value);
+
+            var truckState = truck.State;
+
+            truckState.FreighterIndex = freighter.Index;
+
+            ReliableSender.Add(truckState);
             ReliableSender.Send();
         }
 
