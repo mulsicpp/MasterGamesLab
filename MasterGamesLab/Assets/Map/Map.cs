@@ -595,17 +595,18 @@ namespace Map
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void RequestTruckRouteServerRpc(VehicleIndex index, TileId[] routeIds, RpcParams rpcParams = default)
+        public void RequestVehicleRouteServerRpc(int vehicleIndex, TileId[] routeIds, RpcParams rpcParams = default)
         {
             var playerId =
                 PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-            Debug.Log("Received truck route request from player " + playerId.Value);
+            Debug.Log("Received vehicle route request from player " + playerId.Value + " for vehicle " + vehicleIndex);
 
             if (playerId == PlayerId.NONE) return;
+            if(vehicleIndex < 0 || vehicleIndex >= Fleet.Vehicles.Count) return;
 
-            var truck = Fleet.Trucks[index];
+            var vehicle = Fleet.Vehicles[vehicleIndex];
 
-            if (!truck.IsParked || truck.Owner != playerId) return;
+            if (!vehicle.Exists || !vehicle.IsParked || vehicle.Owner != playerId) return;
             if (routeIds == null || routeIds.Length < 2) return;
 
             Tile[] route = new Tile[routeIds.Length];
@@ -616,20 +617,34 @@ namespace Map
                 route[i] = tiles[routeIds[i]];
             }
 
+            Debug.Log("Checking path");
             for (int i = 1; i < routeIds.Length; i++)
             {
-                if (!Vehicle.CanCross(route[i - 1], route[i], Vehicle.VehicleType.Truck)) return;
+                if (!Vehicle.CanCross(route[i - 1], route[i], vehicle.Type)) return;
             }
+            Debug.Log("Path OK");
 
-            var truckState = truck.State;
+            if (vehicle.Type == Vehicle.VehicleType.Truck)
+            {
+                var truckState = (vehicle as Truck).State;
 
-            truckState.Common.ParkedTileId = TileId.NONE;
-            truckState.Common.RouteIds = routeIds;
-            truckState.Common.RouteProgress = 0.0f;
+                truckState.Common.ParkedTileId = TileId.NONE;
+                truckState.Common.RouteIds = routeIds;
+                truckState.Common.RouteProgress = 0.0f;
 
-            var nextTimestamp = Timestamp.Next();
+                ReliableSender.Add(truckState);
+            }
+            else
+            {
+                var freighterState = (vehicle as Freighter).State;
 
-            ReliableSender.Add(truckState);
+                freighterState.Common.ParkedTileId = TileId.NONE;
+                freighterState.Common.RouteIds = routeIds;
+                freighterState.Common.RouteProgress = 0.0f;
+
+                ReliableSender.Add(freighterState);
+            }
+            ReliableSender.Send();
         }
 
 

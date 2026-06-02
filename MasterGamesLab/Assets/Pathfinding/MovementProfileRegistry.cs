@@ -1,9 +1,13 @@
 using Map;
+using Map.Fleet;
 
 public static class MovementProfileRegistry
 {
     public static MovementProfile TruckFastestRoute { get; private set; }
     public static MovementProfile TruckCheapestRoute { get; private set; }
+
+    public static MovementProfile FreighterFastestRoute { get; private set; }
+    public static MovementProfile FreighterCheapestRoute { get; private set; }
 
     public static MovementProfile FindRoadBuildPath { get; private set; }
     public static MovementProfile FindCanalBuildPath { get; private set; }
@@ -12,14 +16,24 @@ public static class MovementProfileRegistry
     public static void Initialize()
     {
         TruckFastestRoute = new MovementProfile();
-        TruckFastestRoute.IsHardBlocked = PathfindingRules.BlockNoRoad;
+        TruckFastestRoute.IsHardBlocked = (s, t) => !Vehicle.CanCross(s, t, Vehicle.VehicleType.Truck);
         TruckFastestRoute.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
         TruckFastestRoute.AddPriorityRule(1, PathfindingRules.MinimizeCost);
 
         TruckCheapestRoute = new MovementProfile();
-        TruckCheapestRoute.IsHardBlocked = PathfindingRules.BlockNoRoad;
+        TruckCheapestRoute.IsHardBlocked = (s, t) => !Vehicle.CanCross(s, t, Vehicle.VehicleType.Truck);
         TruckCheapestRoute.AddPriorityRule(0, PathfindingRules.MinimizeCost);
         TruckCheapestRoute.AddPriorityRule(1, PathfindingRules.MinimizeDistance);
+
+        FreighterFastestRoute = new MovementProfile();
+        FreighterFastestRoute.IsHardBlocked = (s, t) => !Vehicle.CanCross(s, t, Vehicle.VehicleType.Freighter);
+        FreighterFastestRoute.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
+        FreighterFastestRoute.AddPriorityRule(1, PathfindingRules.MinimizeCost);
+        
+        FreighterCheapestRoute = new MovementProfile();
+        FreighterCheapestRoute.IsHardBlocked = (s, t) => !Vehicle.CanCross(s, t, Vehicle.VehicleType.Freighter);
+        FreighterCheapestRoute.AddPriorityRule(0, PathfindingRules.MinimizeCost);
+        FreighterCheapestRoute.AddPriorityRule(1, PathfindingRules.MinimizeDistance);
 
         FindRoadBuildPath = new MovementProfile();
         FindRoadBuildPath.IsHardBlocked = (s, t) => PathfindingRules.BlockCannotBecomeBlueprintType(s, t, Edge.EdgeType.Road);

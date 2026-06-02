@@ -1,4 +1,5 @@
 using Map;
+using Map.Fleet;
 using Map.Infrastructure;
 using System;
 using System.Linq;
@@ -76,13 +77,10 @@ public class TestRoadCreation : NetworkBehaviour
             Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Truck, tile.Id);
         }
 
-        // if (Input.GetKeyDown(KeyCode.F))
-        // {
-        //     var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
-        //     if (tile == null) return;
-        // 
-        //     Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
-        // }
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
+        }
 
         if (Input.GetKeyDown(KeyCode.D))
         {
@@ -92,34 +90,6 @@ public class TestRoadCreation : NetworkBehaviour
 
             TileId[] tileIds = null;
 
-            PlayerId myId = PlayerManager.Instance.SelfId;
-
-            Func<Tile, Tile, long> shortestCost = (Tile t1, Tile t2) =>
-            {
-                Edge edge = t1.FindEdgeTo(t2);
-                if (edge == null || edge.Type != Edge.EdgeType.Road) return -1;
-
-                long primary = (long)Constants.ROAD_MOVEMENT_DISTANCE << 32;
-                long secondary = edge.Owner == PlayerId.NONE ? Constants.PUBLIC_ROAD_MOVEMENT_COST :
-                                 edge.Owner == myId ? Constants.OWN_ROAD_MOVEMENT_COST :
-                                                                 Constants.ENEMY_ROAD_MOVEMENT_COST;
-
-                return primary | (secondary & 0xFFFFFFFFL);
-            };
-
-            Func<Tile, Tile, long> cheapestCost = (Tile t1, Tile t2) =>
-            {
-                Edge edge = t1.FindEdgeTo(t2);
-                if (edge == null || edge.Type != Edge.EdgeType.Road) return -1;
-                long primary = edge.Owner == PlayerId.NONE ? Constants.PUBLIC_ROAD_MOVEMENT_COST :
-                               edge.Owner == myId ? Constants.OWN_ROAD_MOVEMENT_COST :
-                                                           Constants.ENEMY_ROAD_MOVEMENT_COST;
-                long secondary = (long)Constants.ROAD_MOVEMENT_DISTANCE;
-
-                return (primary << 32) | (secondary & 0xFFFFFFFFL);
-            };
-
-
             if (Input.GetKey(KeyCode.LeftShift))
                 tileIds = Pathfinding.FindPath(truck.ParkedTile, tile, MovementProfileRegistry.TruckCheapestRoute);
             else
@@ -127,7 +97,27 @@ public class TestRoadCreation : NetworkBehaviour
 
             if (tileIds == null) return;
 
-            Map.Map.Instance.RequestTruckRouteServerRpc(truck.Index, tileIds);
+            Map.Map.Instance.RequestVehicleRouteServerRpc(truck.State.ArrayIndex, tileIds);
+        }
+
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            var freighter = Map.Map.Instance.Fleet.Freighters.FirstOrDefault(freighter => freighter.Owner == PlayerManager.Instance.SelfId && freighter.IsParked);
+
+            if (freighter == null) return;
+
+            TileId[] tileIds = null;
+
+            if (Input.GetKey(KeyCode.LeftShift))
+                tileIds = Pathfinding.FindPath(freighter.ParkedTile, tile, MovementProfileRegistry.FreighterCheapestRoute);
+            else
+                tileIds = Pathfinding.FindPath(freighter.ParkedTile, tile, MovementProfileRegistry.FreighterFastestRoute);
+
+            if (tileIds == null) return;
+
+            Debug.Log("Freighter Path Length: " + tileIds.Length);
+
+            Map.Map.Instance.RequestVehicleRouteServerRpc(Vehicle.GetOffsetFromType(Vehicle.VehicleType.Freighter) + freighter.Index, tileIds);
         }
     }
 }
