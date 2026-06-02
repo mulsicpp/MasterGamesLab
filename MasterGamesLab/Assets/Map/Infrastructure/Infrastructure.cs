@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.Netcode;
-using Unity.Services.Qos.V2.Models;
 
 namespace Map.Infrastructure
 {
@@ -33,16 +31,12 @@ namespace Map.Infrastructure
 
         public int GetFirstEmptyIndex(Structure.StructureType type)
         {
-            Structure[] structures = null;
-
-            switch (type)
+            Structure[] structures = type switch
             {
-                case Structure.StructureType.Producer: structures = producers; break;
-                case Structure.StructureType.Consumer: structures = consumers; break;
-                // case Structure.StructureType.Garage: structures = Garages; break;
-                // case Structure.StructureType.Port: structures = Ports; break;
-                // case Structure.StructureType.TrainStation: structures = TrainStations; break;
-            }
+                Structure.StructureType.Producer => producers,
+                Structure.StructureType.Consumer => consumers,
+                _ => null
+            };
 
             if (structures == null) return -1;
 
@@ -51,7 +45,19 @@ namespace Map.Infrastructure
                 if (!structures[i].Exists)
                     return i;
             }
-            return -1;
+
+            return Test();
+
+            int Test()
+            {
+                var oo = 0;
+                for (var i = 0; i < 10; i++)
+                {
+                    oo += i;
+                }
+
+                return oo;
+            }
         }
 
         public void UpdateStructure<T>(T state) where T : struct, Structure.IStructureState
