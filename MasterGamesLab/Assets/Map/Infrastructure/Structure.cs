@@ -1,6 +1,7 @@
 
 using Unity.Netcode;
 using Networking;
+using static Map.Fleet.Vehicle;
 
 namespace Map.Infrastructure
 {
@@ -63,6 +64,16 @@ namespace Map.Infrastructure
         {
             get => new CommonStructureState { Index = Index, TileId = Tile?.Id ?? TileId.NONE };
             set => Tile = value.TileId != TileId.NONE && Map.Instance.Tiles[value.TileId] is Tile t ? t : null;
+        }
+
+        public static int GetMaxCountPerPlayer(StructureType type)
+        {
+            return type switch
+            {
+                StructureType.Garage => Constants.MAX_GARAGES_PER_PLAYER,
+                StructureType.Port => Constants.MAX_PORTS_PER_PLAYER,
+                _ => -1
+            };
         }
 
         protected Structure(StructureIndex index)

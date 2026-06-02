@@ -11,11 +11,11 @@ namespace Map.Infrastructure
         private Consumer[] consumers;
         public IReadOnlyList<Consumer> Consumers => consumers;
 
-        // Garage[] garages;
-        // public IReadOnlyList<Garage> Garages => garages;
+        Garage[] garages;
+        public IReadOnlyList<Garage> Garages => garages;
 
-        // Port[] ports;
-        // public IReadOnlyList<Port> Ports => ports;
+        Port[] ports;
+        public IReadOnlyList<Port> Ports => ports;
 
         // TrainStation[] trainStations;
         // public IReadOnlyList<TrainStation> TrainStations => trainStations;
@@ -27,60 +27,78 @@ namespace Map.Infrastructure
 
             consumers = new Consumer[Constants.MAX_CONSUMER_COUNT];
             for (var i = 0; i < consumers.Length; i++) consumers[i] = new Consumer(new StructureIndex((byte)i));
+
+            garages = new Garage[Constants.MAX_GARAGE_COUNT];
+            for (var i = 0; i < garages.Length; i++) garages[i] = new Garage(new StructureIndex((byte)i));
+
+            ports = new Port[Constants.MAX_PORT_COUNT];
+            for (var i = 0; i < ports.Length; i++) ports[i] = new Port(new StructureIndex((byte)i));
         }
 
-        public int GetFirstEmptyIndex(Structure.StructureType type)
+        public int GetFirstEmptyIndex(Structure.StructureType type) => GetFirstEmptyIndex(type, PlayerId.NONE);
+
+        public int GetFirstEmptyIndex(Structure.StructureType type, PlayerId owner)
         {
             Structure[] structures = type switch
             {
                 Structure.StructureType.Producer => producers,
                 Structure.StructureType.Consumer => consumers,
+                Structure.StructureType.Garage => garages,
+                Structure.StructureType.Port => ports,
+                // case Structure.StructureType.TrainStation: structures = trainStations; break;
                 _ => null
             };
 
             if (structures == null) return -1;
 
-            for (int i = 0; i < structures.Length; i++)
+            var countPerPlayer = Structure.GetMaxCountPerPlayer(type);
+            if (owner == PlayerId.NONE || countPerPlayer < 0)
             {
-                if (!structures[i].Exists)
-                    return i;
-            }
 
-            return Test();
-
-            int Test()
-            {
-                var oo = 0;
-                for (var i = 0; i < 10; i++)
+                for (int i = 0; i < structures.Length; i++)
                 {
-                    oo += i;
+                    if (!structures[i].Exists)
+                        return i;
                 }
-
-                return oo;
             }
+            else
+            {
+                for (int i = owner * countPerPlayer; i < ((int)owner + 1) * countPerPlayer; i++)
+                {
+                    if (!structures[i].Exists)
+                        return i;
+                }
+            }
+
+            return -1;
         }
 
         public void UpdateStructure<T>(T state) where T : struct, Structure.IStructureState
         {
             if (state is Producer.ProducerState p) producers[p.ArrayIndex].State = p;
             else if (state is Consumer.ConsumerState c) consumers[c.ArrayIndex].State = c;
+            else if (state is Port.PortState pt) ports[pt.ArrayIndex].State = pt;
+            else if (state is Garage.GarageState g) garages[g.ArrayIndex].State = g;
             else throw new ArgumentException("Given IStructureState is not supported: " + state.GetType().FullName);
         }
 
-        public bool SpawnLocal<T>(T state) where T : struct, Structure.IStructureState
+        public bool SpawnLocal<T>(T state) where T : struct, Structure.IStructureState => SpawnLocal(state, PlayerId.NONE);
+        public bool SpawnLocal<T>(T state, PlayerId owner) where T : struct, Structure.IStructureState
         {
-            int index = GetFirstEmptyIndex(state.Type);
+            int index = GetFirstEmptyIndex(state.Type, owner);
             if (index > -1)
             {
                 UpdateStructure(state);
                 return true;
             }
+
             return false;
         }
 
-        public bool SpawnGlobal<T>(T state) where T : struct, Structure.IStructureState
+        public bool SpawnGlobal<T>(T state) where T : struct, Structure.IStructureState => SpawnGlobal(state, PlayerId.NONE);
+        public bool SpawnGlobal<T>(T state, PlayerId owner) where T : struct, Structure.IStructureState
         {
-            int index = GetFirstEmptyIndex(state.Type);
+            int index = GetFirstEmptyIndex(state.Type, owner);
             if (index > -1)
             {
                 state.ArrayIndex = index;
@@ -90,6 +108,7 @@ namespace Map.Infrastructure
 
                 return true;
             }
+
             return false;
         }
     }
