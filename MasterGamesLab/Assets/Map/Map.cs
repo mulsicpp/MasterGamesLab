@@ -706,6 +706,7 @@ namespace Map
                     Gizmos.color = edges[i].BlueprintVisualState switch
                     {
                         VisualState.Preview => Color.purple,
+                        VisualState.PreviewOverlapping => Color.blue,
                         VisualState.Valid => Color.cyan,
                         VisualState.Overlapping => Color.green,
                         _ => Color.red,

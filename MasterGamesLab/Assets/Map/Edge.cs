@@ -126,7 +126,7 @@ namespace Map
             get
             {
                 if (blueprintType == EdgeType.None) return Blueprint.VisualState.Valid;
-                if (BlueprintPreview) return Blueprint.VisualState.Preview;
+                if (BlueprintPreview) return Type == EdgeType.None ? Blueprint.VisualState.Preview : Blueprint.VisualState.PreviewOverlapping;
                 if (type == EdgeType.None) return Blueprint.VisualState.Valid;
                 if (type == blueprintType) return Blueprint.VisualState.Overlapping;
                 return Blueprint.VisualState.Invalid;
@@ -308,6 +308,9 @@ namespace Map
                 case Blueprint.VisualState.Preview:
                     blueprintGeometry.SetLayer(EdgeGeometry.defaultLayer);
                     blueprintGeometry.SetRoadColor(Constants.ROAD_BLUEPRINT_PREVIEW_COLOR);
+                    break;
+                case Blueprint.VisualState.PreviewOverlapping:
+                    // TODO missing implementation
                     break;
                 case Blueprint.VisualState.Overlapping:
                     blueprintGeometry.SetLayer(EdgeGeometry.outlineTransparentLayer);
