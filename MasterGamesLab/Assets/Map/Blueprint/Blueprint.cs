@@ -1,3 +1,4 @@
+using Blueprint;
 using Map.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
@@ -171,6 +172,40 @@ namespace Map.Blueprint
         {
             ApplyPreviewEdges();
             ApplyPreviewStructure();
+        }
+
+        public void Submit()
+        {
+            ClearPreviewEdges();
+            ClearPreviewStructure();
+
+            List<BlueprintPacket> packets = new();
+            BlueprintPacket lastPacket = new();
+
+            foreach(var edgeId in edgeIds)
+            {
+                lastPacket = lastPacket.AddEdgeToPackets(edgeId, packets);
+            }
+
+            foreach (var tileId in structureTileIds)
+            {
+                lastPacket = lastPacket.AddStructureToPackets(tileId, packets);
+            }
+
+            if(lastPacket.NettoSize == 0)
+            {
+                if (packets.Count == 0)
+                    return;
+
+                lastPacket = packets.Last();
+                packets.RemoveAt(packets.Count - 1);
+            }
+
+            foreach(var packet in packets)
+            {
+                packet.Send(true);
+            }
+            lastPacket.Send(false);
         }
     }
 }

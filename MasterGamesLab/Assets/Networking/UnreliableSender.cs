@@ -88,7 +88,7 @@ namespace Networking
 
             Packet lastPacket = packets[packets.Count - 1];
 
-            if (lastPacket.NettoSize != 0 && lastPacket.NettoSize + size > Constants.MAX_SYNC_STATE_BYTES_PER_RPC)
+            if (lastPacket.NettoSize != 0 && lastPacket.NettoSize + size > Constants.MAX_NETTO_BYTES_PER_RPC)
             {
                 packets.Add(new Packet());
                 lastPacket = packets[packets.Count - 1];
