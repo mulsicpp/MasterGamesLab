@@ -371,6 +371,8 @@ namespace Map
 
             sender.AddObjects<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
             sender.AddObjects<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
+            sender.AddObjects<Garage, Garage.GarageState>(infrastructure.Garages, condition);
+            sender.AddObjects<Port, Port.PortState>(infrastructure.Ports, condition);
 
             sender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
             sender.AddObjects<Freighter, Freighter.FreighterState>(fleet.Freighters, condition);
@@ -388,6 +390,8 @@ namespace Map
 
             ReliableSender.AddObjects<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
             ReliableSender.AddObjects<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
+            ReliableSender.AddObjects<Garage, Garage.GarageState>(infrastructure.Garages, condition);
+            ReliableSender.AddObjects<Port, Port.PortState>(infrastructure.Ports, condition);
 
             ReliableSender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
             ReliableSender.AddObjects<Freighter, Freighter.FreighterState>(fleet.Freighters, condition);
@@ -409,6 +413,8 @@ namespace Map
             Edge.EdgeState[] edges,
             Producer.ProducerState[] producers,
             Consumer.ConsumerState[] consumers,
+            Garage.GarageState[] garages,
+            Port.PortState[] ports,
             Truck.TruckState[] trucks,
             Freighter.FreighterState[] freighters,
             ClientRpcParams rpcParams = default
@@ -419,6 +425,8 @@ namespace Map
 
             ApplyStatesLocal(serverTime, Infrastructure.Producers, producers);
             ApplyStatesLocal(serverTime, Infrastructure.Consumers, consumers);
+            ApplyStatesLocal(serverTime, Infrastructure.Garages, garages);
+            ApplyStatesLocal(serverTime, Infrastructure.Ports, ports);
 
             ApplyStatesLocal(serverTime, Fleet.Trucks, trucks);
             ApplyStatesLocal(serverTime, Fleet.Freighters, freighters);
@@ -754,6 +762,26 @@ namespace Map
                         Vector3 cargoPos = GetProjectedPosition(consumer.Tile.PositionOnSphere, 1.03f);
                         Gizmos.DrawSphere(cargoPos, 0.007f);
                     }
+                }
+            }
+
+            foreach (var port in infrastructure.Ports)
+            {
+                if (port.Tile != null)
+                {
+                    Vector3 basePos = GetProjectedPosition(port.Tile.PositionOnSphere, 1.015f);
+                    Gizmos.color = PlayerManager.Instance.GetPlayerColor(port.Owner);
+                    Gizmos.DrawSphere(basePos, 0.025f);
+                }
+            }
+
+            foreach (var garage in infrastructure.Garages)
+            {
+                if (garage.Tile != null)
+                {
+                    Vector3 basePos = GetProjectedPosition(garage.Tile.PositionOnSphere, 1.015f);
+                    Gizmos.color = Color.brown;
+                    Gizmos.DrawSphere(basePos, 0.025f);
                 }
             }
 

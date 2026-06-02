@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Map.Infrastructure
 {
@@ -49,6 +50,7 @@ namespace Map.Infrastructure
                 _ => null
             };
 
+            Debug.Log("structures: " +  structures);
             if (structures == null) return -1;
 
             var countPerPlayer = Structure.GetMaxCountPerPlayer(type);
@@ -82,7 +84,6 @@ namespace Map.Infrastructure
             else throw new ArgumentException("Given IStructureState is not supported: " + state.GetType().FullName);
         }
 
-        public bool SpawnLocal<T>(T state) where T : struct, Structure.IStructureState => SpawnLocal(state, PlayerId.NONE);
         public bool SpawnLocal<T>(T state, PlayerId owner) where T : struct, Structure.IStructureState
         {
             int index = GetFirstEmptyIndex(state.Type, owner);
@@ -95,10 +96,10 @@ namespace Map.Infrastructure
             return false;
         }
 
-        public bool SpawnGlobal<T>(T state) where T : struct, Structure.IStructureState => SpawnGlobal(state, PlayerId.NONE);
         public bool SpawnGlobal<T>(T state, PlayerId owner) where T : struct, Structure.IStructureState
         {
             int index = GetFirstEmptyIndex(state.Type, owner);
+            Debug.Log("Found index " + index);
             if (index > -1)
             {
                 state.ArrayIndex = index;

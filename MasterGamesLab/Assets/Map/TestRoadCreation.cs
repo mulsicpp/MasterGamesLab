@@ -23,10 +23,10 @@ public class TestRoadCreation : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        var tile = (Tile)Map.Map.Instance.GetCurrentlyHoveredTile();
+        if (tile == null) return;
         if (Input.GetMouseButtonDown(1))
         {
-            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
-            if (tile == null) return;
             Debug.Log("Clickded on tile with id " + tile.Id.Value);
             if (startTile == null) startTile = tile;
             else
@@ -45,9 +45,6 @@ public class TestRoadCreation : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.P) && IsServer)
         {
-            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
-            if (tile == null) return;
-
             if (tile.CanSpawnStructure(Structure.StructureType.Producer))
             {
                 Map.Map.Instance.Infrastructure.SpawnGlobal(new Producer.ProducerState { Common = { TileId = tile.Id }, Good = good });
@@ -56,20 +53,26 @@ public class TestRoadCreation : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.C) && IsServer)
         {
-            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
-            if (tile == null) return;
-
             if (tile.CanSpawnStructure(Structure.StructureType.Consumer))
             {
                 Map.Map.Instance.Infrastructure.SpawnGlobal(new Consumer.ConsumerState { Common = { TileId = tile.Id }, RequestedGood = good });
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.I) && IsServer)
+        {
+            Debug.Log("Spawning port");
+            Map.Map.Instance.Infrastructure.SpawnGlobal(new Port.PortState { Common = { TileId = tile.Id } }, new PlayerId(0));
+        }
+
+        if (Input.GetKeyDown(KeyCode.O) && IsServer)
+        {
+            Debug.Log("Spawning garage");
+            Map.Map.Instance.Infrastructure.SpawnGlobal(new Garage.GarageState { Common = { TileId = tile.Id } });
+        }
+
         if (Input.GetKeyDown(KeyCode.L))
         {
-            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
-            if (tile == null) return;
-
             Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Truck, tile.Id);
         }
 
@@ -83,9 +86,6 @@ public class TestRoadCreation : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.D))
         {
-            var tile = (Tile)Map.Map.Instance.GetCurrentlyHoveredTile();
-            if (tile == null) return;
-
             var truck = Map.Map.Instance.Fleet.Trucks.FirstOrDefault(truck => truck.Owner == PlayerManager.Instance.SelfId && truck.IsParked);
 
             if (truck == null) return;
