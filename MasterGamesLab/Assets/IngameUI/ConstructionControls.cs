@@ -14,8 +14,7 @@ public class ConstructionControls : MonoBehaviour
     private InputAction leftClickAction;
     private Tile startTile = null;
     private Tile hoveredTile = null;
-    private bool previewIsValid = false;
-
+    private bool previewIsValidOrNonExistent = true;
     [SerializeField] private ConstructionType type = ConstructionType.None;
 
     public ConstructionType Type
@@ -50,9 +49,9 @@ public class ConstructionControls : MonoBehaviour
         if (Type is ConstructionType.Road or ConstructionType.Canal)
         {
             if (hoveredTile != newTile)
-                previewIsValid = SetPreviewEdges(newTile);
+                previewIsValidOrNonExistent = SetPreviewEdges(newTile);
 
-            if (previewIsValid && newTile != null && leftClickAction.WasPerformedThisFrame())
+            if (previewIsValidOrNonExistent && newTile != null && leftClickAction.WasPerformedThisFrame())
             {
                 if (startTile != null)
                 {
