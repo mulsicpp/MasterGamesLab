@@ -11,11 +11,13 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
+using System;
 
-public class LobbyLogic : MonoBehaviour
+using MenuId = UI.Menu.MenuId;
+
+public class UIManager : MonoBehaviour
 {
-    public static LobbyLogic Instance { get; private set; }
+    public static UIManager Instance { get; private set; }
     public Lobby Lobby { get; private set; }
     public List<Lobby> PublicLobbies { get; private set; }
     public string PlayerName;
@@ -27,17 +29,26 @@ public class LobbyLogic : MonoBehaviour
     private Coroutine connectToIngame;
 
     [SerializeField]
-    private UI.StartUI startUI;
-    [SerializeField]
     private UI.JoinUI joinUI;
     [SerializeField]
     private UI.LobbyUI lobbyUI;
-    [SerializeField]
-    private UI.LoadingUI loadingUI;
-    [SerializeField]
-    private UI.IngameUI ingameUI;
-    [SerializeField]
-    private UI.GameFinishedUI gameFinishedUI;
+
+    private UI.Menu[] menus;
+
+    private MenuId currentMenu;
+    public MenuId CurrentMenu
+    {
+        get => currentMenu;
+        set
+        {
+            currentMenu = value;
+            foreach (var menu in menus)
+            {
+                menu?.Hide();
+            }
+            menus[(int)currentMenu]?.Show();
+        }
+    }
 
     [SerializeField]
     private bool suppressReconnect = false;
@@ -56,9 +67,21 @@ public class LobbyLogic : MonoBehaviour
 
         lobbyHeartbeat = StartCoroutine(LobbyHeartbeat());
         connectToIngame = StartCoroutine(ConnectToIngame());
-        startUI.Show();
-        joinUI.Hide();
-        lobbyUI.Hide();
+    }
+
+    public void Start()
+    {
+        menus = new UI.Menu[Enum.GetValues(typeof(MenuId)).Length];
+        var foundMenus = gameObject.GetComponentsInChildren<UI.Menu>();
+
+        Debug.Log("Menu count: " + foundMenus.Length);
+
+        foreach(var menu in foundMenus)
+        {
+            menus[(int)menu.Id] = menu;
+        }
+
+        CurrentMenu = MenuId.Start;
     }
 
     private void OnDestroy()
@@ -83,7 +106,7 @@ public class LobbyLogic : MonoBehaviour
     public async Task GoToJoinMenu()
     {
         await LoadPublicLobbiesAsync();
-        ShowJoinUI();
+        CurrentMenu = MenuId.Join;
     }
 
     public async Task JoinLobbyByIdAsync(string lobbyId)
@@ -142,7 +165,7 @@ public class LobbyLogic : MonoBehaviour
         int mapSeed = int.Parse(Lobby.Data["MapSeed"].Value);
         Map.Map.Instance.Generate(mapSeed);
 
-        ShowLobbyUI();
+        CurrentMenu = MenuId.Lobby;
     }
 
     public async Task LeaveLobbyAsync()
@@ -152,7 +175,7 @@ public class LobbyLogic : MonoBehaviour
             await LobbyService.Instance.RemovePlayerAsync(Lobby.Id, AuthenticationService.Instance.PlayerId);
             Lobby = null;
         }
-        ShowStartUI();
+        CurrentMenu = MenuId.Start;
     }
 
     public async Task CreateLobbyAsync()
@@ -160,7 +183,7 @@ public class LobbyLogic : MonoBehaviour
         // Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
         // string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
-        int mapSeed = Random.Range(int.MinValue, int.MaxValue);
+        int mapSeed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
 
         CreateLobbyOptions options = new CreateLobbyOptions
         {
@@ -185,7 +208,7 @@ public class LobbyLogic : MonoBehaviour
 
         Map.Map.Instance.Generate(mapSeed);
 
-        ShowLobbyUI();
+        CurrentMenu = MenuId.Lobby;
     }
 
     public async Task StartHostAsync()
@@ -311,11 +334,13 @@ public class LobbyLogic : MonoBehaviour
 
     private IEnumerator LoadingScreen()
     {
-        ShowLoadingUI();
+        CurrentMenu = MenuId.Loading;
         yield return new WaitUntil(() => PlayerManager.Instance.GameCanStart);
 
+        Debug.Log("Game can start");
+
         Map.Map.Instance.Running = true;
-        ShowIngameUI();
+        CurrentMenu = MenuId.Ingame;
 
         yield break;
     }
@@ -415,7 +440,9 @@ public class LobbyLogic : MonoBehaviour
         if (changes.LobbyDeleted || Lobby == null)
         {
             Lobby = null;
-            ShowStartUI();
+            // ShowStartUI();
+
+            CurrentMenu = UI.Menu.MenuId.Start;
         }
         else
         {
@@ -429,57 +456,6 @@ public class LobbyLogic : MonoBehaviour
             lobbyUI.UpdateUI(Lobby);
         }
 
-    }
-
-    public void HideUI()
-    {
-        startUI.Hide();
-        joinUI.Hide();
-        lobbyUI.Hide();
-        loadingUI.Hide();
-        ingameUI.Hide();
-        gameFinishedUI.Hide();
-    }
-
-    public void ShowStartUI()
-    {
-        startUI.playerName.Value = PlayerName;
-        HideUI();
-        startUI.Show();
-    }
-
-    public void ShowJoinUI()
-    {
-        HideUI();
-        joinUI.Show();
-    }
-
-    public void ShowLobbyUI()
-    {
-        lobbyUI.UpdateUI(Lobby);
-        HideUI();
-        lobbyUI.Show();
-    }
-
-    public void ShowLoadingUI()
-    {
-        Debug.Log("Showing loading screen");
-        HideUI();
-        loadingUI.Show();
-    }
-
-    public void ShowIngameUI()
-    {
-        Debug.Log("Showing ingame ui");
-        HideUI();
-        ingameUI.Show();
-    }
-
-    public void ShowGameFinishedUI()
-    {
-        Debug.Log("Showing ingame ui");
-        HideUI();
-        gameFinishedUI.Show();
     }
 
     public bool IsHost()

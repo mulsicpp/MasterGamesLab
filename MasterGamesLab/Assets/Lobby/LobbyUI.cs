@@ -34,6 +34,8 @@ namespace UI
                 playerLabels[i] = root.Q<Label>($"Player{i}Label");
             }
 
+            OnBecameVisible += BecameVisible;
+
             backButton.clicked += OnLeavePressed;
             startButton.clicked += OnStartPressed;
             lobbyCodeButton.clicked += OnLobbyCodePressed;
@@ -48,7 +50,7 @@ namespace UI
 
         private void Update()
         {
-            startButton.SetEnabled(LobbyLogic.Instance.IsHost() && !LobbyLogic.Instance.IsStartingHost);
+            startButton.SetEnabled(UIManager.Instance.IsHost() && !UIManager.Instance.IsStartingHost);
         }
 
         private void OnLobbyCodePressed()
@@ -103,13 +105,13 @@ namespace UI
         private async void OnLeavePressed()
         {
             Debug.Log("Back button clicked. Returning to Main Menu...");
-            await LobbyLogic.Instance.LeaveLobbyAsync();
+            await UIManager.Instance.LeaveLobbyAsync();
         }
 
         private void OnStartPressed()
         {
             Debug.Log("Start Game button pressed!");
-            StartCoroutine(LobbyLogic.Instance.StartHost());
+            StartCoroutine(UIManager.Instance.StartHost());
         }
 
         public void SetLobbyInfo(string lobbyName, string joinCode)
@@ -152,6 +154,18 @@ namespace UI
                 playerLabels[i].text = player.Data["Name"].Value + ((i == 0) ? " (You)" : "");
                 playerLabels[i].RemoveFromClassList("lobby-player-label-empty");
                 playerLabels[i].AddToClassList("lobby-player-label");
+            }
+        }
+
+        private void BecameVisible()
+        {
+            if(UIManager.Instance.Lobby != null)
+            {
+                UpdateUI(UIManager.Instance.Lobby);
+            }
+            else
+            {
+                UIManager.Instance.CurrentMenu = MenuId.Start;
             }
         }
     }

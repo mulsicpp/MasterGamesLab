@@ -30,15 +30,12 @@ namespace UI
 
         private async void OnReturnToStartPressed()
         {
-            await LobbyLogic.Instance.LeaveLobbyAsync();
+            await UIManager.Instance.LeaveLobbyAsync();
         }
 
         private void OnPlayAgainPressed()
         {
-            if (LobbyLogic.Instance.Lobby != null)
-                LobbyLogic.Instance.ShowLobbyUI();
-            else
-                LobbyLogic.Instance.ShowStartUI();
+            UIManager.Instance.CurrentMenu = MenuId.Lobby;
         }
     }
 }

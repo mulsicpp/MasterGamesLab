@@ -76,34 +76,34 @@ namespace UI
         private void OnBackPressed()
         {
             Debug.Log("Back button clicked. Returning to Main Menu...");
-            LobbyLogic.Instance.ShowStartUI();
+            UIManager.Instance.CurrentMenu = MenuId.Start;
         }
 
         private async void OnJoinPressed()
         {
             if (!lobbyCodeInput.Value.IsNullOrEmpty())
-                await LobbyLogic.Instance.JoinLobbyByCodeAsync(lobbyCodeInput.Value);
+                await UIManager.Instance.JoinLobbyByCodeAsync(lobbyCodeInput.Value);
         }
 
         private async void OnRefreshPressed()
         {
-            Debug.Log(LobbyLogic.Instance.PublicLobbies.Count);
+            Debug.Log(UIManager.Instance.PublicLobbies.Count);
             refreshButton.SetEnabled(false);
             refreshButton.SetLoading(true);
-            await LobbyLogic.Instance.LoadPublicLobbiesAsync();
+            await UIManager.Instance.LoadPublicLobbiesAsync();
             refreshButton.SetLoading(false);
             refreshButton.SetEnabled(true);
         }
 
         private void SetupLobbyList()
         {
-            lobbyList.itemsSource = LobbyLogic.Instance.PublicLobbies;
+            lobbyList.itemsSource = UIManager.Instance.PublicLobbies;
 
             lobbyList.makeItem = () => lobbyRowTemplate.Instantiate();
 
             lobbyList.bindItem = (VisualElement element, int index) =>
             {
-                Lobby lobbyData = LobbyLogic.Instance.PublicLobbies[index];
+                Lobby lobbyData = UIManager.Instance.PublicLobbies[index];
 
                 var nameLabel = element.Q<ResponsiveLabel>("LobbyName");
                 var countLabel = element.Q<ResponsiveLabel>("PlayerCount");
@@ -119,13 +119,13 @@ namespace UI
                     rowJoinButton.clickable = null;
                     rowJoinButton.clicked += async () =>
                     {
-                        await LobbyLogic.Instance.JoinLobbyByIdAsync(lobbyData.Id);
+                        await UIManager.Instance.JoinLobbyByIdAsync(lobbyData.Id);
                     };
                 }
             };
         }
 
-        public void BecameVisible()
+        private void BecameVisible()
         {
             lobbyCodeInput.schedule.Execute(() => lobbyCodeInput.Focus());
         }

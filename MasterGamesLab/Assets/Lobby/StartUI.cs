@@ -3,6 +3,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using WebSocketSharp;
+using static UnityEngine.LowLevelPhysics2D.PhysicsLayers;
 
 namespace UI
 {
@@ -53,10 +54,10 @@ namespace UI
             hostButton.SetEnabled(false);
             joinButton.SetEnabled(false);
 
-            LobbyLogic.Instance.PlayerName = playerName.Value;
+            UIManager.Instance.PlayerName = playerName.Value;
             try
             {
-                await LobbyLogic.Instance.CreateLobbyAsync();
+                await UIManager.Instance.CreateLobbyAsync();
             }
             catch (System.Exception e)
             {
@@ -74,8 +75,8 @@ namespace UI
                 return;
             }
 
-            LobbyLogic.Instance.PlayerName = playerName.Value;
-            await LobbyLogic.Instance.GoToJoinMenu();
+            UIManager.Instance.PlayerName = playerName.Value;
+            await UIManager.Instance.GoToJoinMenu();
         }
 
         private void TriggerValidationHighlight()
@@ -94,12 +95,13 @@ namespace UI
             }
         }
 
-        public void BecameVisible()
+        private void BecameVisible()
         {
+            playerName.Value = UIManager.Instance.PlayerName;
             playerName.schedule.Execute(() => playerName.Focus());
         }
 
-        public void BecameHidden()
+        private void BecameHidden()
         {
             // Clean up the error highlight state if the window gets hidden/closed
             playerName.RemoveFromClassList(HighlightClass);

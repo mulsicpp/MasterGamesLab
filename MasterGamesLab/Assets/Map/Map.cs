@@ -137,7 +137,7 @@ namespace Map
             MovementProfileRegistry.Initialize();
 
             //debug
-            if (LobbyLogic.Instance == null)
+            if (UIManager.Instance == null)
             {
                 Generate(UnityEngine.Random.Range(int.MinValue, int.MaxValue));
             }
@@ -450,7 +450,7 @@ namespace Map
         public void GameFinishedClientRpc(ClientRpcParams rpcParams = default)
         {
             NetworkManager.Shutdown(false);
-            LobbyLogic.Instance.ShowGameFinishedUI();
+            UIManager.Instance.CurrentMenu = UI.Menu.MenuId.GameFinished;
         }
 
         private void ApplyStatesLocal<T, U>(double serverTime, IReadOnlyList<T> objects,
