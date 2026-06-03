@@ -446,6 +446,13 @@ namespace Map
             Blueprint.Clear();
         }
 
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        public void GameFinishedClientRpc(ClientRpcParams rpcParams = default)
+        {
+            NetworkManager.Shutdown(false);
+            LobbyLogic.Instance.ShowGameFinishedUI();
+        }
+
         private void ApplyStatesLocal<T, U>(double serverTime, IReadOnlyList<T> objects,
             U[] states) where U : struct, IState where T : Timestamped, ISynchableObject<U>
         {

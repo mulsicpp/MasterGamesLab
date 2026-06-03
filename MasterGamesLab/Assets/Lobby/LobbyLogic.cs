@@ -36,6 +36,8 @@ public class LobbyLogic : MonoBehaviour
     private LoadingUI loadingUI;
     [SerializeField]
     private UI.IngameUI ingameUI;
+    [SerializeField]
+    private GameFinishedUI gameFinishedUI;
 
     [SerializeField]
     private bool suppressReconnect = false;
@@ -145,9 +147,11 @@ public class LobbyLogic : MonoBehaviour
 
     public async Task LeaveLobbyAsync()
     {
-        await LobbyService.Instance.RemovePlayerAsync(Lobby.Id, AuthenticationService.Instance.PlayerId);
-        Lobby = null;
-        // NetworkManager.Singleton.Shutdown();
+        if (Lobby != null)
+        {
+            await LobbyService.Instance.RemovePlayerAsync(Lobby.Id, AuthenticationService.Instance.PlayerId);
+            Lobby = null;
+        }
         ShowStartUI();
     }
 
@@ -434,6 +438,7 @@ public class LobbyLogic : MonoBehaviour
         lobbyUI.Hide();
         loadingUI.Hide();
         ingameUI.Hide();
+        gameFinishedUI.Hide();
     }
 
     public void ShowStartUI()
@@ -468,6 +473,13 @@ public class LobbyLogic : MonoBehaviour
         Debug.Log("Showing ingame ui");
         HideUI();
         ingameUI.Show();
+    }
+
+    public void ShowGameFinishedUI()
+    {
+        Debug.Log("Showing ingame ui");
+        HideUI();
+        gameFinishedUI.Show();
     }
 
     public bool IsHost()

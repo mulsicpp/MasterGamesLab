@@ -125,5 +125,12 @@ public class TestRoadCreation : NetworkBehaviour
             Debug.Log("Loading truck");
             Map.Map.Instance.LoadFirstTruckOnFreighterServerRpc();
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (!IsServer) return;
+            Debug.Log("Finishing game");
+            Map.Map.Instance.GameFinishedClientRpc();
+        }
     }
 }
