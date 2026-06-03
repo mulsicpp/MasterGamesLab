@@ -8,6 +8,7 @@ using Map.GeometryGeneration.Edges;
 using Map.Infrastructure;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using static Map.Edge;
 
 namespace Map
 {
@@ -77,6 +78,18 @@ namespace Map
             {
                 blueprintPreview = value;
                 StructureDirty = true;
+            }
+        }
+
+        public VisualState BlueprintVisualState
+        {
+            get
+            {
+                if (blueprintStructureType == null) return VisualState.Valid;
+                if (BlueprintPreview) return structure == null ? VisualState.Preview : VisualState.PreviewOverlapping;
+                if (structure == null) return VisualState.Valid;
+                if (structure.Type == blueprintStructureType) return VisualState.Overlapping;
+                return VisualState.Invalid;
             }
         }
 
@@ -283,11 +296,16 @@ namespace Map
         {
             if (Structure != null) return false;
 
-            return type switch
+            switch(type)
             {
-                Structure.StructureType.Producer or Structure.StructureType.Consumer => Type is TileType.Plain
-                    or TileType.Forest,
-                _ => false
+                case Structure.StructureType.Producer:
+                case Structure.StructureType.Consumer:
+                case Structure.StructureType.Garage: return Type is TileType.Plain or TileType.Forest;
+                case Structure.StructureType.Port:
+                    bool buildable = Type is TileType.Plain or TileType.Forest;
+                    bool bordersWater = neighbors.Where(t => t.Type is TileType.Water).Count() > 0;
+                    return buildable & bordersWater;
+                default: return false;
             };
         }
 

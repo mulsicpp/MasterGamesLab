@@ -2,7 +2,7 @@ using Blueprint;
 using Map.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
+using UnityEngine;
 
 namespace Map.Blueprint
 {
@@ -117,11 +117,13 @@ namespace Map.Blueprint
 
             if (tileId == TileId.NONE) return;
 
-            var tile = (Tile)Map.Instance.Tiles[previewStructureTileId];
+            var tile = (Tile)Map.Instance.Tiles[tileId];
 
-            if (tile.BlueprintStructureType != null || tile.CanSpawnStructure(type)) return;
+            if (tile.BlueprintStructureType != null || !tile.CanSpawnStructure(type)) return;
             tile.BlueprintStructureType = type;
             tile.BlueprintPreview = true;
+
+            previewStructureTileId = tileId;
         }
 
         public void Clear()
@@ -184,12 +186,14 @@ namespace Map.Blueprint
 
             foreach(var edgeId in edgeIds)
             {
-                lastPacket.AddEdgeToPackets(edgeId, packets);
+                lastPacket = lastPacket.AddEdgeToPackets(edgeId, packets);
             }
+
+            Debug.Log("Structure count: " + structureTileIds.Count);
 
             foreach (var tileId in structureTileIds)
             {
-                lastPacket.AddStructureToPackets(tileId, packets);
+                lastPacket = lastPacket.AddStructureToPackets(tileId, packets);
             }
 
             if(lastPacket.NettoSize == 0)

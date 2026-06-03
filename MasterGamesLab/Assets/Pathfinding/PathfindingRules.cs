@@ -6,28 +6,18 @@ public static class PathfindingRules
     /// <summary>
     /// Strict Rule: Only allow movement if an actual connected road edge exists.
     /// </summary>
-    public static bool BlockNoRoad(Tile current, Tile neighbor)
+    public static bool BlockCannotDrive(Tile current, Tile neighbor)
     {
         Edge edge = current.FindEdgeTo(neighbor);
         return edge == null || edge.Type != Edge.EdgeType.Road;
     }
 
-    public static bool BlockRoad(Tile current, Tile neighbor)
+    public static bool BlockCannotSwim(Tile current, Tile neighbor)
     {
+        if (current.Type == Tile.TileType.Water && neighbor.Type == Tile.TileType.Water)
+            return false;
         Edge edge = current.FindEdgeTo(neighbor);
-        return edge != null && edge.Type == Edge.EdgeType.Road;
-    }
-
-    public static bool BlockCanal(Tile current, Tile neighbor)
-    {
-        Edge edge = current.FindEdgeTo(neighbor);
-        return edge != null && edge.Type == Edge.EdgeType.Canal;
-    }
-
-    public static bool BlockRail(Tile current, Tile neighbor)
-    {
-        Edge edge = current.FindEdgeTo(neighbor);
-        return edge != null && edge.Type == Edge.EdgeType.Rail;
+        return edge == null || edge.Type != Edge.EdgeType.Canal;
     }
 
     public static bool BlockCannotBecomeBlueprintType(Tile current, Tile neighbor, Edge.EdgeType type)
@@ -63,7 +53,13 @@ public static class PathfindingRules
     public static void MinimizeCost(Tile current, Tile neighbor, ref PathScore score, int slot)
     {
         PlayerId self = PlayerManager.Instance.SelfId;
-        PlayerId owner = current.FindEdgeTo(neighbor).Owner;
+        var edge = current.FindEdgeTo(neighbor);
+        if (edge == null)
+        {
+            score[slot] += Constants.PUBLIC_ROAD_MOVEMENT_COST;
+            return;
+        }
+        PlayerId owner = edge.Owner;
         score[slot] += self == owner ? Constants.OWN_ROAD_MOVEMENT_COST : owner == PlayerId.NONE ? Constants.PUBLIC_ROAD_MOVEMENT_COST : Constants.ENEMY_ROAD_MOVEMENT_COST; // 1 standard physical tile step
     }
 

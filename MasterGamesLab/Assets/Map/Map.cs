@@ -137,7 +137,7 @@ namespace Map
             MovementProfileRegistry.Initialize();
 
             //debug
-            if (LobbyLogic.Instance == null)
+            if (UIManager.Instance == null)
             {
                 Generate(UnityEngine.Random.Range(int.MinValue, int.MaxValue));
             }
@@ -371,6 +371,8 @@ namespace Map
 
             sender.AddObjects<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
             sender.AddObjects<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
+            sender.AddObjects<Garage, Garage.GarageState>(infrastructure.Garages, condition);
+            sender.AddObjects<Port, Port.PortState>(infrastructure.Ports, condition);
 
             sender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
             sender.AddObjects<Freighter, Freighter.FreighterState>(fleet.Freighters, condition);
@@ -388,6 +390,8 @@ namespace Map
 
             ReliableSender.AddObjects<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
             ReliableSender.AddObjects<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
+            ReliableSender.AddObjects<Garage, Garage.GarageState>(infrastructure.Garages, condition);
+            ReliableSender.AddObjects<Port, Port.PortState>(infrastructure.Ports, condition);
 
             ReliableSender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
             ReliableSender.AddObjects<Freighter, Freighter.FreighterState>(fleet.Freighters, condition);
@@ -409,6 +413,8 @@ namespace Map
             Edge.EdgeState[] edges,
             Producer.ProducerState[] producers,
             Consumer.ConsumerState[] consumers,
+            Garage.GarageState[] garages,
+            Port.PortState[] ports,
             Truck.TruckState[] trucks,
             Freighter.FreighterState[] freighters,
             ClientRpcParams rpcParams = default
@@ -419,6 +425,8 @@ namespace Map
 
             ApplyStatesLocal(serverTime, Infrastructure.Producers, producers);
             ApplyStatesLocal(serverTime, Infrastructure.Consumers, consumers);
+            ApplyStatesLocal(serverTime, Infrastructure.Garages, garages);
+            ApplyStatesLocal(serverTime, Infrastructure.Ports, ports);
 
             ApplyStatesLocal(serverTime, Fleet.Trucks, trucks);
             ApplyStatesLocal(serverTime, Fleet.Freighters, freighters);
@@ -436,6 +444,13 @@ namespace Map
         public void BlueprintAcknowledgementClientRpc(ClientRpcParams rpcParams = default)
         {
             Blueprint.Clear();
+        }
+
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        public void GameFinishedClientRpc(ClientRpcParams rpcParams = default)
+        {
+            NetworkManager.Shutdown(false);
+            UIManager.Instance.CurrentMenu = UI.Menu.MenuId.GameFinished;
         }
 
         private void ApplyStatesLocal<T, U>(double serverTime, IReadOnlyList<T> objects,
@@ -493,9 +508,14 @@ namespace Map
                 // 
                 //     if (tile.Structure == null)
                 //     {
-                //         ReliableSender.Add(new Port.PortState { Type = Edge.EdgeType.Canal, Owner = playerId });
+                //         var index = infrastructure.GetFirstEmptyIndex(Structure.StructureType.Port, playerId);
+                //         if (index == -1) continue;
+                // 
+                //         ReliableSender.Add(new Port.PortState { Common = { Index = new StructureIndex((byte)index), TileId = tile.Id } });
                 //     }
                 // }
+
+
                 var responseRpcParams = new ClientRpcParams
                 {
                     Send = new ClientRpcSendParams
@@ -575,24 +595,25 @@ namespace Map
 
 
             if (type == Vehicle.VehicleType.Truck)
-                ReliableSender.Add(new Truck.TruckState { Common = commonState, Good = Good.None });
+                ReliableSender.Add(new Truck.TruckState { Common = commonState, Good = Good.None, FreighterIndex = VehicleIndex.NONE });
             else
                 ReliableSender.Add(new Freighter.FreighterState { Common = commonState });
             ReliableSender.Send();
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void RequestTruckRouteServerRpc(VehicleIndex index, TileId[] routeIds, RpcParams rpcParams = default)
+        public void RequestVehicleRouteServerRpc(int vehicleIndex, TileId[] routeIds, RpcParams rpcParams = default)
         {
             var playerId =
                 PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-            Debug.Log("Received truck route request from player " + playerId.Value);
+            Debug.Log("Received vehicle route request from player " + playerId.Value + " for vehicle " + vehicleIndex);
 
             if (playerId == PlayerId.NONE) return;
+            if(vehicleIndex < 0 || vehicleIndex >= Fleet.Vehicles.Count) return;
 
-            var truck = Fleet.Trucks[index];
+            var vehicle = Fleet.Vehicles[vehicleIndex];
 
-            if (!truck.IsParked || truck.Owner != playerId) return;
+            if (!vehicle.Exists || !vehicle.IsParked || vehicle.Owner != playerId) return;
             if (routeIds == null || routeIds.Length < 2) return;
 
             Tile[] route = new Tile[routeIds.Length];
@@ -603,20 +624,56 @@ namespace Map
                 route[i] = tiles[routeIds[i]];
             }
 
+            Debug.Log("Checking path");
             for (int i = 1; i < routeIds.Length; i++)
             {
-                if (!Vehicle.CanCross(route[i - 1], route[i], Vehicle.VehicleType.Truck)) return;
+                if (!Vehicle.CanCross(route[i - 1], route[i], vehicle.Type)) return;
             }
+            Debug.Log("Path OK");
+
+            if (vehicle.Type == Vehicle.VehicleType.Truck)
+            {
+                var truckState = (vehicle as Truck).State;
+
+                truckState.Common.ParkedTileId = TileId.NONE;
+                truckState.Common.RouteIds = routeIds;
+                truckState.Common.RouteProgress = 0.0f;
+
+                ReliableSender.Add(truckState);
+            }
+            else
+            {
+                var freighterState = (vehicle as Freighter).State;
+
+                freighterState.Common.ParkedTileId = TileId.NONE;
+                freighterState.Common.RouteIds = routeIds;
+                freighterState.Common.RouteProgress = 0.0f;
+
+                ReliableSender.Add(freighterState);
+            }
+            ReliableSender.Send();
+        }
+
+
+        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
+        public void LoadFirstTruckOnFreighterServerRpc(RpcParams rpcParams = default)
+        {
+            var playerId =
+                PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
+            Debug.Log("Received load request from player " + playerId.Value);
+
+            if (playerId == PlayerId.NONE) return;
+
+            var truck = Fleet.Trucks.FirstOrDefault(truck => truck.Owner == playerId);
+            var freighter = Fleet.Freighters.FirstOrDefault(freighter => freighter.Owner == playerId);
+            Debug.Log("Loading truck" + truck.Index.Value + "onto freighter " + freighter.Index.Value);
 
             var truckState = truck.State;
 
-            truckState.Common.ParkedTileId = TileId.NONE;
-            truckState.Common.RouteIds = routeIds;
-            truckState.Common.RouteProgress = 0.0f;
-
-            var nextTimestamp = Timestamp.Next();
+            truckState.FreighterIndex = freighter.Index;
 
             ReliableSender.Add(truckState);
+            ReliableSender.Send();
         }
 
 
@@ -698,6 +755,7 @@ namespace Map
                     Gizmos.color = edges[i].BlueprintVisualState switch
                     {
                         VisualState.Preview => Color.purple,
+                        VisualState.PreviewOverlapping => Color.blue,
                         VisualState.Valid => Color.cyan,
                         VisualState.Overlapping => Color.green,
                         _ => Color.red,
@@ -710,6 +768,23 @@ namespace Map
             }
 
             var orange = new Color(1.0f, 0.2f, 0.0f);
+
+            foreach(var tile in tiles)
+            {
+                if(tile.BlueprintStructureType != null)
+                {
+                    Gizmos.color = tile.BlueprintVisualState switch
+                    {
+                        VisualState.Preview => Color.purple,
+                        VisualState.PreviewOverlapping => Color.blue,
+                        VisualState.Valid => Color.cyan,
+                        VisualState.Overlapping => Color.green,
+                        _ => Color.red,
+                    };
+
+                    Gizmos.DrawWireSphere(GetProjectedPosition(tile.PositionOnSphere, 1.015f), 0.025f);
+                }
+            }
 
             foreach (var producer in infrastructure.Producers)
             {
@@ -754,6 +829,26 @@ namespace Map
                         Vector3 cargoPos = GetProjectedPosition(consumer.Tile.PositionOnSphere, 1.03f);
                         Gizmos.DrawSphere(cargoPos, 0.007f);
                     }
+                }
+            }
+
+            foreach (var port in infrastructure.Ports)
+            {
+                if (port.Tile != null)
+                {
+                    Vector3 basePos = GetProjectedPosition(port.Tile.PositionOnSphere, 1.015f);
+                    Gizmos.color = PlayerManager.Instance.GetPlayerColor(port.Owner);
+                    Gizmos.DrawSphere(basePos, 0.025f);
+                }
+            }
+
+            foreach (var garage in infrastructure.Garages)
+            {
+                if (garage.Tile != null)
+                {
+                    Vector3 basePos = GetProjectedPosition(garage.Tile.PositionOnSphere, 1.015f);
+                    Gizmos.color = Color.brown;
+                    Gizmos.DrawSphere(basePos, 0.025f);
                 }
             }
 

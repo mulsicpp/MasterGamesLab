@@ -1,0 +1,16 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
+    <ui:VisualElement name="root" class="unity-ui-document__root" style="flex-grow: 1; align-content: auto; justify-content: space-between; background-color: rgb(0, 0, 0); flex-direction: column; align-items: stretch;">
+        <ui:VisualElement name="top" style="flex-grow: 0; flex-shrink: 0; width: 100%; height: 16%; justify-content: flex-end;">
+            <ResponsiveLabel height-percentage="1" name="title" text="Game Finished" class="text element label" style="height: 72%; -unity-text-align: middle-center;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="bottom" style="flex-grow: 0; flex-shrink: 0; height: 24.7%; width: 100%; align-items: center; justify-content: space-between;">
+            <ui:VisualElement style="flex-grow: 1; width: 37.8%; height: 100%; justify-content: center;">
+                <ui:VisualElement name="VisualElement" style="flex-grow: 0; height: 29.8%; flex-shrink: 0; align-content: auto; justify-content: space-between; align-items: center; flex-direction: row; width: 100%;">
+                    <ResponsiveButton name="PlayAgain" text="Play Again" height-percentage="0.8" focusable="false" class="button element" style="width: 48.36%; height: 100%;"/>
+                    <ResponsiveButton name="ReturnToStart" text="Start Menu" height-percentage="0.8" focusable="false" class="button element" style="width: 48.36%; height: 100%;"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

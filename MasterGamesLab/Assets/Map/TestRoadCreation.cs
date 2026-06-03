@@ -1,4 +1,5 @@
 using Map;
+using Map.Fleet;
 using Map.Infrastructure;
 using System;
 using System.Linq;
@@ -23,10 +24,10 @@ public class TestRoadCreation : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        var tile = (Tile)Map.Map.Instance.GetCurrentlyHoveredTile();
+        if (tile == null) return;
         if (Input.GetMouseButtonDown(1))
         {
-            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
-            if (tile == null) return;
             Debug.Log("Clickded on tile with id " + tile.Id.Value);
             if (startTile == null) startTile = tile;
             else
@@ -45,9 +46,6 @@ public class TestRoadCreation : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.P) && IsServer)
         {
-            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
-            if (tile == null) return;
-
             if (tile.CanSpawnStructure(Structure.StructureType.Producer))
             {
                 Map.Map.Instance.Infrastructure.SpawnGlobal(new Producer.ProducerState { Common = { TileId = tile.Id }, Good = good });
@@ -56,69 +54,41 @@ public class TestRoadCreation : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.C) && IsServer)
         {
-            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
-            if (tile == null) return;
-
             if (tile.CanSpawnStructure(Structure.StructureType.Consumer))
             {
                 Map.Map.Instance.Infrastructure.SpawnGlobal(new Consumer.ConsumerState { Common = { TileId = tile.Id }, RequestedGood = good });
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.I) && IsServer)
+        {
+            Debug.Log("Spawning port");
+            Map.Map.Instance.Infrastructure.SpawnGlobal(new Port.PortState { Common = { TileId = tile.Id } }, new PlayerId(0));
+        }
+
+        if (Input.GetKeyDown(KeyCode.O) && IsServer)
+        {
+            Debug.Log("Spawning garage");
+            Map.Map.Instance.Infrastructure.SpawnGlobal(new Garage.GarageState { Common = { TileId = tile.Id } });
+        }
+
         if (Input.GetKeyDown(KeyCode.L))
         {
-            var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
-            if (tile == null) return;
-
             Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Truck, tile.Id);
         }
 
-        // if (Input.GetKeyDown(KeyCode.F))
-        // {
-        //     var tile = Map.Map.Instance.GetCurrentlyHoveredTile();
-        //     if (tile == null) return;
-        // 
-        //     Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
-        // }
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
+        }
 
         if (Input.GetKeyDown(KeyCode.D))
         {
-            var tile = (Tile)Map.Map.Instance.GetCurrentlyHoveredTile();
-            if (tile == null) return;
-
             var truck = Map.Map.Instance.Fleet.Trucks.FirstOrDefault(truck => truck.Owner == PlayerManager.Instance.SelfId && truck.IsParked);
 
             if (truck == null) return;
 
             TileId[] tileIds = null;
-
-            PlayerId myId = PlayerManager.Instance.SelfId;
-
-            Func<Tile, Tile, long> shortestCost = (Tile t1, Tile t2) =>
-            {
-                Edge edge = t1.FindEdgeTo(t2);
-                if (edge == null || edge.Type != Edge.EdgeType.Road) return -1;
-
-                long primary = (long)Constants.ROAD_MOVEMENT_DISTANCE << 32;
-                long secondary = edge.Owner == PlayerId.NONE ? Constants.PUBLIC_ROAD_MOVEMENT_COST :
-                                 edge.Owner == myId ? Constants.OWN_ROAD_MOVEMENT_COST :
-                                                                 Constants.ENEMY_ROAD_MOVEMENT_COST;
-
-                return primary | (secondary & 0xFFFFFFFFL);
-            };
-
-            Func<Tile, Tile, long> cheapestCost = (Tile t1, Tile t2) =>
-            {
-                Edge edge = t1.FindEdgeTo(t2);
-                if (edge == null || edge.Type != Edge.EdgeType.Road) return -1;
-                long primary = edge.Owner == PlayerId.NONE ? Constants.PUBLIC_ROAD_MOVEMENT_COST :
-                               edge.Owner == myId ? Constants.OWN_ROAD_MOVEMENT_COST :
-                                                           Constants.ENEMY_ROAD_MOVEMENT_COST;
-                long secondary = (long)Constants.ROAD_MOVEMENT_DISTANCE;
-
-                return (primary << 32) | (secondary & 0xFFFFFFFFL);
-            };
-
 
             if (Input.GetKey(KeyCode.LeftShift))
                 tileIds = Pathfinding.FindPath(truck.ParkedTile, tile, MovementProfileRegistry.TruckCheapestRoute);
@@ -127,7 +97,40 @@ public class TestRoadCreation : NetworkBehaviour
 
             if (tileIds == null) return;
 
-            Map.Map.Instance.RequestTruckRouteServerRpc(truck.Index, tileIds);
+            Map.Map.Instance.RequestVehicleRouteServerRpc(truck.State.ArrayIndex, tileIds);
+        }
+
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            var freighter = Map.Map.Instance.Fleet.Freighters.FirstOrDefault(freighter => freighter.Owner == PlayerManager.Instance.SelfId && freighter.IsParked);
+
+            if (freighter == null) return;
+
+            TileId[] tileIds = null;
+
+            if (Input.GetKey(KeyCode.LeftShift))
+                tileIds = Pathfinding.FindPath(freighter.ParkedTile, tile, MovementProfileRegistry.FreighterCheapestRoute);
+            else
+                tileIds = Pathfinding.FindPath(freighter.ParkedTile, tile, MovementProfileRegistry.FreighterFastestRoute);
+
+            if (tileIds == null) return;
+
+            Debug.Log("Freighter Path Length: " + tileIds.Length);
+
+            Map.Map.Instance.RequestVehicleRouteServerRpc(Vehicle.GetOffsetFromType(Vehicle.VehicleType.Freighter) + freighter.Index, tileIds);
+        }
+
+        if(Input.GetKeyDown(KeyCode.A)) 
+        {
+            Debug.Log("Loading truck");
+            Map.Map.Instance.LoadFirstTruckOnFreighterServerRpc();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (!IsServer) return;
+            Debug.Log("Finishing game");
+            Map.Map.Instance.GameFinishedClientRpc();
         }
     }
 }

@@ -32,6 +32,8 @@ public class ConstructionControls : MonoBehaviour
             type = value;
             startTile = null;
             OnConstructionTypeChanged?.Invoke(type);
+            Map.Map.Instance.Blueprint.ClearPreviewEdges();
+            Map.Map.Instance.Blueprint.ClearPreviewStructure();
         }
     }
 
@@ -64,7 +66,13 @@ public class ConstructionControls : MonoBehaviour
         }
         else if (Type is ConstructionType.Port)
         {
-            SetPreviewStructure(newTile);
+            if (hoveredTile != newTile)
+                previewIsValid = SetPreviewStructure(newTile);
+
+            if (previewIsValid && leftClickAction.WasPerformedThisFrame())
+            {
+                Map.Map.Instance.Blueprint.ApplyPreview();
+            }
         }
         else
         {
@@ -102,9 +110,16 @@ public class ConstructionControls : MonoBehaviour
 
     private bool SetPreviewStructure(Tile tile)
     {
+        if (tile != null && type == ConstructionType.Port)
+        {
+            if(tile.CanSpawnStructure(Structure.StructureType.Port)) {
+                Map.Map.Instance.Blueprint.SetPreviewStructure(tile.Id, Structure.StructureType.Port);
+                return true;
+            }
+        }
         Map.Map.Instance.Blueprint.ClearPreviewEdges();
         Map.Map.Instance.Blueprint.ClearPreviewStructure();
-        return true;
+        return false;
     }
 
     public void ConfirmConstruction()

@@ -2,6 +2,7 @@ using Map.Infrastructure;
 using Unity.Collections;
 using Unity.Netcode;
 using Networking;
+using UnityEngine;
 
 namespace Map.Fleet
 {
@@ -12,6 +13,7 @@ namespace Map.Fleet
             public CommonVehicleState Common;
 
             public Good Good;
+            public VehicleIndex FreighterIndex;
 
             public int ArrayIndex { get => Common.ArrayIndex; set => Common.ArrayIndex = value; }
             public VehicleType Type => VehicleType.Truck;
@@ -33,6 +35,7 @@ namespace Map.Fleet
             {
                 serializer.SerializeValue(ref Common);
                 serializer.SerializeValue(ref Good);
+                serializer.SerializeValue(ref FreighterIndex);
             }
         }
 
@@ -43,15 +46,45 @@ namespace Map.Fleet
         private Good good;
         public Good Good { get => good; set { good = value; Touch(); } }
 
+        private Freighter freighter;
+        public Freighter Freighter
+        {
+            get => freighter;
+            set
+            {
+                if (freighter != null)
+                {
+                    freighter.Truck = null;
+                }
+                if (value != null)
+                {
+                    if (value.Truck != null)
+                        value.Truck.Freighter = null;
+                    value.Truck = this;
+                    ParkedTile = null;
+                    Route = null;
+                }
+                Debug.Log("tile changed to: " + (int)(value?.Index ?? -1));
+                freighter = value;
+                Touch();
+            }
+        }
+
         public TruckState State
         {
-            get => new TruckState { Common = CommonState, Good = Good };
-            set { CommonState = value.Common; Good = value.Good; }
+            get => new TruckState { Common = CommonState, Good = Good, FreighterIndex = Freighter?.Index ?? VehicleIndex.NONE };
+            set { 
+                CommonState = value.Common;
+                Good = value.Good;
+                Debug.Log("Received new truck state with FreighterID: " + (int)value.FreighterIndex);
+                Freighter = value.FreighterIndex != VehicleIndex.NONE ? Map.Instance.Fleet.Freighters[value.FreighterIndex] : null;
+            }
         }
 
         public Truck(VehicleIndex index) : base(index)
         {
             good = Good.None;
+            freighter = null;
         }
 
         public void ApplyServerState(TruckState state, double _) { State = state; ResetDirty(); }
@@ -71,6 +104,18 @@ namespace Map.Fleet
                 }
             }
 
+        }
+
+        public override Vector3? PositionOnSphere
+        {
+            get
+            {
+                if(Exists && Freighter != null)
+                {
+                    return Freighter.PositionOnSphere * 1.02f;
+                }
+                return base.PositionOnSphere;
+            }
         }
     }
 }
