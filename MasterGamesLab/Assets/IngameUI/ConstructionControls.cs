@@ -67,9 +67,9 @@ public class ConstructionControls : MonoBehaviour
         else if (Type is ConstructionType.Port)
         {
             if (hoveredTile != newTile)
-                previewIsValid = SetPreviewStructure(newTile);
+                previewIsValidOrNonExistent = SetPreviewStructure(newTile);
 
-            if (previewIsValid && leftClickAction.WasPerformedThisFrame())
+            if (previewIsValidOrNonExistent && leftClickAction.WasPerformedThisFrame())
             {
                 Map.Map.Instance.Blueprint.ApplyPreview();
             }
