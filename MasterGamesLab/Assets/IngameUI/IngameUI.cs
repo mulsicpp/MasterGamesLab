@@ -5,16 +5,18 @@ namespace UI
 {
     [RequireComponent(typeof(UIDocument))]
     [RequireComponent(typeof(ConstructionControls))]
-    public class IngameUI : MonoBehaviour
+    public class IngameUI : Menu
     {
         public static IngameUI Instance { get; private set; }
 
         private ConstructionControls constructionControls;
-        private VisualElement root;
+
         private Button buildRoadButton, buildCanalButton, buildPortButton, buyTruckButton, buyFreighterButton, confirmButton, cancelButton, hideButton;
         private Button currentActiveButton;
         private Label moneyLabel;
         public const string activeClass = "ingame-build-button--active";
+
+        public override MenuId Id => MenuId.Ingame;
 
         private void Awake()
         {
@@ -22,11 +24,11 @@ namespace UI
             Instance = this;
         }
 
-        void OnEnable()
+        protected override void OnEnable()
         {
-            root = GetComponent<UIDocument>().rootVisualElement;
-            constructionControls = GetComponent<ConstructionControls>();
+            base.OnEnable();
 
+            constructionControls = GetComponent<ConstructionControls>();
             constructionControls.OnConstructionTypeChanged += HandleStateUIUpdate;
 
             buildRoadButton = root.Q<Button>("BuildRoadButton");
@@ -135,8 +137,5 @@ namespace UI
             confirmButton.style.display = style;
             cancelButton.style.display = style;
         }
-
-        public void Show() => root.style.display = DisplayStyle.Flex;
-        public void Hide() => root.style.display = DisplayStyle.None;
     }
 }

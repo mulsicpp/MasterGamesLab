@@ -2,50 +2,43 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using WebSocketSharp;
 
-public class GameFinishedUI : MonoBehaviour
+namespace UI
 {
-    public ResponsiveButton returnToStartButton;
-    public ResponsiveButton playAgainButton;
-
-    private VisualElement root;
-
-    void OnEnable()
+    public class GameFinishedUI : Menu
     {
-        root = GetComponent<UIDocument>().rootVisualElement;
+        public ResponsiveButton returnToStartButton;
+        public ResponsiveButton playAgainButton;
 
-        returnToStartButton = root.Q<ResponsiveButton>("ReturnToStart");
-        playAgainButton = root.Q<ResponsiveButton>("PlayAgain");
+        public override MenuId Id => MenuId.GameFinished;
 
-        returnToStartButton.clicked += OnReturnToStartPressed;
-        playAgainButton.clicked += OnPlayAgainPressed;
-    }
+        protected override void OnEnable()
+        {
+            base.OnEnable();
 
-    void OnDisable()
-    {
-        returnToStartButton.clicked -= OnReturnToStartPressed;
-        playAgainButton.clicked -= OnPlayAgainPressed;
-    }
+            returnToStartButton = root.Q<ResponsiveButton>("ReturnToStart");
+            playAgainButton = root.Q<ResponsiveButton>("PlayAgain");
 
-    private async void OnReturnToStartPressed()
-    {
-        await LobbyLogic.Instance.LeaveLobbyAsync();
-    }
+            returnToStartButton.clicked += OnReturnToStartPressed;
+            playAgainButton.clicked += OnPlayAgainPressed;
+        }
 
-    private void OnPlayAgainPressed()
-    {
-        if (LobbyLogic.Instance.Lobby != null)
-            LobbyLogic.Instance.ShowLobbyUI();
-        else
-            LobbyLogic.Instance.ShowStartUI();
-    }
+        void OnDisable()
+        {
+            returnToStartButton.clicked -= OnReturnToStartPressed;
+            playAgainButton.clicked -= OnPlayAgainPressed;
+        }
 
-    public void Show()
-    {
-        root.style.display = DisplayStyle.Flex;
-    }
+        private async void OnReturnToStartPressed()
+        {
+            await LobbyLogic.Instance.LeaveLobbyAsync();
+        }
 
-    public void Hide()
-    {
-        root.style.display = DisplayStyle.None;
+        private void OnPlayAgainPressed()
+        {
+            if (LobbyLogic.Instance.Lobby != null)
+                LobbyLogic.Instance.ShowLobbyUI();
+            else
+                LobbyLogic.Instance.ShowStartUI();
+        }
     }
 }

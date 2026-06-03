@@ -1,30 +1,43 @@
 
-using GLTFast.Schema;
 using UnityEngine;
-using static UnityEngine.LowLevelPhysics2D.PhysicsLayers;
 using UnityEngine.UIElements;
 using System;
 
-public class Menu : MonoBehaviour
+namespace UI
 {
-    protected VisualElement root;
-    public Action OnBecomesVisible;
-    public Action OnBecomesHidden;
-
-    public virtual void OnEnable()
+    public abstract class Menu : MonoBehaviour
     {
-        root = GetComponent<UIDocument>().rootVisualElement;
-    }
+        public enum MenuId
+        {
+            Start,
+            Join,
+            Lobby,
+            Loading,
+            Ingame,
+            GameFinished
+        };
 
-    public void Show()
-    {
-        root.style.display = DisplayStyle.Flex;
-        OnBecomesVisible?.Invoke();
-    }
+        protected VisualElement root;
+        public Action OnBecameVisible;
+        public Action OnBecameHidden;
 
-    public void Hide()
-    {
-        root.style.display = DisplayStyle.None;
-        OnBecomesHidden?.Invoke();
+        public abstract MenuId Id { get; }
+
+        protected virtual void OnEnable()
+        {
+            root = GetComponent<UIDocument>().rootVisualElement;
+        }
+
+        public void Show()
+        {
+            root.style.display = DisplayStyle.Flex;
+            OnBecameVisible?.Invoke();
+        }
+
+        public void Hide()
+        {
+            OnBecameHidden?.Invoke();
+            root.style.display = DisplayStyle.None;
+        }
     }
 }

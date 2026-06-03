@@ -27,17 +27,17 @@ public class LobbyLogic : MonoBehaviour
     private Coroutine connectToIngame;
 
     [SerializeField]
-    private StartUI startUI;
+    private UI.StartUI startUI;
     [SerializeField]
-    private JoinUI joinUI;
+    private UI.JoinUI joinUI;
     [SerializeField]
-    private LobbyUI lobbyUI;
+    private UI.LobbyUI lobbyUI;
     [SerializeField]
-    private LoadingUI loadingUI;
+    private UI.LoadingUI loadingUI;
     [SerializeField]
     private UI.IngameUI ingameUI;
     [SerializeField]
-    private GameFinishedUI gameFinishedUI;
+    private UI.GameFinishedUI gameFinishedUI;
 
     [SerializeField]
     private bool suppressReconnect = false;
