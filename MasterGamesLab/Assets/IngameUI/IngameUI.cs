@@ -39,7 +39,7 @@ namespace UI
             confirmButton = root.Q<Button>("ConfirmButton");
             cancelButton = root.Q<Button>("CancelButton");
             hideButton = root.Q<Button>("HideButton");
-            moneyLabel= root.Q<Label>("MONEY");
+            moneyLabel = root.Q<Label>("MONEY");
 
             buildRoadButton.clicked += OnRoadClicked;
             buildCanalButton.clicked += OnCanalClicked;
@@ -67,6 +67,13 @@ namespace UI
             hideButton.clicked -= OnHidePressed;
         }
 
+        private void Update()
+        {
+
+            SetActionButtonsVisibility(!Map.Map.Instance.Blueprint.IsEmpty);
+
+        }
+
         public void setMoney(ulong money)
         {
             moneyLabel.text = "MONEY: " + money;
@@ -78,18 +85,11 @@ namespace UI
             {
                 SetMenuVisibility(false);
                 SetActiveButton(ConstructionControls.ConstructionType.None);
-                SetActionButtonsVisibility(false);
-            }
-            else if (state == ConstructionControls.ConstructionType.None)
-            {
-                SetMenuVisibility(true);
-                SetActiveButton(ConstructionControls.ConstructionType.None);
             }
             else
             {
                 SetMenuVisibility(true);
                 SetActiveButton(state);
-                SetActionButtonsVisibility(true);
             }
         }
 

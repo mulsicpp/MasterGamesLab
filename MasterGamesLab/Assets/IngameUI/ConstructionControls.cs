@@ -135,9 +135,8 @@ public class ConstructionControls : MonoBehaviour
     {
         Debug.Log("Canceling construction: Reverting preview adjustments.");
 
-        Map.Map.Instance.Blueprint.ClearPreviewEdges();
-        Map.Map.Instance.Blueprint.ClearPreviewStructure();
-
+        Map.Map.Instance.Blueprint.Clear();
+        
         Type = ConstructionType.None;
     }
 

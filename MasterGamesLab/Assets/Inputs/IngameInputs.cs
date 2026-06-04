@@ -65,5 +65,6 @@ public class IngameInputs : MonoBehaviour
     private void OnBuyTruck(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Truck;
     private void OnBuyFreighter(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Freighter;
     private void OnConfirm(InputAction.CallbackContext ctx) => constructionControls.ConfirmConstruction();
-    private void OnCancel(InputAction.CallbackContext ctx) => constructionControls.CancelConstruction(); private void OnHide(InputAction.CallbackContext ctx) => constructionControls.ToggleHide();
+    private void OnCancel(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.None; 
+    private void OnHide(InputAction.CallbackContext ctx) => constructionControls.ToggleHide();
 }
