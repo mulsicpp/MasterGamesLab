@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Map.GeometryGeneration.Edges;
+using Map.Hoverables;
 using Unity.Netcode;
 using UnityEngine;
 using Networking;
 
 namespace Map
 {
-    public class Edge : Timestamped, ISynchableObject<Edge.EdgeState>
+    public class Edge : Timestamped, ISynchableObject<Edge.EdgeState>, IHoverable
     {
         [System.Serializable]
         public enum EdgeType : byte
@@ -46,10 +47,11 @@ namespace Map
         public struct PartialEdgeGeometry
         {
             public List<Vector3> Vertices;
+            public List<Vector4> UV1;
             public List<int> Triangles;
 
             public static PartialEdgeGeometry Empty => new PartialEdgeGeometry
-                { Vertices = new List<Vector3>(), Triangles = new List<int>() };
+                { Vertices = new List<Vector3>(), UV1 = new List<Vector4>(), Triangles = new List<int>() };
         }
 
         public readonly EdgeId Id;
@@ -126,7 +128,10 @@ namespace Map
             get
             {
                 if (blueprintType == EdgeType.None) return Blueprint.VisualState.Valid;
-                if (BlueprintPreview) return Type == EdgeType.None ? Blueprint.VisualState.Preview : Blueprint.VisualState.PreviewOverlapping;
+                if (BlueprintPreview)
+                    return Type == EdgeType.None
+                        ? Blueprint.VisualState.Preview
+                        : Blueprint.VisualState.PreviewOverlapping;
                 if (type == EdgeType.None) return Blueprint.VisualState.Valid;
                 if (type == blueprintType) return Blueprint.VisualState.Overlapping;
                 return Blueprint.VisualState.Invalid;
@@ -160,6 +165,7 @@ namespace Map
             owner = playerId;
             this.VertexA = vertexA;
             this.VertexB = vertexB;
+            this.type = EdgeType.Road;
             Touch();
         }
 
@@ -256,7 +262,7 @@ namespace Map
             if (Type == EdgeType.Canal)
             {
                 geometry.SetRoadColor(new Color(0, 0, 255, 1));
-                geometry.SetLayer(EdgeGeometry.outlineLayer);
+                geometry.SetLayer(EdgeGeometry.OutlineLayer);
                 geometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
             }
 
@@ -295,7 +301,7 @@ namespace Map
             switch (BlueprintVisualState)
             {
                 case Blueprint.VisualState.Valid:
-                    blueprintGeometry.SetLayer(EdgeGeometry.outlineLayer);
+                    blueprintGeometry.SetLayer(EdgeGeometry.OutlineLayer);
                     blueprintGeometry.SetRoadColor(Constants.ROAD_BLUEPRINT_COLOR);
 
                     var outline = BlueprintType switch
@@ -306,18 +312,18 @@ namespace Map
                     blueprintGeometry.SetOutlineParameters(outline);
                     break;
                 case Blueprint.VisualState.Preview:
-                    blueprintGeometry.SetLayer(EdgeGeometry.defaultLayer);
+                    blueprintGeometry.SetLayer(EdgeGeometry.DefaultLayer);
                     blueprintGeometry.SetRoadColor(Constants.ROAD_BLUEPRINT_PREVIEW_COLOR);
                     break;
                 case Blueprint.VisualState.PreviewOverlapping:
                     // TODO missing implementation
                     break;
                 case Blueprint.VisualState.Overlapping:
-                    blueprintGeometry.SetLayer(EdgeGeometry.outlineTransparentLayer);
+                    blueprintGeometry.SetLayer(EdgeGeometry.OutlineTransparentLayer);
                     blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
                     break;
                 case Blueprint.VisualState.Invalid:
-                    blueprintGeometry.SetLayer(EdgeGeometry.outlineLayer);
+                    blueprintGeometry.SetLayer(EdgeGeometry.OutlineLayer);
                     blueprintGeometry.SetRoadColor(Constants.ROAD_BLUEPRINT_INVALID_COLOR);
                     blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_INVALID_OUTLINE);
                     break;
@@ -337,6 +343,12 @@ namespace Map
             EdgeDirty = true;
             // StartTile.EdgeDirty = true;
             // EndTile.EdgeDirty = true;
+        }
+
+        public Vector4 GetEdgeData()
+        {
+            //return new Vector4(Id + Map.ID_OFFSET, randomValue, active ? 1 : 0, 0);
+            return new Vector4(Id + Map.ID_OFFSET + Map.Instance.Tiles.Count, 0, 0, 0);
         }
     }
 }

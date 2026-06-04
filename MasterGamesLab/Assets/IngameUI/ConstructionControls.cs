@@ -46,7 +46,7 @@ public class ConstructionControls : MonoBehaviour
 
     public void Update()
     {
-        var newTile = (Tile)Map.Map.Instance.GetCurrentlyHoveredTile();
+        var newTile = (Tile)Map.Map.Instance.CurrentlyHovered;
 
         if (Type is ConstructionType.Road or ConstructionType.Canal)
         {

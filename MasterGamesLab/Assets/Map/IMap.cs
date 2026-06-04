@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Map.Hoverables;
 
 namespace Map
 {
@@ -10,7 +11,5 @@ namespace Map
         public float Radius { get; }
 
         public int Resolution { get; }
-
-        public ITile GetCurrentlyHoveredTile();
     }
 }

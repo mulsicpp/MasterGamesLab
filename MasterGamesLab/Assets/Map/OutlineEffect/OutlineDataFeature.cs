@@ -219,6 +219,7 @@ namespace Map.OutlineEffect
 
         public override void Create()
         {
+            Debug.Log($"LayerMask for outlines: {outlineLayer}");
             pass = new OutlineDataPass(overrideMaterial, expandMaterialAllChannels, expandMaterialDepth, outlineLayer)
             {
                 renderPassEvent = RenderPassEvent.AfterRenderingOpaques

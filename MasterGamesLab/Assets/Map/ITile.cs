@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using Map.GeometryGeneration;
 using UnityEngine;
 using System;
+using Map.Hoverables;
 
 namespace Map
 {
-    public interface ITile
+    public interface ITile : IHoverable
     {
         public TileId Id { get; }
 
@@ -27,10 +28,10 @@ namespace Map
 
         public int CountEdgesWith(Predicate<Edge> condition);
         public Edge FindEdgeTo(ITile other);
-        
+
         public bool CanSpawnVehicle(Vehicle.VehicleType type);
         public bool CanSpawnStructure(Structure.StructureType type);
-        
+
         public void BuildFaces(MapChunk.ChunkGeometry cg);
 
         public void FillTileData(List<Vector4> tileDataList, List<Map.TreeData> treeDataList);
