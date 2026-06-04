@@ -130,11 +130,11 @@ namespace Map.Blueprint
 
             if (tile == null) return false;
 
-            var structure = Map.Instance.Infrastructure.GetFirstWith(type, s => !s.Exists && s.BlueprintTile == null);
+            var structure = Map.Instance.Infrastructure.GetFirstWith(type, s => !s.Exists && s.BlueprintTile == null && s.Owner == PlayerManager.Instance.SelfId);
 
             if (structure == null) return false;
 
-            if (structure.BlueprintTile != null || !tile.CanSpawnStructure(structure.Type)) return false;
+            if (tile.BlueprintStructure != null || !tile.CanSpawnStructure(structure.Type)) return false;
             structure.BlueprintTile = tile;
             structure.BlueprintPreview = true;
 
@@ -200,12 +200,12 @@ namespace Map.Blueprint
                 lastPacket = lastPacket.AddEdgeToPackets(edge, packets);
             }
 
-            // Debug.Log("Structure count: " + structureIds.Count);
-            // 
-            // foreach (var tileId in structureIds)
-            // {
-            //     lastPacket = lastPacket.AddStructureToPackets(tileId, packets);
-            // }
+            Debug.Log("Structure count: " + structures.Count);
+            
+            foreach (var structure in structures)
+            {
+                lastPacket = lastPacket.AddStructureToPackets(structure, packets);
+            }
 
             if (lastPacket.NettoSize == 0)
             {

@@ -539,7 +539,7 @@ namespace Map
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void SendBlueprintPacketServerRpc(EdgeId[] roads, EdgeId[] canals, TileId[] ports, bool hasNext,
+        public void SendBlueprintPacketServerRpc(EdgeId[] roads, EdgeId[] canals, BlueprintPacket.StructureData[] ports, bool hasNext,
             RpcParams rpcParams = default)
         {
             var playerId =
@@ -579,19 +579,16 @@ namespace Map
                     }
                 }
 
-                // foreach (var tileId in packet.PortTileIds)
-                // {
-                //     if (tileId < 0 || tileId > tiles.Count) continue;
-                //     var tile = tiles[tileId];
-                // 
-                //     if (tile.Structure == null)
-                //     {
-                //         var index = infrastructure.GetFirstEmptyIndex(Structure.StructureType.Port, playerId);
-                //         if (index == -1) continue;
-                // 
-                //         ReliableSender.Add(new Port.PortState { Common = { Index = new StructureIndex((byte)index), TileId = tile.Id } });
-                //     }
-                // }
+                foreach (var port in packet.Ports)
+                {
+                    if (port.TileId < 0 || port.TileId > tiles.Count) continue;
+                    var tile = tiles[port.TileId];
+                
+                    if (tile.Structure == null)
+                    {
+                        ReliableSender.Add(new Port.PortState { Common = { Index = port.StructureIndex, TileId = tile.Id } });
+                    }
+                }
 
 
                 var responseRpcParams = new ClientRpcParams

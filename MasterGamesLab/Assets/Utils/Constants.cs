@@ -69,7 +69,7 @@ public static class Constants
     public const byte MAX_PRODUCER_COUNT = 64;
     public const byte MAX_CONSUMER_COUNT = 128;
 
-    public const byte MAX_PORTS_PER_PLAYER = 4;
+    public const byte MAX_PORTS_PER_PLAYER = 12;
     public const byte MAX_GARAGES_PER_PLAYER = 1;
 
     public const byte MAX_PORT_COUNT = MAX_PORTS_PER_PLAYER * MAX_PLAYER_COUNT;
