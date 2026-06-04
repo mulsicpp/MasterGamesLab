@@ -23,8 +23,6 @@ namespace Map.GeometryGeneration.Edges
             RebuildMesh();
         }
 
-        public void SetLayer(int layer) => gameObject.layer = layer;
-
         private void RebuildMesh()
         {
             ClearMeshData();

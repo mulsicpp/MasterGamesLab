@@ -13,9 +13,9 @@ namespace Map.OutlineEffect
         protected abstract string OutlineLayerName();
         protected abstract string OutlineTransparentLayerName();
 
-        public static int DefaultLayer = -1;
-        public static int OutlineLayer;
-        public static int OutlineTransparentLayer;
+        private static int defaultLayer = -1;
+        private static int outlineLayer;
+        private static int outlineTransparentLayer;
 
         private Renderer objRenderer;
 
@@ -27,11 +27,11 @@ namespace Map.OutlineEffect
         protected new void Init()
         {
             base.Init();
-            if (DefaultLayer == -1)
+            if (defaultLayer == -1)
             {
-                DefaultLayer = gameObject.layer;
-                OutlineLayer = LayerMask.NameToLayer(OutlineLayerName());
-                OutlineTransparentLayer = LayerMask.NameToLayer(OutlineTransparentLayerName());
+                defaultLayer = gameObject.layer;
+                outlineLayer = LayerMask.NameToLayer(OutlineLayerName());
+                outlineTransparentLayer = LayerMask.NameToLayer(OutlineTransparentLayerName());
             }
 
             objRenderer = GetComponent<Renderer>();
@@ -40,7 +40,7 @@ namespace Map.OutlineEffect
             SetMaterialPropertyBlock();
         }
 
-        public void SetRoadColor(Color color)
+        public void SetPlayerColor(Color color)
         {
             playerColor = color;
             SetMaterialPropertyBlock();
@@ -61,6 +61,12 @@ namespace Map.OutlineEffect
             textureId = outlineData.TextureId;
             SetMaterialPropertyBlock();
         }
+
+        public void SetBaseLayer() => gameObject.layer = defaultLayer;
+
+        public void SetOutlineLayer() => gameObject.layer = outlineLayer;
+
+        public void SetOutlineTransparentLayer() => gameObject.layer = outlineTransparentLayer;
 
         private void SetMaterialPropertyBlock()
         {

@@ -46,9 +46,9 @@ namespace Map.GeometryGeneration
         private static readonly Vector2 TextureSize = new(2500, 2048);
         private static readonly Vector2 InvTextureSize = new(1f / TextureSize.x, 1f / TextureSize.y);
 
-        private const float WATER_HEIGHT = 0.99f;
-        private const float LAND_HEIGHT = 1f;
-        private const float MOUNTAIN_HEIGHT = 1.04f;
+        public const float WATER_HEIGHT = 0.99f;
+        public const float LAND_HEIGHT = 1f;
+        public const float MOUNTAIN_HEIGHT = 1.04f;
         private static readonly float BorderHeight = Math.Min(WATER_HEIGHT, Math.Min(LAND_HEIGHT, MOUNTAIN_HEIGHT));
 
         private const int MIN_TREES_PER_TRIANGLE = 1;

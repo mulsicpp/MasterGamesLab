@@ -17,7 +17,7 @@ namespace Map.OutlineEffect
         {
             private readonly Material overrideMat;
             private readonly Material expandMaterialAllChannels;
-            private readonly Material expandMaterialDepth; // <--- New
+            private readonly Material expandMaterialDepth; 
             private readonly LayerMask layerMask;
 
             private RTHandle m_OutlineColor;
@@ -219,7 +219,6 @@ namespace Map.OutlineEffect
 
         public override void Create()
         {
-            Debug.Log($"LayerMask for outlines: {outlineLayer}");
             pass = new OutlineDataPass(overrideMaterial, expandMaterialAllChannels, expandMaterialDepth, outlineLayer)
             {
                 renderPassEvent = RenderPassEvent.AfterRenderingOpaques
