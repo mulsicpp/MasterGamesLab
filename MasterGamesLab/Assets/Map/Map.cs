@@ -14,6 +14,7 @@ using static UnityEditor.VersionControl.Asset;
 using Networking;
 using Blueprint;
 using UnityEditor.PackageManager;
+using Unity.AppUI.Redux;
 
 namespace Map
 {
@@ -38,6 +39,8 @@ namespace Map
         public IReadOnlyList<Edge> Edges => edges;
         public IReadOnlyInfrastructure Infrastructure => infrastructure;
         public IReadOnlyFleet Fleet => fleet;
+
+        public int? GenerationSeed { get; private set; } = null;
 
         public Blueprint.Blueprint Blueprint;
 
@@ -77,8 +80,8 @@ namespace Map
         private Infrastructure.Infrastructure infrastructure;
         private Fleet.Fleet fleet;
 
-        public Networking.ReliableSender ReliableSender;
-        public Networking.UnreliableSender UnreliableSender;
+        public ReliableSender ReliableSender;
+        public UnreliableSender UnreliableSender;
 
         private void OnEnable()
         {
@@ -142,6 +145,18 @@ namespace Map
                 Generate(UnityEngine.Random.Range(int.MinValue, int.MaxValue));
             }
 
+        }
+
+        private void UpdateEntireMesh()
+        {
+            foreach (var chunk in chunks)
+            {
+                chunk.UpdateMesh();
+                chunk.UpdateTileData();
+            }
+
+            foreach (var tile in tiles) tile.BuildGeometryData();
+            foreach (var edge in edges) edge.ChangeVisualState();
         }
 
         private void Update()
@@ -231,6 +246,22 @@ namespace Map
             currentlyHoveredTileId = ((pixelColor.r << 16) | (pixelColor.g << 8) | pixelColor.b) - ID_OFFSET;
         }
 
+        public void GenerateEmpty()
+        {
+            foreach (var tile in tiles)
+            {
+                tile.Type = Tile.TileType.Water;
+            }
+
+            InitEdges();
+
+            infrastructure = new Infrastructure.Infrastructure();
+            fleet = new Fleet.Fleet();
+
+            UpdateEntireMesh();
+
+            GenerationSeed = null;
+        }
 
         public void Generate(int seed)
         {
@@ -252,10 +283,7 @@ namespace Map
             infrastructure = new Infrastructure.Infrastructure();
             fleet = new Fleet.Fleet();
 
-            foreach (var chunk in chunks)
-            {
-                chunk.UpdateMesh();
-            }
+            UpdateEntireMesh();
 
             ITile[] playerSpawns = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
 
@@ -301,6 +329,8 @@ namespace Map
                     spawnPointManager.RegisterConsumerSpawned(consTiles);
                 }
             }
+
+            GenerationSeed = seed;
         }
 
         public void Tick()
@@ -323,6 +353,12 @@ namespace Map
             {
                 vehicle.ResetProgressDirty();
             }
+        }
+
+        public void FinishGame()
+        {
+            if(!IsServer) return;
+            StartCoroutine(UIManager.Instance.FinishGame());
         }
 
         private void InitEdges()
@@ -767,7 +803,7 @@ namespace Map
                 }
             }
 
-            var orange = new Color(1.0f, 0.2f, 0.0f);
+            var orange = new Color(1.0f, 0.15f, 0.0f);
 
             foreach(var tile in tiles)
             {

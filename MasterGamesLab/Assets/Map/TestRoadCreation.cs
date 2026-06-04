@@ -130,7 +130,7 @@ public class TestRoadCreation : NetworkBehaviour
         {
             if (!IsServer) return;
             Debug.Log("Finishing game");
-            Map.Map.Instance.GameFinishedClientRpc();
+            Map.Map.Instance.FinishGame();
         }
     }
 }
