@@ -20,7 +20,7 @@ namespace Map.Infrastructure
         public override StructureType Type => StructureType.Producer;
 
         private Good good;
-        public Good Good { get { return good; } set { good = value; Touch(); } }
+        public Good Good { get { return good; } set { good = value; Touch(); TriggerDirty(); } }
 
         public ProducerState State
         {
