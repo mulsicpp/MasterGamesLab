@@ -36,10 +36,10 @@ namespace Map.Infrastructure
             for (var i = 0; i < ports.Length; i++) ports[i] = new Port(new StructureIndex((byte)i));
         }
 
-        public int GetFirstEmptyIndex(Structure.StructureType type) => GetFirstEmptyIndex(type, PlayerId.NONE);
-
-        public int GetFirstEmptyIndex(Structure.StructureType type, PlayerId owner)
+        public Structure GetFirstWith(Structure.StructureType type, Predicate<Structure> condition = null)
         {
+            condition ??= s => !s.Exists;
+
             Structure[] structures = type switch
             {
                 Structure.StructureType.Producer => producers,
@@ -50,29 +50,16 @@ namespace Map.Infrastructure
                 _ => null
             };
 
-            Debug.Log("structures: " +  structures);
-            if (structures == null) return -1;
+            Debug.Log("structures: " + structures);
+            if (structures == null) return null;
 
-            var countPerPlayer = Structure.GetMaxCountPerPlayer(type);
-            if (owner == PlayerId.NONE || countPerPlayer < 0)
+            for (int i = 0; i < structures.Length; i++)
             {
-
-                for (int i = 0; i < structures.Length; i++)
-                {
-                    if (!structures[i].Exists)
-                        return i;
-                }
-            }
-            else
-            {
-                for (int i = owner * countPerPlayer; i < ((int)owner + 1) * countPerPlayer; i++)
-                {
-                    if (!structures[i].Exists)
-                        return i;
-                }
+                if (condition(structures[i]))
+                    return structures[i];
             }
 
-            return -1;
+            return null;
         }
 
         public void UpdateStructure<T>(T state) where T : struct, Structure.IStructureState
@@ -86,9 +73,10 @@ namespace Map.Infrastructure
 
         public bool SpawnLocal<T>(T state, PlayerId owner) where T : struct, Structure.IStructureState
         {
-            int index = GetFirstEmptyIndex(state.Type, owner);
-            if (index > -1)
+            var structure = GetFirstWith(state.Type, s => !s.Exists && s.Owner == owner);
+            if (structure != null)
             {
+                state.ArrayIndex = structure.Index;
                 UpdateStructure(state);
                 return true;
             }
@@ -98,11 +86,10 @@ namespace Map.Infrastructure
 
         public bool SpawnGlobal<T>(T state, PlayerId owner) where T : struct, Structure.IStructureState
         {
-            int index = GetFirstEmptyIndex(state.Type, owner);
-            Debug.Log("Found index " + index);
-            if (index > -1)
+            var structure = GetFirstWith(state.Type, s => !s.Exists && s.Owner == owner);
+            if (structure != null)
             {
-                state.ArrayIndex = index;
+                state.ArrayIndex = structure.Index;
 
                 Map.Instance.ReliableSender.Add(state);
                 Map.Instance.ReliableSender.Send();

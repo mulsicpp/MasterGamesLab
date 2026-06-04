@@ -39,6 +39,8 @@ namespace Map.Infrastructure
 
         public new Timestamp Timestamp => base.Timestamp;
 
+        public virtual PlayerId Owner => PlayerId.NONE;
+
         private Tile tile;
         public Tile Tile
         {

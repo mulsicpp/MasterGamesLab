@@ -858,6 +858,18 @@ namespace Map
                     Vector3 basePos = GetProjectedPosition(port.Tile.PositionOnSphere, 1.015f);
                     Gizmos.color = PlayerManager.Instance.GetPlayerColor(port.Owner);
                     Gizmos.DrawSphere(basePos, 0.025f);
+                } else if (port.BlueprintTile != null)
+                {
+                    Vector3 basePos = GetProjectedPosition(port.BlueprintTile.PositionOnSphere, 1.015f);
+                    Gizmos.color = port.BlueprintVisualState switch
+                    {
+                        VisualState.Preview => Color.purple,
+                        VisualState.PreviewOverlapping => Color.blue,
+                        VisualState.Valid => Color.cyan,
+                        VisualState.Overlapping => Color.green,
+                        _ => Color.red,
+                    };
+                    Gizmos.DrawWireSphere(basePos, 0.025f);
                 }
             }
 

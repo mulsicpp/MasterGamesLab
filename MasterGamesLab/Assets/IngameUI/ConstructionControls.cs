@@ -47,10 +47,11 @@ public class ConstructionControls : MonoBehaviour
     {
         var newTile = (Tile)Map.Map.Instance.GetCurrentlyHoveredTile();
 
-        if (Type is ConstructionType.Road or ConstructionType.Canal)
+        var edgeType = GetEdgeType();
+        if (edgeType != EdgeType.None)
         {
             if (hoveredTile != newTile)
-                previewIsValidOrNonExistent = SetPreviewEdges(newTile);
+                previewIsValidOrNonExistent = startTile == null || Map.Map.Instance.Blueprint.SetPreviewEdges(startTile, newTile, edgeType);
 
             if (previewIsValidOrNonExistent && newTile != null && leftClickAction.WasPerformedThisFrame())
             {
@@ -66,7 +67,7 @@ public class ConstructionControls : MonoBehaviour
         else if (Type is ConstructionType.Port)
         {
             if (hoveredTile != newTile)
-                previewIsValidOrNonExistent = SetPreviewStructure(newTile);
+                previewIsValidOrNonExistent = Map.Map.Instance.Blueprint.SetPreviewStructure(newTile, Structure.StructureType.Port);
 
             if (previewIsValidOrNonExistent && leftClickAction.WasPerformedThisFrame())
             {
@@ -80,30 +81,30 @@ public class ConstructionControls : MonoBehaviour
         hoveredTile = newTile;
     }
 
-    private bool SetPreviewEdges(Tile tile)
-    {
-        if (startTile != null)
-        {
-            if (tile == null)
-            {
-                Map.Map.Instance.Blueprint.ClearPreview();
-                return false;
-            }
-
-            var (edgeType, path) = Type switch
-            {
-                ConstructionType.Road => (Edge.EdgeType.Road, Pathfinding.FindPath(startTile, tile, MovementProfileRegistry.FindRoadBuildPath)),
-                ConstructionType.Canal => (Edge.EdgeType.Canal, Pathfinding.FindPath(startTile, tile, MovementProfileRegistry.FindCanalBuildPath)),
-                _ => (Edge.EdgeType.None, null)
-            };
-
-            Map.Map.Instance.Blueprint.SetPreviewEdges(path, edgeType);
-            return path?.Length > 1;
-        }
-
-        Map.Map.Instance.Blueprint.ClearPreview();
-        return true;
-    }
+    // private bool SetPreviewEdges(Tile tile)
+    // {
+    //     if (startTile != null)
+    //     {
+    //         if (tile == null)
+    //         {
+    //             Map.Map.Instance.Blueprint.ClearPreview();
+    //             return false;
+    //         }
+    // 
+    //         var (edgeType, path) = Type switch
+    //         {
+    //             ConstructionType.Road => (Edge.EdgeType.Road, Pathfinding.FindPath(startTile, tile, MovementProfileRegistry.FindRoadBuildPath)),
+    //             ConstructionType.Canal => (Edge.EdgeType.Canal, Pathfinding.FindPath(startTile, tile, MovementProfileRegistry.FindCanalBuildPath)),
+    //             _ => (Edge.EdgeType.None, null)
+    //         };
+    // 
+    //         Map.Map.Instance.Blueprint.SetPreviewEdges(path, edgeType);
+    //         return path?.Length > 1;
+    //     }
+    // 
+    //     Map.Map.Instance.Blueprint.ClearPreview();
+    //     return true;
+    // }
 
     private bool SetPreviewStructure(Tile tile)
     {
@@ -116,6 +117,16 @@ public class ConstructionControls : MonoBehaviour
         // }
         Map.Map.Instance.Blueprint.ClearPreview();
         return false;
+    }
+
+    private EdgeType GetEdgeType()
+    {
+        return Type switch
+        {
+            ConstructionType.Road => EdgeType.Road,
+            ConstructionType.Canal => EdgeType.Canal,
+            _ => EdgeType.None
+        };
     }
 
     public void ConfirmConstruction()

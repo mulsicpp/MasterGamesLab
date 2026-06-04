@@ -4,6 +4,7 @@ using Map.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static ConstructionControls;
 
 namespace Map.Blueprint
 {
@@ -91,11 +92,21 @@ namespace Map.Blueprint
             }
         }
 
-        public void SetPreviewEdges(TileId[] pathIds, Edge.EdgeType type)
+        // Returns true if a preview could be set from the start tile to the end tile.
+        public bool SetPreviewEdges(Tile start, Tile end, Edge.EdgeType type)
         {
             ClearPreview();
 
-            if (pathIds == null) return;
+            if (start == null || end == null) return false;
+
+            var pathIds = type switch
+            {
+                Edge.EdgeType.Road => Pathfinding.FindPath(start, end, MovementProfileRegistry.FindRoadBuildPath),
+                Edge.EdgeType.Canal => Pathfinding.FindPath(start, end, MovementProfileRegistry.FindCanalBuildPath),
+                _ => null
+            };
+
+            if (pathIds == null) return false;
 
             var path = pathIds.Select(id => Map.Instance.Tiles[id]).ToArray();
 
@@ -109,19 +120,27 @@ namespace Map.Blueprint
                     previewEdges.Add(edge);
                 }
             }
+
+            return true;
         }
 
-        public void SetPreviewStructure(Tile tile, Structure structure)
+        public bool SetPreviewStructure(Tile tile, Structure.StructureType type)
         {
             ClearPreview();
 
-            if (tile == null) return;
+            if (tile == null) return false;
 
-            if (structure.BlueprintTile != null || !tile.CanSpawnStructure(structure.Type)) return;
+            var structure = Map.Instance.Infrastructure.GetFirstWith(type, s => !s.Exists && s.BlueprintTile == null);
+
+            if (structure == null) return false;
+
+            if (structure.BlueprintTile != null || !tile.CanSpawnStructure(structure.Type)) return false;
             structure.BlueprintTile = tile;
             structure.BlueprintPreview = true;
 
             previewStructure = structure;
+
+            return true;
         }
 
         public void Clear()
