@@ -3,6 +3,7 @@ using Unity.Netcode;
 using Networking;
 using static Map.Fleet.Vehicle;
 using UnityEngine;
+using Map.Blueprint;
 
 namespace Map.Infrastructure
 {
@@ -44,6 +45,7 @@ namespace Map.Infrastructure
             get => tile;
             set
             {
+                if (tile == value) return;
                 if (tile != null)
                 {
                     tile.Structure = null;
@@ -51,12 +53,58 @@ namespace Map.Infrastructure
                 if (value != null)
                 {
                     if (value.Structure != null)
-                        value.Structure.tile = null;
+                        value.Structure.Tile = null;
                     value.Structure = this;
                 }
                 Debug.Log("tile changed to: " + (int)(value?.Id ?? -1));
                 tile = value;
-                Touch();
+                base.Touch();
+            }
+        }
+
+        private Tile blueprintTile;
+        public Tile BlueprintTile
+        {
+            get => blueprintTile;
+            set
+            {
+                if (blueprintTile == value) return;
+                if (blueprintTile != null)
+                {
+                    blueprintTile.BlueprintStructure = null;
+                }
+                if (value != null)
+                {
+                    if (value.BlueprintStructure != null)
+                        value.BlueprintStructure.BlueprintTile = null;
+                    value.BlueprintStructure = this;
+                }
+                Debug.Log("blueprint tile changed to: " + (int)(value?.Id ?? -1));
+                blueprintTile = value;
+            }
+        }
+
+        private bool blueprintPreview;
+
+        public bool BlueprintPreview
+        {
+            get => blueprintPreview;
+            set
+            {
+                blueprintPreview = value;
+                TriggerDirty();
+            }
+        }
+
+        public VisualState BlueprintVisualState
+        {
+            get
+            {
+                if (BlueprintTile == null) return VisualState.Valid;
+                if (BlueprintPreview) return BlueprintTile.Structure == null ? VisualState.Preview : VisualState.PreviewOverlapping;
+                if (BlueprintTile.Structure == null) return VisualState.Valid;
+                if (BlueprintTile.Structure.Type == Type) return VisualState.Overlapping;
+                return VisualState.Invalid;
             }
         }
 
@@ -83,6 +131,18 @@ namespace Map.Infrastructure
             Index = index;
             Tile = null;
             Touch();
+        }
+
+        public override void Touch()
+        {
+            if(Tile != null)
+                base.Touch();
+        }
+
+        public void TriggerDirty()
+        {
+            if (Tile != null) Tile.StructureDirty = true;
+            if (BlueprintTile != null) BlueprintTile.StructureDirty = true;
         }
     }
 }

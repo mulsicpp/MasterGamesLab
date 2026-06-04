@@ -32,8 +32,7 @@ public class ConstructionControls : MonoBehaviour
             type = value;
             startTile = null;
             OnConstructionTypeChanged?.Invoke(type);
-            Map.Map.Instance.Blueprint.ClearPreviewEdges();
-            Map.Map.Instance.Blueprint.ClearPreviewStructure();
+            Map.Map.Instance.Blueprint.ClearPreview();
         }
     }
 
@@ -76,8 +75,7 @@ public class ConstructionControls : MonoBehaviour
         }
         else
         {
-            Map.Map.Instance.Blueprint.ClearPreviewStructure();
-            Map.Map.Instance.Blueprint.ClearPreviewEdges();
+            Map.Map.Instance.Blueprint.ClearPreview();
         }
         hoveredTile = newTile;
     }
@@ -88,7 +86,7 @@ public class ConstructionControls : MonoBehaviour
         {
             if (tile == null)
             {
-                Map.Map.Instance.Blueprint.ClearPreviewEdges();
+                Map.Map.Instance.Blueprint.ClearPreview();
                 return false;
             }
 
@@ -103,22 +101,20 @@ public class ConstructionControls : MonoBehaviour
             return path?.Length > 1;
         }
 
-        Map.Map.Instance.Blueprint.ClearPreviewEdges();
-        Map.Map.Instance.Blueprint.ClearPreviewStructure();
+        Map.Map.Instance.Blueprint.ClearPreview();
         return true;
     }
 
     private bool SetPreviewStructure(Tile tile)
     {
-        if (tile != null && type == ConstructionType.Port)
-        {
-            if(tile.CanSpawnStructure(Structure.StructureType.Port)) {
-                Map.Map.Instance.Blueprint.SetPreviewStructure(tile.Id, Structure.StructureType.Port);
-                return true;
-            }
-        }
-        Map.Map.Instance.Blueprint.ClearPreviewEdges();
-        Map.Map.Instance.Blueprint.ClearPreviewStructure();
+        // if (tile != null && type == ConstructionType.Port)
+        // {
+        //     if(tile.CanSpawnStructure(Structure.StructureType.Port)) {
+        //         Map.Map.Instance.Blueprint.SetPreviewStructure(tile.Id, Structure.StructureType.Port);
+        //         return true;
+        //     }
+        // }
+        Map.Map.Instance.Blueprint.ClearPreview();
         return false;
     }
 

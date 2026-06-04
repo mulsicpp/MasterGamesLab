@@ -20,7 +20,7 @@ namespace Map.Infrastructure
         public override StructureType Type => StructureType.Consumer;
 
         private Good requestedGood;
-        public Good RequestedGood { get { return requestedGood; } set { requestedGood = value; Touch(); } }
+        public Good RequestedGood { get { return requestedGood; } set { requestedGood = value; Touch(); TriggerDirty(); } }
 
         public ConsumerState State
         {

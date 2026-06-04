@@ -52,9 +52,8 @@ namespace Blueprint
             nettoSize += packet.nettoSize;
         }
 
-        public BlueprintPacket AddEdgeToPackets(EdgeId edgeId, List<BlueprintPacket> packets)
+        public BlueprintPacket AddEdgeToPackets(Edge edge, List<BlueprintPacket> packets)
         {
-            var edge = Map.Map.Instance.Edges[edgeId];
             if (edge.BlueprintType == Edge.EdgeType.None) return this;
 
             var currentPacket = this;
@@ -66,34 +65,34 @@ namespace Blueprint
 
             switch(edge.BlueprintType)
             {
-                case Edge.EdgeType.Road: roadEdgeIds.Add(edgeId); break;
-                case Edge.EdgeType.Canal: canalEdgeIds.Add(edgeId); break;
+                case Edge.EdgeType.Road: roadEdgeIds.Add(edge.Id); break;
+                case Edge.EdgeType.Canal: canalEdgeIds.Add(edge.Id); break;
                 default: return currentPacket;
             }
             nettoSize += Marshal.SizeOf<EdgeId>();
             return currentPacket;
         }
 
-        public BlueprintPacket AddStructureToPackets(TileId tileId, List<BlueprintPacket> packets)
-        {
-            var tile = (Tile)Map.Map.Instance.Tiles[tileId];
-            if (tile.BlueprintStructureType == null) return this;
-
-            var currentPacket = this;
-            if (Marshal.SizeOf<TileId>() + nettoSize > Constants.MAX_NETTO_BYTES_PER_RPC)
-            {
-                packets.Add(this);
-                currentPacket = new BlueprintPacket();
-            }
-
-            switch (tile.BlueprintStructureType)
-            {
-                case Structure.StructureType.Port: portTileIds.Add(tileId); break;
-                default: return currentPacket;
-            }
-            nettoSize += Marshal.SizeOf<TileId>();
-            return currentPacket;
-        }
+        // public BlueprintPacket AddStructureToPackets(Structure structure, List<BlueprintPacket> packets)
+        // {
+        //     var tile = (Tile)Map.Map.Instance.Tiles[tileId];
+        //     if (tile.BlueprintStructureType == null) return this;
+        // 
+        //     var currentPacket = this;
+        //     if (Marshal.SizeOf<TileId>() + nettoSize > Constants.MAX_NETTO_BYTES_PER_RPC)
+        //     {
+        //         packets.Add(this);
+        //         currentPacket = new BlueprintPacket();
+        //     }
+        // 
+        //     switch (tile.BlueprintStructureType)
+        //     {
+        //         case Structure.StructureType.Port: portTileIds.Add(tileId); break;
+        //         default: return currentPacket;
+        //     }
+        //     nettoSize += Marshal.SizeOf<TileId>();
+        //     return currentPacket;
+        // }
 
         public void Send(bool hasNext)
         {

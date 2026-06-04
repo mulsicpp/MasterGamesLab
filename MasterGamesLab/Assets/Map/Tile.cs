@@ -57,39 +57,15 @@ namespace Map
             }
         }
 
-        private Structure.StructureType? blueprintStructureType;
+        private Structure blueprintStructure { get; set; }
 
-        public Structure.StructureType? BlueprintStructureType
+        public Structure BlueprintStructure
         {
-            get => blueprintStructureType;
+            get => blueprintStructure;
             set
             {
-                blueprintStructureType = value;
+                blueprintStructure = value;
                 GeometryChanged = true;
-            }
-        }
-
-        private bool blueprintPreview;
-
-        public bool BlueprintPreview
-        {
-            get => blueprintPreview;
-            set
-            {
-                blueprintPreview = value;
-                StructureDirty = true;
-            }
-        }
-
-        public VisualState BlueprintVisualState
-        {
-            get
-            {
-                if (blueprintStructureType == null) return VisualState.Valid;
-                if (BlueprintPreview) return structure == null ? VisualState.Preview : VisualState.PreviewOverlapping;
-                if (structure == null) return VisualState.Valid;
-                if (structure.Type == blueprintStructureType) return VisualState.Overlapping;
-                return VisualState.Invalid;
             }
         }
 
