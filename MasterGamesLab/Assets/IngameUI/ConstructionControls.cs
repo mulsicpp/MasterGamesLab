@@ -4,6 +4,7 @@ using UnityEngine;
 using Map.Infrastructure;
 using UnityEngine.InputSystem;
 using static Map.Edge;
+using Map.Hoverables;
 
 public class ConstructionControls : MonoBehaviour
 {
@@ -33,6 +34,11 @@ public class ConstructionControls : MonoBehaviour
             startTile = null;
             OnConstructionTypeChanged?.Invoke(type);
             Map.Map.Instance.Blueprint.ClearPreview();
+
+            if (type is ConstructionType.None or ConstructionType.Hidden)
+                Map.Map.Instance.HoverLayers = HoverablePicker.HoverableLayer.All;
+            else
+                Map.Map.Instance.HoverLayers = HoverablePicker.HoverableLayer.Tiles;
         }
     }
 
@@ -45,7 +51,7 @@ public class ConstructionControls : MonoBehaviour
 
     public void Update()
     {
-        var newTile = (Tile)Map.Map.Instance.CurrentlyHovered;
+        var newTile = Map.Map.Instance.CurrentlyHovered as Tile;
 
         var edgeType = GetEdgeType();
         if (edgeType != EdgeType.None)

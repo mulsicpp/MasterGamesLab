@@ -23,7 +23,7 @@ public class TestRoadCreation : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        var tile = (Tile)Map.Map.Instance.CurrentlyHovered;
+        var tile = Map.Map.Instance.CurrentlyHovered as Tile;
         if (tile == null) return;
         if (Input.GetMouseButtonDown(1))
         {
