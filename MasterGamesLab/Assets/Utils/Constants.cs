@@ -29,6 +29,13 @@ public static class Constants
         TextureId = 1,
     };
 
+    public static OutlineData ROAD_BLUEPRINT_PREVIEW_OVERLAPPING_OUTLINE = new OutlineData()
+    {
+        OutlineColor = Color.grey,
+        InnerColor = new Color(0, 0, 0, 0.2f),
+        TextureId = 2,
+    };
+
     public static OutlineData ROAD_BLUEPRINT_OVERLAPPING_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.black,

@@ -1,17 +1,16 @@
 using Map;
 using Map.Fleet;
 using Map.Infrastructure;
-using System;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
 public class TestRoadCreation : NetworkBehaviour
 {
-    Map.ITile startTile = null;
+    ITile startTile = null;
 
     [SerializeField]
-    private Map.Edge.EdgeType type = Map.Edge.EdgeType.Road;
+    private Edge.EdgeType type = Edge.EdgeType.Road;
 
     [SerializeField]
     private Good good = Good.Apple;
@@ -24,7 +23,7 @@ public class TestRoadCreation : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        var tile = (Tile)Map.Map.Instance.GetCurrentlyHoveredTile();
+        var tile = (Tile)Map.Map.Instance.CurrentlyHovered;
         if (tile == null) return;
         if (Input.GetMouseButtonDown(1))
         {
@@ -34,7 +33,7 @@ public class TestRoadCreation : NetworkBehaviour
             {
                 var endTile = tile;
 
-                Map.Edge edge = startTile.FindEdgeTo(endTile);
+                var edge = startTile.FindEdgeTo(endTile);
                 if (edge != null && edge.CanBecomeType(type))
                 {
                     Debug.Log("Valid edge selected");

@@ -12,6 +12,8 @@ namespace Map.GeometryGeneration.Edges
         {
             var vertices = new List<Vector3>();
             var triangles = new List<int>();
+            var uv1 = new List<Vector4>();
+            var data = edge.GetEdgeData();
 
             Vector3 a = tile.PositionOnSphere;
 
@@ -71,23 +73,33 @@ namespace Map.GeometryGeneration.Edges
             // Vertices
             // 0, 1: Center A bottom, top
             vertices.Add(a);
+            uv1.Add(data);
             vertices.Add(a + upOffset);
+            uv1.Add(data);
 
             // 2, 3: Taper Point Left bottom, top
             vertices.Add(pLBot);
+            uv1.Add(data);
             vertices.Add(pLBot + upOffset);
+            uv1.Add(data);
 
             // 4, 5: Taper Point Right bottom, top
             vertices.Add(pRBot);
+            uv1.Add(data);
             vertices.Add(pRBot + upOffset);
+            uv1.Add(data);
 
             // 6, 7: Edge Point Left bottom, top
             vertices.Add(bLBot);
+            uv1.Add(data);
             vertices.Add(bLBot + upOffset);
+            uv1.Add(data);
 
             // 8, 9: Edge Point Right bottom, top
             vertices.Add(bRBot);
+            uv1.Add(data);
             vertices.Add(bRBot + upOffset);
+            uv1.Add(data);
 
             // Triangles (CW winding for top)
             // Top Face (With corrected CW winding from earlier)
@@ -154,6 +166,7 @@ namespace Map.GeometryGeneration.Edges
             return new Edge.PartialEdgeGeometry
             {
                 Vertices = vertices,
+                UV1 = uv1,
                 Triangles = triangles
             };
         }

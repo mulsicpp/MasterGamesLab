@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: tile_road_material
+  m_Name: edge_material
   m_Shader: {fileID: -6465566751694194690, guid: daac058a6dc23184f9ded29a7deeed0a, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0

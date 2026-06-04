@@ -1,33 +1,53 @@
+using Map.Hoverables;
 using UnityEngine;
 
 namespace Map
 {
     public class TestHoverTiles : MonoBehaviour
     {
-        ITile lastActiveTile;
+        private IHoverable lastHoveredThing;
 
         private void Update()
         {
-            if (lastActiveTile != null)
+            if (lastHoveredThing != null)
             {
-                // lastActiveTile.Active = false;
-                foreach (var n in lastActiveTile.Neighbors)
+                switch (lastHoveredThing)
                 {
-                    n.Active = false;
+                    case ITile t:
+                        // lastActiveTile.Active = false;
+                        foreach (var n in t.Neighbors)
+                        {
+                            n.Active = false;
+                        }
+
+                        break;
+                    case Edge edge:
+                        break;
                 }
             }
 
-            var tile = Map.Instance.GetCurrentlyHoveredTile();
-            if (tile != null)
-            {
-                // tile.Active = true;
-                foreach (var n in tile.Neighbors)
-                {
-                    n.Active = true;
-                }
+            var tile = Map.Instance.CurrentlyHovered;
+            if (tile == null) return;
 
-                lastActiveTile = tile;
+            switch (tile)
+            {
+                case ITile t:
+                    foreach (var n in t.Neighbors)
+                    {
+                        n.Active = true;
+                    }
+
+                    break;
+                case Edge e:
+                    Debug.Log("Edge is hovered");
+                    break;
+                default:
+                    break;
             }
+
+            // tile.Active = true;
+
+            lastHoveredThing = tile;
         }
     }
 }

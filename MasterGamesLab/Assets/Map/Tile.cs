@@ -7,8 +7,6 @@ using Map.GeometryGeneration;
 using Map.GeometryGeneration.Edges;
 using Map.Infrastructure;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
-using static Map.Edge;
 
 namespace Map
 {
@@ -33,7 +31,7 @@ namespace Map
 
         // Point data
         public Vector3 Position;
-        private readonly List<Triangle> neighborTriangles;
+        private List<Triangle> neighborTriangles;
 
         // Tile data
         public TileId Id { get; private set; }
@@ -213,6 +211,8 @@ namespace Map
                 }
             }
 
+            neighborTriangles = null;
+
             return;
 
             int Comparison(Vector3 a, Vector3 b)
@@ -272,7 +272,7 @@ namespace Map
         {
             if (Structure != null) return false;
 
-            switch(type)
+            switch (type)
             {
                 case Structure.StructureType.Producer:
                 case Structure.StructureType.Consumer:
@@ -282,7 +282,9 @@ namespace Map
                     bool bordersWater = neighbors.Where(t => t.Type is TileType.Water).Count() > 0;
                     return buildable & bordersWater;
                 default: return false;
-            };
+            }
+
+            ;
         }
 
         public bool CanSpawnVehicle(Vehicle.VehicleType type)

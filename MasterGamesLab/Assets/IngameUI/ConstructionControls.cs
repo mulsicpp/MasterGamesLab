@@ -45,7 +45,7 @@ public class ConstructionControls : MonoBehaviour
 
     public void Update()
     {
-        var newTile = (Tile)Map.Map.Instance.GetCurrentlyHoveredTile();
+        var newTile = (Tile)Map.Map.Instance.CurrentlyHovered;
 
         var edgeType = GetEdgeType();
         if (edgeType != EdgeType.None)
