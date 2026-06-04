@@ -2,6 +2,7 @@ using Blueprint;
 using Map.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 
 namespace Map.Blueprint
@@ -19,7 +20,7 @@ namespace Map.Blueprint
 
         private TileId previewStructureTileId;
         public TileId PreviewStructureTileId => previewStructureTileId;
-
+        public bool IsEmpty => structureTileIds.Count == 0 && edgeIds.Count == 0;
         public Blueprint()
         {
             edgeIds = new List<EdgeId>();
@@ -128,7 +129,7 @@ namespace Map.Blueprint
 
         public void Clear()
         {
-            foreach(var edgeId in edgeIds)
+            foreach (var edgeId in edgeIds)
             {
                 var edge = Map.Instance.Edges[edgeId];
                 edge.BlueprintType = Edge.EdgeType.None;
@@ -150,7 +151,7 @@ namespace Map.Blueprint
 
         public void ApplyPreviewEdges()
         {
-            foreach(var edgeId in previewEdgeIds)
+            foreach (var edgeId in previewEdgeIds)
             {
                 var edge = Map.Instance.Edges[edgeId];
                 edge.BlueprintPreview = false;
@@ -161,7 +162,7 @@ namespace Map.Blueprint
 
         public void ApplyPreviewStructure()
         {
-            if(previewStructureTileId == TileId.NONE) return;
+            if (previewStructureTileId == TileId.NONE) return;
 
             var tile = (Tile)Map.Instance.Tiles[previewStructureTileId];
             tile.BlueprintPreview = false;
@@ -184,7 +185,7 @@ namespace Map.Blueprint
             List<BlueprintPacket> packets = new();
             BlueprintPacket lastPacket = new();
 
-            foreach(var edgeId in edgeIds)
+            foreach (var edgeId in edgeIds)
             {
                 lastPacket = lastPacket.AddEdgeToPackets(edgeId, packets);
             }
@@ -196,7 +197,7 @@ namespace Map.Blueprint
                 lastPacket = lastPacket.AddStructureToPackets(tileId, packets);
             }
 
-            if(lastPacket.NettoSize == 0)
+            if (lastPacket.NettoSize == 0)
             {
                 if (packets.Count == 0)
                     return;
@@ -205,11 +206,12 @@ namespace Map.Blueprint
                 packets.RemoveAt(packets.Count - 1);
             }
 
-            foreach(var packet in packets)
+            foreach (var packet in packets)
             {
                 packet.Send(true);
             }
             lastPacket.Send(false);
         }
+
     }
 }
