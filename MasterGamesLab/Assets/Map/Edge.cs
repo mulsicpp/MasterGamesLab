@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Map.GeometryGeneration.Edges;
 using Map.Hoverables;
 using Unity.Netcode;
@@ -165,7 +164,6 @@ namespace Map
             owner = playerId;
             this.VertexA = vertexA;
             this.VertexB = vertexB;
-            this.type = EdgeType.Road;
             Touch();
         }
 
@@ -316,7 +314,8 @@ namespace Map
                     blueprintGeometry.SetRoadColor(Constants.ROAD_BLUEPRINT_PREVIEW_COLOR);
                     break;
                 case Blueprint.VisualState.PreviewOverlapping:
-                    // TODO missing implementation
+                    blueprintGeometry.SetLayer(EdgeGeometry.OutlineTransparentLayer);
+                    blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_PREVIEW_OVERLAPPING_OUTLINE);
                     break;
                 case Blueprint.VisualState.Overlapping:
                     blueprintGeometry.SetLayer(EdgeGeometry.OutlineTransparentLayer);
