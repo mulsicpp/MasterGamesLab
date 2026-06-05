@@ -13,6 +13,7 @@ public class ConstructionControls : MonoBehaviour
     public event Action<ConstructionType> OnConstructionTypeChanged;
 
     private InputAction leftClickAction;
+    private InputAction cancelAction;
     private Tile startTile = null;
     private Tile hoveredTile = null;
     private bool previewIsValidOrNonExistent = true;
@@ -47,7 +48,11 @@ public class ConstructionControls : MonoBehaviour
         Type = (Type == ConstructionType.Hidden) ? ConstructionType.None : ConstructionType.Hidden;
     }
 
-    public void OnEnable() => leftClickAction = IngameInputs.leftClickAction;
+    public void OnEnable() 
+    { 
+        leftClickAction = IngameInputs.leftClickAction;
+        cancelAction = IngameInputs.cancelAction;
+    }
 
     public void Update()
     {
@@ -84,7 +89,23 @@ public class ConstructionControls : MonoBehaviour
         {
             Map.Map.Instance.Blueprint.ClearPreview();
         }
+
         hoveredTile = newTile;
+
+        if(Type is ConstructionType.None && cancelAction.IsPressed())
+        {
+            switch(Map.Map.Instance.CurrentlyHovered)
+            {
+                case Tile t:
+                    if(t.BlueprintStructure != null)
+                        Map.Map.Instance.Blueprint.RemoveStructure(t.BlueprintStructure);
+                    break;
+                case Edge e:
+                    if(e.BlueprintType != EdgeType.None)
+                        Map.Map.Instance.Blueprint.RemoveEdge(e);
+                    break;
+            }
+        }
     }
 
     // private bool SetPreviewEdges(Tile tile)
