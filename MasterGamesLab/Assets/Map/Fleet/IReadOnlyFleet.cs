@@ -9,6 +9,9 @@ namespace Map.Fleet
         public IReadOnlyList<Freighter> Freighters { get; }
         public IReadOnlyList<Vehicle> Vehicles { get; }
 
+        public Vehicle this[VehicleId id] { get; }
+        public IReadOnlyList<Vehicle> this[Vehicle.VehicleType type] { get; }
+
         public bool SpawnLocal<T>(T state, PlayerId owner) where T : struct, Vehicle.IVehicleState;
         public bool SpawnGlobal<T>(T state, PlayerId owner) where T : struct, Vehicle.IVehicleState;
     }

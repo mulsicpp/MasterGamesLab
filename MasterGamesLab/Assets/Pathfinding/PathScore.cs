@@ -52,7 +52,7 @@ public class MovementProfile
 {
     private readonly List<Pathfinding.RuleMapping> _rules = new();
 
-    public Func<Tile, Tile, bool> IsHardBlocked { get; set; }
+    public Func<Tile, Tile, bool> CanPass { get; set; }
 
     public List<Pathfinding.RuleMapping> GetRules() => _rules;
 

@@ -10,6 +10,7 @@ using VehicleIndexPrimitive = System.Byte;
 
 using PlayerIdPrimitive = System.Byte;
 using ClientIdPrimitive = System.UInt64;
+using Map.Fleet;
 
 [System.Serializable]
 public struct TileId : INetworkSerializeByMemcpy, IEquatable<TileId>, IComparable<TileId>
@@ -82,6 +83,39 @@ public struct StructureIndex : INetworkSerializeByMemcpy, IEquatable<StructureIn
 }
 
 [System.Serializable]
+public struct StructureId : INetworkSerializeByMemcpy, IEquatable<StructureId>, IComparable<StructureId>
+{
+    [UnityEngine.SerializeField]
+    public readonly Structure.StructureType Type;
+    [UnityEngine.SerializeField]
+    public readonly StructureIndex Index;
+
+    public static readonly StructureId NONE = new StructureId(Structure.StructureType.Producer, StructureIndex.NONE);
+
+    public static bool operator ==(StructureId left, StructureId right) => left.Equals(right);
+    public static bool operator !=(StructureId left, StructureId right) => !left.Equals(right);
+
+    public override bool Equals(object obj) => obj is StructureId id && this.Equals(id);
+    public override int GetHashCode() => HashCode.Combine(Type, Index);
+
+    public bool Equals(StructureId other) => Type == other.Type && Index == other.Index;
+    public int CompareTo(StructureId other)
+    {
+        var comparison = Type.CompareTo(other.Type);
+
+        return comparison == 0 ? Index.CompareTo(other.Index) : comparison;
+    }
+
+    public StructureId(Structure.StructureType type, StructureIndex index)
+    {
+        Type = type;
+        Index = index;
+    }
+}
+
+
+
+[System.Serializable]
 public struct VehicleIndex : INetworkSerializeByMemcpy, IEquatable<VehicleIndex>, IComparable<VehicleIndex>
 {
     [UnityEngine.SerializeField]
@@ -102,6 +136,38 @@ public struct VehicleIndex : INetworkSerializeByMemcpy, IEquatable<VehicleIndex>
     public static implicit operator VehicleIndexPrimitive(VehicleIndex value) => value.value;
 
     public VehicleIndex(VehicleIndexPrimitive value) => this.value = value;
+}
+
+
+[System.Serializable]
+public struct VehicleId : INetworkSerializeByMemcpy, IEquatable<VehicleId>, IComparable<VehicleId>
+{
+    [UnityEngine.SerializeField]
+    public readonly Vehicle.VehicleType Type;
+    [UnityEngine.SerializeField]
+    public readonly VehicleIndex Index;
+
+    public static readonly VehicleId NONE = new VehicleId(Vehicle.VehicleType.Truck, VehicleIndex.NONE);
+
+    public static bool operator ==(VehicleId left, VehicleId right) => left.Equals(right);
+    public static bool operator !=(VehicleId left, VehicleId right) => !left.Equals(right);
+
+    public override bool Equals(object obj) => obj is VehicleId id && this.Equals(id);
+    public override int GetHashCode() => HashCode.Combine(Type, Index);
+
+    public bool Equals(VehicleId other) => Type == other.Type && Index == other.Index;
+    public int CompareTo(VehicleId other)
+    {
+        var comparison = Type.CompareTo(other.Type);
+
+        return comparison == 0 ? Index.CompareTo(other.Index) : comparison;
+    }
+
+    public VehicleId(Vehicle.VehicleType type, VehicleIndex index)
+    {
+        Type = type;
+        Index = index;
+    }
 }
 
 [System.Serializable]

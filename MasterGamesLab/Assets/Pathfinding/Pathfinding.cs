@@ -45,7 +45,7 @@ public static class Pathfinding
         MovementProfile profile, 
         Func<Tile, PathScore> heuristicFunction = null)
     {
-        if (start == null || targetCondition == null || profile == null) return null;
+        if (start == null || targetCondition == null || profile == null || profile.CanPass == null) return null;
 
         // Instant hard block fast-exit check
         // if (profile.IsHardBlocked != null && profile.IsHardBlocked(start, target)) return null;
@@ -76,7 +76,7 @@ public static class Pathfinding
 
             foreach (Tile neighborTile in current.Neighbors)
             {
-                if (profile.IsHardBlocked != null && profile.IsHardBlocked(current, neighborTile)) continue;
+                if (!profile.CanPass(current, neighborTile)) continue;
 
                 TileId neighborId = neighborTile.Id;
 
@@ -112,6 +112,54 @@ public static class Pathfinding
             }
         }
         return null;
+    }
+
+
+    private static Queue<Tile> reachabilityQueue = new Queue<Tile>();
+
+    /// <summary>
+    /// Floods outward from a start tile to find all interconnected tiles matching a target condition.
+    /// Uses a pure binary transition check to determine if a neighbor can be entered.
+    /// </summary>
+    public static TileId[] FindAllReachable(
+        Tile start,
+        Predicate<Tile> targetCondition,
+        Func<Tile, Tile, bool> canPass)
+    {
+        if (start == null || targetCondition == null || canPass == null) return Array.Empty<TileId>();
+
+        Array.Clear(visitedTilesBuffer, 0, visitedTilesBuffer.Length);
+        reachabilityQueue.Clear();
+
+        List<TileId> matchingTargets = new List<TileId>();
+
+        TileId startId = start.Id;
+        visitedTilesBuffer[startId] = true;
+        reachabilityQueue.Enqueue(start);
+
+        while (reachabilityQueue.Count > 0)
+        {
+            Tile current = reachabilityQueue.Dequeue();
+
+            if (targetCondition(current))
+            {
+                matchingTargets.Add(current.Id);
+            }
+
+            foreach (Tile neighborTile in current.Neighbors)
+            {
+                TileId neighborId = neighborTile.Id;
+
+                if (visitedTilesBuffer[neighborId]) continue;
+
+                if (!canPass(current, neighborTile)) continue;
+
+                visitedTilesBuffer[neighborId] = true;
+                reachabilityQueue.Enqueue(neighborTile);
+            }
+        }
+
+        return matchingTargets.ToArray();
     }
 
     private static TileId[] ReconstructPathArray(TileId startId, TileId targetId)

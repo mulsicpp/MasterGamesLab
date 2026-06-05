@@ -104,14 +104,14 @@ Shader "Hidden/OutlineDataShader"
                 // 1. Comparison Node (A: 0.5, B: _ProjectionFactor)
                 // Assuming "Greater Or Equal" (A >= B). 
                 // If your node uses Less, Greater, Equal, etc., adjust the operator here!
-                float out0 = (0.5 < _ProjectionFactor) ? 1.0 : 0.0;
+                float out0 = (_ProjectionFactor > 0.01) ? 1.0 : 0.0;
 
                 // 2. Multiply Node (A: d, B: Out0)
                 float out1 = input.d * out0;
 
                 // 3. Alpha Clip Threshold (Alpha: Out1, Threshold: -0.9)
                 // Shader Graph executes: clip(Alpha - Threshold)
-                clip(out1 - (-0.9)); // Simplified logically to clip(out1 + 0.9);
+                clip(out1 - (-0.93)); // Simplified logically to clip(out1 + 0.9);
 
                 // --------------------------------------
 

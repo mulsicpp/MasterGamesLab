@@ -15,9 +15,11 @@ public class TestRoadCreation : NetworkBehaviour
     [SerializeField]
     private Good good = Good.Apple;
 
+    private TileId[] connectedWaterTiles;
+
     void Start()
     {
-
+        connectedWaterTiles = new TileId[0];
     }
 
     // Update is called once per frame
@@ -131,6 +133,23 @@ public class TestRoadCreation : NetworkBehaviour
             if (!IsServer) return;
             Debug.Log("Finishing game");
             Map.Map.Instance.FinishGame();
+        }
+
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            connectedWaterTiles = Pathfinding.FindAllReachable(tile, t => t.Type is Tile.TileType.Water, (s, t) => s.FindEdgeTo(t)?.Type == Edge.EdgeType.Canal);
+            Debug.Log("Reachable water tile count: " + connectedWaterTiles.Length);
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        foreach(var tileId in connectedWaterTiles)
+        {
+            var tile = (Tile)Map.Map.Instance.Tiles[tileId];
+            Gizmos.color = Color.hotPink;
+
+            Gizmos.DrawSphere(Map.Map.Instance.GetProjectedPosition(tile.PositionOnSphere, 1.01f), 0.015f);
         }
     }
 }
