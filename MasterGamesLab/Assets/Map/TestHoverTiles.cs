@@ -50,7 +50,7 @@ namespace Map
 
                     tileOutliner.OutlineTile((Tile)t);
                     tileOutliner.SetOutlineTransparentLayer();
-                    tileOutliner.SetOutlineParameters(Constants.CANAL_BLUEPRINT_VALID_OUTLINE);
+                    tileOutliner.SetOutlineParameters(Color.black, new Color(0, 0, 0, 0), 0);
                     break;
                 case Edge e:
                     Debug.Log("Edge is hovered");

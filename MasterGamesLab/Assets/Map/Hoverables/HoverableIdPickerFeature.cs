@@ -72,9 +72,8 @@ namespace Map.Hoverables
         {
             public TextureHandle src;
             public TextureHandle dst;
-            public Vector2Int pixelPos;
-            public bool flipY;
-            public int screenHeight;
+            public int srcX;
+            public int srcY;
         }
 
         private class BlitPassData
@@ -138,25 +137,42 @@ namespace Map.Hoverables
             if (isPickRequested && HoverablePicker.Instance.Persistent1X1RT != null)
             {
                 TextureHandle persistentDst = renderGraph.ImportTexture(HoverablePicker.Instance.Persistent1X1RT);
+
+                // 1. Handle URP Render Scale by finding the ratio between the texture size and the screen size
+                float scaleX = (float)desc.width / cameraData.camera.pixelWidth;
+                float scaleY = (float)desc.height / cameraData.camera.pixelHeight;
+
+                int targetX = Mathf.RoundToInt(HoverablePicker.Instance.MousePosition.x * scaleX);
+                int targetY = Mathf.RoundToInt(HoverablePicker.Instance.MousePosition.y * scaleY);
+
+                // 2. Handle Y flipping for certain Graphics APIs (Direct3D/Vulkan/Metal)
+                if (settings.flipY && SystemInfo.graphicsUVStartsAtTop)
+                {
+                    targetY = desc.height - 1 - targetY;
+                }
+
+                // 3. CRITICAL: Strictly clamp coordinates so resizing the window or 
+                // moving the mouse to another monitor never causes a GPU out-of-bounds crash!
+                targetX = Mathf.Clamp(targetX, 0, desc.width - 1);
+                targetY = Mathf.Clamp(targetY, 0, desc.height - 1);
+
                 using (var builder = renderGraph.AddUnsafePass<CopyPassData>("TileIdCopyPixel", out var copyData))
                 {
                     copyData.src = idColor;
                     copyData.dst = persistentDst;
-                    copyData.pixelPos = HoverablePicker.Instance.MousePosition;
-                    copyData.flipY = settings.flipY && SystemInfo.graphicsUVStartsAtTop;
-                    copyData.screenHeight = desc.height;
+                    copyData.srcX = targetX;
+                    copyData.srcY = targetY;
 
                     builder.UseTexture(idColor, AccessFlags.Read);
                     builder.UseTexture(persistentDst, AccessFlags.Write);
 
                     builder.SetRenderFunc((CopyPassData data, UnsafeGraphContext context) =>
                     {
-                        int srcY = data.pixelPos.y;
-                        if (data.flipY) srcY = data.screenHeight - 1 - data.pixelPos.y;
-
                         CommandBuffer cmd = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
-                        cmd.CopyTexture(data.src, 0, 0, data.pixelPos.x, srcY, 1, 1, data.dst, 0, 0, 0, 0);
-                        //AsyncGPUReadback.Request(cmd, TilePicker.Persistent1x1RT.rt, 0, TilePicker.Callback);
+
+                        // Now strictly guaranteed to fit inside the source texture
+                        cmd.CopyTexture(data.src, 0, 0, data.srcX, data.srcY, 1, 1, data.dst, 0, 0, 0, 0);
+
                         cmd.RequestAsyncReadback(data.dst, HoverablePicker.Instance.Callback);
                     });
                 }
