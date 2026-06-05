@@ -1,5 +1,6 @@
 using Map.Fleet;
 using Map.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -27,6 +28,8 @@ namespace Map.Blueprint
         public Vehicle PreviewVehicle => previewVehicle;
 
         public bool IsEmpty => structures.Count == 0 && edges.Count == 0;
+
+        public Action<Blueprint> OnChanged;
 
         public Blueprint()
         {
@@ -229,6 +232,51 @@ namespace Map.Blueprint
                 packet.Send(true);
             }
             lastPacket.Send(false);
+        }
+
+        public BlueprintDetails GetDetails()
+        {
+            var objectInfos = new SortedList<ConstructibleType, BlueprintDetails.ObjectInfo>();
+        
+            foreach (var edge in edges)
+            {
+                var objectInfo = edge.Type switch
+                {
+                    Edge.EdgeType.Road => objectInfos[ConstructibleType.Road],
+                    Edge.EdgeType.Canal => objectInfos[ConstructibleType.Canal],
+                    _ => null
+                };
+                if (objectInfo == null) continue;
+                objectInfo.Count++;
+                objectInfo.Cost += Cost(edge);
+            }
+
+            foreach (var structure in structures)
+            {
+                var objectInfo = structure.Type switch
+                {
+                    Structure.StructureType.Port => objectInfos[ConstructibleType.Port],
+                    _ => null
+                };
+                if (objectInfo == null) continue;
+                objectInfo.Count++;
+                objectInfo.Cost += Cost(structure);
+            }
+
+            int totalCost = 0;
+            foreach (var (_, info) in objectInfos)
+            {
+                totalCost += info.Cost;
+            }
+
+            return new BlueprintDetails(objectInfos, totalCost);
+        }
+
+        public override void Validate()
+        {
+            base.Validate();
+
+            OnChanged?.Invoke(this);
         }
 
         protected override IEnumerable<Edge> EnumerateEdges() => edges.AsEnumerable();

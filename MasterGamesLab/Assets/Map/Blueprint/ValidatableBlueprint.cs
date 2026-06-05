@@ -42,7 +42,7 @@ namespace Map.Blueprint
 
         }
 
-        public void Validate()
+        public virtual void Validate()
         {
             canalDepths = new();
             canalQueue = new();
