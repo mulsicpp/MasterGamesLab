@@ -37,6 +37,7 @@ namespace Map.GeometryGeneration.Edges
             var startNormal = Vector3.zero;
             var endNormal = Vector3.zero;
 
+            var otherFound = false;
             foreach (var e in tile.Edges)
             {
                 if (!((blueprint && e.BlueprintType == edge.BlueprintType) ||
@@ -56,10 +57,11 @@ namespace Map.GeometryGeneration.Edges
                     p3 = (e.VertexA + e.VertexB) / 2f;
                     dir3 = Vector3.Cross(e.VertexA, e.VertexB).normalized;
                     endNormal = (e.VertexA - e.VertexB).normalized;
+                    otherFound = true;
                 }
             }
 
-            if (p3 == Vector3.zero)
+            if (!otherFound)
             {
                 p3 = tile.PositionOnSphere;
                 dir3 = -dir0;
@@ -100,7 +102,9 @@ namespace Map.GeometryGeneration.Edges
             var p123 = Vector3.Lerp(p12, p23, 0.5f);
             var p0123 = Vector3.Lerp(p012, p123, 0.5f);
 
-            var curve = ParametricCurve.FromBezierPoints(p0, p01, p012, p0123);
+            var curve = otherFound
+                ? ParametricCurve.FromBezierPoints(p0, p01, p012, p0123)
+                : ParametricCurve.FromBezierPoints(p0, p1, p2, p3);
             var centerNormal = (startNormal + endNormal) * 0.5f;
 
             for (var i = 0; i < EDGE_RESOLUTION; i++)
