@@ -324,20 +324,26 @@ namespace Map
             infrastructure = new Infrastructure.Infrastructure();
             fleet = new Fleet.Fleet();
 
-            UpdateEntireMesh();
-
-            ITile[] playerSpawns = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
-
-            for (int i = 0; i < playerSpawns.Length; i++)
+            foreach (var chunk in chunks)
             {
-                Debug.Log(
-                    $"Player {i + 1} Spawnpoint: ID {playerSpawns[i].Id} on Continent {playerSpawns[i].ContinentId}");
-
-                // Infrastructure.SpawnLocal(new Producer.ProducerState
-                // { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
+                chunk.UpdateMesh();
             }
+            //SpawnPointGenerator.SpawnInitialStructures(this, 4);
 
-            debugSpawnPoints = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
+            //UpdateEntireMesh();
+
+            //ITile[] playerSpawns = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
+
+            //  for (int i = 0; i < playerSpawns.Length; i++)
+            //  {
+            //      Debug.Log(
+            //          $"Player {i + 1} Spawnpoint: ID {playerSpawns[i].Id} on Continent {playerSpawns[i].ContinentId}");
+
+            //      // Infrastructure.SpawnLocal(new Producer.ProducerState
+            //      // { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
+            //  }
+
+            debugSpawnPoints = SpawnPointGenerator.SpawnInitialStructures(this, 4);
 
             for (int i = 0; i < debugSpawnPoints.Length; i++)
             {
