@@ -105,7 +105,7 @@
 }
 
 .group-box-divider {
-    height: 10%;
+    height: 5%;
     width: 100%;
     align-items: center;
     justify-content: center;
@@ -120,10 +120,11 @@
 }
 
 .ingame-construct-button-square {
-    width: 33.33333%;
+    width: 30%;
     aspect-ratio: 1;
     align-items: center;
     justify-content: center;
+    margin-bottom: 5%;
 }
 
 .ingame-build-button-square {
@@ -134,13 +135,17 @@
 }
 
 .ingame-build-button {
-    width: 76%;
-    height: 74%;
+    width: 100%;
+    height: 100%;
     border-left-color: rgba(0, 0, 0, 0);
     border-right-color: rgba(0, 0, 0, 0);
     border-top-color: rgba(0, 0, 0, 0);
     border-bottom-color: rgba(0, 0, 0, 0);
     background-color: rgba(255, 255, 255, 0.2);
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
 }
 
 .ingame-build-button:hover {
@@ -171,16 +176,34 @@
     width: 100%;
     -unity-background-scale-mode: scale-to-fit;
     background-image: url("project://database/Assets/IngameUI/LKW_Icon.svg?fileID=7388822144124034973&guid=bee6275bf0ec2d2498c79c7cb139def1&type=3#LKW_Icon");
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
 }
 
 .confirm-btn {
     background-image: url("project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=7433338533053954386&guid=422dbfc4599da0e48800bd75080c7a52&type=3#check@2x");
-    -unity-background-image-tint-color: rgb(0, 255, 24);
+    -unity-background-image-tint-color: rgb(0, 255, 0);
+}
+
+.confirm-btn:hover {
+    border-left-color: rgb(0, 255, 0);
+    border-right-color: rgb(0, 255, 0);
+    border-top-color: rgb(0, 255, 0);
+    border-bottom-color: rgb(0, 255, 0);
 }
 
 .cancel-btn {
     background-image: url("project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=-7384953405098038083&guid=422dbfc4599da0e48800bd75080c7a52&type=3#Remove");
     -unity-background-image-tint-color: rgb(255, 0, 0);
+}
+
+.cancel-btn:hover {
+    border-left-color: rgb(255, 0, 0);
+    border-right-color: rgb(255, 0, 0);
+    border-top-color: rgb(255, 0, 0);
+    border-bottom-color: rgb(255, 0, 0);
 }
 
 .build-menu-divider-line {
@@ -360,6 +383,11 @@
 }
 
 .countlabel {
-    width: 33.33333%;
+    width: 50%;
     flex-shrink: 0;
+    aspect-ratio: 2.5;
+}
+
+.x {
+    box-sizing: border-box;
 }

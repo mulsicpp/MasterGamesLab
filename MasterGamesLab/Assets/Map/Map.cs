@@ -415,6 +415,7 @@ namespace Map
 
             foreach (var t in tiles) t.ClearEdges();
             foreach (var t in tiles) t.InitializeEdges(tempEdges);
+            foreach (var t in tiles) t.SortEdges();
 
             Debug.Log("Initialized " + tempEdges.Count + " edges");
 
@@ -552,7 +553,8 @@ namespace Map
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void SendBlueprintPacketServerRpc(BlueprintPacket.EdgeData[] edges, BlueprintPacket.StructureData[] structures,
+        public void SendBlueprintPacketServerRpc(BlueprintPacket.EdgeData[] edges,
+            BlueprintPacket.StructureData[] structures,
             bool hasNext,
             RpcParams rpcParams = default)
         {
@@ -567,7 +569,7 @@ namespace Map
             {
                 var packet = storedBlueprintPackets[playerId];
                 Debug.Log("Applying blueprint from player " + playerId.Value);
-                Debug.Log("Blueprint edge count: " +  packet.Edges.Count);
+                Debug.Log("Blueprint edge count: " + packet.Edges.Count);
 
                 var validatableBlueprint = new ServerValidatableBlueprint(packet);
 
@@ -595,8 +597,7 @@ namespace Map
 
                     if (tile.Structure == null && validatableBlueprint.IsValid(structure))
                     {
-
-                        switch(structure)
+                        switch (structure)
                         {
                             case Port port:
                                 var portState = port.State;

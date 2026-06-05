@@ -1533,7 +1533,7 @@
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
-    "m_Value": 0.0,
+    "m_Value": 0.9900000095367432,
     "m_DefaultValue": 0.0,
     "m_Labels": [],
     "m_LiteralMode": false
@@ -2218,10 +2218,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -592.5714721679688,
-            "y": 899.4285888671875,
-            "width": 156.0,
-            "height": 34.2857666015625
+            "x": -586.28564453125,
+            "y": 911.428466796875,
+            "width": 155.99996948242188,
+            "height": 34.28570556640625
         }
     },
     "m_Slots": [
@@ -3156,10 +3156,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -401.7143249511719,
-            "y": 829.71435546875,
-            "width": 146.28573608398438,
-            "height": 136.5714111328125
+            "x": -401.71429443359377,
+            "y": 829.7141723632813,
+            "width": 146.2857208251953,
+            "height": 136.57147216796876
         }
     },
     "m_Slots": [
