@@ -12,45 +12,39 @@ public static class MovementProfileRegistry
     public static MovementProfile FindRoadBuildPath { get; private set; }
     public static MovementProfile FindCanalBuildPath { get; private set; }
 
-    public static MovementProfile FindShortestCanalToWaterPath { get; private set; }
-
 
     public static void Initialize()
     {
         TruckFastestRoute = new MovementProfile();
-        TruckFastestRoute.IsHardBlocked = (s, t) => !Vehicle.CanCross(s, t, Vehicle.VehicleType.Truck);
+        TruckFastestRoute.CanPass = (s, t) => Vehicle.CanCross(s, t, Vehicle.VehicleType.Truck);
         TruckFastestRoute.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
         TruckFastestRoute.AddPriorityRule(1, PathfindingRules.MinimizeCost);
 
         TruckCheapestRoute = new MovementProfile();
-        TruckCheapestRoute.IsHardBlocked = (s, t) => !Vehicle.CanCross(s, t, Vehicle.VehicleType.Truck);
+        TruckCheapestRoute.CanPass = (s, t) => Vehicle.CanCross(s, t, Vehicle.VehicleType.Truck);
         TruckCheapestRoute.AddPriorityRule(0, PathfindingRules.MinimizeCost);
         TruckCheapestRoute.AddPriorityRule(1, PathfindingRules.MinimizeDistance);
 
         FreighterFastestRoute = new MovementProfile();
-        FreighterFastestRoute.IsHardBlocked = (s, t) => !Vehicle.CanCross(s, t, Vehicle.VehicleType.Freighter);
+        FreighterFastestRoute.CanPass = (s, t) => Vehicle.CanCross(s, t, Vehicle.VehicleType.Freighter);
         FreighterFastestRoute.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
         FreighterFastestRoute.AddPriorityRule(1, PathfindingRules.MinimizeCost);
         
         FreighterCheapestRoute = new MovementProfile();
-        FreighterCheapestRoute.IsHardBlocked = (s, t) => !Vehicle.CanCross(s, t, Vehicle.VehicleType.Freighter);
+        FreighterCheapestRoute.CanPass = (s, t) => Vehicle.CanCross(s, t, Vehicle.VehicleType.Freighter);
         FreighterCheapestRoute.AddPriorityRule(0, PathfindingRules.MinimizeCost);
         FreighterCheapestRoute.AddPriorityRule(1, PathfindingRules.MinimizeDistance);
 
         FindRoadBuildPath = new MovementProfile();
-        FindRoadBuildPath.IsHardBlocked = (s, t) => PathfindingRules.BlockCannotBecomeBlueprintType(s, t, Edge.EdgeType.Road);
+        FindRoadBuildPath.CanPass = (s, t) => PathfindingRules.CanBecomeBlueprintType(s, t, Edge.EdgeType.Road);
         FindRoadBuildPath.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
         FindRoadBuildPath.AddPriorityRule(1, PathfindingRules.AvoidForest);
         //FindRoadBuildPath.AddPriorityRule(1, PathfindingRules.AvoidWater);
 
         FindCanalBuildPath = new MovementProfile();
-        FindCanalBuildPath.IsHardBlocked = (s, t) => PathfindingRules.BlockCannotBecomeBlueprintType(s, t, Edge.EdgeType.Canal);
+        FindCanalBuildPath.CanPass = (s, t) => PathfindingRules.CanBecomeBlueprintType(s, t, Edge.EdgeType.Canal);
         FindCanalBuildPath.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
         FindCanalBuildPath.AddPriorityRule(1, PathfindingRules.AvoidForest);
-
-        FindShortestCanalToWaterPath = new MovementProfile();
-        FindShortestCanalToWaterPath.IsHardBlocked = PathfindingRules.BlockIsNotCanal;
-        FindShortestCanalToWaterPath.AddPriorityRule(0, PathfindingRules.MinimizeSteps);
 
     }
 }

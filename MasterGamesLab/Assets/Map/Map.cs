@@ -765,7 +765,7 @@ namespace Map
         }
 
 
-        private Vector3 GetProjectedPosition(Vector3 positionOnSphere, float heightOffsetFactor = 1.0f)
+        public Vector3 GetProjectedPosition(Vector3 positionOnSphere, float heightOffsetFactor = 1.0f)
         {
             if (oldProjectionCenter == Vector3.zero)
                 return positionOnSphere * heightOffsetFactor;
