@@ -25,7 +25,7 @@ public static class Constants
     public static OutlineData CANAL_BLUEPRINT_VALID_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.blue,
-        InnerColor = new Color(0, 1, 1, 0.2f),
+        InnerColor = new Color(0, 1, 1, 0.5f),
         TextureId = 1,
     };
 
