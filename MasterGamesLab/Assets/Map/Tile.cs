@@ -297,6 +297,23 @@ namespace Map
             };
         }
 
+
+        public bool CanBuild(out float costFactor)
+        {
+            costFactor = 0f;
+            switch(Type)
+            {
+                case TileType.Plain:
+                    costFactor = Constants.PLAIN_BUILD_COST_FACTOR;
+                    return true;
+                case TileType.Forest:
+                    costFactor = Constants.FOREST_BUILD_COST_FACTOR;
+                    return true;
+                default : return false;
+            }
+        }
+
+
         public void BuildFaces(MapChunk.ChunkGeometry cg)
         {
             tileGeometryInformation = TileGeometryFactory.BuildFaces(this, cg);

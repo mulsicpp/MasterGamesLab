@@ -79,6 +79,14 @@ public static class Constants
     public const int MAX_NETTO_BYTES_PER_RPC = 1000;
 
 
+    public const float PLAIN_BUILD_COST_FACTOR = 1f;
+    public const float FOREST_BUILD_COST_FACTOR = 2f;
+
+    public const int ROAD_BUILD_COST = 20;
+    public const int BASE_CANAL_BUILD_COST = 50;
+    public const int PORT_BUILD_COST = 300;
+
+
     public const int ENEMY_ROAD_MOVEMENT_COST = 1;
     public const int OWN_ROAD_MOVEMENT_COST = 0;
     public const int PUBLIC_ROAD_MOVEMENT_COST = 0;

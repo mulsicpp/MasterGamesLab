@@ -122,6 +122,20 @@ namespace Map
             }
         }
 
+        private bool blueprintIsValid;
+
+        public bool BlueprintIsValid
+        {
+            get { return blueprintIsValid; }
+            set
+            {
+                blueprintIsValid = value;
+                TriggerDirty();
+            }
+        }
+
+        public int BlueprintCost = 0;
+
         public Blueprint.VisualState BlueprintVisualState
         {
             get
@@ -131,9 +145,8 @@ namespace Map
                     return Type == EdgeType.None
                         ? Blueprint.VisualState.Preview
                         : Blueprint.VisualState.PreviewOverlapping;
-                if (type == EdgeType.None) return Blueprint.VisualState.Valid;
                 if (type == blueprintType) return Blueprint.VisualState.Overlapping;
-                return Blueprint.VisualState.Invalid;
+                return BlueprintIsValid ?  Blueprint.VisualState.Valid : Blueprint.VisualState.Invalid;
             }
         }
 

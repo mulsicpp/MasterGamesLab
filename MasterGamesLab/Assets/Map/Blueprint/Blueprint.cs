@@ -4,11 +4,10 @@ using Map.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static ConstructionControls;
 
 namespace Map.Blueprint
 {
-    public class Blueprint
+    public class Blueprint : ValidatableBlueprint
     {
         private List<Edge> edges;
         public IReadOnlyList<Edge> Edges => edges;
@@ -48,6 +47,8 @@ namespace Map.Blueprint
             edge.BlueprintType = type;
             edge.BlueprintPreview = false;
             edges.Add(edge);
+
+            Validate();
             return true;
         }
 
@@ -56,6 +57,7 @@ namespace Map.Blueprint
             edge.BlueprintType = Edge.EdgeType.None;
             edge.BlueprintPreview = false;
             if (edges.Contains(edge)) edges.Remove(edge);
+            Validate();
         }
 
         public bool AddStructure(Tile tile, Structure structure)
@@ -64,6 +66,8 @@ namespace Map.Blueprint
             structure.BlueprintTile = tile;
             structure.BlueprintPreview = false;
             structures.Add(structure);
+
+            Validate();
             return true;
         }
 
@@ -72,6 +76,7 @@ namespace Map.Blueprint
             structure.BlueprintTile = null;
             structure.BlueprintPreview = false;
             if (structures.Contains(structure)) structures.Remove(structure);
+            Validate();
         }
 
         public void ClearPreview()
@@ -170,6 +175,8 @@ namespace Map.Blueprint
             }
             edges.AddRange(previewEdges);
             previewEdges.Clear();
+
+            Validate();
         }
 
         public void ApplyPreviewStructure()
@@ -180,6 +187,8 @@ namespace Map.Blueprint
 
             structures.Add(previewStructure);
             previewStructure = null;
+
+            Validate();
         }
 
         public void ApplyPreview()
@@ -223,5 +232,28 @@ namespace Map.Blueprint
             lastPacket.Send(false);
         }
 
+        protected override IEnumerable<Edge> EnumerateEdges() => edges.AsEnumerable();
+        protected override IEnumerable<Structure> EnumerateStructures() => structures.AsEnumerable();
+
+        protected override void SetValid(Edge edge, bool valid, int cost)
+        {
+            edge.BlueprintIsValid = valid;
+            edge.BlueprintCost = cost;
+        }
+
+        protected override bool IsValid(Edge edge) => edge.BlueprintIsValid;
+        protected override int Cost(Edge edge) => edge.BlueprintCost;
+        protected override Edge.EdgeType BlueprintedEdgeType(Edge edge) => !edge.BlueprintPreview ? edge.BlueprintType : Edge.EdgeType.None;
+
+
+        protected override void SetValid(Structure structure, bool valid, int cost)
+        {
+            structure.BlueprintIsValid = valid;
+            structure.BlueprintCost = cost;
+        }
+
+        protected override bool IsValid(Structure structure) => structure.BlueprintIsValid;
+        protected override int Cost(Structure structure) => structure.BlueprintCost;
+        protected override Structure BlueprintedStructure(Tile tile) => (!tile.BlueprintStructure?.BlueprintPreview ?? false) ? tile.BlueprintStructure : null;
     }
 }
