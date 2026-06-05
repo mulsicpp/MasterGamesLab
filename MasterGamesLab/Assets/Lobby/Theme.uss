@@ -140,15 +140,15 @@
     border-right-color: rgba(0, 0, 0, 0);
     border-top-color: rgba(0, 0, 0, 0);
     border-bottom-color: rgba(0, 0, 0, 0);
-    background-color: rgba(255, 255, 255, 0.36);
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .ingame-build-button:hover {
     background-color: rgb(0, 0, 0);
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
     border-left-color: rgb(255, 255, 255);
     border-right-color: rgb(255, 255, 255);
     border-top-color: rgb(255, 255, 255);
@@ -160,10 +160,10 @@
     border-right-color: rgb(255, 255, 255);
     border-top-color: rgb(255, 255, 255);
     border-bottom-color: rgb(255, 255, 255);
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
 }
 
 .ingame-build-button-icon {
@@ -349,4 +349,17 @@
 
 .show {
     border-width: 0;
+}
+
+.container {
+    background-color: rgba(0, 0, 0, 0.77);
+}
+
+.container-hidden {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.countlabel {
+    width: 33.33333%;
+    flex-shrink: 0;
 }

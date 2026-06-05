@@ -1,0 +1,7 @@
+.unity-ui-document__root {  
+     --item-icon: url("project://database/Assets/IngameUI/LKW_Icon.svg?fileID=7388822144124034973&guid=bee6275bf0ec2d2498c79c7cb139def1&type=3#LKW_Icon");
+}
+
+.template-icon-node {
+   background-image:var(--item-icon);
+}

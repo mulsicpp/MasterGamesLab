@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using static ConstructionControls;
 
 namespace UI
 {
@@ -14,7 +15,10 @@ namespace UI
         private Button buildRoadButton, buildCanalButton, buildPortButton, buyTruckButton, buyFreighterButton, confirmButton, cancelButton, hideButton;
         private Button currentActiveButton;
         private Label moneyLabel;
+        private ShrinkWrapContainer container;
+        private GroupBox div;
         public const string activeClass = "ingame-build-button--active";
+        VisualElement blueprintCountContainer;
 
         public override MenuId Id => MenuId.Ingame;
 
@@ -40,6 +44,12 @@ namespace UI
             cancelButton = root.Q<Button>("CancelButton");
             hideButton = root.Q<Button>("HideButton");
             moneyLabel = root.Q<Label>("MONEY");
+            container = root.Q<ShrinkWrapContainer>("Container");
+            div = root.Q<GroupBox>("Devider");
+            blueprintCountContainer = root.Q<VisualElement>("BlueprintCountContainer");
+
+
+
 
             buildRoadButton.clicked += OnRoadClicked;
             buildCanalButton.clicked += OnCanalClicked;
@@ -67,12 +77,7 @@ namespace UI
             hideButton.clicked -= OnHidePressed;
         }
 
-        private void Update()
-        {
 
-            SetActionButtonsVisibility(!Map.Map.Instance.Blueprint.IsEmpty);
-
-        }
 
         public void setMoney(ulong money)
         {
@@ -122,20 +127,57 @@ namespace UI
 
         public void SetMenuVisibility(bool visible)
         {
-            DisplayStyle style = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            Visibility style = visible ? Visibility.Visible : Visibility.Hidden;
 
-            buildCanalButton.style.display = style;
-            buildRoadButton.style.display = style;
-            buildPortButton.style.display = style;
-            buyFreighterButton.style.display = style;
-            buyTruckButton.style.display = style;
+            var buildButtonsGroup = root.Q<GroupBox>("BuildButtons");
+            buildButtonsGroup.style.visibility = style;
+
+            div.style.visibility = style;
+
+            var confirmSlot = confirmButton.parent;
+            confirmSlot.style.visibility = style;
+
+            var cancelSlot = cancelButton.parent;
+            cancelSlot.style.visibility = style;
+
+            if (visible)
+                container.RemoveFromClassList("container-hidden");
+            else
+                container.AddToClassList("container-hidden");
         }
 
-        public void SetActionButtonsVisibility(bool visible)
+
+        public void UpdateBlueprintCount(ConstructionType type, int count)
         {
-            DisplayStyle style = visible ? DisplayStyle.Flex : DisplayStyle.None;
-            confirmButton.style.display = style;
-            cancelButton.style.display = style;
+            string elementName = type switch
+            {
+                ConstructionType.Road => "RoadCount",
+                ConstructionType.Canal => "CanalCount",
+                ConstructionType.Port => "PortCount",
+                ConstructionType.Truck => "TruckCount",
+                ConstructionType.Freighter => "FreighterCount",
+                _ => null
+            };
+
+            if (string.IsNullOrEmpty(elementName)) return;
+
+            var countContainer = blueprintCountContainer.Q<VisualElement>(elementName);
+
+            if (countContainer != null)
+            {
+                // 3. Find the Label element nested inside your BlueprintCount template instance
+                Label countLabel = countContainer.Q<Label>();
+                if (countLabel != null)
+                {
+                    // Update the text safely
+                    countLabel.text = count.ToString();
+                }
+                else
+                {
+                    Debug.LogWarning($"Label not found inside template instance for: {elementName}");
+                }
+            }
         }
+
     }
 }
