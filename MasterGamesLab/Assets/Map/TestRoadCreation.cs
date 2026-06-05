@@ -25,6 +25,7 @@ public class TestRoadCreation : NetworkBehaviour
     {
         var tile = Map.Map.Instance.CurrentlyHovered as Tile;
         if (tile == null) return;
+
         if (Input.GetMouseButtonDown(1))
         {
             Debug.Log("Clickded on tile with id " + tile.Id.Value);

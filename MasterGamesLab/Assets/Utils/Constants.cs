@@ -25,7 +25,7 @@ public static class Constants
     public static OutlineData CANAL_BLUEPRINT_VALID_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.blue,
-        InnerColor = new Color(0, 1, 1, 0.2f),
+        InnerColor = new Color(0, 1, 1, 0.5f),
         TextureId = 1,
     };
 
@@ -77,6 +77,14 @@ public static class Constants
 
 
     public const int MAX_NETTO_BYTES_PER_RPC = 1000;
+
+
+    public const float PLAIN_BUILD_COST_FACTOR = 1f;
+    public const float FOREST_BUILD_COST_FACTOR = 2f;
+
+    public const int ROAD_BUILD_COST = 20;
+    public const int BASE_CANAL_BUILD_COST = 50;
+    public const int PORT_BUILD_COST = 300;
 
 
     public const int ENEMY_ROAD_MOVEMENT_COST = 1;

@@ -98,15 +98,28 @@ namespace Map.Infrastructure
             }
         }
 
+        private bool blueprintIsValid;
+
+        public bool BlueprintIsValid
+        {
+            get { return blueprintIsValid; }
+            set
+            {
+                blueprintIsValid = value;
+                TriggerDirty();
+            }
+        }
+
+        public int BlueprintCost = 0;
+
         public VisualState BlueprintVisualState
         {
             get
             {
                 if (BlueprintTile == null) return VisualState.Valid;
                 if (BlueprintPreview) return BlueprintTile.Structure == null ? VisualState.Preview : VisualState.PreviewOverlapping;
-                if (BlueprintTile.Structure == null) return VisualState.Valid;
-                if (BlueprintTile.Structure.Type == Type) return VisualState.Overlapping;
-                return VisualState.Invalid;
+                if (BlueprintTile.Structure?.Type == Type) return VisualState.Overlapping;
+                return BlueprintIsValid ? VisualState.Valid : VisualState.Invalid;
             }
         }
 

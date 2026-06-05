@@ -17,13 +17,8 @@ namespace Map.OutlineEffect
         {
             private readonly Material overrideMat;
             private readonly Material expandMaterialAllChannels;
-            private readonly Material expandMaterialDepth; // <--- New
+            private readonly Material expandMaterialDepth;
             private readonly LayerMask layerMask;
-
-            private RTHandle m_OutlineColor;
-            private RTHandle m_InnerColor;
-            private RTHandle m_TextureIdx;
-            private RTHandle m_Depth;
 
             private class PassData
             {
@@ -48,10 +43,7 @@ namespace Map.OutlineEffect
 
             public void Dispose()
             {
-                m_OutlineColor?.Release();
-                m_InnerColor?.Release();
-                m_TextureIdx?.Release();
-                m_Depth?.Release();
+                // No longer needed! Render Graph manages the memory of our textures natively.
             }
 
             public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
@@ -60,27 +52,34 @@ namespace Map.OutlineEffect
 
                 var cameraData = frameData.Get<UniversalCameraData>();
                 var renderingData = frameData.Get<UniversalRenderingData>();
+                var camDesc = cameraData.cameraTargetDescriptor;
 
-                var colorDesc = cameraData.cameraTargetDescriptor;
-                colorDesc.depthBufferBits = 0;
-                colorDesc.msaaSamples = 1;
-                colorDesc.graphicsFormat = GraphicsFormat.R8G8B8A8_UNorm;
+                // --- Define Color Textures for Render Graph ---
+                TextureDesc colorDesc = new TextureDesc(camDesc.width, camDesc.height);
+                colorDesc.colorFormat = GraphicsFormat.R8G8B8A8_UNorm;
+                colorDesc.depthBufferBits = DepthBits.None;
+                colorDesc.msaaSamples = MSAASamples.None;
+                colorDesc.clearBuffer = true; // This fixes the smearing!
+                colorDesc.clearColor = Color.clear;
 
-                RenderingUtils.ReAllocateHandleIfNeeded(ref m_OutlineColor, colorDesc, name: OUTLINE_COLOR_NAME);
-                RenderingUtils.ReAllocateHandleIfNeeded(ref m_InnerColor, colorDesc, name: INNER_COLOR_NAME);
-                RenderingUtils.ReAllocateHandleIfNeeded(ref m_TextureIdx, colorDesc, name: OUTLINE_TEXTURE_IDX_NAME);
+                colorDesc.name = OUTLINE_COLOR_NAME;
+                TextureHandle rt1 = renderGraph.CreateTexture(colorDesc);
 
-                var depthDesc = cameraData.cameraTargetDescriptor;
-                depthDesc.colorFormat = RenderTextureFormat.Depth;
-                depthDesc.depthBufferBits = 32;
-                depthDesc.msaaSamples = 1;
+                colorDesc.name = INNER_COLOR_NAME;
+                TextureHandle rt2 = renderGraph.CreateTexture(colorDesc);
 
-                RenderingUtils.ReAllocateHandleIfNeeded(ref m_Depth, depthDesc, name: OUTLINE_DEPTH_NAME);
+                colorDesc.name = OUTLINE_TEXTURE_IDX_NAME;
+                TextureHandle rt3 = renderGraph.CreateTexture(colorDesc);
 
-                TextureHandle rt1 = renderGraph.ImportTexture(m_OutlineColor);
-                TextureHandle rt2 = renderGraph.ImportTexture(m_InnerColor);
-                TextureHandle rt3 = renderGraph.ImportTexture(m_TextureIdx);
-                TextureHandle depthRt = renderGraph.ImportTexture(m_Depth);
+                // --- Define Depth Texture for Render Graph ---
+                TextureDesc depthDesc = new TextureDesc(camDesc.width, camDesc.height);
+                depthDesc.colorFormat = GraphicsFormat.None;
+                depthDesc.depthBufferBits = DepthBits.Depth32;
+                depthDesc.msaaSamples = MSAASamples.None;
+                depthDesc.clearBuffer = true; // Clears depth natively!
+                depthDesc.name = OUTLINE_DEPTH_NAME;
+
+                TextureHandle depthRt = renderGraph.CreateTexture(depthDesc);
 
                 bool doExpandAll = expandMaterialAllChannels != null;
                 bool doExpandDepth = expandMaterialDepth != null;
@@ -115,17 +114,17 @@ namespace Map.OutlineEffect
 
                     builder.SetRenderFunc((PassData data, RasterGraphContext context) =>
                     {
-                        context.cmd.ClearRenderTarget(true, true, Color.clear);
+                        // Note: ClearRenderTarget is removed. Render Graph handles it automatically.
                         context.cmd.DrawRendererList(data.RendererList);
                     });
                 }
 
-                // --- 3. Expand All Channels Pass (OutlineColor / rt1) ---
+                // --- 2. Expand All Channels Pass (OutlineColor / rt1) ---
                 if (doExpandAll)
                 {
-                    TextureDesc tempDescAll = new TextureDesc(colorDesc.width, colorDesc.height);
-                    tempDescAll.colorFormat = colorDesc.graphicsFormat;
-                    tempDescAll.depthBufferBits = 0;
+                    TextureDesc tempDescAll = new TextureDesc(camDesc.width, camDesc.height);
+                    tempDescAll.colorFormat = colorDesc.colorFormat;
+                    tempDescAll.depthBufferBits = DepthBits.None;
                     tempDescAll.msaaSamples = MSAASamples.None;
                     tempDescAll.name = "OutlineColor_TempBlur";
                     tempDescAll.clearBuffer = false;
@@ -159,10 +158,10 @@ namespace Map.OutlineEffect
                     }
                 }
 
-                // --- 4. Expand Depth Pass (Depth / depthRt) ---
+                // --- 3. Expand Depth Pass (Depth / depthRt) ---
                 if (doExpandDepth)
                 {
-                    TextureDesc tempDepthDesc = new TextureDesc(depthDesc.width, depthDesc.height);
+                    TextureDesc tempDepthDesc = new TextureDesc(camDesc.width, camDesc.height);
                     tempDepthDesc.colorFormat = GraphicsFormat.None; // Must be None for pure Depth
                     tempDepthDesc.depthBufferBits = DepthBits.Depth32;
                     tempDepthDesc.msaaSamples = MSAASamples.None;
@@ -178,7 +177,6 @@ namespace Map.OutlineEffect
                         passData.passIndex = 0;
 
                         builder.UseTexture(depthRt);
-                        // Notice: NO Color Attachment! Only Depth Attachment!
                         builder.SetRenderAttachmentDepth(tempDepthRt);
 
                         builder.SetRenderFunc((BlurPassData data, RasterGraphContext context) =>
@@ -198,7 +196,6 @@ namespace Map.OutlineEffect
                         builder.UseTexture(tempDepthRt);
                         builder.SetRenderAttachmentDepth(depthRt);
 
-                        // Export the depth globally now that it's expanded
                         builder.SetGlobalTextureAfterPass(depthRt, Shader.PropertyToID(OUTLINE_DEPTH_NAME));
 
                         builder.SetRenderFunc((BlurPassData data, RasterGraphContext context) =>
@@ -219,7 +216,6 @@ namespace Map.OutlineEffect
 
         public override void Create()
         {
-            Debug.Log($"LayerMask for outlines: {outlineLayer}");
             pass = new OutlineDataPass(overrideMaterial, expandMaterialAllChannels, expandMaterialDepth, outlineLayer)
             {
                 renderPassEvent = RenderPassEvent.AfterRenderingOpaques

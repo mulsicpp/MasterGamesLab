@@ -1,4 +1,5 @@
 using Map.Hoverables;
+using Map.OutlineEffect;
 using UnityEngine;
 
 namespace Map
@@ -7,6 +8,16 @@ namespace Map
     {
         private IHoverable lastHoveredThing;
 
+        [SerializeField] private GameObject tileOutlinerPrefab;
+
+        private TileOutliner tileOutliner;
+
+        private void Awake()
+        {
+            var go = Instantiate(tileOutlinerPrefab, transform);
+            tileOutliner = go.GetComponent<TileOutliner>();
+        }
+
         private void Update()
         {
             if (lastHoveredThing != null)
@@ -14,12 +25,6 @@ namespace Map
                 switch (lastHoveredThing)
                 {
                     case ITile t:
-                        // lastActiveTile.Active = false;
-                        foreach (var n in t.Neighbors)
-                        {
-                            n.Active = false;
-                        }
-
                         break;
                     case Edge edge:
                         break;
@@ -32,11 +37,8 @@ namespace Map
             switch (tile)
             {
                 case ITile t:
-                    foreach (var n in t.Neighbors)
-                    {
-                        n.Active = true;
-                    }
-
+                    tileOutliner.OutlineTile((Tile)t);
+                    tileOutliner.SetOutlineParameters(Color.black, new Color(0, 0, 0, 0), 0);
                     break;
                 case Edge e:
                     Debug.Log("Edge is hovered");

@@ -5,7 +5,7 @@ using UnityEngine.Rendering;
 
 namespace Map.GeometryGeneration
 {
-    public class MapChunk : MonoBehaviour
+    public class MapChunk : AObjectWithGeometry
     {
         private static readonly int TreeBuffer = Shader.PropertyToID("_TreeBuffer");
 
@@ -32,13 +32,8 @@ namespace Map.GeometryGeneration
         public bool Dirty;
         public IMap Parent;
 
-        private MeshFilter meshFilter;
-        private Mesh mesh;
         private int startIdx;
         private int endIdx;
-        private List<Vector3> vertices;
-        private List<int> triangles;
-        private List<Vector4> tileData;
         private List<Vector4> materialData;
 
         private List<Map.TreeData> treeData;
@@ -46,19 +41,14 @@ namespace Map.GeometryGeneration
         private Bounds renderBounds;
         private MaterialPropertyBlock mpb;
 
-        private void Awake()
-        {
-            meshFilter = GetComponent<MeshFilter>();
-        }
+        private void Awake() => Init();
 
         public void Init(IMap parentMap, int startIndex, int endIndex)
         {
             Parent = parentMap;
             startIdx = startIndex;
             endIdx = endIndex;
-            vertices = new List<Vector3>();
-            triangles = new List<int>();
-            tileData = new List<Vector4>();
+            ClearMeshData();
             materialData = new List<Vector4>();
             renderBounds = new Bounds(Vector3.zero,
                 new Vector3(Parent.Radius * 4, Parent.Radius * 4, Parent.Radius * 4));
@@ -67,9 +57,7 @@ namespace Map.GeometryGeneration
 
         public void UpdateMesh()
         {
-            vertices = new List<Vector3>(vertices.Count);
-            triangles = new List<int>(triangles.Count);
-            tileData = new List<Vector4>(tileData.Count);
+            ClearMeshData();
             materialData = new List<Vector4>(materialData.Count);
             treeData = new List<Map.TreeData>();
 
@@ -78,24 +66,16 @@ namespace Map.GeometryGeneration
                 var tile = Parent.Tiles[i];
                 tile.BuildFaces(new ChunkGeometry
                 {
-                    Vertices = vertices,
-                    Triangles = triangles,
-                    TileData = tileData,
+                    Vertices = Vertices,
+                    Triangles = Triangles,
+                    TileData = UV1,
                     MaterialData = materialData,
                     TreeData = treeData,
                 });
             }
 
-            mesh = new Mesh
-            {
-                vertices = vertices.ToArray(),
-                triangles = triangles.ToArray()
-            };
-            mesh.RecalculateNormals();
-            mesh.SetUVs(1, tileData);
-            mesh.SetUVs(2, materialData);
-            meshFilter.mesh = mesh;
-
+            StoreMeshData();
+            Mesh.SetUVs(2, materialData);
             SetTreeBuffer();
 
             GeometryChanged = false;
@@ -104,15 +84,15 @@ namespace Map.GeometryGeneration
 
         public void UpdateTileData()
         {
-            tileData = new List<Vector4>(tileData.Count);
+            UV1.Clear();
 
             for (var i = startIdx; i < endIdx; i++)
             {
                 var tile = Parent.Tiles[i];
-                tile.FillTileData(tileData, treeData);
+                tile.FillTileData(UV1, treeData);
             }
 
-            mesh.SetUVs(1, tileData);
+            Mesh.SetUVs(1, UV1);
             SetTreeBuffer();
             Dirty = false;
         }
