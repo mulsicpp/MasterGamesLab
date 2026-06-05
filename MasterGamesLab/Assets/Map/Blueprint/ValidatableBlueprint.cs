@@ -1,6 +1,8 @@
 using Map.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 
 namespace Map.Blueprint
 {
@@ -17,7 +19,7 @@ namespace Map.Blueprint
         protected Edge.EdgeType ConfirmedEdgeType(Edge edge)
         {
             if (edge.Type != Edge.EdgeType.None) return edge.Type;
-            if (IsValid(edge)) BlueprintedEdgeType(edge);
+            if (IsValid(edge)) return BlueprintedEdgeType(edge);
             return Edge.EdgeType.None;
 
         }
@@ -30,7 +32,7 @@ namespace Map.Blueprint
         protected Structure ConfirmedStructure(Tile tile)
         {
             if (tile.Structure != null) return tile.Structure;
-            if (IsValid(BlueprintedStructure(tile))) BlueprintedStructure(tile);
+            if (IsValid(BlueprintedStructure(tile))) return BlueprintedStructure(tile);
             return null;
 
         }
@@ -60,20 +62,52 @@ namespace Map.Blueprint
                     }
                     return false;
                 case Edge.EdgeType.Canal:
-                    SetValid(edge, true, Constants.BASE_CANAL_BUILD_COST);
-                    return true;
+                    return ValidateCanalRecursive(edge);
             }
             return false;
         }
 
+        private bool ValidateCanalRecursive(Edge edge)
+        {
+            if(BlueprintedEdgeType(edge) != Edge.EdgeType.Canal) return false;
+
+            if(edge.Type != Edge.EdgeType.None || edge.StartTile.Structure != null || edge.EndTile.Structure != null) 
+                return false;
+
+
+            bool startCanBuild = edge.StartTile.CanBuild(out float factor1) || edge.StartTile.Type == Tile.TileType.Water;
+            bool endCanBuild = edge.EndTile.CanBuild(out float factor2) || edge.EndTile.Type == Tile.TileType.Water;
+
+
+            if(!(startCanBuild && endCanBuild)) return false;
+
+            float factor = (factor1 + factor2) / 2;
+
+            SetValid(edge, true, (int)Math.Round(factor * Constants.BASE_CANAL_BUILD_COST));
+            return true;
+        }
+
         public bool ValidateStructure(Structure structure)
         {
+            if(structure == null) return false;
             if (IsValid(structure)) return true;
 
             switch (structure.Type)
             {
                 case Structure.StructureType.Port:
-                    SetValid(structure, true, Constants.PORT_BUILD_COST);
+                    if (structure.Tile != null || structure.BlueprintTile?.BlueprintStructure != structure) return false;
+
+                    Tile tile = structure.BlueprintTile;
+                    if (tile.Structure != null) return false;
+
+                    float factor;
+                    if(!tile.CanBuild(out factor)) return false;
+
+                    if (tile.Neighbors.Where(tile => tile.Type == Tile.TileType.Water).Count() == 0) return false;
+
+                    if (tile.CountEdgesWith(edge => !(ConfirmedEdgeType(edge) is Edge.EdgeType.None or Edge.EdgeType.Road)) > 0) return false;
+
+                    SetValid(structure, true, (int)(factor * Constants.PORT_BUILD_COST));
                     return true;
             }
             return false;

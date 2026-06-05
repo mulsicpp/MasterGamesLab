@@ -12,6 +12,8 @@ public static class MovementProfileRegistry
     public static MovementProfile FindRoadBuildPath { get; private set; }
     public static MovementProfile FindCanalBuildPath { get; private set; }
 
+    public static MovementProfile FindShortestCanalToWaterPath { get; private set; }
+
 
     public static void Initialize()
     {
@@ -45,6 +47,10 @@ public static class MovementProfileRegistry
         FindCanalBuildPath.IsHardBlocked = (s, t) => PathfindingRules.BlockCannotBecomeBlueprintType(s, t, Edge.EdgeType.Canal);
         FindCanalBuildPath.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
         FindCanalBuildPath.AddPriorityRule(1, PathfindingRules.AvoidForest);
+
+        FindShortestCanalToWaterPath = new MovementProfile();
+        FindShortestCanalToWaterPath.IsHardBlocked = PathfindingRules.BlockIsNotCanal;
+        FindShortestCanalToWaterPath.AddPriorityRule(0, PathfindingRules.MinimizeSteps);
 
     }
 }

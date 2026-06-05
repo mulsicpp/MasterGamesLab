@@ -20,6 +20,12 @@ public static class PathfindingRules
         return edge == null || edge.Type != Edge.EdgeType.Canal;
     }
 
+    public static bool BlockIsNotCanal(Tile current, Tile neighbor)
+    {
+        Edge edge = current.FindEdgeTo(neighbor);
+        return edge == null || edge.Type != Edge.EdgeType.Canal;
+    }
+
     public static bool BlockCannotBecomeBlueprintType(Tile current, Tile neighbor, Edge.EdgeType type)
     {
         Edge edge = current.FindEdgeTo(neighbor);
@@ -40,6 +46,15 @@ public static class PathfindingRules
     public static bool BlockMountains(Tile current, Tile neighbor)
     {
         return neighbor.Type == Tile.TileType.Mountain;
+    }
+
+
+
+
+
+    public static void MinimizeSteps(Tile current, Tile neighbor, ref PathScore score, int slot)
+    {
+        score[slot] += 1;
     }
 
     /// <summary>
