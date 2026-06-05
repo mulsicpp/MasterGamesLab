@@ -84,5 +84,13 @@ namespace Map.Hoverables
                 LayerMask |= 1 << Map.VehicleOutlineTransparentLayer;
             }
         }
+
+#if UNITY_EDITOR
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Init()
+        {
+            instance = null!;
+        }
+#endif
     }
 }

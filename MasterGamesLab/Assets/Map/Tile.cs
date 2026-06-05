@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Map.Blueprint;
 using Map.Fleet;
 using Map.GeometryGeneration;
 using Map.GeometryGeneration.Edges;
@@ -301,7 +300,7 @@ namespace Map
         public bool CanBuild(out float costFactor)
         {
             costFactor = 0f;
-            switch(Type)
+            switch (Type)
             {
                 case TileType.Plain:
                     costFactor = Constants.PLAIN_BUILD_COST_FACTOR;
@@ -309,7 +308,7 @@ namespace Map
                 case TileType.Forest:
                     costFactor = Constants.FOREST_BUILD_COST_FACTOR;
                     return true;
-                default : return false;
+                default: return false;
             }
         }
 
@@ -339,6 +338,43 @@ namespace Map
         {
             GeometryChanged = false;
 
+            var infoNormal = new EdgeGeometryFactory.TileInformation();
+            var infoBlueprint = new EdgeGeometryFactory.TileInformation();
+            foreach (var edge in edges)
+            {
+                switch (edge.Type)
+                {
+                    case Edge.EdgeType.None:
+                        break;
+                    case Edge.EdgeType.Road:
+                        infoNormal.AmountOfRoads++;
+                        break;
+                    case Edge.EdgeType.Canal:
+                        infoNormal.AmountOfCanals++;
+                        break;
+                    case Edge.EdgeType.Rail:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                switch (edge.BlueprintType)
+                {
+                    case Edge.EdgeType.None:
+                        break;
+                    case Edge.EdgeType.Road:
+                        infoBlueprint.AmountOfRoads++;
+                        break;
+                    case Edge.EdgeType.Canal:
+                        infoBlueprint.AmountOfCanals++;
+                        break;
+                    case Edge.EdgeType.Rail:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
             foreach (var edge in edges)
             {
                 if (edge.Type == Edge.EdgeType.None)
@@ -347,7 +383,7 @@ namespace Map
                 }
                 else
                 {
-                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
+                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge, infoNormal, false);
                     edge.SetGeometryFrom(eg, this);
                 }
 
@@ -357,7 +393,7 @@ namespace Map
                 }
                 else
                 {
-                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
+                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge, infoBlueprint, true);
                     edge.SetBluePrintGeometryFrom(eg, this);
                 }
                 /*else

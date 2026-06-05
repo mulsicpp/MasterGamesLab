@@ -38,6 +38,9 @@ namespace Map
         public float Radius => radius;
         public int Resolution => resolution;
 
+        public float TEST_ROAD_HANDLE_DISTANCE = 0.025f;
+        public float TEST_ROAD_HEIGHT = 0.01f;
+
         public Timestamp Timestamp = new Timestamp(0);
 
         [SerializeField] public bool Running = true;
@@ -504,7 +507,7 @@ namespace Map
             ApplyStatesLocal(serverTime, Infrastructure.Garages, garages);
             ApplyStatesLocal(serverTime, Infrastructure.Ports, ports);
 
-            if(edges.Length + producers.Length + consumers.Length + ports.Length + garages.Length > 0)
+            if (edges.Length + producers.Length + consumers.Length + ports.Length + garages.Length > 0)
             {
                 Blueprint.Validate();
             }
@@ -544,7 +547,8 @@ namespace Map
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void SendBlueprintPacketServerRpc(EdgeId[] roads, EdgeId[] canals, BlueprintPacket.StructureData[] ports, bool hasNext,
+        public void SendBlueprintPacketServerRpc(EdgeId[] roads, EdgeId[] canals, BlueprintPacket.StructureData[] ports,
+            bool hasNext,
             RpcParams rpcParams = default)
         {
             var playerId =
@@ -588,10 +592,11 @@ namespace Map
                 {
                     if (port.TileId < 0 || port.TileId > tiles.Count) continue;
                     var tile = tiles[port.TileId];
-                
+
                     if (tile.Structure == null)
                     {
-                        ReliableSender.Add(new Port.PortState { Common = { Index = port.StructureIndex, TileId = tile.Id } });
+                        ReliableSender.Add(new Port.PortState
+                            { Common = { Index = port.StructureIndex, TileId = tile.Id } });
                     }
                 }
 
@@ -905,7 +910,8 @@ namespace Map
                     Vector3 basePos = GetProjectedPosition(port.Tile.PositionOnSphere, 1.015f);
                     Gizmos.color = PlayerManager.Instance.GetPlayerColor(port.Owner);
                     Gizmos.DrawSphere(basePos, 0.025f);
-                } else if (port.BlueprintTile != null)
+                }
+                else if (port.BlueprintTile != null)
                 {
                     Vector3 basePos = GetProjectedPosition(port.BlueprintTile.PositionOnSphere, 1.015f);
                     Gizmos.color = port.BlueprintVisualState switch
