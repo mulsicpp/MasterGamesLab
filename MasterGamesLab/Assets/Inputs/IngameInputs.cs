@@ -9,14 +9,14 @@ public class IngameInputs : MonoBehaviour
     private static InputActionMap controlsActionMap;
 
     public static InputAction leftClickAction;
-    private InputAction buildRoadAction;
-    private InputAction buildCanalAction;
-    private InputAction buildPortAction;
-    private InputAction buyTruckAction;
-    private InputAction buyFreighterAction;
-    private InputAction confirmBuildPlanAction;
-    private InputAction hideBuildPlanAction;
-    private InputAction cancelAction;
+    public static InputAction buildRoadAction;
+    public static InputAction buildCanalAction;
+    public static InputAction buildPortAction;
+    public static InputAction buyTruckAction;
+    public static InputAction buyFreighterAction;
+    public static InputAction confirmBuildPlanAction;
+    public static InputAction hideBuildPlanAction;
+    public static InputAction cancelAction;
 
     [SerializeField] private ConstructionControls constructionControls;
 

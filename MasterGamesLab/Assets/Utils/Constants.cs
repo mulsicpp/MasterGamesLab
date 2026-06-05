@@ -25,8 +25,15 @@ public static class Constants
     public static OutlineData CANAL_BLUEPRINT_VALID_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.blue,
-        InnerColor = new Color(0, 1, 1, 0.2f),
+        InnerColor = new Color(0, 1, 1, 0.5f),
         TextureId = 1,
+    };
+
+    public static OutlineData ROAD_BLUEPRINT_PREVIEW_OVERLAPPING_OUTLINE = new OutlineData()
+    {
+        OutlineColor = Color.grey,
+        InnerColor = new Color(0, 0, 0, 0.2f),
+        TextureId = 2,
     };
 
     public static OutlineData ROAD_BLUEPRINT_OVERLAPPING_OUTLINE = new OutlineData()
@@ -62,7 +69,7 @@ public static class Constants
     public const byte MAX_PRODUCER_COUNT = 64;
     public const byte MAX_CONSUMER_COUNT = 128;
 
-    public const byte MAX_PORTS_PER_PLAYER = 4;
+    public const byte MAX_PORTS_PER_PLAYER = 12;
     public const byte MAX_GARAGES_PER_PLAYER = 1;
 
     public const byte MAX_PORT_COUNT = MAX_PORTS_PER_PLAYER * MAX_PLAYER_COUNT;
@@ -70,6 +77,14 @@ public static class Constants
 
 
     public const int MAX_NETTO_BYTES_PER_RPC = 1000;
+
+
+    public const float PLAIN_BUILD_COST_FACTOR = 1f;
+    public const float FOREST_BUILD_COST_FACTOR = 2f;
+
+    public const int ROAD_BUILD_COST = 20;
+    public const int BASE_CANAL_BUILD_COST = 50;
+    public const int PORT_BUILD_COST = 300;
 
 
     public const int ENEMY_ROAD_MOVEMENT_COST = 1;

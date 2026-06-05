@@ -1,5 +1,23 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7010775199553355335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97d5493bdaec494d8454c6c9f1be3aef, type: 3}
+  m_Name: TileIdPickerFeature
+  m_EditorClassIdentifier: Assembly-CSharp::Map.HoverableIdEffect.TileIdPickerFeature
+  m_Active: 1
+  settings:
+    overrideMaterial: {fileID: 2100000, guid: 47c749dad1adbd74581bed0581d90521, type: 2}
+    flipY: 0
+    showDebugOnScreen: 0
+    debugBlitMaterial: {fileID: 2100000, guid: ea7ec7fdcc0529c44822f2290b0b33de, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26,9 +44,10 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
   m_RendererFeatures:
   - {fileID: 7833122117494664109}
+  - {fileID: -7010775199553355335}
   - {fileID: 5631223974162465322}
   - {fileID: 6123390037938076137}
-  m_RendererFeatureMap: ad6b866f10d7b46c2a029e765e20264ee9f976e0cba6fa54
+  m_RendererFeatureMap: ad6b866f10d7b46cb90181c619b9b49e2a029e765e20264ee9f976e0cba6fa54
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -38,7 +57,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   m_OpaqueLayerMask:
     serializedVersion: 2
-    m_Bits: 695
+    m_Bits: 157623
   m_TransparentLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -75,7 +94,7 @@ MonoBehaviour:
   expandMaterialDepth: {fileID: 2100000, guid: 0f292494fdc2e614bb6346400adef4d7, type: 2}
   outlineLayer:
     serializedVersion: 2
-    m_Bits: 2560
+    m_Bits: 449536
 --- !u!114 &6123390037938076137
 MonoBehaviour:
   m_ObjectHideFlags: 0

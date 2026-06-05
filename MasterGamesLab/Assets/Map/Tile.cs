@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Map.Blueprint;
 using Map.Fleet;
 using Map.GeometryGeneration;
 using Map.GeometryGeneration.Edges;
 using Map.Infrastructure;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
-using static Map.Edge;
 
 namespace Map
 {
@@ -33,7 +30,7 @@ namespace Map
 
         // Point data
         public Vector3 Position;
-        private readonly List<Triangle> neighborTriangles;
+        private List<Triangle> neighborTriangles;
 
         // Tile data
         public TileId Id { get; private set; }
@@ -57,39 +54,15 @@ namespace Map
             }
         }
 
-        private Structure.StructureType? blueprintStructureType;
+        private Structure blueprintStructure { get; set; }
 
-        public Structure.StructureType? BlueprintStructureType
+        public Structure BlueprintStructure
         {
-            get => blueprintStructureType;
+            get => blueprintStructure;
             set
             {
-                blueprintStructureType = value;
+                blueprintStructure = value;
                 GeometryChanged = true;
-            }
-        }
-
-        private bool blueprintPreview;
-
-        public bool BlueprintPreview
-        {
-            get => blueprintPreview;
-            set
-            {
-                blueprintPreview = value;
-                StructureDirty = true;
-            }
-        }
-
-        public VisualState BlueprintVisualState
-        {
-            get
-            {
-                if (blueprintStructureType == null) return VisualState.Valid;
-                if (BlueprintPreview) return structure == null ? VisualState.Preview : VisualState.PreviewOverlapping;
-                if (structure == null) return VisualState.Valid;
-                if (structure.Type == blueprintStructureType) return VisualState.Overlapping;
-                return VisualState.Invalid;
             }
         }
 
@@ -237,6 +210,8 @@ namespace Map
                 }
             }
 
+            neighborTriangles = null;
+
             return;
 
             int Comparison(Vector3 a, Vector3 b)
@@ -296,7 +271,7 @@ namespace Map
         {
             if (Structure != null) return false;
 
-            switch(type)
+            switch (type)
             {
                 case Structure.StructureType.Producer:
                 case Structure.StructureType.Consumer:
@@ -306,7 +281,9 @@ namespace Map
                     bool bordersWater = neighbors.Where(t => t.Type is TileType.Water).Count() > 0;
                     return buildable & bordersWater;
                 default: return false;
-            };
+            }
+
+            ;
         }
 
         public bool CanSpawnVehicle(Vehicle.VehicleType type)
@@ -318,6 +295,23 @@ namespace Map
                 _ => false
             };
         }
+
+
+        public bool CanBuild(out float costFactor)
+        {
+            costFactor = 0f;
+            switch (Type)
+            {
+                case TileType.Plain:
+                    costFactor = Constants.PLAIN_BUILD_COST_FACTOR;
+                    return true;
+                case TileType.Forest:
+                    costFactor = Constants.FOREST_BUILD_COST_FACTOR;
+                    return true;
+                default: return false;
+            }
+        }
+
 
         public void BuildFaces(MapChunk.ChunkGeometry cg)
         {
@@ -344,6 +338,43 @@ namespace Map
         {
             GeometryChanged = false;
 
+            var infoNormal = new EdgeGeometryFactory.TileInformation();
+            var infoBlueprint = new EdgeGeometryFactory.TileInformation();
+            foreach (var edge in edges)
+            {
+                switch (edge.Type)
+                {
+                    case Edge.EdgeType.None:
+                        break;
+                    case Edge.EdgeType.Road:
+                        infoNormal.AmountOfRoads++;
+                        break;
+                    case Edge.EdgeType.Canal:
+                        infoNormal.AmountOfCanals++;
+                        break;
+                    case Edge.EdgeType.Rail:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                switch (edge.BlueprintType)
+                {
+                    case Edge.EdgeType.None:
+                        break;
+                    case Edge.EdgeType.Road:
+                        infoBlueprint.AmountOfRoads++;
+                        break;
+                    case Edge.EdgeType.Canal:
+                        infoBlueprint.AmountOfCanals++;
+                        break;
+                    case Edge.EdgeType.Rail:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
             foreach (var edge in edges)
             {
                 if (edge.Type == Edge.EdgeType.None)
@@ -352,7 +383,7 @@ namespace Map
                 }
                 else
                 {
-                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
+                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge, infoNormal, false);
                     edge.SetGeometryFrom(eg, this);
                 }
 
@@ -362,7 +393,7 @@ namespace Map
                 }
                 else
                 {
-                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
+                    var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge, infoBlueprint, true);
                     edge.SetBluePrintGeometryFrom(eg, this);
                 }
                 /*else

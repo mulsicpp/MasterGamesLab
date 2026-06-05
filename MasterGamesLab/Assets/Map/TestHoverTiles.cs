@@ -1,33 +1,55 @@
+using Map.Hoverables;
+using Map.OutlineEffect;
 using UnityEngine;
 
 namespace Map
 {
     public class TestHoverTiles : MonoBehaviour
     {
-        ITile lastActiveTile;
+        private IHoverable lastHoveredThing;
+
+        [SerializeField] private GameObject tileOutlinerPrefab;
+
+        private TileOutliner tileOutliner;
+
+        private void Awake()
+        {
+            var go = Instantiate(tileOutlinerPrefab, transform);
+            tileOutliner = go.GetComponent<TileOutliner>();
+        }
 
         private void Update()
         {
-            if (lastActiveTile != null)
+            if (lastHoveredThing != null)
             {
-                // lastActiveTile.Active = false;
-                foreach (var n in lastActiveTile.Neighbors)
+                switch (lastHoveredThing)
                 {
-                    n.Active = false;
+                    case ITile t:
+                        break;
+                    case Edge edge:
+                        break;
                 }
             }
 
-            var tile = Map.Instance.GetCurrentlyHoveredTile();
-            if (tile != null)
-            {
-                // tile.Active = true;
-                foreach (var n in tile.Neighbors)
-                {
-                    n.Active = true;
-                }
+            var tile = Map.Instance.CurrentlyHovered;
+            if (tile == null) return;
 
-                lastActiveTile = tile;
+            switch (tile)
+            {
+                case ITile t:
+                    tileOutliner.OutlineTile((Tile)t);
+                    tileOutliner.SetOutlineParameters(Color.black, new Color(0, 0, 0, 0), 0);
+                    break;
+                case Edge e:
+                    Debug.Log("Edge is hovered");
+                    break;
+                default:
+                    break;
             }
+
+            // tile.Active = true;
+
+            lastHoveredThing = tile;
         }
     }
 }

@@ -6,20 +6,27 @@ using Map.GeometryGeneration;
 using Map.Infrastructure;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using Map.Fleet;
 using Map.Blueprint;
-using static UnityEditor.VersionControl.Asset;
 using Networking;
 using Blueprint;
-using UnityEditor.PackageManager;
+using Map.Hoverables;
+using UnityEngine.InputSystem;
 
 namespace Map
 {
     public class Map : NetworkBehaviour, IMap
     {
         public const int ID_OFFSET = 1;
+        public static int TileLayer { get; private set; }
+        public static int EdgeLayer { get; private set; }
+        public static int EdgeOutlineLayer { get; private set; }
+        public static int EdgeOutlineTransparentLayer { get; private set; }
+        public static int VehicleLayer { get; private set; }
+        public static int VehicleOutlineLayer { get; private set; }
+        public static int VehicleOutlineTransparentLayer { get; private set; }
+
         private static readonly int PlanetRadius = Shader.PropertyToID("_PlanetRadius");
         private static readonly int ProjectionFactor = Shader.PropertyToID("_ProjectionFactor");
         private static readonly int ProjectionCenter = Shader.PropertyToID("_ProjectionCenter");
@@ -31,6 +38,9 @@ namespace Map
         public float Radius => radius;
         public int Resolution => resolution;
 
+        public float TEST_ROAD_HANDLE_DISTANCE = 0.025f;
+        public float TEST_ROAD_HEIGHT = 0.01f;
+
         public Timestamp Timestamp = new Timestamp(0);
 
         [SerializeField] public bool Running = true;
@@ -38,6 +48,8 @@ namespace Map
         public IReadOnlyList<Edge> Edges => edges;
         public IReadOnlyInfrastructure Infrastructure => infrastructure;
         public IReadOnlyFleet Fleet => fleet;
+
+        public int? GenerationSeed { get; private set; } = null;
 
         public Blueprint.Blueprint Blueprint;
 
@@ -50,6 +62,8 @@ namespace Map
 
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
+
+        public HoverablePicker.HoverableLayer HoverLayers = HoverablePicker.HoverableLayer.All;
 
         //debug
         private ITile[] debugSpawnPoints;
@@ -71,23 +85,32 @@ namespace Map
         private List<MapChunk> chunks;
         private float oldProjectionFactor;
         private Vector3 oldProjectionCenter;
-        private int currentlyHoveredTileId;
+
+        public IHoverable CurrentlyHovered;
 
         private Edge[] edges;
         private Infrastructure.Infrastructure infrastructure;
         private Fleet.Fleet fleet;
 
-        public Networking.ReliableSender ReliableSender;
-        public Networking.UnreliableSender UnreliableSender;
+        public ReliableSender ReliableSender;
+        public UnreliableSender UnreliableSender;
 
         private void OnEnable()
         {
             Instance = this;
+
+            TileLayer = LayerMask.NameToLayer("Tiles");
+            EdgeLayer = LayerMask.NameToLayer("Edges");
+            EdgeOutlineLayer = LayerMask.NameToLayer("Edge Outline");
+            EdgeOutlineTransparentLayer = LayerMask.NameToLayer("Edge Outline Transparent");
+            VehicleLayer = LayerMask.NameToLayer("Vehicles");
+            VehicleOutlineLayer = LayerMask.NameToLayer("Vehicles Outline");
+            VehicleOutlineTransparentLayer = LayerMask.NameToLayer("Vehicles Outline Transparent");
         }
 
         private void Start()
         {
-            currentlyHoveredTileId = -1;
+            CurrentlyHovered = null;
             Debug.Log("Starting Map Generation");
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
             tiles = new List<Tile>(numPoints);
@@ -141,7 +164,18 @@ namespace Map
             {
                 Generate(UnityEngine.Random.Range(int.MinValue, int.MaxValue));
             }
+        }
 
+        private void UpdateEntireMesh()
+        {
+            foreach (var chunk in chunks)
+            {
+                chunk.UpdateMesh();
+                chunk.UpdateTileData();
+            }
+
+            foreach (var tile in tiles) tile.BuildGeometryData();
+            foreach (var edge in edges) edge.ChangeVisualState();
         }
 
         private void Update()
@@ -179,16 +213,11 @@ namespace Map
                 }
             }
 
-            MainCamera.Instance.RequestCurrentlyHoveredTile(OnReadbackComplete);
+            UpdateHovered();
             MainCamera.Instance.PlanetControllerEnabled = Running;
 
             // Update the projection
             UpdateProjectionUniforms();
-        }
-
-        public ITile GetCurrentlyHoveredTile()
-        {
-            return currentlyHoveredTileId == -1 ? null : tiles[currentlyHoveredTileId];
         }
 
         public void AddActiveTile(Tile tile) => activeTiles.Add(tile);
@@ -217,20 +246,63 @@ namespace Map
             oldProjectionFactor = projectionFactor;
         }
 
+        private void UpdateHovered()
+        {
+            var mousePos = Mouse.current.position.ReadValue();
+            var mX = (int)mousePos.x;
+            var mY = (int)mousePos.y;
+
+            if (mX < 0 || mX >= Screen.width || mY < 0 || mY >= Screen.height)
+            {
+                return;
+            }
+
+            HoverablePicker.Instance.RequestPick(new Vector2Int(mX, mY), OnReadbackComplete);
+        }
+
         private void OnReadbackComplete(AsyncGPUReadbackRequest request)
         {
             if (request.hasError)
             {
-                currentlyHoveredTileId = -1;
+                CurrentlyHovered = null;
                 return;
             }
 
-            var colorData = request.GetData<Color32>();
-            var pixelColor = colorData[0];
+            var colorData = request.GetData<uint>();
+            var currentlyHoveredId = (int)colorData[0] - ID_OFFSET;
 
-            currentlyHoveredTileId = ((pixelColor.r << 16) | (pixelColor.g << 8) | pixelColor.b) - ID_OFFSET;
+            if (currentlyHoveredId <= -1)
+            {
+                CurrentlyHovered = null;
+                return;
+            }
+
+            if (currentlyHoveredId < tiles.Count)
+            {
+                CurrentlyHovered = tiles[currentlyHoveredId];
+            }
+            else if (currentlyHoveredId < tiles.Count + edges.Length)
+            {
+                CurrentlyHovered = edges[currentlyHoveredId - tiles.Count];
+            }
         }
 
+        public void GenerateEmpty()
+        {
+            foreach (var tile in tiles)
+            {
+                tile.Type = Tile.TileType.Water;
+            }
+
+            InitEdges();
+
+            infrastructure = new Infrastructure.Infrastructure();
+            fleet = new Fleet.Fleet();
+
+            UpdateEntireMesh();
+
+            GenerationSeed = null;
+        }
 
         public void Generate(int seed)
         {
@@ -252,16 +324,14 @@ namespace Map
             infrastructure = new Infrastructure.Infrastructure();
             fleet = new Fleet.Fleet();
 
-            foreach (var chunk in chunks)
-            {
-                chunk.UpdateMesh();
-            }
+            UpdateEntireMesh();
 
             ITile[] playerSpawns = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
 
             for (int i = 0; i < playerSpawns.Length; i++)
             {
-                Debug.Log($"Player {i + 1} Spawnpoint: ID {playerSpawns[i].Id} on Continent {playerSpawns[i].ContinentId}");
+                Debug.Log(
+                    $"Player {i + 1} Spawnpoint: ID {playerSpawns[i].Id} on Continent {playerSpawns[i].ContinentId}");
 
                 // Infrastructure.SpawnLocal(new Producer.ProducerState
                 // { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
@@ -271,7 +341,8 @@ namespace Map
 
             for (int i = 0; i < debugSpawnPoints.Length; i++)
             {
-                Debug.Log($"Player  {i + 1} Spawnpoint: ID {debugSpawnPoints[i].Id} on Continent {debugSpawnPoints[i].ContinentId}");
+                Debug.Log(
+                    $"Player  {i + 1} Spawnpoint: ID {debugSpawnPoints[i].Id} on Continent {debugSpawnPoints[i].ContinentId}");
             }
 
             //Infrastructure.SpawnLocal(new Producer.ProducerState
@@ -301,6 +372,8 @@ namespace Map
                     spawnPointManager.RegisterConsumerSpawned(consTiles);
                 }
             }
+
+            GenerationSeed = seed;
         }
 
         public void Tick()
@@ -323,6 +396,12 @@ namespace Map
             {
                 vehicle.ResetProgressDirty();
             }
+        }
+
+        public void FinishGame()
+        {
+            if (!IsServer) return;
+            StartCoroutine(UIManager.Instance.FinishGame());
         }
 
         private void InitEdges()
@@ -428,6 +507,11 @@ namespace Map
             ApplyStatesLocal(serverTime, Infrastructure.Garages, garages);
             ApplyStatesLocal(serverTime, Infrastructure.Ports, ports);
 
+            if (edges.Length + producers.Length + consumers.Length + ports.Length + garages.Length > 0)
+            {
+                Blueprint.Validate();
+            }
+
             ApplyStatesLocal(serverTime, Fleet.Trucks, trucks);
             ApplyStatesLocal(serverTime, Fleet.Freighters, freighters);
         }
@@ -463,7 +547,8 @@ namespace Map
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void SendBlueprintPacketServerRpc(EdgeId[] roads, EdgeId[] canals, TileId[] ports, bool hasNext,
+        public void SendBlueprintPacketServerRpc(EdgeId[] roads, EdgeId[] canals, BlueprintPacket.StructureData[] ports,
+            bool hasNext,
             RpcParams rpcParams = default)
         {
             var playerId =
@@ -473,20 +558,21 @@ namespace Map
 
             storedBlueprintPackets[playerId].Append(new BlueprintPacket(roads, canals, ports));
 
-            if(!hasNext)
+            if (!hasNext)
             {
                 var packet = storedBlueprintPackets[playerId];
                 Debug.Log("Applying blueprint from player " + playerId.Value);
 
                 // TODO validation
-                foreach(var edgeId in packet.RoadEdgeIds)
+                foreach (var edgeId in packet.RoadEdgeIds)
                 {
-                    if(edgeId < 0 || edgeId > edges.Length) continue;
+                    if (edgeId < 0 || edgeId > edges.Length) continue;
                     var edge = edges[edgeId];
 
-                    if(edge.Type == Edge.EdgeType.None)
+                    if (edge.Type == Edge.EdgeType.None)
                     {
-                        ReliableSender.Add(new Edge.EdgeState { Id = edgeId, Type = Edge.EdgeType.Road, Owner = playerId });
+                        ReliableSender.Add(new Edge.EdgeState
+                            { Id = edgeId, Type = Edge.EdgeType.Road, Owner = playerId });
                     }
                 }
 
@@ -497,23 +583,22 @@ namespace Map
 
                     if (edge.Type == Edge.EdgeType.None)
                     {
-                        ReliableSender.Add(new Edge.EdgeState { Id = edgeId, Type = Edge.EdgeType.Canal, Owner = playerId });
+                        ReliableSender.Add(new Edge.EdgeState
+                            { Id = edgeId, Type = Edge.EdgeType.Canal, Owner = playerId });
                     }
                 }
 
-                // foreach (var tileId in packet.PortTileIds)
-                // {
-                //     if (tileId < 0 || tileId > tiles.Count) continue;
-                //     var tile = tiles[tileId];
-                // 
-                //     if (tile.Structure == null)
-                //     {
-                //         var index = infrastructure.GetFirstEmptyIndex(Structure.StructureType.Port, playerId);
-                //         if (index == -1) continue;
-                // 
-                //         ReliableSender.Add(new Port.PortState { Common = { Index = new StructureIndex((byte)index), TileId = tile.Id } });
-                //     }
-                // }
+                foreach (var port in packet.Ports)
+                {
+                    if (port.TileId < 0 || port.TileId > tiles.Count) continue;
+                    var tile = tiles[port.TileId];
+
+                    if (tile.Structure == null)
+                    {
+                        ReliableSender.Add(new Port.PortState
+                            { Common = { Index = port.StructureIndex, TileId = tile.Id } });
+                    }
+                }
 
 
                 var responseRpcParams = new ClientRpcParams
@@ -595,7 +680,8 @@ namespace Map
 
 
             if (type == Vehicle.VehicleType.Truck)
-                ReliableSender.Add(new Truck.TruckState { Common = commonState, Good = Good.None, FreighterIndex = VehicleIndex.NONE });
+                ReliableSender.Add(new Truck.TruckState
+                    { Common = commonState, Good = Good.None, FreighterIndex = VehicleIndex.NONE });
             else
                 ReliableSender.Add(new Freighter.FreighterState { Common = commonState });
             ReliableSender.Send();
@@ -609,7 +695,7 @@ namespace Map
             Debug.Log("Received vehicle route request from player " + playerId.Value + " for vehicle " + vehicleIndex);
 
             if (playerId == PlayerId.NONE) return;
-            if(vehicleIndex < 0 || vehicleIndex >= Fleet.Vehicles.Count) return;
+            if (vehicleIndex < 0 || vehicleIndex >= Fleet.Vehicles.Count) return;
 
             var vehicle = Fleet.Vehicles[vehicleIndex];
 
@@ -629,6 +715,7 @@ namespace Map
             {
                 if (!Vehicle.CanCross(route[i - 1], route[i], vehicle.Type)) return;
             }
+
             Debug.Log("Path OK");
 
             if (vehicle.Type == Vehicle.VehicleType.Truck)
@@ -651,6 +738,7 @@ namespace Map
 
                 ReliableSender.Add(freighterState);
             }
+
             ReliableSender.Send();
         }
 
@@ -735,21 +823,21 @@ namespace Map
                         Gizmos.color = new Color(1.0f, 1.0f, 1.0f, 0.05f);
                         break;
                 }
-            
+
                 Vector3 p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.01f);
                 Vector3 p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.01f);
                 Gizmos.DrawLine(p1, p2);
-            
+
                 if (edges[i].Type != Edge.EdgeType.None)
                 {
                     Gizmos.color = Constants.PLAYER_COLORS[edges[i].Owner % Constants.MAX_PLAYER_COUNT];
-            
+
                     var midPoint = (3 * p1 + p2) / 4.0f;
                     Gizmos.DrawSphere(midPoint, 0.004f);
                     midPoint = (p1 + 3 * p2) / 4.0f;
                     Gizmos.DrawSphere(midPoint, 0.004f);
                 }
-            
+
                 if (edges[i].BlueprintType != Edge.EdgeType.None)
                 {
                     Gizmos.color = edges[i].BlueprintVisualState switch
@@ -760,31 +848,14 @@ namespace Map
                         VisualState.Overlapping => Color.green,
                         _ => Color.red,
                     };
-            
+
                     p1 = GetProjectedPosition(edges[i].StartTile.PositionOnSphere, 1.012f);
                     p2 = GetProjectedPosition(edges[i].EndTile.PositionOnSphere, 1.012f);
                     Gizmos.DrawLine(p1, p2);
                 }
             }
 
-            var orange = new Color(1.0f, 0.2f, 0.0f);
-
-            foreach(var tile in tiles)
-            {
-                if(tile.BlueprintStructureType != null)
-                {
-                    Gizmos.color = tile.BlueprintVisualState switch
-                    {
-                        VisualState.Preview => Color.purple,
-                        VisualState.PreviewOverlapping => Color.blue,
-                        VisualState.Valid => Color.cyan,
-                        VisualState.Overlapping => Color.green,
-                        _ => Color.red,
-                    };
-
-                    Gizmos.DrawWireSphere(GetProjectedPosition(tile.PositionOnSphere, 1.015f), 0.025f);
-                }
-            }
+            var orange = new Color(1.0f, 0.15f, 0.0f);
 
             foreach (var producer in infrastructure.Producers)
             {
@@ -839,6 +910,19 @@ namespace Map
                     Vector3 basePos = GetProjectedPosition(port.Tile.PositionOnSphere, 1.015f);
                     Gizmos.color = PlayerManager.Instance.GetPlayerColor(port.Owner);
                     Gizmos.DrawSphere(basePos, 0.025f);
+                }
+                else if (port.BlueprintTile != null)
+                {
+                    Vector3 basePos = GetProjectedPosition(port.BlueprintTile.PositionOnSphere, 1.015f);
+                    Gizmos.color = port.BlueprintVisualState switch
+                    {
+                        VisualState.Preview => Color.purple,
+                        VisualState.PreviewOverlapping => Color.blue,
+                        VisualState.Valid => Color.cyan,
+                        VisualState.Overlapping => Color.green,
+                        _ => Color.red,
+                    };
+                    Gizmos.DrawWireSphere(basePos, 0.025f);
                 }
             }
 
@@ -906,6 +990,7 @@ namespace Map
                     Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.03f);
                     Gizmos.DrawSphere(pos, 0.01f);
                 }
+
                 foreach (var tile in spawnPointManager.PlacedProducers)
                 {
                     Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.06f);
@@ -918,6 +1003,7 @@ namespace Map
                     Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.04f);
                     Gizmos.DrawSphere(pos, 0.008f);
                 }
+
                 foreach (var tile in spawnPointManager.PlacedConsumers)
                 {
                     Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.07f);

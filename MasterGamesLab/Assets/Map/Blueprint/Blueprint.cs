@@ -1,174 +1,194 @@
 using Blueprint;
+using Map.Fleet;
 using Map.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 
 namespace Map.Blueprint
 {
-    public class Blueprint
+    public class Blueprint : ValidatableBlueprint
     {
-        private List<EdgeId> edgeIds;
-        public IReadOnlyList<EdgeId> EdgeIds => edgeIds;
+        private List<Edge> edges;
+        public IReadOnlyList<Edge> Edges => edges;
 
-        private List<EdgeId> previewEdgeIds;
-        public IReadOnlyList<EdgeId> PreviewEdgeIds => previewEdgeIds;
+        private List<Edge> previewEdges;
+        public IReadOnlyList<Edge> PreviewEdges => previewEdges;
 
-        private List<TileId> structureTileIds;
-        public IReadOnlyList<TileId> StructureTileIds => structureTileIds;
+        private List<Structure> structures;
+        public IReadOnlyList<Structure> Structures => structures;
 
-        private TileId previewStructureTileId;
-        public TileId PreviewStructureTileId => previewStructureTileId;
-        public bool IsEmpty => structureTileIds.Count == 0 && edgeIds.Count == 0;
+        private Structure previewStructure;
+        public Structure PreviewStructure => previewStructure;
+
+        private List<Vehicle> vehicles;
+        public IReadOnlyList<Vehicle> Vehicles => vehicles;
+
+        private Vehicle previewVehicle;
+        public Vehicle PreviewVehicle => previewVehicle;
+
+        public bool IsEmpty => structures.Count == 0 && edges.Count == 0;
+
         public Blueprint()
         {
-            edgeIds = new List<EdgeId>();
-            previewEdgeIds = new List<EdgeId>();
+            edges = new();
+            previewEdges = new();
 
-            structureTileIds = new List<TileId>();
-            previewStructureTileId = TileId.NONE;
+            structures = new();
+            previewStructure = null;
+
+            vehicles = new();
+            previewVehicle = null;
         }
 
-        public bool AddEdge(EdgeId edgeId, Edge.EdgeType type)
+        public bool AddEdge(Edge edge, Edge.EdgeType type)
         {
-            if (edgeIds.Contains(edgeId)) return false;
-            var edge = Map.Instance.Edges[edgeId];
+            if (edges.Contains(edge)) return false;
             edge.BlueprintType = type;
             edge.BlueprintPreview = false;
-            edgeIds.Add(edgeId);
+            edges.Add(edge);
+
+            Validate();
             return true;
         }
 
-        public void RemoveEdge(EdgeId edgeId)
+        public void RemoveEdge(Edge edge)
         {
-            var edge = Map.Instance.Edges[edgeId];
             edge.BlueprintType = Edge.EdgeType.None;
             edge.BlueprintPreview = false;
-            if (edgeIds.Contains(edgeId)) edgeIds.Remove(edgeId);
+            if (edges.Contains(edge)) edges.Remove(edge);
+            Validate();
         }
 
-        public bool AddStructure(TileId tileId, Structure.StructureType type)
+        public bool AddStructure(Tile tile, Structure structure)
         {
-            if (structureTileIds.Contains(tileId)) return false;
-            Tile tile = (Tile)Map.Instance.Tiles[tileId];
-            tile.BlueprintStructureType = type;
-            tile.BlueprintPreview = false;
-            structureTileIds.Add(tileId);
+            if (structures.Contains(structure)) return false;
+            structure.BlueprintTile = tile;
+            structure.BlueprintPreview = false;
+            structures.Add(structure);
+
+            Validate();
             return true;
         }
 
-        public void RemoveStructure(TileId tileId)
+        public void RemoveStructure(Structure structure)
         {
-            Tile tile = (Tile)Map.Instance.Tiles[tileId];
-            tile.BlueprintStructureType = null;
-            tile.BlueprintPreview = false;
-            if (structureTileIds.Contains(tileId)) structureTileIds.Remove(tileId);
+            structure.BlueprintTile = null;
+            structure.BlueprintPreview = false;
+            if (structures.Contains(structure)) structures.Remove(structure);
+            Validate();
         }
 
-        public void ClearPreviewEdges()
+        public void ClearPreview()
         {
-            foreach (var edgeId in previewEdgeIds)
+            foreach (var edge in previewEdges)
             {
-                var edge = Map.Instance.Edges[edgeId];
                 edge.BlueprintType = Edge.EdgeType.None;
                 edge.BlueprintPreview = false;
             }
-            previewEdgeIds.Clear();
-        }
+            previewEdges.Clear();
 
-        public void ClearPreviewStructure()
-        {
-            if (previewStructureTileId != TileId.NONE)
+            if (previewStructure != null)
             {
-                var oldTile = (Tile)Map.Instance.Tiles[previewStructureTileId];
-                oldTile.BlueprintStructureType = null;
-                oldTile.BlueprintPreview = false;
+                previewStructure.BlueprintTile = null;
+                previewStructure.BlueprintPreview = false;
 
-                previewStructureTileId = TileId.NONE;
+                previewStructure = null;
             }
         }
 
-        public void SetPreviewEdges(TileId[] pathIds, Edge.EdgeType type)
+        // Returns true if a preview could be set from the start tile to the end tile.
+        public bool SetPreviewEdges(Tile start, Tile end, Edge.EdgeType type)
         {
-            ClearPreviewEdges();
-            ClearPreviewStructure();
+            ClearPreview();
 
-            if (pathIds == null) return;
+            if (start == null || end == null) return false;
+
+            var pathIds = type switch
+            {
+                Edge.EdgeType.Road => Pathfinding.FindPath(start, end, MovementProfileRegistry.FindRoadBuildPath),
+                Edge.EdgeType.Canal => Pathfinding.FindPath(start, end, MovementProfileRegistry.FindCanalBuildPath),
+                _ => null
+            };
+
+            if (pathIds == null) return false;
 
             var path = pathIds.Select(id => Map.Instance.Tiles[id]).ToArray();
 
             for (int i = 1; i < path.Length; i++)
             {
                 var edge = path[i - 1].FindEdgeTo(path[i]);
-                if (edge != null && !edgeIds.Contains(edge.Id) && edge.CanBecomeBlueprintType(type))
+                if (edge != null && !edges.Contains(edge))
                 {
                     edge.BlueprintType = type;
                     edge.BlueprintPreview = true;
-                    previewEdgeIds.Add(edge.Id);
+                    previewEdges.Add(edge);
                 }
             }
+
+            return true;
         }
 
-        public void SetPreviewStructure(TileId tileId, Structure.StructureType type)
+        public bool SetPreviewStructure(Tile tile, Structure.StructureType type)
         {
+            ClearPreview();
 
-            ClearPreviewEdges();
-            ClearPreviewStructure();
+            if (tile == null) return false;
 
-            if (tileId == TileId.NONE) return;
+            var structure = Map.Instance.Infrastructure.GetFirstWith(type, s => !s.Exists && s.BlueprintTile == null && s.Owner == PlayerManager.Instance.SelfId);
 
-            var tile = (Tile)Map.Instance.Tiles[tileId];
+            if (structure == null) return false;
 
-            if (tile.BlueprintStructureType != null || !tile.CanSpawnStructure(type)) return;
-            tile.BlueprintStructureType = type;
-            tile.BlueprintPreview = true;
+            if (tile.BlueprintStructure != null || !tile.CanSpawnStructure(structure.Type)) return false;
+            structure.BlueprintTile = tile;
+            structure.BlueprintPreview = true;
 
-            previewStructureTileId = tileId;
+            previewStructure = structure;
+
+            return true;
         }
 
         public void Clear()
         {
-            foreach (var edgeId in edgeIds)
+            foreach (var edge in edges)
             {
-                var edge = Map.Instance.Edges[edgeId];
                 edge.BlueprintType = Edge.EdgeType.None;
                 edge.BlueprintPreview = false;
             }
-            edgeIds.Clear();
+            edges.Clear();
 
-            foreach (var tileId in structureTileIds)
+            foreach (var structure in structures)
             {
-                var tile = (Tile)Map.Instance.Tiles[tileId];
-                tile.BlueprintStructureType = null;
-                tile.BlueprintPreview = false;
+                structure.BlueprintTile = null;
+                structure.BlueprintPreview = false;
             }
-            structureTileIds.Clear();
+            structures.Clear();
 
-            ClearPreviewEdges();
-            ClearPreviewStructure();
+            ClearPreview();
         }
 
         public void ApplyPreviewEdges()
         {
-            foreach (var edgeId in previewEdgeIds)
+            foreach (var edge in previewEdges)
             {
-                var edge = Map.Instance.Edges[edgeId];
                 edge.BlueprintPreview = false;
             }
-            edgeIds.AddRange(previewEdgeIds);
-            previewEdgeIds.Clear();
+            edges.AddRange(previewEdges);
+            previewEdges.Clear();
+
+            Validate();
         }
 
         public void ApplyPreviewStructure()
         {
-            if (previewStructureTileId == TileId.NONE) return;
+            if (previewStructure == null) return;
 
-            var tile = (Tile)Map.Instance.Tiles[previewStructureTileId];
-            tile.BlueprintPreview = false;
+            previewStructure.BlueprintPreview = false;
 
-            structureTileIds.Add(previewStructureTileId);
-            previewStructureTileId = TileId.NONE;
+            structures.Add(previewStructure);
+            previewStructure = null;
+
+            Validate();
         }
 
         public void ApplyPreview()
@@ -179,22 +199,21 @@ namespace Map.Blueprint
 
         public void Submit()
         {
-            ClearPreviewEdges();
-            ClearPreviewStructure();
+            ClearPreview();
 
             List<BlueprintPacket> packets = new();
             BlueprintPacket lastPacket = new();
 
-            foreach (var edgeId in edgeIds)
+            foreach (var edge in edges)
             {
-                lastPacket = lastPacket.AddEdgeToPackets(edgeId, packets);
+                lastPacket = lastPacket.AddEdgeToPackets(edge, packets);
             }
 
-            Debug.Log("Structure count: " + structureTileIds.Count);
-
-            foreach (var tileId in structureTileIds)
+            Debug.Log("Structure count: " + structures.Count);
+            
+            foreach (var structure in structures)
             {
-                lastPacket = lastPacket.AddStructureToPackets(tileId, packets);
+                lastPacket = lastPacket.AddStructureToPackets(structure, packets);
             }
 
             if (lastPacket.NettoSize == 0)
@@ -213,5 +232,28 @@ namespace Map.Blueprint
             lastPacket.Send(false);
         }
 
+        protected override IEnumerable<Edge> EnumerateEdges() => edges.AsEnumerable();
+        protected override IEnumerable<Structure> EnumerateStructures() => structures.AsEnumerable();
+
+        protected override void SetValid(Edge edge, bool valid, int cost)
+        {
+            edge.BlueprintIsValid = valid;
+            edge.BlueprintCost = cost;
+        }
+
+        protected override bool IsValid(Edge edge) => edge.BlueprintIsValid;
+        protected override int Cost(Edge edge) => edge.BlueprintCost;
+        protected override Edge.EdgeType BlueprintedEdgeType(Edge edge) => !edge.BlueprintPreview ? edge.BlueprintType : Edge.EdgeType.None;
+
+
+        protected override void SetValid(Structure structure, bool valid, int cost)
+        {
+            structure.BlueprintIsValid = valid;
+            structure.BlueprintCost = cost;
+        }
+
+        protected override bool IsValid(Structure structure) => structure.BlueprintIsValid;
+        protected override int Cost(Structure structure) => structure.BlueprintCost;
+        protected override Structure BlueprintedStructure(Tile tile) => (!tile.BlueprintStructure?.BlueprintPreview ?? false) ? tile.BlueprintStructure : null;
     }
 }

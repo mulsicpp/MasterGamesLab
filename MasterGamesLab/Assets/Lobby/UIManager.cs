@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 using System;
 
 using MenuId = UI.Menu.MenuId;
+using System.Linq;
 
 public class UIManager : MonoBehaviour
 {
@@ -76,7 +77,7 @@ public class UIManager : MonoBehaviour
 
         Debug.Log("Menu count: " + foundMenus.Length);
 
-        foreach(var menu in foundMenus)
+        foreach (var menu in foundMenus)
         {
             menus[(int)menu.Id] = menu;
         }
@@ -211,49 +212,6 @@ public class UIManager : MonoBehaviour
         CurrentMenu = MenuId.Lobby;
     }
 
-    public async Task StartHostAsync()
-    {
-        if (!IsHost()) return;
-
-        IsStartingHost = true;
-        try
-        {
-
-            UpdateLobbyOptions options = new UpdateLobbyOptions
-            {
-                IsPrivate = true,
-                IsLocked = true,
-            };
-
-            await LobbyService.Instance.UpdateLobbyAsync(Lobby.Id, options);
-
-            StartCoroutine(LoadingScreen());
-
-            PlayerManager.Instance.SetPlayersFromLobby(Lobby);
-
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
-            string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-
-            UpdateLobbyOptions joinCodeOptions = new UpdateLobbyOptions
-            {
-                Data = new Dictionary<string, DataObject> {
-            {
-                "JoinCode", new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
-            }
-            }
-            };
-
-            await LobbyService.Instance.UpdateLobbyAsync(Lobby.Id, joinCodeOptions);
-
-            var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-            transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
-
-            SetConnectionData();
-            NetworkManager.Singleton.StartHost();
-        }
-        finally { IsStartingHost = false; }
-    }
-
     public IEnumerator StartHost()
     {
         if (!IsHost()) yield break;
@@ -288,10 +246,10 @@ public class UIManager : MonoBehaviour
             UpdateLobbyOptions joinCodeOptions = new UpdateLobbyOptions
             {
                 Data = new Dictionary<string, DataObject> {
-            {
-                "JoinCode", new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
-            }
-            }
+                {
+                    "JoinCode", new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
+                }
+                }
             };
 
             updateTask = LobbyService.Instance.UpdateLobbyAsync(Lobby.Id, joinCodeOptions);
@@ -342,6 +300,31 @@ public class UIManager : MonoBehaviour
         Map.Map.Instance.Running = true;
         CurrentMenu = MenuId.Ingame;
 
+        yield break;
+    }
+
+    public IEnumerator FinishGame()
+    {
+        int mapSeed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+
+        UpdateLobbyOptions options = new UpdateLobbyOptions
+        {
+            IsPrivate = false,
+            IsLocked = false,
+            Data = new Dictionary<string, DataObject> {
+                {
+                    "MapSeed", new DataObject(DataObject.VisibilityOptions.Member, mapSeed.ToString())
+                },
+                {
+                    "JoinCode", null
+                }
+            }
+        };
+
+        var updateTask = LobbyService.Instance.UpdateLobbyAsync(Lobby.Id, options);
+        yield return new WaitUntil(() => updateTask.IsCompleted);
+
+        Map.Map.Instance.GameFinishedClientRpc();
         yield break;
     }
 
@@ -440,9 +423,8 @@ public class UIManager : MonoBehaviour
         if (changes.LobbyDeleted || Lobby == null)
         {
             Lobby = null;
-            // ShowStartUI();
 
-            CurrentMenu = UI.Menu.MenuId.Start;
+            CurrentMenu = MenuId.Start;
         }
         else
         {
@@ -452,6 +434,16 @@ public class UIManager : MonoBehaviour
             }
 
             changes.ApplyToLobby(Lobby);
+
+            try
+            {
+                int mapSeed = int.Parse(Lobby.Data?["MapSeed"]?.Value);
+                if (Map.Map.Instance.GenerationSeed != mapSeed)
+                    Map.Map.Instance.Generate(mapSeed);
+            } catch (Exception)
+            {
+                Map.Map.Instance.GenerateEmpty();
+            }
 
             lobbyUI.UpdateUI(Lobby);
         }
