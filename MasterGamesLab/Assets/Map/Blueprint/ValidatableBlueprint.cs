@@ -3,11 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Transactions;
 
 namespace Map.Blueprint
 {
     public abstract class ValidatableBlueprint
     {
+        private SortedList<EdgeId, int> canalDepths;
+        private Queue<Edge> canalQueue;
+
         protected abstract IEnumerable<Edge> EnumerateEdges();
         protected abstract IEnumerable<Structure> EnumerateStructures();
 
@@ -39,52 +43,96 @@ namespace Map.Blueprint
 
         public void Validate()
         {
+            canalDepths = new();
+            canalQueue = new();
+
             foreach (var edge in EnumerateEdges()) SetValid(edge, false, 0);
             foreach (var structure in EnumerateStructures()) SetValid(structure, false, 0);
 
             foreach (var edge in EnumerateEdges()) ValidateEdge(edge);
+            ValidateCanals();
             foreach (var structure in EnumerateStructures()) ValidateStructure(structure);
         }
 
-        public bool ValidateEdge(Edge edge)
+        public void ValidateEdge(Edge edge)
         {
-            if(IsValid(edge)) return true;
+            if(IsValid(edge)) return;
 
             switch(BlueprintedEdgeType(edge))
             {
                 case Edge.EdgeType.Road:
-                    if(edge.Type != Edge.EdgeType.None) return false;
+                    if(edge.Type != Edge.EdgeType.None) return;
                     if(edge.StartTile.CanBuild(out float factor1) && edge.EndTile.CanBuild(out float factor2))
                     {
                         var factor = (factor1 + factor2) / 2;
                         SetValid(edge, true, (int)Math.Round(factor * Constants.ROAD_BUILD_COST));
-                        return true;
                     }
-                    return false;
+                    return;
                 case Edge.EdgeType.Canal:
-                    return ValidateCanalRecursive(edge);
+                    ValidateCanalCandidate(edge);
+                    return;
             }
-            return false;
         }
 
-        private bool ValidateCanalRecursive(Edge edge)
+        private void ValidateCanals()
         {
-            if(BlueprintedEdgeType(edge) != Edge.EdgeType.Canal) return false;
+            while(canalQueue.Count > 0)
+            {
+                var edge = canalQueue.Dequeue();
+                var nextDepth = canalDepths[edge.Id] + 1;
+
+                foreach(var e in edge.StartTile.Edges.Concat(edge.EndTile.Edges))
+                {
+                    bool isContained = canalDepths.ContainsKey(e.Id);
+                    if ((isContained && (canalDepths[e.Id] > nextDepth || canalDepths[e.Id] == -1)) || (!isContained && e.Type == Edge.EdgeType.Canal))
+                    {
+                        canalDepths[e.Id] = nextDepth;
+                        canalQueue.Enqueue(e);
+                    }
+                }
+            }
+
+            foreach(var edge in EnumerateEdges())
+            {
+                if(canalDepths.ContainsKey(edge.Id))
+                {
+                    var depth = canalDepths[edge.Id];
+
+                    if(depth != -1)
+                    {
+                        SetValid(edge, true, depth);
+                    }
+                }
+            }
+        }
+
+        private void ValidateCanalCandidate(Edge edge)
+        {
+            if(BlueprintedEdgeType(edge) != Edge.EdgeType.Canal) return;
 
             if(edge.Type != Edge.EdgeType.None || edge.StartTile.Structure != null || edge.EndTile.Structure != null) 
-                return false;
+                return;
 
 
-            bool startCanBuild = edge.StartTile.CanBuild(out float factor1) || edge.StartTile.Type == Tile.TileType.Water;
-            bool endCanBuild = edge.EndTile.CanBuild(out float factor2) || edge.EndTile.Type == Tile.TileType.Water;
+            bool startCanBuild = edge.StartTile.CanBuild(out _) || edge.StartTile.Type == Tile.TileType.Water;
+            bool endCanBuild = edge.EndTile.CanBuild(out _) || edge.EndTile.Type == Tile.TileType.Water;
+
+            bool startIsWater = edge.StartTile.Type == Tile.TileType.Water;
+            bool endIsWater = edge.EndTile.Type == Tile.TileType.Water;
 
 
-            if(!(startCanBuild && endCanBuild)) return false;
+            if (!((startCanBuild && endCanBuild) || (startCanBuild && endIsWater) || (startIsWater && endCanBuild))) return;
 
-            float factor = (factor1 + factor2) / 2;
+            //float factor = (factor1 + factor2) / 2;
 
-            SetValid(edge, true, (int)Math.Round(factor * Constants.BASE_CANAL_BUILD_COST));
-            return true;
+
+            if (startIsWater || endIsWater)
+            {
+                canalQueue.Enqueue(edge);
+                canalDepths.Add(edge.Id, 0);
+            }
+            else
+                canalDepths.Add(edge.Id, -1);
         }
 
         public bool ValidateStructure(Structure structure)
