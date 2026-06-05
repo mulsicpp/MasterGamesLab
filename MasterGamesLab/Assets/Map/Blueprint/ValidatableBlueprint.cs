@@ -100,7 +100,10 @@ namespace Map.Blueprint
 
                     if(depth != -1)
                     {
-                        SetValid(edge, true, depth);
+                        edge.StartTile.CanBuild(out float factor1);
+                        edge.EndTile.CanBuild(out float factor2);
+                        var factor = (factor1 + factor2) / 2;
+                        SetValid(edge, true, (int)Math.Round(factor * (depth + 1) * Constants.BASE_CANAL_BUILD_COST));
                     }
                 }
             }
@@ -170,7 +173,7 @@ namespace Map.Blueprint
 
                     if (tile.CountEdgesWith(edge => !(ConfirmedEdgeType(edge) is Edge.EdgeType.None or Edge.EdgeType.Road)) > 0) return false;
 
-                    SetValid(structure, true, (int)(factor * Constants.PORT_BUILD_COST));
+                    SetValid(structure, true, (int)Math.Round(factor * Constants.PORT_BUILD_COST));
                     return true;
             }
             return false;
