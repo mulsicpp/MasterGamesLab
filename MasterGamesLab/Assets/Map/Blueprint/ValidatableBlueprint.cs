@@ -15,10 +15,10 @@ namespace Map.Blueprint
         protected abstract IEnumerable<Edge> EnumerateEdges();
         protected abstract IEnumerable<Structure> EnumerateStructures();
 
-        protected abstract void SetValid(Edge edge, bool valid, int cost = 0);
-        protected abstract bool IsValid(Edge edge);
-        protected abstract int Cost(Edge edge);
-        protected abstract Edge.EdgeType BlueprintedEdgeType(Edge edge);
+        protected abstract void SetValid(Edge edge, bool valid, int cost);
+        public abstract bool IsValid(Edge edge);
+        public abstract int Cost(Edge edge);
+        public abstract Edge.EdgeType BlueprintedEdgeType(Edge edge);
 
         protected Edge.EdgeType ConfirmedEdgeType(Edge edge)
         {
@@ -29,15 +29,16 @@ namespace Map.Blueprint
         }
 
         protected abstract void SetValid(Structure structure, bool valid, int cost);
-        protected abstract bool IsValid(Structure structure);
-        protected abstract int Cost(Structure structure);
-        protected abstract Structure BlueprintedStructure(Tile tile);
+        public abstract bool IsValid(Structure structure);
+        public abstract int Cost(Structure structure);
+        public abstract StructureId BlueprintedStructure(Tile tile);
+        public abstract Tile BlueprintedStructureTile(Structure structure);
 
-        protected Structure ConfirmedStructure(Tile tile)
+        protected StructureId ConfirmedStructure(Tile tile)
         {
-            if (tile.Structure != null) return tile.Structure;
-            if (IsValid(BlueprintedStructure(tile))) return BlueprintedStructure(tile);
-            return null;
+            if (tile.Structure != null) return tile.Structure.Id;
+            if (IsValid(Map.Instance.Infrastructure[BlueprintedStructure(tile)])) return BlueprintedStructure(tile);
+            return StructureId.NONE;
 
         }
 
@@ -143,10 +144,8 @@ namespace Map.Blueprint
             switch (structure.Type)
             {
                 case Structure.StructureType.Port:
-                    if (structure.Tile != null || structure.BlueprintTile?.BlueprintStructure != structure) return false;
-
-                    Tile tile = structure.BlueprintTile;
-                    if (tile.Structure != null) return false;
+                    Tile tile = BlueprintedStructureTile(structure);
+                    if (structure.Tile != null || ConfirmedStructure(tile) != StructureId.NONE) return false;
 
                     float factor;
                     if(!tile.CanBuild(out factor)) return false;

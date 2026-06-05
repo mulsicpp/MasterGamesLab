@@ -34,8 +34,9 @@ namespace Map.Infrastructure
         }
 
         public abstract StructureType Type { get; }
-
         public readonly StructureIndex Index;
+
+        public StructureId Id => new StructureId(Type, Index);
 
         public new Timestamp Timestamp => base.Timestamp;
 

@@ -76,6 +76,8 @@ namespace Map.Fleet
         public abstract VehicleType Type { get; }
         public readonly VehicleIndex Index;
 
+        public VehicleId Id => new VehicleId(Type, Index);
+
         public abstract PlayerId Owner { get; }
 
         private bool exists;

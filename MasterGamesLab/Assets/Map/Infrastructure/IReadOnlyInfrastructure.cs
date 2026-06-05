@@ -11,6 +11,9 @@ namespace Map.Infrastructure
         public IReadOnlyList<Port> Ports { get; }
         // public IReadOnlyList<TrainStation> TrainStations { get; }
 
+        public Structure this[StructureId id] { get; }
+        public IReadOnlyList<Structure> this[Structure.StructureType type] { get; }
+
         public Structure GetFirstWith(Structure.StructureType type, Predicate<Structure> condition = null);
 
         public bool SpawnLocal<T>(T state, PlayerId owner) where T : struct, Structure.IStructureState;

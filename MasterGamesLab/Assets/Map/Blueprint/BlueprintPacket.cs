@@ -4,57 +4,56 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Unity.Netcode;
 
-namespace Blueprint
+namespace Map.Blueprint
 {
     public class BlueprintPacket
     {
+        public struct EdgeData : INetworkSerializeByMemcpy
+        {
+            public EdgeId EdgeId;
+            public Edge.EdgeType Type;
+        }
+
         public struct StructureData : INetworkSerializeByMemcpy
         {
             public TileId TileId;
-            public StructureIndex StructureIndex;
+            public StructureId StructureId;
         }
 
         private int nettoSize;
         public int NettoSize => nettoSize;
 
-        private List<EdgeId> roadEdgeIds;
-        public IReadOnlyList<EdgeId> RoadEdgeIds => roadEdgeIds;
+        private List<EdgeData> edges;
+        public IReadOnlyList<EdgeData> Edges => edges;
 
-        private List<EdgeId> canalEdgeIds;
-        public IReadOnlyList<EdgeId> CanalEdgeIds => canalEdgeIds;
-
-        private List<StructureData> ports;
-        public IReadOnlyList<StructureData> Ports => ports;
+        private List<StructureData> structures;
+        public IReadOnlyList<StructureData> Structures => structures;
 
         public BlueprintPacket()
         {
-            roadEdgeIds = new();
-            canalEdgeIds = new();
-            ports = new();
+            edges = new();
+            structures = new();
             nettoSize = 0;
         }
 
-        public BlueprintPacket(EdgeId[] roads, EdgeId[] canals, StructureData[] ports)
+        public BlueprintPacket(EdgeData[] edges,  StructureData[] structures)
         {
-            roadEdgeIds = new(roads);
-            canalEdgeIds = new(canals);
-            this.ports = new(ports);
-            nettoSize = Marshal.SizeOf<EdgeId>() * (roads.Length + canals.Length) + Marshal.SizeOf<EdgeId>() * ports.Length;
+            this.edges = new(edges);
+            this.structures = new(structures);
+            nettoSize = Marshal.SizeOf<EdgeData>() * edges.Length + Marshal.SizeOf<StructureData>() * structures.Length;
         }
 
         public void Clear()
         {
-            roadEdgeIds.Clear();
-            canalEdgeIds.Clear();
-            ports.Clear();
+            edges.Clear();
+            structures.Clear();
             nettoSize = 0;
         }
 
         public void Append(BlueprintPacket packet)
         {
-            roadEdgeIds.AddRange(packet.roadEdgeIds);
-            canalEdgeIds.AddRange(packet.canalEdgeIds);
-            ports.AddRange(packet.ports);
+            edges.AddRange(packet.edges);
+            structures.AddRange(packet.structures);
 
             nettoSize += packet.nettoSize;
         }
@@ -72,11 +71,13 @@ namespace Blueprint
 
             switch(edge.BlueprintType)
             {
-                case Edge.EdgeType.Road: roadEdgeIds.Add(edge.Id); break;
-                case Edge.EdgeType.Canal: canalEdgeIds.Add(edge.Id); break;
+                case Edge.EdgeType.Road:
+                case Edge.EdgeType.Canal:
+                    edges.Add(new EdgeData { EdgeId = edge.Id, Type = edge.BlueprintType });
+                    break;
                 default: return currentPacket;
             }
-            nettoSize += Marshal.SizeOf<EdgeId>();
+            nettoSize += Marshal.SizeOf<EdgeData>();
             return currentPacket;
         }
 
@@ -93,7 +94,7 @@ namespace Blueprint
         
             switch (structure.Type)
             {
-                case Structure.StructureType.Port: ports.Add(new StructureData { StructureIndex = structure.Index, TileId = structure.BlueprintTile.Id }); break;
+                case Structure.StructureType.Port: structures.Add(new StructureData { StructureId = structure.Id, TileId = structure.BlueprintTile.Id }); break;
                 default: return currentPacket;
             }
             nettoSize += Marshal.SizeOf<StructureData>();
@@ -102,7 +103,7 @@ namespace Blueprint
 
         public void Send(bool hasNext)
         {
-            Map.Map.Instance.SendBlueprintPacketServerRpc(roadEdgeIds.ToArray(), canalEdgeIds.ToArray(), ports.ToArray(), hasNext);
+            Map.Instance.SendBlueprintPacketServerRpc(edges.ToArray(), structures.ToArray(), hasNext);
         }
     } 
 }
