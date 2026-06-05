@@ -20,8 +20,18 @@ namespace Map.GeometryGeneration.Edges
         }
 
         public static Edge.PartialEdgeGeometry GenerateEdgeGeometry(Tile tile, Edge edge, TileInformation info, bool
-            blueprint) =>
-            info.AmountOfRoads <= 2 ? BuildParametricCurve(tile, edge, blueprint) : BuildBackup(tile, edge);
+            blueprint)
+        {
+            if ((!blueprint && edge.Type == Edge.EdgeType.Road) ||
+                (blueprint && edge.BlueprintType == Edge.EdgeType.Road))
+            {
+                return info.AmountOfRoads <= 2
+                    ? BuildParametricCurve(tile, edge, blueprint)
+                    : BuildConnectingParametricCurves(tile, edge, blueprint);
+            }
+
+            return BuildBackup(tile, edge);
+        }
 
         public static Edge.PartialEdgeGeometry BuildParametricCurve(Tile tile, Edge edge, bool blueprint)
         {
@@ -30,14 +40,8 @@ namespace Map.GeometryGeneration.Edges
             var uv1 = new List<Vector4>();
             var data = edge.GetEdgeData();
 
-            var p0 = Vector3.zero;
-            var p3 = Vector3.zero;
-            var dir0 = Vector3.zero;
-            var dir3 = Vector3.zero;
-            var startNormal = Vector3.zero;
-            var endNormal = Vector3.zero;
-
             var otherFound = false;
+            Edge other = null;
             foreach (var e in tile.Edges)
             {
                 if (!((blueprint && e.BlueprintType == edge.BlueprintType) ||
@@ -46,79 +50,27 @@ namespace Map.GeometryGeneration.Edges
                     continue;
                 }
 
-                if (e.Id == edge.Id)
+                if (e.Id != edge.Id)
                 {
-                    p0 = (e.VertexA + e.VertexB) / 2f;
-                    dir0 = Vector3.Cross(e.VertexA, e.VertexB).normalized;
-                    startNormal = (e.VertexA - e.VertexB).normalized;
-                }
-                else
-                {
-                    p3 = (e.VertexA + e.VertexB) / 2f;
-                    dir3 = Vector3.Cross(e.VertexA, e.VertexB).normalized;
-                    endNormal = (e.VertexA - e.VertexB).normalized;
+                    other = e;
                     otherFound = true;
                 }
             }
 
-            if (!otherFound)
-            {
-                p3 = tile.PositionOnSphere;
-                dir3 = -dir0;
-                endNormal = startNormal;
-            }
-            else
-            {
-                // Ensure tangents point towards each other (inwards to the tile)
-                if (Vector3.Dot(dir0, p3 - p0) < 0) dir0 = -dir0;
-                if (Vector3.Dot(dir3, p0 - p3) < 0) dir3 = -dir3;
-            }
-
-
-            switch (tile.Type)
-            {
-                case Tile.TileType.Water:
-                    p0 = p0.normalized * (TileGeometryFactory.WATER_HEIGHT + Map.Instance.TEST_ROAD_HEIGHT);
-                    p3 = p3.normalized * (TileGeometryFactory.WATER_HEIGHT + Map.Instance.TEST_ROAD_HEIGHT);
-                    break;
-                case Tile.TileType.Plain:
-                case Tile.TileType.Forest:
-                    p0 = p0.normalized * (TileGeometryFactory.LAND_HEIGHT + Map.Instance.TEST_ROAD_HEIGHT);
-                    p3 = p3.normalized * (TileGeometryFactory.LAND_HEIGHT + Map.Instance.TEST_ROAD_HEIGHT);
-                    break;
-                case Tile.TileType.Mountain:
-                default:
-                    break;
-            }
-
-            var p1 = p0 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * dir0;
-            var p2 = p3 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * dir3;
-
-            // Split the curve into two parts
-            var p01 = Vector3.Lerp(p0, p1, 0.5f);
-            var p12 = Vector3.Lerp(p1, p2, 0.5f);
-            var p23 = Vector3.Lerp(p2, p3, 0.5f);
-            var p012 = Vector3.Lerp(p01, p12, 0.5f);
-            var p123 = Vector3.Lerp(p12, p23, 0.5f);
-            var p0123 = Vector3.Lerp(p012, p123, 0.5f);
-
             var curve = otherFound
-                ? ParametricCurve.FromBezierPoints(p0, p01, p012, p0123)
-                : ParametricCurve.FromBezierPoints(p0, p1, p2, p3);
-            var centerNormal = (startNormal + endNormal) * 0.5f;
+                ? ParametricCurve.FromEdgeToEdge(edge, other, tile)
+                : ParametricCurve.FromEdgeToTileCenter(edge, tile);
+
+            var factor = otherFound ? 0.5f : 1f;
 
             for (var i = 0; i < EDGE_RESOLUTION; i++)
             {
-                var t = (float)i / (EDGE_RESOLUTION - 1);
-                var p = curve.Evaluate(t);
-                var vel = curve.Derivative(t).normalized;
-                // var referenceNormal = Vector3.Lerp(startNormal, centerNormal, t);
-                // var normal = Vector3.ProjectOnPlane(referenceNormal, vel).normalized;
-                var normal = p.normalized;
-                var binormal = Vector3.Cross(vel, normal).normalized;
+                var t = (float)i / (EDGE_RESOLUTION - 1) * factor;
 
-                var leftPoint = p - binormal * ROAD_RADIUS;
-                var rightPoint = p + binormal * ROAD_RADIUS;
+                var (p, normal) = GetPosAndNormal(curve, t);
+
+                var leftPoint = p - normal * ROAD_RADIUS;
+                var rightPoint = p + normal * ROAD_RADIUS;
 
                 vertices.Add(leftPoint);
                 vertices.Add(rightPoint);
@@ -147,6 +99,130 @@ namespace Map.GeometryGeneration.Edges
                 UV1 = uv1,
                 Triangles = triangles
             };
+        }
+
+        public static Edge.PartialEdgeGeometry BuildConnectingParametricCurves(Tile tile, Edge edge, bool blueprint)
+        {
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            var uv1 = new List<Vector4>();
+            var data = edge.GetEdgeData();
+
+            var validEdges = new List<Edge>(6);
+            var selfIdx = -1;
+            foreach (var e in tile.Edges)
+            {
+                if (!((blueprint && e.BlueprintType == edge.BlueprintType) ||
+                      (!blueprint && e.Type == edge.Type)))
+                {
+                    continue;
+                }
+
+                if (e.Id == edge.Id)
+                {
+                    selfIdx = validEdges.Count;
+                }
+
+                validEdges.Add(e);
+            }
+
+            Vector3 center;
+            if (blueprint && tile.EdgesCenterBlueprint != Vector3.zero)
+            {
+                center = tile.EdgesCenterBlueprint;
+            }
+            else if (!blueprint && tile.EdgesCenter != Vector3.zero)
+            {
+                center = tile.EdgesCenter;
+            }
+            else
+            {
+                center = Vector3.zero;
+                var numAdded = 0;
+                for (var i = 0; i < validEdges.Count; i++)
+                {
+                    for (var j = i + 1; j < validEdges.Count; j++)
+                    {
+                        var e1 = validEdges[i];
+                        var e2 = validEdges[j];
+                        var curve = ParametricCurve.FromEdgeToEdge(e1, e2, tile);
+                        var t = curve.Evaluate(0.5f);
+                        center += t;
+                        numAdded++;
+                    }
+                }
+
+                center /= numAdded;
+
+                if (blueprint)
+                {
+                    tile.EdgesCenterBlueprint = center;
+                }
+                else
+                {
+                    tile.EdgesCenter = center;
+                }
+            }
+
+            var nextIdx = (selfIdx + 1) % validEdges.Count;
+            var prevIdx = (selfIdx - 1 + validEdges.Count) % validEdges.Count;
+            var curveToPrevious = ParametricCurve.FromEdgeToEdge(edge, validEdges[prevIdx], tile);
+            var curveToNext = ParametricCurve.FromEdgeToEdge(edge, validEdges[nextIdx], tile);
+
+            for (var i = 0; i < EDGE_RESOLUTION; i++)
+            {
+                var t = (float)i / (EDGE_RESOLUTION - 1) * 0.5f;
+
+                var (pToPrev, normalToPrev) = GetPosAndNormal(curveToPrevious, t);
+                var (pToNext, normalToNext) = GetPosAndNormal(curveToNext, t);
+
+
+                var leftPoint = pToPrev - normalToPrev * ROAD_RADIUS;
+                var rightPoint = pToNext + normalToNext * ROAD_RADIUS;
+
+                vertices.Add(leftPoint);
+                vertices.Add(rightPoint);
+
+                uv1.Add(data);
+                uv1.Add(data);
+
+                if (i == 0)
+                {
+                    continue;
+                }
+
+                var i2 = i * 2;
+                triangles.Add(i2 - 2);
+                triangles.Add(i2 - 1);
+                triangles.Add(i2);
+
+                triangles.Add(i2 - 1);
+                triangles.Add(i2 + 1);
+                triangles.Add(i2);
+            }
+
+            vertices.Add(center);
+            uv1.Add(data);
+            triangles.Add(vertices.Count - 2);
+            triangles.Add(vertices.Count - 1);
+            triangles.Add(vertices.Count - 3);
+
+            return new Edge.PartialEdgeGeometry
+            {
+                Vertices = vertices,
+                UV1 = uv1,
+                Triangles = triangles
+            };
+        }
+
+        public static (Vector3, Vector3) GetPosAndNormal(ParametricCurve curve, float t)
+        {
+            var p = curve.Evaluate(t);
+            var vel = curve.Derivative(t).normalized;
+            var normal = p.normalized;
+            var binormal = Vector3.Cross(vel, normal).normalized;
+
+            return (p, binormal);
         }
 
         public static Edge.PartialEdgeGeometry BuildBackup(Tile tile, Edge edge)

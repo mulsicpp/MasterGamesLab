@@ -410,6 +410,7 @@ namespace Map
 
             foreach (var t in tiles) t.ClearEdges();
             foreach (var t in tiles) t.InitializeEdges(tempEdges);
+            foreach (var t in tiles) t.SortEdges();
 
             Debug.Log("Initialized " + tempEdges.Count + " edges");
 

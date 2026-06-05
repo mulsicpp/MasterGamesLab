@@ -98,7 +98,20 @@ namespace Map
         public readonly float RandomValue;
         public readonly List<NeighborTile> NeighborTiles;
 
-        public bool GeometryChanged;
+        public bool GeometryChanged
+        {
+            get => geometryChanged;
+            set
+            {
+                geometryChanged = value;
+                EdgesCenter = Vector3.zero;
+                EdgesCenterBlueprint = Vector3.zero;
+            }
+        }
+
+        private bool geometryChanged;
+        public Vector3 EdgesCenter;
+        public Vector3 EdgesCenterBlueprint;
 
         // public bool EdgeDirty;
         public bool StructureDirty;
@@ -162,17 +175,7 @@ namespace Map
             }
 
             // Sort the neighbors so that they are in the correct order for the tile faces
-            var normal = Position.normalized;
-            var tangent = Vector3.Cross(normal, Vector3.up);
-            if (tangent.magnitude < 0.001f)
-            {
-                tangent = Vector3.Cross(normal, Vector3.right);
-            }
-
-            tangent.Normalize();
-            var bitangent = Vector3.Cross(normal, tangent);
-
-            neighborTriangles.Sort((a, b) => Comparison(a.Center, b.Center));
+            SortList(neighborTriangles, t => t.Center);
 
             neighbors.Clear();
             NeighborTiles.Clear();
@@ -211,17 +214,6 @@ namespace Map
             }
 
             neighborTriangles = null;
-
-            return;
-
-            int Comparison(Vector3 a, Vector3 b)
-            {
-                var vA = a - Position;
-                var angleA = Mathf.Atan2(Vector3.Dot(vA, bitangent), Vector3.Dot(vA, tangent));
-                var vB = b - Position;
-                var angleB = Mathf.Atan2(Vector3.Dot(vB, bitangent), Vector3.Dot(vB, tangent));
-                return angleA.CompareTo(angleB);
-            }
         }
 
         public void ClearEdges()
@@ -248,6 +240,9 @@ namespace Map
             }
         }
 
+
+        public void SortEdges() => SortList(edges, e => (e.VertexA + e.VertexB) / 2f);
+
         public int CountEdgesWith(Predicate<Edge> condition)
         {
             var count = 0;
@@ -265,8 +260,7 @@ namespace Map
         public Edge FindEdgeTo(ITile other)
             => edges.FirstOrDefault(edge =>
                 (edge.StartTile == this && edge.EndTile == other) || (edge.StartTile == other && edge.EndTile == this));
-
-
+        
         public bool CanSpawnStructure(Structure.StructureType type)
         {
             if (Structure != null) return false;
@@ -296,7 +290,6 @@ namespace Map
             };
         }
 
-
         public bool CanBuild(out float costFactor)
         {
             costFactor = 0f;
@@ -311,7 +304,6 @@ namespace Map
                 default: return false;
             }
         }
-
 
         public void BuildFaces(MapChunk.ChunkGeometry cg)
         {
@@ -409,6 +401,31 @@ namespace Map
         {
             //return new Vector4(Id + Map.ID_OFFSET, randomValue, active ? 1 : 0, 0);
             return new Vector4(Id + Map.ID_OFFSET, (float)Type, active ? 1 : 0, RandomValue);
+        }
+
+        private void SortList<T>(List<T> listToSort, Func<T, Vector3> toVector3)
+        {
+            var normal = Position.normalized;
+            var tangent = Vector3.Cross(normal, Vector3.up);
+            if (tangent.magnitude < 0.001f)
+            {
+                tangent = Vector3.Cross(normal, Vector3.right);
+            }
+
+            tangent.Normalize();
+            var bitangent = Vector3.Cross(normal, tangent);
+
+            listToSort.Sort((a, b) => Comparison(toVector3(a), toVector3(b)));
+            return;
+
+            int Comparison(Vector3 a, Vector3 b)
+            {
+                var vA = a - Position;
+                var angleA = Mathf.Atan2(Vector3.Dot(vA, bitangent), Vector3.Dot(vA, tangent));
+                var vB = b - Position;
+                var angleB = Mathf.Atan2(Vector3.Dot(vB, bitangent), Vector3.Dot(vB, tangent));
+                return angleA.CompareTo(angleB);
+            }
         }
     }
 }
