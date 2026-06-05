@@ -21,7 +21,7 @@ Shader "Hidden/OutlineDataShader"
             {
                 "LightMode" = "UniversalForward"
             }
-            /*Cull Off*/
+            Cull Off
 
             HLSLPROGRAM
             #pragma vertex vert
