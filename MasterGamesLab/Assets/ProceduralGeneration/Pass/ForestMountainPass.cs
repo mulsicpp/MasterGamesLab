@@ -90,7 +90,7 @@ public class ForestMountainPass : IGenerationPass
         bool tooThick = true;
         int safetyCounter = 0;
 
-        while (tooThick && safetyCounter < 50) 
+        while (tooThick && safetyCounter < 100) 
         {
             tooThick = false;
             var edgeTilesToRemove = new HashSet<ITile>();
