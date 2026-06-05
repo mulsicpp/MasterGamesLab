@@ -1,4 +1,3 @@
-using Blueprint;
 using Map.Fleet;
 using Map.Infrastructure;
 using System.Collections.Generic;
@@ -241,9 +240,9 @@ namespace Map.Blueprint
             edge.BlueprintCost = cost;
         }
 
-        protected override bool IsValid(Edge edge) => edge.BlueprintIsValid;
-        protected override int Cost(Edge edge) => edge.BlueprintCost;
-        protected override Edge.EdgeType BlueprintedEdgeType(Edge edge) => !edge.BlueprintPreview ? edge.BlueprintType : Edge.EdgeType.None;
+        public override bool IsValid(Edge edge) => edge.BlueprintIsValid;
+        public override int Cost(Edge edge) => edge.BlueprintCost;
+        public override Edge.EdgeType BlueprintedEdgeType(Edge edge) => !edge.BlueprintPreview ? edge.BlueprintType : Edge.EdgeType.None;
 
 
         protected override void SetValid(Structure structure, bool valid, int cost)
@@ -252,8 +251,9 @@ namespace Map.Blueprint
             structure.BlueprintCost = cost;
         }
 
-        protected override bool IsValid(Structure structure) => structure.BlueprintIsValid;
-        protected override int Cost(Structure structure) => structure.BlueprintCost;
-        protected override Structure BlueprintedStructure(Tile tile) => (!tile.BlueprintStructure?.BlueprintPreview ?? false) ? tile.BlueprintStructure : null;
+        public override bool IsValid(Structure structure) => structure.BlueprintIsValid;
+        public override int Cost(Structure structure) => structure.BlueprintCost;
+        public override StructureId BlueprintedStructure(Tile tile) => (!tile.BlueprintStructure?.BlueprintPreview ?? false) ? tile.BlueprintStructure.Id : StructureId.NONE;
+        public override Tile BlueprintedStructureTile(Structure structure) => structure.BlueprintTile;
     }
 }

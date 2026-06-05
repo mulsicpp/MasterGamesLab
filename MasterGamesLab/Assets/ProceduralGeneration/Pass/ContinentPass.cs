@@ -9,6 +9,8 @@ public class ContinentPass : IGenerationPass
     //public float totalLandPercentage = 0.35f;
     public float totalLandPercentage = 0.45f;
 
+    public int minContinentDistance = 3;
+
     //for main continent body
     //public float noiseScale = 1.5f;
     public float mainNoiseScale = 1.2f;
@@ -135,28 +137,33 @@ public class ContinentPass : IGenerationPass
             {
                 if (neighbor.Type == Tile.TileType.Water)
                 {
-                    var touchesOtherContinent = false;
-                    foreach (var nextDoorNeighbor in neighbor.Neighbors)
+                    //var touchesOtherContinent = false;
+                    //foreach (var nextDoorNeighbor in neighbor.Neighbors)
+                    //{
+                    //    if (nextDoorNeighbor.Type != Tile.TileType.Water &&
+                    //        nextDoorNeighbor.ContinentId != -1 &&
+                    //        nextDoorNeighbor.ContinentId != continentId)
+                    //    {
+                    //        touchesOtherContinent = true;
+                    //        break; 
+                    //    }
+                    //}
+
+                    //if (touchesOtherContinent) continue;
+
+                    //if (isMainContinent)
+                    //{
+                    //    //3 tiles distance to the other main continent
+                    //    if (IsWithinDistanceOfContinent(neighbor, otherMainContinentId, 3))
+                    //    {
+                    //        continue; 
+                    //    }
+                    //}
+                    if (IsWithinDistanceOfContinent(neighbor, continentId, minContinentDistance))
                     {
-                        if (nextDoorNeighbor.Type != Tile.TileType.Water &&
-                            nextDoorNeighbor.ContinentId != -1 &&
-                            nextDoorNeighbor.ContinentId != continentId)
-                        {
-                            touchesOtherContinent = true;
-                            break; 
-                        }
+                        continue; 
                     }
 
-                    if (touchesOtherContinent) continue;
-                    
-                    if (isMainContinent)
-                    {
-                        //3 tiles distance to the other main continent
-                        if (IsWithinDistanceOfContinent(neighbor, otherMainContinentId, 3))
-                        {
-                            continue; 
-                        }
-                    }
                     waterNeighbors.Add(neighbor);
                 }
             }
@@ -249,9 +256,15 @@ public class ContinentPass : IGenerationPass
         {
             var current = queue.Dequeue();
 
-            if (current.tile.ContinentId == targetContinentId)
+            //if (current.tile.ContinentId == targetContinentId)
+            //{
+            //    return true;
+            //}
+            if (current.tile.Type != Tile.TileType.Water &&
+                current.tile.ContinentId != -1 &&
+                current.tile.ContinentId != targetContinentId)
             {
-                return true;
+                return true; 
             }
 
             if (current.distance < maxDistance)

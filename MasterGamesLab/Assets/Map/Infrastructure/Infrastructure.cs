@@ -36,24 +36,34 @@ namespace Map.Infrastructure
             for (var i = 0; i < ports.Length; i++) ports[i] = new Port(new StructureIndex((byte)i));
         }
 
+        public Structure this[StructureId id] => this[id.Type]?[id.Index];
+
+        public IReadOnlyList<Structure> this[Structure.StructureType type]
+        {
+            get
+            {
+                return type switch
+                {
+                    Structure.StructureType.Producer => producers,
+                    Structure.StructureType.Consumer => consumers,
+                    Structure.StructureType.Garage => garages,
+                    Structure.StructureType.Port => ports,
+                    // case Structure.StructureType.TrainStation: structures = trainStations; break;
+                    _ => null
+                };
+            }
+        }
+
         public Structure GetFirstWith(Structure.StructureType type, Predicate<Structure> condition = null)
         {
             condition ??= s => !s.Exists;
 
-            Structure[] structures = type switch
-            {
-                Structure.StructureType.Producer => producers,
-                Structure.StructureType.Consumer => consumers,
-                Structure.StructureType.Garage => garages,
-                Structure.StructureType.Port => ports,
-                // case Structure.StructureType.TrainStation: structures = trainStations; break;
-                _ => null
-            };
+            var structures = this[type];
 
             Debug.Log("structures: " + structures);
             if (structures == null) return null;
 
-            for (int i = 0; i < structures.Length; i++)
+            for (int i = 0; i < structures.Count; i++)
             {
                 if (condition(structures[i]))
                     return structures[i];

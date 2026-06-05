@@ -10,7 +10,6 @@ using UnityEngine.Rendering;
 using Map.Fleet;
 using Map.Blueprint;
 using Networking;
-using Blueprint;
 using Map.Hoverables;
 using UnityEngine.InputSystem;
 
@@ -324,20 +323,26 @@ namespace Map
             infrastructure = new Infrastructure.Infrastructure();
             fleet = new Fleet.Fleet();
 
-            UpdateEntireMesh();
-
-            ITile[] playerSpawns = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
-
-            for (int i = 0; i < playerSpawns.Length; i++)
+            foreach (var chunk in chunks)
             {
-                Debug.Log(
-                    $"Player {i + 1} Spawnpoint: ID {playerSpawns[i].Id} on Continent {playerSpawns[i].ContinentId}");
-
-                // Infrastructure.SpawnLocal(new Producer.ProducerState
-                // { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
+                chunk.UpdateMesh();
             }
+            //SpawnPointGenerator.SpawnInitialStructures(this, 4);
 
-            debugSpawnPoints = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
+            //UpdateEntireMesh();
+
+            //ITile[] playerSpawns = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
+
+            //  for (int i = 0; i < playerSpawns.Length; i++)
+            //  {
+            //      Debug.Log(
+            //          $"Player {i + 1} Spawnpoint: ID {playerSpawns[i].Id} on Continent {playerSpawns[i].ContinentId}");
+
+            //      // Infrastructure.SpawnLocal(new Producer.ProducerState
+            //      // { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
+            //  }
+
+            debugSpawnPoints = SpawnPointGenerator.SpawnInitialStructures(this, 4);
 
             for (int i = 0; i < debugSpawnPoints.Length; i++)
             {
@@ -548,7 +553,7 @@ namespace Map
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void SendBlueprintPacketServerRpc(EdgeId[] roads, EdgeId[] canals, BlueprintPacket.StructureData[] ports,
+        public void SendBlueprintPacketServerRpc(BlueprintPacket.EdgeData[] edges, BlueprintPacket.StructureData[] structures,
             bool hasNext,
             RpcParams rpcParams = default)
         {
@@ -557,47 +562,49 @@ namespace Map
             Debug.Log("Received new blueprint packet from player " + playerId.Value);
             if (playerId == PlayerId.NONE) return;
 
-            storedBlueprintPackets[playerId].Append(new BlueprintPacket(roads, canals, ports));
+            storedBlueprintPackets[playerId].Append(new BlueprintPacket(edges, structures));
 
             if (!hasNext)
             {
                 var packet = storedBlueprintPackets[playerId];
                 Debug.Log("Applying blueprint from player " + playerId.Value);
+                Debug.Log("Blueprint edge count: " +  packet.Edges.Count);
+
+                var validatableBlueprint = new ServerValidatableBlueprint(packet);
+
+                validatableBlueprint.Validate();
 
                 // TODO validation
-                foreach (var edgeId in packet.RoadEdgeIds)
+                foreach (var edgeData in packet.Edges)
                 {
-                    if (edgeId < 0 || edgeId > edges.Length) continue;
-                    var edge = edges[edgeId];
+                    if (edgeData.EdgeId < 0 || edgeData.EdgeId > Edges.Count) continue;
+                    var edge = Edges[edgeData.EdgeId];
 
-                    if (edge.Type == Edge.EdgeType.None)
+                    if (edge.Type == Edge.EdgeType.None && validatableBlueprint.IsValid(edge))
                     {
                         ReliableSender.Add(new Edge.EdgeState
-                            { Id = edgeId, Type = Edge.EdgeType.Road, Owner = playerId });
+                            { Id = edgeData.EdgeId, Type = edgeData.Type, Owner = playerId });
                     }
                 }
 
-                foreach (var edgeId in packet.CanalEdgeIds)
+                foreach (var structureData in packet.Structures)
                 {
-                    if (edgeId < 0 || edgeId > edges.Length) continue;
-                    var edge = edges[edgeId];
+                    if (structureData.TileId < 0 || structureData.TileId > tiles.Count) continue;
+                    var tile = Tiles[structureData.TileId];
 
-                    if (edge.Type == Edge.EdgeType.None)
+                    var structure = Infrastructure[structureData.StructureId];
+
+                    if (tile.Structure == null && validatableBlueprint.IsValid(structure))
                     {
-                        ReliableSender.Add(new Edge.EdgeState
-                            { Id = edgeId, Type = Edge.EdgeType.Canal, Owner = playerId });
-                    }
-                }
 
-                foreach (var port in packet.Ports)
-                {
-                    if (port.TileId < 0 || port.TileId > tiles.Count) continue;
-                    var tile = tiles[port.TileId];
-
-                    if (tile.Structure == null)
-                    {
-                        ReliableSender.Add(new Port.PortState
-                            { Common = { Index = port.StructureIndex, TileId = tile.Id } });
+                        switch(structure)
+                        {
+                            case Port port:
+                                var portState = port.State;
+                                portState.Common.TileId = tile.Id;
+                                ReliableSender.Add(portState);
+                                break;
+                        }
                     }
                 }
 
@@ -609,6 +616,8 @@ namespace Map
                         TargetClientIds = new List<ulong> { rpcParams.Receive.SenderClientId },
                     }
                 };
+
+                packet.Clear();
 
                 BlueprintAcknowledgementClientRpc(responseRpcParams);
 
@@ -766,7 +775,7 @@ namespace Map
         }
 
 
-        private Vector3 GetProjectedPosition(Vector3 positionOnSphere, float heightOffsetFactor = 1.0f)
+        public Vector3 GetProjectedPosition(Vector3 positionOnSphere, float heightOffsetFactor = 1.0f)
         {
             if (oldProjectionCenter == Vector3.zero)
                 return positionOnSphere * heightOffsetFactor;

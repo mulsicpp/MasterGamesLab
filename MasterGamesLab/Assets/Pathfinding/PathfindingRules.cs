@@ -2,6 +2,10 @@ using Map;
 
 public static class PathfindingRules
 {
+    public static bool CanBecomeBlueprintType(Tile current, Tile neighbor, Edge.EdgeType type)
+    {
+        return current.FindEdgeTo(neighbor)?.CanBecomeBlueprintType(type) ?? false;
+    }
 
     /// <summary>
     /// Strict Rule: Only allow movement if an actual connected road edge exists.
@@ -20,11 +24,12 @@ public static class PathfindingRules
         return edge == null || edge.Type != Edge.EdgeType.Canal;
     }
 
-    public static bool BlockCannotBecomeBlueprintType(Tile current, Tile neighbor, Edge.EdgeType type)
+    public static bool BlockIsNotCanal(Tile current, Tile neighbor)
     {
         Edge edge = current.FindEdgeTo(neighbor);
-        return edge == null || !edge.CanBecomeBlueprintType(type);
+        return edge == null || edge.Type != Edge.EdgeType.Canal;
     }
+
 
     /// <summary>
     /// Strict Rule: Prevents vehicles from stepping into deep water zones completely.
@@ -40,6 +45,15 @@ public static class PathfindingRules
     public static bool BlockMountains(Tile current, Tile neighbor)
     {
         return neighbor.Type == Tile.TileType.Mountain;
+    }
+
+
+
+
+
+    public static void MinimizeSteps(Tile current, Tile neighbor, ref PathScore score, int slot)
+    {
+        score[slot] += 1;
     }
 
     /// <summary>

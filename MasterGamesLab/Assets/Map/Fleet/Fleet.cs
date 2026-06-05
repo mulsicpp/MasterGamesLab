@@ -28,15 +28,22 @@ namespace Map.Fleet
             Array.Copy(freighters, 0, vehicles, trucks.Length, freighters.Length);
         }
 
+        public Vehicle this[VehicleId id] => this[id.Type]?[id.Index];
+        public IReadOnlyList<Vehicle> this[Vehicle.VehicleType type]
+        {
+            get
+            {
+                return type switch {
+                    Vehicle.VehicleType.Truck => trucks,
+                    Vehicle.VehicleType.Freighter => freighters,
+                    _ => null
+                };
+            }
+        }
+
         public int GetFirstEmptyIndex(Vehicle.VehicleType type, PlayerId owner)
         {
-            Vehicle[] vehicles = null;
-
-            switch (type)
-            {
-                case Vehicle.VehicleType.Truck: vehicles = trucks; break;
-                case Vehicle.VehicleType.Freighter: vehicles = freighters; break;
-            }
+            IReadOnlyList<Vehicle> vehicles = this[type];
 
             if (vehicles == null) return -1;
 

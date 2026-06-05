@@ -92,6 +92,21 @@ public class ConstructionControls : MonoBehaviour
 
         hoveredTile = newTile;
 
+        if(Type is ConstructionType.None && Input.GetMouseButtonDown(2))
+        {
+            switch (Map.Map.Instance.CurrentlyHovered)
+            {
+                case Tile t:
+                    if (t.BlueprintStructure != null)
+                        Debug.Log("Structure cost: " + t.BlueprintStructure.BlueprintCost);
+                    break;
+                case Edge e:
+                    if (e.BlueprintType != EdgeType.None)
+                        Debug.Log("Edge cost: " + e.BlueprintCost);
+                    break;
+            }
+        }
+
         if (Type is ConstructionType.None && cancelAction.IsPressed())
         {
             switch(Map.Map.Instance.CurrentlyHovered)

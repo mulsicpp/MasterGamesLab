@@ -15,10 +15,10 @@ public class ForestMountainPass : IGenerationPass
 
     //mountain
     public float mountainNoiseScale = 1.2f;
-    public float ridgeThickness = 0.05f; //0 is thin
-    public int minMountainChainLength = 7;
-
-    public float maskThreshold = -0.5f;
+    public float ridgeThickness = 0.18f; //0 is thin
+    public int minMountainChainLength = 5;
+    public int maxMountainChainLength = 12;
+    public float maskThreshold = -0.4f;
 
     public void Execute(IMap map)
     {
@@ -67,49 +67,156 @@ public class ForestMountainPass : IGenerationPass
                 tile.Type = Tile.TileType.Plain;
             }
         }
-
-        var visitedMountains = new HashSet<ITile>();
-        var validMountainCount = 0;
-
+        //no cutting off 
+        var coastalMountains = new List<ITile>();
         foreach (var tile in map.Tiles)
         {
-            if (tile.Type == Tile.TileType.Mountain && !visitedMountains.Contains(tile))
+            if (tile.Type == Tile.TileType.Mountain)
             {
-                var currentChain = new List<ITile>();
-                var queue = new Queue<ITile>();
-
-                queue.Enqueue(tile);
-                visitedMountains.Add(tile);
-                currentChain.Add(tile);
-
-                //flood fill
-                while (queue.Count > 0)
+                foreach (var neighbor in tile.Neighbors)
                 {
-                    var current = queue.Dequeue();
-
-                    foreach (var neighbor in current.Neighbors)
+                    if (neighbor.Type == Tile.TileType.Water)
                     {
-                        if (neighbor.Type == Tile.TileType.Mountain && !visitedMountains.Contains(neighbor))
+                        coastalMountains.Add(tile);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        foreach (var m in coastalMountains) m.Type = Tile.TileType.Plain;
+        
+        //max 2 thick
+        bool tooThick = true;
+        int safetyCounter = 0;
+
+        while (tooThick && safetyCounter < 100) 
+        {
+            tooThick = false;
+            var edgeTilesToRemove = new HashSet<ITile>();
+
+            foreach (var tile in map.Tiles)
+            {
+                if (tile.Type == Tile.TileType.Mountain && !edgeTilesToRemove.Contains(tile))
+                {
+                    int mNeighbors = 0;
+                    foreach (var n in tile.Neighbors)
+                        if (n.Type == Tile.TileType.Mountain) mNeighbors++;
+
+                    //thick if 4 or more mountain neighbors
+                    if (mNeighbors >= 4)
+                    {
+                        tooThick = true;
+
+                        ITile thinnestNeighbor = null;
+                        int minN = 99;
+
+                        //find tile with least mountain neighbors
+                        foreach (var n in tile.Neighbors)
                         {
-                            visitedMountains.Add(neighbor);
-                            currentChain.Add(neighbor);
-                            queue.Enqueue(neighbor);
+                            if (n.Type == Tile.TileType.Mountain && !edgeTilesToRemove.Contains(n))
+                            {
+                                int nnCount = 0;
+                                foreach (var nn in n.Neighbors)
+                                    if (nn.Type == Tile.TileType.Mountain) nnCount++;
+
+                                if (nnCount < minN)
+                                {
+                                    minN = nnCount;
+                                    thinnestNeighbor = n;
+                                }
+                            }
+                        }
+
+                        if (thinnestNeighbor != null)
+                        {
+                            edgeTilesToRemove.Add(thinnestNeighbor);
                         }
                     }
                 }
+            }
 
-                if (currentChain.Count < minMountainChainLength)
+            //remove all marked tiles
+            foreach (var t in edgeTilesToRemove)
+            {
+                t.Type = Tile.TileType.Plain;
+            }
+            safetyCounter++;
+        }
+
+        bool chainsChanged = true;
+        int chainSafety = 0;
+        var validMountainCount = 0;
+
+        //till no range too long
+        while (chainsChanged && chainSafety < 100)
+        {
+            chainsChanged = false;
+            var visitedMountains = new HashSet<ITile>();
+            validMountainCount = 0;
+
+            foreach (var tile in map.Tiles)
+            {
+                if (tile.Type == Tile.TileType.Mountain && !visitedMountains.Contains(tile))
                 {
-                    foreach (var mTile in currentChain)
+                    var currentChain = new List<ITile>();
+                    var queue = new Queue<ITile>();
+
+                    queue.Enqueue(tile);
+                    visitedMountains.Add(tile);
+                    currentChain.Add(tile);
+
+                    //flood fill
+                    while (queue.Count > 0)
                     {
-                        mTile.Type = Tile.TileType.Plain;
+                        var current = queue.Dequeue();
+
+                        foreach (var neighbor in current.Neighbors)
+                        {
+                            if (neighbor.Type == Tile.TileType.Mountain && !visitedMountains.Contains(neighbor))
+                            {
+                                visitedMountains.Add(neighbor);
+                                currentChain.Add(neighbor);
+                                queue.Enqueue(neighbor);
+                            }
+                        }
+                    }
+
+                    if (currentChain.Count < minMountainChainLength)
+                    {
+                        foreach (var mTile in currentChain) mTile.Type = Tile.TileType.Plain;
+                        chainsChanged = true;
+                        break;
+                    }
+
+                    else if (currentChain.Count > maxMountainChainLength)
+                    {
+                        ITile breakPoint = null;
+
+                        foreach (var cTile in currentChain)
+                        {
+                            int nCount = 0;
+                            foreach (var n in cTile.Neighbors) if (n.Type == Tile.TileType.Mountain) nCount++;
+                            if (nCount == 2)
+                            {
+                                breakPoint = cTile;
+                                break;
+                            }
+                        }
+
+                        if (breakPoint == null) breakPoint = currentChain[currentChain.Count / 2];
+
+                        breakPoint.Type = Tile.TileType.Plain;
+                        chainsChanged = true;
+                        break;
+                    }
+                    else
+                    {
+                        validMountainCount += currentChain.Count;
                     }
                 }
-                else
-                {
-                    validMountainCount += currentChain.Count;
-                }
             }
+            chainSafety++;
         }
 
         var forestCount = 0;
