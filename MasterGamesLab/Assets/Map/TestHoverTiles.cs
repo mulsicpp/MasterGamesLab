@@ -25,12 +25,6 @@ namespace Map
                 switch (lastHoveredThing)
                 {
                     case ITile t:
-                        // lastActiveTile.Active = false;
-                        /*foreach (var n in t.Neighbors)
-                        {
-                            n.Active = false;
-                        }*/
-
                         break;
                     case Edge edge:
                         break;
@@ -43,13 +37,7 @@ namespace Map
             switch (tile)
             {
                 case ITile t:
-                    /*foreach (var n in t.Neighbors)
-                    {
-                        n.Active = true;
-                    }*/
-
                     tileOutliner.OutlineTile((Tile)t);
-                    tileOutliner.SetOutlineTransparentLayer();
                     tileOutliner.SetOutlineParameters(Color.black, new Color(0, 0, 0, 0), 0);
                     break;
                 case Edge e:

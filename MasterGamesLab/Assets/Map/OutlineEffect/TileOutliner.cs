@@ -1,16 +1,22 @@
 ﻿using System;
+using InGameCamera;
 using Map.GeometryGeneration;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Map.OutlineEffect
 {
     public class TileOutliner : AOutlinableObject
     {
-        private const float DELTA = 0.001f;
+        private const float MIN_DELTA = 0.0001f;
+        private const float MAX_DELTA = 0.012f;
+        private const float MIN_DIST = 2f;
+        private const float MAX_DIST = 2.6f;
 
         private void Awake()
         {
             Init();
+            SetOutlineTransparentLayer();
         }
 
         public void OutlineTile(Tile tile)
@@ -28,12 +34,17 @@ namespace Map.OutlineEffect
 
         private void BuildTileGeometry(Tile tile)
         {
+            var currentDistance = MainCamera.Instance.CurrentDistance;
+            var t = (currentDistance - MIN_DIST) / (MAX_DIST - MIN_DIST);
+            var delta = Mathf.Lerp(MIN_DELTA, MAX_DELTA, t);
+            // Debug.Log($"delta: {delta}, t: {t}");
+
             var centerHeight = tile.Type switch
             {
-                Tile.TileType.Water => tile.Chunk.Parent.Radius * (TileGeometryFactory.WATER_HEIGHT + DELTA),
-                Tile.TileType.Plain => tile.Chunk.Parent.Radius * (TileGeometryFactory.LAND_HEIGHT + DELTA),
-                Tile.TileType.Forest => tile.Chunk.Parent.Radius * (TileGeometryFactory.LAND_HEIGHT + DELTA),
-                Tile.TileType.Mountain => tile.Chunk.Parent.Radius * (TileGeometryFactory.MOUNTAIN_HEIGHT + DELTA),
+                Tile.TileType.Water => tile.Chunk.Parent.Radius * (TileGeometryFactory.WATER_HEIGHT + delta),
+                Tile.TileType.Plain => tile.Chunk.Parent.Radius * (TileGeometryFactory.LAND_HEIGHT + delta),
+                Tile.TileType.Forest => tile.Chunk.Parent.Radius * (TileGeometryFactory.LAND_HEIGHT + delta),
+                Tile.TileType.Mountain => tile.Chunk.Parent.Radius * (TileGeometryFactory.MOUNTAIN_HEIGHT + delta),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -42,7 +53,7 @@ namespace Map.OutlineEffect
                 Tile.TileType.Water => centerHeight,
                 Tile.TileType.Plain => centerHeight,
                 Tile.TileType.Forest => centerHeight,
-                Tile.TileType.Mountain => tile.Chunk.Parent.Radius * (TileGeometryFactory.LAND_HEIGHT + DELTA),
+                Tile.TileType.Mountain => tile.Chunk.Parent.Radius * (TileGeometryFactory.LAND_HEIGHT + delta),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
