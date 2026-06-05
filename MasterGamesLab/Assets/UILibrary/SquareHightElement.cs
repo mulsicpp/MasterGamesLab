@@ -2,9 +2,9 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 [UxmlElement] // Replaces the UxmlFactory class
-public partial class SquareElement : VisualElement
+public partial class SquareHightElement : VisualElement
 {
-    public SquareElement()
+    public SquareHightElement()
     {
         RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
     }

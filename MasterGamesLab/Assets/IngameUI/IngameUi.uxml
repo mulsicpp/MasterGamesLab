@@ -1,34 +1,75 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="BlueprintCount" src="project://database/Assets/IngameUI/BlueprintCount.uxml?fileID=9197481963319205126&amp;guid=8815f6fe27465df4bb0661e06bed9c0f&amp;type=3#BlueprintCount"/>
     <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
-    <ui:VisualElement name="Root" class="unity-ui-document__root" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: space-between; color: rgb(32, 32, 32); align-items: flex-start;">
-        <ResponsiveLabel name="MONEY" text="Money: 100" height-percentage="1" class="element label" style="height: 7%; -unity-text-align: upper-right; position: absolute; right: 0; margin-top: 2%; margin-right: 2%;"/>
-        <ui:GroupBox name="BuildMenu" class="element" style="width: 7%; height: 100%; margin-left: 2%; margin-top: 2%;">
-            <SquareElement class="ingame-build-button-parent element">
-                <ui:Button text="Road" name="BuildRoadButton" class="button element ingame-build-button"/>
-            </SquareElement>
-            <SquareElement class="ingame-build-button-parent element">
-                <ui:Button text="Canal" name="BuildCanalButton" class="button element ingame-build-button"/>
-            </SquareElement>
-            <SquareElement name="SquareElement" class="ingame-build-button-parent element">
-                <ui:Button text="Port" name="BuildPortButton" class="button element ingame-build-button"/>
-            </SquareElement>
-            <SquareElement class="ingame-build-button-parent element">
-                <ui:Button text="Truck" name="BuyTruckButton" class="button element ingame-build-button"/>
-            </SquareElement>
-            <SquareElement class="ingame-build-button-parent element">
-                <ui:Button text="Freighter" name="BuyFreighterButton" class="button element ingame-build-button"/>
-            </SquareElement>
-        </ui:GroupBox>
-        <ui:GroupBox name="ConfirmMenu" class="element" style="position: absolute; bottom: 0%; width: 100%; height: 5.625%; margin-bottom: 2%; margin-right: 2%; right: 0; align-items: auto; justify-content: flex-end; flex-direction: row;">
-            <SquareElement class="element" style="height: 100%; width: auto; margin-right: 2%;">
-                <ui:Button text="Confirm" name="ConfirmButton" class="element button" style="width: 100%; height: 100%;"/>
-            </SquareElement>
-            <SquareElement class="element" style="height: 100%; width: auto; margin-right: 2%;">
-                <ui:Button text="Cancel" name="CancelButton" class="element button" style="width: 100%; height: 100%;"/>
-            </SquareElement>
-            <SquareElement class="element" style="height: 100%; width: auto;">
-                <ui:Button text="hide" name="HideButton" class="element button" style="width: 100%; height: 100%;"/>
-            </SquareElement>
+    <ui:VisualElement name="Root" class="unity-ui-document__root">
+        <ResponsiveLabel name="MONEY" text="Money: 100" class="element label money-display"/>
+        <ui:GroupBox name="Row1" class="element ingam-build-menu-row"/>
+        <ui:GroupBox name="BuildMenu" class="element build-menu-sidebar" style="justify-content: flex-end; height: auto; position: absolute; right: 1%; bottom: 2%; left: auto; top: auto; width: 15%;">
+            <ui:GroupBox class="element" style="margin-bottom: 5%;">
+                <ShrinkWrapContainer name="BlueprintCountContainer" class="element container" style="flex-direction: row; flex-wrap: wrap;">
+                    <ui:VisualElement name="RoadCount" class="element countlabel" style="aspect-ratio: 2;">
+                        <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="CanalCount" class="element countlabel">
+                        <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="PortCount" class="element countlabel">
+                        <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="TruckCount" class="element countlabel" style="flex-grow: 1; aspect-ratio: 2; width: 33.33333%;">
+                        <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="FreighterCount" class="element countlabel">
+                        <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="FreighterCount" class="element countlabel"/>
+                    <ResponsiveLabel name="TotalCost" height-percentage="0.8" text="Total Cost: 500" class="element label" style="width: 100%; aspect-ratio: 6; padding-left: 3%;"/>
+                </ShrinkWrapContainer>
+            </ui:GroupBox>
+            <ShrinkWrapContainer name="Container" class="element container" style="right: 0; bottom: 0;">
+                <ui:GroupBox name="BuildButtons" class="element group-box-top" style="align-items: flex-end; flex-direction: row; align-self: flex-end; flex-grow: 0;">
+                    <ui:VisualElement name="Placeholder1" class="element ingame-construct-button-square"/>
+                    <ui:VisualElement class="element ingame-construct-button-square">
+                        <ui:Button text="" name="BuyFreighterButton" class="button element ingame-build-button">
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element" style="border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;"/>
+                        </ui:Button>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="element ingame-construct-button-square">
+                        <ui:Button text="" name="BuyTruckButton" class="button element ingame-build-button">
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                        </ui:Button>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="element ingame-construct-button-square">
+                        <ui:Button text="" name="BuildRoadButton" class="button element ingame-build-button">
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                        </ui:Button>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="element ingame-construct-button-square">
+                        <ui:Button text="" name="BuildPortButton" class="button element ingame-build-button">
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                        </ui:Button>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="element ingame-construct-button-square">
+                        <ui:Button text="" name="BuildCanalButton" class="button element ingame-build-button">
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                        </ui:Button>
+                    </ui:VisualElement>
+                </ui:GroupBox>
+                <ui:GroupBox name="Devider" class="element group-box-divider">
+                    <ui:VisualElement name="VisualElement" class="element div build-menu-divider-line"/>
+                </ui:GroupBox>
+                <ui:GroupBox class="element group-box-bottom" style="align-items: stretch; flex-grow: 0; bottom: 0; right: 0;">
+                    <ui:VisualElement class="element ingame-build-button-square">
+                        <ResponsiveButton text="" name="ConfirmButton" class="element button ingame-build-button confirm-btn"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="element ingame-build-button-square">
+                        <ResponsiveButton text="" name="CancelButton" class="element button ingame-build-button cancel-btn"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="element ingame-build-button-square" style="background-color: rgba(0, 0, 0, 0); align-self: flex-end;">
+                        <ui:Button text="hide" name="HideButton" class="element button ingame-build-button" style="position: relative;"/>
+                    </ui:VisualElement>
+                </ui:GroupBox>
+            </ShrinkWrapContainer>
         </ui:GroupBox>
     </ui:VisualElement>
 </ui:UXML>
