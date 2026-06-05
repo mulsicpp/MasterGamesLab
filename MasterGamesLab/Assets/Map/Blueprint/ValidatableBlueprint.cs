@@ -70,7 +70,7 @@ namespace Map.Blueprint
                     }
                     return;
                 case Edge.EdgeType.Canal:
-                    ValidateCanalCandidate(edge);
+                    AddAllValidCanals(edge);
                     return;
             }
         }
@@ -84,8 +84,7 @@ namespace Map.Blueprint
 
                 foreach(var e in edge.StartTile.Edges.Concat(edge.EndTile.Edges))
                 {
-                    bool isContained = canalDepths.ContainsKey(e.Id);
-                    if ((isContained && (canalDepths[e.Id] > nextDepth || canalDepths[e.Id] == -1)) || (!isContained && e.Type == Edge.EdgeType.Canal))
+                    if (canalDepths.ContainsKey(e.Id) && (canalDepths[e.Id] > nextDepth || canalDepths[e.Id] == -1))
                     {
                         canalDepths[e.Id] = nextDepth;
                         canalQueue.Enqueue(e);
@@ -107,12 +106,40 @@ namespace Map.Blueprint
             }
         }
 
-        private void ValidateCanalCandidate(Edge edge)
+        private void AddAllValidCanals(Edge edge)
         {
-            if(BlueprintedEdgeType(edge) != Edge.EdgeType.Canal) return;
+            if (canalDepths.ContainsKey(edge.Id)) return;
+
+            Queue<Edge> queue = new Queue<Edge>() {};
+            queue.Enqueue(edge);
+
+            while(queue.Count > 0)
+            {
+                Edge currentEdge = queue.Dequeue();
+
+                foreach (var neighborEdge in currentEdge.StartTile.Edges.Concat(currentEdge.EndTile.Edges))
+                {
+                    if(!canalDepths.ContainsKey(neighborEdge.Id) && (neighborEdge.Type == Edge.EdgeType.Canal || IsValidCanalCandidate(neighborEdge)))
+                    {
+                        if (neighborEdge.StartTile.Type == Tile.TileType.Water || neighborEdge.EndTile.Type == Tile.TileType.Water)
+                        {
+                            canalQueue.Enqueue(neighborEdge);
+                            canalDepths.Add(neighborEdge.Id, 0);
+                        }
+                        else
+                            canalDepths.Add(neighborEdge.Id, -1);
+                        queue.Enqueue(neighborEdge);
+                    }
+                }
+            }
+        }
+
+        private bool IsValidCanalCandidate(Edge edge)
+        {
+            if(BlueprintedEdgeType(edge) != Edge.EdgeType.Canal) return false;
 
             if(edge.Type != Edge.EdgeType.None || edge.StartTile.Structure != null || edge.EndTile.Structure != null) 
-                return;
+                return false;
 
 
             bool startCanBuild = edge.StartTile.CanBuild(out _) || edge.StartTile.Type == Tile.TileType.Water;
@@ -122,18 +149,7 @@ namespace Map.Blueprint
             bool endIsWater = edge.EndTile.Type == Tile.TileType.Water;
 
 
-            if (!((startCanBuild && endCanBuild) || (startCanBuild && endIsWater) || (startIsWater && endCanBuild))) return;
-
-            //float factor = (factor1 + factor2) / 2;
-
-
-            if (startIsWater || endIsWater)
-            {
-                canalQueue.Enqueue(edge);
-                canalDepths.Add(edge.Id, 0);
-            }
-            else
-                canalDepths.Add(edge.Id, -1);
+            return (startCanBuild && endCanBuild) || (startCanBuild && endIsWater) || (startIsWater && endCanBuild);
         }
 
         public bool ValidateStructure(Structure structure)
