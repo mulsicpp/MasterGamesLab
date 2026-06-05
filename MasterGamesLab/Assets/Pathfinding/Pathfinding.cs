@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Map;
+using Unity.VisualScripting;
 
 public static class Pathfinding
 {
@@ -31,17 +32,20 @@ public static class Pathfinding
         visitedTilesBuffer = new bool[tileCount];
     }
 
+    public static TileId[] FindPath(Tile start, Tile target, MovementProfile profile, Func<Tile, PathScore> heuristicFunction = null)
+        => FindPath(start, t => t.Id == target.Id, profile, heuristicFunction);
+
     /// <summary>
     /// Evaluates the optimal path through your tiled world based on your movement profiles.
     /// Leaving heuristicFunction null transforms this automatically into pure Dijkstra.
     /// </summary>
     public static TileId[] FindPath(
         Tile start, 
-        Tile target, 
+        Predicate<Tile> targetCondition, 
         MovementProfile profile, 
-        Func<Tile, Tile, PathScore> heuristicFunction = null)
+        Func<Tile, PathScore> heuristicFunction = null)
     {
-        if (start == null || target == null || profile == null) return null;
+        if (start == null || targetCondition == null || profile == null) return null;
 
         // Instant hard block fast-exit check
         // if (profile.IsHardBlocked != null && profile.IsHardBlocked(start, target)) return null;
@@ -63,9 +67,9 @@ public static class Pathfinding
             Tile current = tileQueue.Dequeue();
             TileId currentId = current.Id;
 
-            if (currentId == target.Id)
+            if (targetCondition(current))
             {
-                return ReconstructPathArray(startId, target.Id);
+                return ReconstructPathArray(startId, currentId);
             }
 
             PathScore currentRealCost = nodeStatesBuffer[currentId].RealCost;
@@ -100,7 +104,7 @@ public static class Pathfinding
                     
                     if (heuristicFunction != null)
                     {
-                        priorityScore += heuristicFunction(neighborTile, target);
+                        priorityScore += heuristicFunction(neighborTile);
                     }
 
                     tileQueue.Enqueue(neighborTile, priorityScore);
