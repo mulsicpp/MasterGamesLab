@@ -92,7 +92,7 @@ public class ConstructionControls : MonoBehaviour
 
         hoveredTile = newTile;
 
-        if(Type is ConstructionType.None && cancelAction.IsPressed())
+        if (Type is ConstructionType.None && cancelAction.IsPressed())
         {
             switch(Map.Map.Instance.CurrentlyHovered)
             {
@@ -106,44 +106,6 @@ public class ConstructionControls : MonoBehaviour
                     break;
             }
         }
-    }
-
-    // private bool SetPreviewEdges(Tile tile)
-    // {
-    //     if (startTile != null)
-    //     {
-    //         if (tile == null)
-    //         {
-    //             Map.Map.Instance.Blueprint.ClearPreview();
-    //             return false;
-    //         }
-    // 
-    //         var (edgeType, path) = Type switch
-    //         {
-    //             ConstructionType.Road => (Edge.EdgeType.Road, Pathfinding.FindPath(startTile, tile, MovementProfileRegistry.FindRoadBuildPath)),
-    //             ConstructionType.Canal => (Edge.EdgeType.Canal, Pathfinding.FindPath(startTile, tile, MovementProfileRegistry.FindCanalBuildPath)),
-    //             _ => (Edge.EdgeType.None, null)
-    //         };
-    // 
-    //         Map.Map.Instance.Blueprint.SetPreviewEdges(path, edgeType);
-    //         return path?.Length > 1;
-    //     }
-    // 
-    //     Map.Map.Instance.Blueprint.ClearPreview();
-    //     return true;
-    // }
-
-    private bool SetPreviewStructure(Tile tile)
-    {
-        // if (tile != null && type == ConstructionType.Port)
-        // {
-        //     if(tile.CanSpawnStructure(Structure.StructureType.Port)) {
-        //         Map.Map.Instance.Blueprint.SetPreviewStructure(tile.Id, Structure.StructureType.Port);
-        //         return true;
-        //     }
-        // }
-        Map.Map.Instance.Blueprint.ClearPreview();
-        return false;
     }
 
     private EdgeType GetEdgeType()

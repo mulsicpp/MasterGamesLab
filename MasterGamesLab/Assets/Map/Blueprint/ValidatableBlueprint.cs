@@ -55,11 +55,6 @@ namespace Map.Blueprint
                     if(edge.StartTile.CanBuild(out float factor1) && edge.EndTile.CanBuild(out float factor2))
                     {
                         var factor = (factor1 + factor2) / 2;
-                        if (factor > 1.5)
-                        {
-                            SetValid(edge, false, 0);
-                            return false;
-                        }
                         SetValid(edge, true, (int)Math.Round(factor * Constants.ROAD_BUILD_COST));
                         return true;
                     }
