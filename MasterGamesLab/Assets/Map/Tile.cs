@@ -260,7 +260,7 @@ namespace Map
         public Edge FindEdgeTo(ITile other)
             => edges.FirstOrDefault(edge =>
                 (edge.StartTile == this && edge.EndTile == other) || (edge.StartTile == other && edge.EndTile == this));
-        
+
         public bool CanSpawnStructure(Structure.StructureType type)
         {
             if (Structure != null) return false;
@@ -394,6 +394,11 @@ namespace Map
                     var eg = EdgeGeometryFactory.GenerateEdgeGeometry(this, edge);
                     edge.SetBluePrintGeometryFrom(eg, this);
                 }*/
+            }
+
+            if (Type == TileType.Forest && (infoNormal.AmountOfCanals > 0 || infoNormal.AmountOfRoads > 0))
+            {
+                Chunk.GeometryChanged = true;
             }
         }
 
