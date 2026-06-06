@@ -32,6 +32,16 @@ namespace Map.GeometryGeneration
             new Vector2(0, -128 / CosPI6) * INSET_FACTOR_TRIANGLE,
         };
 
+        private const float INSET_FACTOR_CANAL = 0.98f;
+
+        private static readonly Vector2[] CanalRectangleCoordinates =
+        {
+            new Vector2(-140, 95) * INSET_FACTOR_CANAL,
+            new Vector2(140, 95) * INSET_FACTOR_CANAL,
+            new Vector2(140, -95) * INSET_FACTOR_CANAL,
+            new Vector2(-140, -95) * INSET_FACTOR_CANAL,
+        };
+
         private static readonly Vector2 PlainColor = new(320, 1762);
         private static readonly Vector2 ForrestColor = new(763, 1762);
         private static readonly Vector2 MountainColor = new(1207, 1762);
@@ -43,7 +53,11 @@ namespace Map.GeometryGeneration
 
         private static readonly Vector2 ShoreTriangleCenter = new(128, 2048 - Diff);
 
-        private static readonly Vector2 TextureSize = new(2500, 2048);
+        private static readonly Vector2 CanalRectangleCenter = new(140, 2405);
+        private static readonly Vector2 CanalHexagonCenter = new(81.965f, 2208.708f);
+        private static readonly float CanalHexagonScale = 190f / 512f;
+
+        private static readonly Vector2 TextureSize = new(2500, 2500);
         private static readonly Vector2 InvTextureSize = new(1f / TextureSize.x, 1f / TextureSize.y);
 
         public const float WATER_HEIGHT = 0.99f;
