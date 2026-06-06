@@ -389,19 +389,19 @@ namespace Map
             GenerationSeed = seed;
         }
 
-        public void Tick()
+        public void FixedUpdate()
         {
             if (!Running) return;
 
-            uint tickRate = NetworkManager.Singleton.NetworkTickSystem.TickRate;
-            float tickDuration = 1.0f / tickRate;
-
-            Debug.Log("Map Tick");
-
             foreach (var vehicle in Fleet.Vehicles)
             {
-                vehicle.Tick(tickDuration);
+                vehicle.Tick(Time.fixedDeltaTime);
             }
+        }
+
+        public void Tick()
+        {
+            if (!Running) return;
 
             UpdateDirtyObjectsOnClient();
 
