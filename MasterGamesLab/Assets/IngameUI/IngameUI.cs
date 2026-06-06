@@ -157,7 +157,7 @@ namespace UI
 
         private void setTotalCost(int cost)
         {
-            totalCostLabel.text = "Total Cost:" + cost;
+            totalCostLabel.text = "Total Cost: " + cost;
         }
 
 
