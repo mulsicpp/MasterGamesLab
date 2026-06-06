@@ -19,7 +19,7 @@ namespace UI
         private ShrinkWrapContainer container;
         private GroupBox div;
         public const string activeClass = "ingame-build-button--active";
-        VisualElement blueprintCountContainer;
+        ShrinkWrapContainer blueprintCountContainer;
 
         private Label totalCostLabel;
 
@@ -51,7 +51,7 @@ namespace UI
             moneyLabel = root.Q<Label>("MONEY");
             container = root.Q<ShrinkWrapContainer>("Container");
             div = root.Q<GroupBox>("Devider");
-            blueprintCountContainer = root.Q<VisualElement>("BlueprintCountContainer");
+            blueprintCountContainer = root.Q<ShrinkWrapContainer>("BlueprintCountContainer");
             totalCostLabel = root.Q<Label>("TotalCost");
 
             blueprintCountContainer.style.display = DisplayStyle.None;
@@ -179,6 +179,11 @@ namespace UI
                 UpdateBlueprintCount(type, count);
             }
             setTotalCost(details.TotalCost);
+
+            blueprintCountContainer.schedule.Execute(() =>
+            {
+                blueprintCountContainer.RecalculateHeight();
+            }).ExecuteLater(1);
         }
 
         public void UpdateBlueprintCount(ConstructibleType type, int count)
