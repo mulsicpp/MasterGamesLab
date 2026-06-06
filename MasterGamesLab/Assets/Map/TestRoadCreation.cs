@@ -124,15 +124,4 @@ public class TestRoadCreation : NetworkBehaviour
             Debug.Log("Total cost: " +  details.TotalCost);
         }
     }
-
-    private void OnDrawGizmos()
-    {
-        foreach(var tileId in connectedWaterTiles)
-        {
-            var tile = (Tile)Map.Map.Instance.Tiles[tileId];
-            Gizmos.color = Color.hotPink;
-
-            Gizmos.DrawSphere(Map.Map.Instance.GetProjectedPosition(tile.PositionOnSphere, 1.01f), 0.015f);
-        }
-    }
 }

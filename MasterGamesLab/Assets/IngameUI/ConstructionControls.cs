@@ -5,6 +5,7 @@ using Map.Infrastructure;
 using UnityEngine.InputSystem;
 using static Map.Edge;
 using Map.Hoverables;
+using Map.OutlineEffect;
 
 public class ConstructionControls : MonoBehaviour
 {
@@ -18,6 +19,9 @@ public class ConstructionControls : MonoBehaviour
     private Tile hoveredTile = null;
     private bool previewIsValidOrNonExistent = true;
     [SerializeField] private ConstructionType type = ConstructionType.None;
+    [SerializeField] private GameObject tileOutlinerPrefab;
+
+    private TileOutliner tileOutliner;
 
     public ConstructionType Type
     {
@@ -52,6 +56,12 @@ public class ConstructionControls : MonoBehaviour
     { 
         leftClickAction = IngameInputs.leftClickAction;
         cancelAction = IngameInputs.cancelAction;
+
+        tileOutliner = Instantiate(tileOutlinerPrefab).GetComponent<TileOutliner>();
+        
+        var outerColor = Color.yellow;
+        outerColor.a = 0.6f;
+        tileOutliner.SetOutlineParameters(outerColor, new Color(0,0,0,0), 0);
     }
 
     public void Update()
@@ -121,6 +131,8 @@ public class ConstructionControls : MonoBehaviour
                     break;
             }
         }
+
+        tileOutliner.OutlineTile(hoveredTile);
     }
 
     private EdgeType GetEdgeType()
