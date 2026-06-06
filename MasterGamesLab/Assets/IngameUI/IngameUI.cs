@@ -18,7 +18,9 @@ namespace UI
         private ShrinkWrapContainer container;
         private GroupBox div;
         public const string activeClass = "ingame-build-button--active";
-        VisualElement blueprintCountContainer;
+        ShrinkWrapContainer blueprintCountContainer;
+
+        private Label totalCostLabel;
 
         public override MenuId Id => MenuId.Ingame;
 
@@ -48,7 +50,9 @@ namespace UI
             moneyLabel = root.Q<Label>("MONEY");
             container = root.Q<ShrinkWrapContainer>("Container");
             div = root.Q<GroupBox>("Devider");
-            blueprintCountContainer = root.Q<VisualElement>("BlueprintCountContainer");
+            blueprintCountContainer = root.Q<ShrinkWrapContainer>("BlueprintCountContainer");
+            totalCostLabel = root.Q<Label>("TotalCost");
+
             blueprintCountContainer.style.display = DisplayStyle.None;
 
 
@@ -162,6 +166,11 @@ namespace UI
                 container.AddToClassList("container-hidden");
         }
 
+        private void setTotalCost(int cost)
+        {
+            totalCostLabel.text = "Total Cost: " + cost;
+        }
+
 
         private void HandleBlueprintUpdate(Blueprint blueprint)
         {
@@ -171,7 +180,8 @@ namespace UI
                 return;
             }
             blueprintCountContainer.style.display = DisplayStyle.Flex;
-            var objectInfos = blueprint.GetDetails().ObjectInfos;
+            var details = blueprint.GetDetails();
+            var objectInfos = details.ObjectInfos;
 
             foreach (ConstructibleType type in System.Enum.GetValues(typeof(ConstructibleType)))
             {
@@ -179,6 +189,12 @@ namespace UI
 
                 UpdateBlueprintCount(type, count);
             }
+            setTotalCost(details.TotalCost);
+
+            blueprintCountContainer.schedule.Execute(() =>
+            {
+                blueprintCountContainer.RecalculateHeight();
+            }).ExecuteLater(1);
         }
 
         public void UpdateBlueprintCount(ConstructibleType type, int count)
