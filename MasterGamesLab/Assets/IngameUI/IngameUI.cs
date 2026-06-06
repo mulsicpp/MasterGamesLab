@@ -21,6 +21,8 @@ namespace UI
         public const string activeClass = "ingame-build-button--active";
         VisualElement blueprintCountContainer;
 
+        private Label totalCostLabel;
+
         public override MenuId Id => MenuId.Ingame;
 
         private void Awake()
@@ -50,6 +52,8 @@ namespace UI
             container = root.Q<ShrinkWrapContainer>("Container");
             div = root.Q<GroupBox>("Devider");
             blueprintCountContainer = root.Q<VisualElement>("BlueprintCountContainer");
+            totalCostLabel = root.Q<Label>("TotalCost");
+
             blueprintCountContainer.style.display = DisplayStyle.None;
 
 
@@ -151,6 +155,11 @@ namespace UI
                 container.AddToClassList("container-hidden");
         }
 
+        private void setTotalCost(int cost)
+        {
+            totalCostLabel.text = "Total Cost:" + cost;
+        }
+
 
         private void HandleBlueprintUpdate(Blueprint blueprint)
         {
@@ -160,7 +169,8 @@ namespace UI
                 return;
             }
             blueprintCountContainer.style.display = DisplayStyle.Flex;
-            var objectInfos = blueprint.GetDetails().ObjectInfos;
+            var details = blueprint.GetDetails();
+            var objectInfos = details.ObjectInfos;
 
             foreach (ConstructibleType type in System.Enum.GetValues(typeof(ConstructibleType)))
             {
@@ -168,6 +178,7 @@ namespace UI
 
                 UpdateBlueprintCount(type, count);
             }
+            setTotalCost(details.TotalCost);
         }
 
         public void UpdateBlueprintCount(ConstructibleType type, int count)
