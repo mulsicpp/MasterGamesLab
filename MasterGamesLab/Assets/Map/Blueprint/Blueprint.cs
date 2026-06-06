@@ -234,6 +234,15 @@ namespace Map.Blueprint
             lastPacket.Send(false);
         }
 
+        private static BlueprintDetails.ObjectInfo GetOrAdd(SortedList<ConstructibleType, BlueprintDetails.ObjectInfo> list, ConstructibleType key)
+        {
+            if(!list.ContainsKey(key))
+            {
+                list.Add(key, new());
+            }
+            return list[key];
+        }
+
         public BlueprintDetails GetDetails()
         {
             int invalidObjectCount = 0;
@@ -241,10 +250,10 @@ namespace Map.Blueprint
         
             foreach (var edge in edges)
             {
-                var objectInfo = edge.Type switch
+                var objectInfo = edge.BlueprintType switch
                 {
-                    Edge.EdgeType.Road => objectInfos[ConstructibleType.Road],
-                    Edge.EdgeType.Canal => objectInfos[ConstructibleType.Canal],
+                    Edge.EdgeType.Road => GetOrAdd(objectInfos, ConstructibleType.Road),
+                    Edge.EdgeType.Canal => GetOrAdd(objectInfos, ConstructibleType.Canal),
                     _ => null
                 };
                 if (objectInfo == null) continue;
@@ -257,7 +266,7 @@ namespace Map.Blueprint
             {
                 var objectInfo = structure.Type switch
                 {
-                    Structure.StructureType.Port => objectInfos[ConstructibleType.Port],
+                    Structure.StructureType.Port => GetOrAdd(objectInfos, ConstructibleType.Port),
                     _ => null
                 };
                 if (objectInfo == null) continue;
@@ -265,6 +274,8 @@ namespace Map.Blueprint
                 objectInfo.Cost += Cost(structure);
                 invalidObjectCount += IsValid(structure) ? 0 : 1;
             }
+
+            Debug.Log("Blueprint details info count: " + objectInfos.Count);
 
             int totalCost = 0;
             foreach (var (_, info) in objectInfos)

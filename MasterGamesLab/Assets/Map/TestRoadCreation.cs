@@ -116,6 +116,13 @@ public class TestRoadCreation : NetworkBehaviour
             Debug.Log("Finishing game");
             Map.Map.Instance.FinishGame();
         }
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            var details = Map.Map.Instance.Blueprint.GetDetails();
+
+            Debug.Log("Total cost: " +  details.TotalCost);
+        }
     }
 
     private void OnDrawGizmos()
