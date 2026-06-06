@@ -59,8 +59,7 @@ namespace Map.Infrastructure
             condition ??= s => !s.Exists;
 
             var structures = this[type];
-
-            Debug.Log("structures: " + structures);
+            
             if (structures == null) return null;
 
             for (int i = 0; i < structures.Count; i++)

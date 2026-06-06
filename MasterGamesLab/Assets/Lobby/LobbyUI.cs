@@ -104,13 +104,11 @@ namespace UI
 
         private async void OnLeavePressed()
         {
-            Debug.Log("Back button clicked. Returning to Main Menu...");
             await UIManager.Instance.LeaveLobbyAsync();
         }
 
         private void OnStartPressed()
         {
-            Debug.Log("Start Game button pressed!");
             StartCoroutine(UIManager.Instance.StartHost());
         }
 

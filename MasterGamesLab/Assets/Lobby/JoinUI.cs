@@ -75,7 +75,6 @@ namespace UI
 
         private void OnBackPressed()
         {
-            Debug.Log("Back button clicked. Returning to Main Menu...");
             UIManager.Instance.CurrentMenu = MenuId.Start;
         }
 
@@ -87,7 +86,6 @@ namespace UI
 
         private async void OnRefreshPressed()
         {
-            Debug.Log(UIManager.Instance.PublicLobbies.Count);
             refreshButton.SetEnabled(false);
             refreshButton.SetLoading(true);
             await UIManager.Instance.LoadPublicLobbiesAsync();

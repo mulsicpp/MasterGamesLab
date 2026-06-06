@@ -1,7 +1,9 @@
 using Networking;
+using System;
 using Unity.Netcode;
+using UnityEngine;
 
-namespace Map.Player
+namespace Player
 {
     public class Player : Timestamped, ISynchableObject<Player.PlayerState>
     {
@@ -15,9 +17,15 @@ namespace Map.Player
             public int SerializedSize => FastBufferWriter.GetWriteSize(this);
         }
 
-        public readonly PlayerId Id;
+        internal static PlayerId selfId = PlayerId.NONE;
+        public static PlayerId SelfId => selfId;
 
-        public new Timestamp Timestamp => base.Timestamp;
+        public static event Action<Player> OnPlayerChanged;
+
+        public readonly PlayerId Id;
+        public bool IsSelf => Id == SelfId;
+
+        public new Map.Timestamp Timestamp => base.Timestamp;
 
         private int money;
         public int Money
@@ -35,8 +43,14 @@ namespace Map.Player
         public Player(PlayerId id)
         {
             Id = id;
-            money = 0;
+            money = Constants.PLAYER_START_MONEY;
             Touch();
+        }
+
+        public override void Touch()
+        {
+            base.Touch();
+            OnPlayerChanged?.Invoke(this);
         }
 
         public void ApplyServerState(PlayerState state, double _) { State = state; ResetDirty(); }

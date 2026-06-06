@@ -64,7 +64,6 @@ namespace Map.Fleet
                     ParkedTile = null;
                     Route = null;
                 }
-                Debug.Log("tile changed to: " + (int)(value?.Index ?? -1));
                 freighter = value;
                 Touch();
             }
@@ -76,7 +75,6 @@ namespace Map.Fleet
             set { 
                 CommonState = value.Common;
                 Good = value.Good;
-                Debug.Log("Received new truck state with FreighterID: " + (int)value.FreighterIndex);
                 Freighter = value.FreighterIndex != VehicleIndex.NONE ? Map.Instance.Fleet.Freighters[value.FreighterIndex] : null;
             }
         }
@@ -100,7 +98,7 @@ namespace Map.Fleet
                 {
                     c.RequestedGood = Good.None;
                     Good = Good.None;
-                    PlayerManager.Instance.Players[Owner].Money += 10; // TODO calculate reward properly
+                    Map.Instance.Players[Owner].Money += 10; // TODO calculate reward properly
                 }
             }
 

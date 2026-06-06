@@ -8,6 +8,7 @@ using UnityEngine;
 using Networking;
 using Unity.VisualScripting;
 using IState = Networking.IState;
+using Player;
 
 namespace Map
 {

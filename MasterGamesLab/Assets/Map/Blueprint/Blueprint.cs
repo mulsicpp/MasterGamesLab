@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Player;
 
 namespace Map.Blueprint
 {
@@ -211,8 +212,6 @@ namespace Map.Blueprint
             {
                 lastPacket = lastPacket.AddEdgeToPackets(edge, packets);
             }
-
-            Debug.Log("Structure count: " + structures.Count);
             
             foreach (var structure in structures)
             {
@@ -282,8 +281,6 @@ namespace Map.Blueprint
                 objectInfo.Cost += Cost(structure);
                 invalidObjectCount += IsValid(structure) ? 0 : 1;
             }
-
-            Debug.Log("Blueprint details info count: " + objectInfos.Count);
 
             int totalCost = 0;
             foreach (var (_, info) in objectInfos)

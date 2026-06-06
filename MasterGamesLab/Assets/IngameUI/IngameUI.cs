@@ -1,7 +1,6 @@
 using Map.Blueprint;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static ConstructionControls;
 
 namespace UI
 {
@@ -63,6 +62,8 @@ namespace UI
             confirmButton.clicked += OnConfirmPressed;
             cancelButton.clicked += OnCancelPressed;
             hideButton.clicked += OnHidePressed;
+
+            Player.Player.OnPlayerChanged += ChangePlayerInfo;
         }
 
         void OnDisable()
@@ -80,9 +81,19 @@ namespace UI
             confirmButton.clicked -= OnConfirmPressed;
             cancelButton.clicked -= OnCancelPressed;
             hideButton.clicked -= OnHidePressed;
+
+            Player.Player.OnPlayerChanged -= ChangePlayerInfo;
         }
 
 
+
+        public void ChangePlayerInfo(Player.Player player)
+        {
+            if(player.IsSelf)
+            {
+                moneyLabel.text = "MONEY: " + player.Money;
+            }
+        }
 
         public void setMoney(ulong money)
         {
