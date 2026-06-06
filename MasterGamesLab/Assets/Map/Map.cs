@@ -12,6 +12,7 @@ using Map.Blueprint;
 using Networking;
 using Map.Hoverables;
 using UnityEngine.InputSystem;
+using Map.Player;
 
 namespace Map
 {
@@ -87,6 +88,8 @@ namespace Map
 
         public IHoverable CurrentlyHovered;
 
+        private Player.Player[] players;
+
         private Edge[] edges;
         private Infrastructure.Infrastructure infrastructure;
         private Fleet.Fleet fleet;
@@ -98,18 +101,20 @@ namespace Map
         {
             Instance = this;
 
-
-
             CurrentlyHovered = null;
             Debug.Log("Starting Map Generation");
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
             tiles = new List<Tile>(numPoints);
             chunks = new List<MapChunk>(chunksPoints.Count);
+
+            players = new Player.Player[0];
+
             edges = Array.Empty<Edge>();
             infrastructure = new Infrastructure.Infrastructure();
             fleet = new Fleet.Fleet();
-            ReliableSender = new Networking.ReliableSender(true);
-            UnreliableSender = new Networking.UnreliableSender();
+
+            ReliableSender = new ReliableSender(true);
+            UnreliableSender = new UnreliableSender();
 
             Blueprint = new Blueprint.Blueprint();
             storedBlueprintPackets = new BlueprintPacket[4];
@@ -384,19 +389,19 @@ namespace Map
             GenerationSeed = seed;
         }
 
-        public void Tick()
+        public void FixedUpdate()
         {
             if (!Running) return;
 
-            uint tickRate = NetworkManager.Singleton.NetworkTickSystem.TickRate;
-            float tickDuration = 1.0f / tickRate;
-
-            Debug.Log("Map Tick");
-
             foreach (var vehicle in Fleet.Vehicles)
             {
-                vehicle.Tick(tickDuration);
+                vehicle.Tick(Time.fixedDeltaTime);
             }
+        }
+
+        public void Tick()
+        {
+            if (!Running) return;
 
             UpdateDirtyObjectsOnClient();
 
