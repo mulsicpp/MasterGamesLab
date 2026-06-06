@@ -29,7 +29,7 @@ namespace Map.Blueprint
 
         public bool IsEmpty => structures.Count == 0 && edges.Count == 0;
 
-        public Action<Blueprint> OnChanged;
+        public event Action<Blueprint> OnChanged;
 
         public Blueprint()
         {
@@ -167,6 +167,7 @@ namespace Map.Blueprint
             structures.Clear();
 
             ClearPreview();
+            Validate();
         }
 
         public void ApplyPreviewEdges()
@@ -247,13 +248,20 @@ namespace Map.Blueprint
         {
             int invalidObjectCount = 0;
             var objectInfos = new SortedList<ConstructibleType, BlueprintDetails.ObjectInfo>();
+
+            var values = (ConstructibleType[])Enum.GetValues(typeof(ConstructibleType));
+
+            foreach (var value in values)
+            {
+                objectInfos.Add(value, new());
+            }
         
             foreach (var edge in edges)
             {
                 var objectInfo = edge.BlueprintType switch
                 {
-                    Edge.EdgeType.Road => GetOrAdd(objectInfos, ConstructibleType.Road),
-                    Edge.EdgeType.Canal => GetOrAdd(objectInfos, ConstructibleType.Canal),
+                    Edge.EdgeType.Road => objectInfos[ConstructibleType.Road],
+                    Edge.EdgeType.Canal => objectInfos[ConstructibleType.Canal],
                     _ => null
                 };
                 if (objectInfo == null) continue;
@@ -266,7 +274,7 @@ namespace Map.Blueprint
             {
                 var objectInfo = structure.Type switch
                 {
-                    Structure.StructureType.Port => GetOrAdd(objectInfos, ConstructibleType.Port),
+                    Structure.StructureType.Port => objectInfos[ConstructibleType.Port],
                     _ => null
                 };
                 if (objectInfo == null) continue;
