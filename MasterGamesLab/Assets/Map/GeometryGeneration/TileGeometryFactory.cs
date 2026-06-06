@@ -32,6 +32,16 @@ namespace Map.GeometryGeneration
             new Vector2(0, -128 / CosPI6) * INSET_FACTOR_TRIANGLE,
         };
 
+        private const float INSET_FACTOR_CANAL = 0.98f;
+
+        private static readonly Vector2[] CanalRectangleCoordinates =
+        {
+            new Vector2(-140, 95) * INSET_FACTOR_CANAL,
+            new Vector2(140, 95) * INSET_FACTOR_CANAL,
+            new Vector2(140, -95) * INSET_FACTOR_CANAL,
+            new Vector2(-140, -95) * INSET_FACTOR_CANAL,
+        };
+
         private static readonly Vector2 PlainColor = new(320, 1762);
         private static readonly Vector2 ForrestColor = new(763, 1762);
         private static readonly Vector2 MountainColor = new(1207, 1762);
@@ -43,7 +53,11 @@ namespace Map.GeometryGeneration
 
         private static readonly Vector2 ShoreTriangleCenter = new(128, 2048 - Diff);
 
-        private static readonly Vector2 TextureSize = new(2500, 2048);
+        private static readonly Vector2 CanalRectangleCenter = new(140, 2405);
+        private static readonly Vector2 CanalHexagonCenter = new(81.965f, 2208.708f);
+        private static readonly float CanalHexagonScale = 190f / 512f;
+
+        private static readonly Vector2 TextureSize = new(2500, 2500);
         private static readonly Vector2 InvTextureSize = new(1f / TextureSize.x, 1f / TextureSize.y);
 
         public const float WATER_HEIGHT = 0.99f;
@@ -102,32 +116,46 @@ namespace Map.GeometryGeneration
             var starTreeIdx = cg.TreeData.Count;
             if (tile.Type == Tile.TileType.Forest)
             {
-                var centerPos = tile.PositionOnSphere;
-                foreach (var neighbor in tile.NeighborTiles)
+                var shouldHaveTrees = tile.Structure == null;
+                foreach (var edge in tile.Edges)
                 {
-                    var numTreesInTriangle =
-                        UnityEngine.Random.Range(MIN_TREES_PER_TRIANGLE, MAX_TREES_PER_TRIANGLE + 1);
-                    for (var i = 0; i < numTreesInTriangle; i++)
+                    if (edge.Type != Edge.EdgeType.None)
                     {
-                        var r1 = Mathf.Sqrt(UnityEngine.Random.Range(0f, 1f));
-                        var r2 = UnityEngine.Random.Range(0f, 1f);
+                        shouldHaveTrees = false;
+                        break;
+                    }
+                }
 
-                        var p1 = neighbor.LeftVertex;
-                        var p2 = neighbor.RightVertex;
+                if (shouldHaveTrees)
+                {
+                    var prng = new System.Random(tile.Id.Value);
 
-                        var pos = (1 - r1) * centerPos + (r1 * (1 - r2)) * p1 + (r1 * r2) * p2;
-
-                        pos = pos.normalized * tile.Chunk.Parent.Radius;
-
-                        cg.TreeData.Add(new Map.TreeData
+                    var centerPos = tile.PositionOnSphere;
+                    foreach (var neighbor in tile.NeighborTiles)
+                    {
+                        var numTreesInTriangle = prng.Next(MIN_TREES_PER_TRIANGLE, MAX_TREES_PER_TRIANGLE + 1);
+                        for (var i = 0; i < numTreesInTriangle; i++)
                         {
-                            Position = pos,
-                            Normal = pos.normalized,
-                            Scale = UnityEngine.Random.Range(MIN_TREE_SCALE, MAX_TREE_SCALE),
-                            Yaw = UnityEngine.Random.Range(0f, 360f),
-                            Random = UnityEngine.Random.Range(0f, 1f),
-                            Active = tile.Active ? 1 : 0,
-                        });
+                            var r1 = Mathf.Sqrt((float)prng.NextDouble());
+                            var r2 = (float)prng.NextDouble();
+
+                            var p1 = neighbor.LeftVertex;
+                            var p2 = neighbor.RightVertex;
+
+                            var pos = (1 - r1) * centerPos + (r1 * (1 - r2)) * p1 + (r1 * r2) * p2;
+
+                            pos = pos.normalized * tile.Chunk.Parent.Radius;
+
+                            cg.TreeData.Add(new Map.TreeData
+                            {
+                                Position = pos,
+                                Normal = pos.normalized,
+                                Scale = (float)prng.NextDouble() * (MAX_TREE_SCALE - MIN_TREE_SCALE) + MIN_TREE_SCALE,
+                                Yaw = (float)prng.NextDouble() * 360f,
+                                Random = (float)prng.NextDouble(),
+                                Active = tile.Active ? 1 : 0,
+                            });
+                        }
                     }
                 }
             }

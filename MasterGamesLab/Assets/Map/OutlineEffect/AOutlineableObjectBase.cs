@@ -13,9 +13,9 @@ namespace Map.OutlineEffect
         protected abstract string OutlineLayerName();
         protected abstract string OutlineTransparentLayerName();
 
-        private static int defaultLayer = -1;
-        private static int outlineLayer;
-        private static int outlineTransparentLayer;
+        private int defaultLayer = -1;
+        private int outlineLayer;
+        private int outlineTransparentLayer;
 
         private Renderer objRenderer;
 
