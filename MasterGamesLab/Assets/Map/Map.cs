@@ -94,21 +94,12 @@ namespace Map
         public ReliableSender ReliableSender;
         public UnreliableSender UnreliableSender;
 
-        private void OnEnable()
+        private void Awake()
         {
             Instance = this;
 
-            TileLayer = LayerMask.NameToLayer("Tiles");
-            EdgeLayer = LayerMask.NameToLayer("Edges");
-            EdgeOutlineLayer = LayerMask.NameToLayer("Edge Outline");
-            EdgeOutlineTransparentLayer = LayerMask.NameToLayer("Edge Outline Transparent");
-            VehicleLayer = LayerMask.NameToLayer("Vehicles");
-            VehicleOutlineLayer = LayerMask.NameToLayer("Vehicles Outline");
-            VehicleOutlineTransparentLayer = LayerMask.NameToLayer("Vehicles Outline Transparent");
-        }
 
-        private void Start()
-        {
+
             CurrentlyHovered = null;
             Debug.Log("Starting Map Generation");
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
@@ -164,6 +155,18 @@ namespace Map
                 Generate(UnityEngine.Random.Range(int.MinValue, int.MaxValue));
             }
         }
+
+        private void OnEnable()
+        {
+            TileLayer = LayerMask.NameToLayer("Tiles");
+            EdgeLayer = LayerMask.NameToLayer("Edges");
+            EdgeOutlineLayer = LayerMask.NameToLayer("Edge Outline");
+            EdgeOutlineTransparentLayer = LayerMask.NameToLayer("Edge Outline Transparent");
+            VehicleLayer = LayerMask.NameToLayer("Vehicles");
+            VehicleOutlineLayer = LayerMask.NameToLayer("Vehicles Outline");
+            VehicleOutlineTransparentLayer = LayerMask.NameToLayer("Vehicles Outline Transparent");
+        }
+
 
         private void UpdateEntireMesh()
         {
@@ -584,7 +587,7 @@ namespace Map
                     if (edge.Type == Edge.EdgeType.None && validatableBlueprint.IsValid(edge))
                     {
                         ReliableSender.Add(new Edge.EdgeState
-                            { Id = edgeData.EdgeId, Type = edgeData.Type, Owner = playerId });
+                        { Id = edgeData.EdgeId, Type = edgeData.Type, Owner = playerId });
                     }
                 }
 
@@ -686,12 +689,12 @@ namespace Map
             Debug.Log("Found free index for vehicle:" + index);
 
             var commonState = new Vehicle.CommonVehicleState
-                { Index = new((byte)index), Exists = true, ParkedTileId = parkedTileId, RouteIds = null };
+            { Index = new((byte)index), Exists = true, ParkedTileId = parkedTileId, RouteIds = null };
 
 
             if (type == Vehicle.VehicleType.Truck)
                 ReliableSender.Add(new Truck.TruckState
-                    { Common = commonState, Good = Good.None, FreighterIndex = VehicleIndex.NONE });
+                { Common = commonState, Good = Good.None, FreighterIndex = VehicleIndex.NONE });
             else
                 ReliableSender.Add(new Freighter.FreighterState { Common = commonState });
             ReliableSender.Send();
