@@ -236,6 +236,7 @@ namespace Map.Blueprint
 
         public BlueprintDetails GetDetails()
         {
+            int invalidObjectCount = 0;
             var objectInfos = new SortedList<ConstructibleType, BlueprintDetails.ObjectInfo>();
         
             foreach (var edge in edges)
@@ -249,6 +250,7 @@ namespace Map.Blueprint
                 if (objectInfo == null) continue;
                 objectInfo.Count++;
                 objectInfo.Cost += Cost(edge);
+                invalidObjectCount += IsValid(edge) ? 0 : 1;
             }
 
             foreach (var structure in structures)
@@ -261,6 +263,7 @@ namespace Map.Blueprint
                 if (objectInfo == null) continue;
                 objectInfo.Count++;
                 objectInfo.Cost += Cost(structure);
+                invalidObjectCount += IsValid(structure) ? 0 : 1;
             }
 
             int totalCost = 0;
@@ -269,7 +272,7 @@ namespace Map.Blueprint
                 totalCost += info.Cost;
             }
 
-            return new BlueprintDetails(objectInfos, totalCost);
+            return new BlueprintDetails(objectInfos, totalCost, invalidObjectCount);
         }
 
         public override void Validate()

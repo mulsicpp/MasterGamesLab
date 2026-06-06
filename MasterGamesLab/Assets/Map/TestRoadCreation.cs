@@ -28,24 +28,6 @@ public class TestRoadCreation : NetworkBehaviour
         var tile = Map.Map.Instance.CurrentlyHovered as Tile;
         if (tile == null) return;
 
-        if (Input.GetMouseButtonDown(1))
-        {
-            Debug.Log("Clickded on tile with id " + tile.Id.Value);
-            if (startTile == null) startTile = tile;
-            else
-            {
-                var endTile = tile;
-
-                var edge = startTile.FindEdgeTo(endTile);
-                if (edge != null && edge.CanBecomeType(type))
-                {
-                    Debug.Log("Valid edge selected");
-                    Map.Map.Instance.RequestNewEdgesServerRpc(type, new EdgeId[] { edge.Id });
-                }
-                startTile = null;
-            }
-        }
-
         if (Input.GetKeyDown(KeyCode.P) && IsServer)
         {
             if (tile.CanSpawnStructure(Structure.StructureType.Producer))
@@ -133,12 +115,6 @@ public class TestRoadCreation : NetworkBehaviour
             if (!IsServer) return;
             Debug.Log("Finishing game");
             Map.Map.Instance.FinishGame();
-        }
-
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            connectedWaterTiles = Pathfinding.FindAllReachable(tile, t => t.Type is Tile.TileType.Water, (s, t) => s.FindEdgeTo(t)?.Type == Edge.EdgeType.Canal);
-            Debug.Log("Reachable water tile count: " + connectedWaterTiles.Length);
         }
     }
 

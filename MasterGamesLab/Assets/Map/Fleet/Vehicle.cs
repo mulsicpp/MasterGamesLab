@@ -279,22 +279,15 @@ namespace Map.Fleet
 
                         if (tileIndex == 0)
                         {
-                            var edge = Route[tileIndex].FindEdgeTo(Route[tileIndex + 1]);
-
-                            return GeometryGeneration.ParametricCurve.FromEdgeToTileCenter(edge, Route[tileIndex]).Evaluate(Mathf.Clamp(1 - localProgress * 2f, 0, 1));
+                            return GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex + 1], Route[tileIndex]).Evaluate(1 - localProgress * 2f);
                         }
                         else if (tileIndex >= (Route.Length - 1))
                         {
-                            var edge = Route[tileIndex - 1].FindEdgeTo(Route[tileIndex]);
-
-                            return GeometryGeneration.ParametricCurve.FromEdgeToTileCenter(edge, Route[tileIndex]).Evaluate(Mathf.Clamp(1 + localProgress * 2f, 0, 1));
+                            return GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex - 1], Route[tileIndex]).Evaluate(1 + localProgress * 2f);
                         }
                         else
                         {
-                            var startEdge = Route[tileIndex - 1].FindEdgeTo(Route[tileIndex]);
-                            var endEdge = Route[tileIndex].FindEdgeTo(Route[tileIndex + 1]);
-
-                            return GeometryGeneration.ParametricCurve.FromEdgeToEdge(startEdge, endEdge, Route[tileIndex]).Evaluate(localProgress + 0.5f);
+                            return GeometryGeneration.ParametricCurve.FromTileToTileOverTile(Route[tileIndex - 1], Route[tileIndex + 1], Route[tileIndex]).Evaluate(localProgress + 0.5f);
                         }
                     }
                 }
