@@ -7,7 +7,7 @@ public class ContinentPass : IGenerationPass
 {
     //continet settings
     //public float totalLandPercentage = 0.35f;
-    public float totalLandPercentage = 0.45f;
+    public float totalLandPercentage = 0.48f;
 
     public int minContinentDistance = 3;
 
@@ -16,7 +16,10 @@ public class ContinentPass : IGenerationPass
     public float mainNoiseScale = 1.2f;
     public int mainOrganicHarshness = 3;
 
-  
+    //lower value= longer continent 
+    public float mainDistancePenalty = 1.2f;
+    public float extraDistancePenalty = 0.1f;
+
     //for extra landmasses
     public float extraNoiseScale = 2.5f;
     public int extraOrganicHarshness = 6;
@@ -57,10 +60,10 @@ public class ContinentPass : IGenerationPass
 
         //seed1.Type = Tile.TileType.Plain;
         //seed2.Type = Tile.TileType.Plain;
-        var count1 = GrowContinent(seed1, 1, size1, mainNoiseScale, mainOrganicHarshness);
+        var count1 = GrowContinent(seed1, 1, size1, mainNoiseScale, mainOrganicHarshness, mainDistancePenalty);
         ContinentSizes[1] = count1;
 
-        var count2 = GrowContinent(seed2, 2, size2, mainNoiseScale, mainOrganicHarshness);
+        var count2 = GrowContinent(seed2, 2, size2, mainNoiseScale, mainOrganicHarshness, mainDistancePenalty);
         ContinentSizes[2] = count2;
 
         //extra landmasses
@@ -68,8 +71,65 @@ public class ContinentPass : IGenerationPass
         {
             var continentId = 3 + i;
             var extraSeed = GetTileFurthestFromLand(map);
-            var countExtra = GrowContinent(extraSeed, continentId, extraContinentSize, extraNoiseScale, extraOrganicHarshness);
+            var countExtra = GrowContinent(extraSeed, continentId, extraContinentSize, extraNoiseScale, extraOrganicHarshness, extraDistancePenalty);
             ContinentSizes[continentId] = countExtra;
+        }
+        //small water tiles remove
+        var visitedWater = new HashSet<ITile>();
+        foreach (var tile in map.Tiles)
+        {
+            if (tile.Type == Tile.TileType.Water && !visitedWater.Contains(tile))
+            {
+                var waterBody = new List<ITile>();
+                var queue = new Queue<ITile>();
+                var neighborContinents = new Dictionary<int, int>(); 
+
+                queue.Enqueue(tile);
+                visitedWater.Add(tile);
+                waterBody.Add(tile);
+
+                //flood fill to measure waterbody size
+                while (queue.Count > 0)
+                {
+                    var current = queue.Dequeue();
+                    foreach (var neighbor in current.Neighbors)
+                    {
+                        if (neighbor.Type == Tile.TileType.Water && !visitedWater.Contains(neighbor))
+                        {
+                            visitedWater.Add(neighbor);
+                            waterBody.Add(neighbor);
+                            queue.Enqueue(neighbor);
+                        }
+                        else if (neighbor.Type != Tile.TileType.Water && neighbor.ContinentId != -1)
+                        {
+                            if (!neighborContinents.ContainsKey(neighbor.ContinentId))
+                                neighborContinents[neighbor.ContinentId] = 0;
+                            neighborContinents[neighbor.ContinentId]++;
+                        }
+                    }
+                }
+
+                //no ocean 
+                if (waterBody.Count < 40)
+                {
+                    int majorityContinent = 1;
+                    int maxCount = -1;
+                    foreach (var kvp in neighborContinents)
+                    {
+                        if (kvp.Value > maxCount)
+                        {
+                            maxCount = kvp.Value;
+                            majorityContinent = kvp.Key;
+                        }
+                    }
+
+                    foreach (var wTile in waterBody)
+                    {
+                        wTile.Type = Tile.TileType.Plain;
+                        wTile.ContinentId = majorityContinent;
+                    }
+                }
+            }
         }
 
         Debug.Log($"extraContinentCount: {extraCount}");
@@ -84,10 +144,12 @@ public class ContinentPass : IGenerationPass
     //currentLandTiles += 2;
 
     //random offset for noise
-    private int GrowContinent(ITile seed, int continentId, int targetSize, float noiseScale, int organicHarshness)
+    private int GrowContinent(ITile seed, int continentId, int targetSize, float noiseScale, int organicHarshness, float distancePenalty)
     {
         var frontier = new List<ITile>();
         var currentLandTiles = 0;
+
+        var seedPos = seed.PositionOnSphere;
 
         if (seed.Type == Tile.TileType.Water)
         {
@@ -120,7 +182,12 @@ public class ContinentPass : IGenerationPass
                 var pos = new float3(testTile.PositionOnSphere.x, testTile.PositionOnSphere.y, testTile.PositionOnSphere.z);
 
                 //3D Noise 
-                var n = noise.snoise((pos * noiseScale) + noiseOffset);
+                var rawNoise = noise.snoise((pos * noiseScale) + noiseOffset);
+
+                var distToSeed = Vector3.Distance(testTile.PositionOnSphere, seedPos);
+
+                //distance penalty
+                var n = rawNoise - (distToSeed * distancePenalty);
 
                 if (n > bestNoise)
                 {
