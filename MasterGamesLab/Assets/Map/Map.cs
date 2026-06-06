@@ -294,6 +294,19 @@ namespace Map
             }
         }
 
+
+        public Player.PlayerStats[] GetPlayerStats()
+        {
+            var stats =  new Player.PlayerStats[Players.Count];
+            for (int i = 0; i < Players.Count; i++)
+            {
+                // TODO implement
+                stats[i] = default;
+            }
+            return stats;
+        }
+
+
         public void GenerateEmpty()
         {
             foreach (var tile in tiles)
@@ -439,22 +452,11 @@ namespace Map
             return true;
         }
 
-        private ClientRpcParams GetRpcParams(ClientId clientId)
-        {
-            return new ClientRpcParams
-            {
-                Send = new ClientRpcSendParams
-                {
-                    TargetClientIds = new List<ulong> { clientId },
-                }
-            };
-        }
-
         public void SyncClientMap(Timestamp clientTimestamp, ClientId clientId)
         {
             if (!IsServer) return;
 
-            var sender = new Networking.ReliableSender(false, clientId);
+            var sender = new ReliableSender(false, clientId);
             Predicate<Timestamped> condition = obj => obj.Timestamp > clientTimestamp;
 
             sender.AddObjects<Player.Player, Player.Player.PlayerState>(players, condition);
