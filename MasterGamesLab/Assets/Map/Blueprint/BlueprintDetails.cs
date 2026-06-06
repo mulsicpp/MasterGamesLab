@@ -13,11 +13,13 @@ namespace Map.Blueprint
         public readonly SortedList<ConstructibleType, ObjectInfo> ObjectInfos;
 
         public readonly int TotalCost;
+        public readonly int InvalidObjectCount;
 
-        public BlueprintDetails(SortedList<ConstructibleType, ObjectInfo> objectInfos, int totalCost)
+        public BlueprintDetails(SortedList<ConstructibleType, ObjectInfo> objectInfos, int totalCost, int invalidObjectCount)
         {
             ObjectInfos = objectInfos;
             TotalCost = totalCost;
+            InvalidObjectCount = invalidObjectCount;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Unity.AppUI.Core;
+using Unity.VisualScripting;
+using UnityEngine;
 
 namespace Map.GeometryGeneration
 {
@@ -8,6 +10,53 @@ namespace Map.GeometryGeneration
         private Vector3 b;
         private Vector3 c;
         private Vector3 d;
+
+        public static ParametricCurve FromTileToTileOverTile(Tile startTile, Tile endTile, Tile tile)
+        {
+            Ray rStart = default, rEnd = default;
+            bool foundStart = false, foundEnd = false;
+            foreach (var n in tile.NeighborTiles)
+            {
+                if(n.Tile == startTile)
+                {
+                    rStart = new((n.LeftVertex + n.RightVertex) / 2f, Vector3.Cross(n.LeftVertex, n.RightVertex).normalized);
+                    foundStart = true;
+                }
+
+                if (n.Tile == endTile)
+                {
+                    rEnd = new((n.LeftVertex + n.RightVertex) / 2f, Vector3.Cross(n.LeftVertex, n.RightVertex).normalized);
+                    foundEnd = true;
+                }
+            }
+
+            if (!foundStart || !foundEnd) return null;
+
+            if (Vector3.Dot(rStart.direction, rEnd.origin - rStart.origin) < 0) rStart.direction = -rStart.direction;
+            if (Vector3.Dot(rEnd.direction, rStart.origin - rEnd.origin) < 0) rEnd.direction = -rEnd.direction;
+
+            return FromRaysInTile(rStart, rEnd, tile);
+        }
+
+        public static ParametricCurve FromTileToTileCenter(Tile startTile, Tile endTile)
+        {
+            Ray ray = default;
+            bool found = false;
+            foreach (var n in endTile.NeighborTiles)
+            {
+                if (n.Tile == startTile)
+                {
+                    ray = new((n.LeftVertex + n.RightVertex) / 2f, Vector3.Cross(n.LeftVertex, n.RightVertex).normalized);
+                    found = true;
+                }
+            }
+
+            if (!found) return null;
+
+            if (Vector3.Dot(ray.direction, endTile.PositionOnSphere - ray.origin) < 0) ray.direction = -ray.direction;
+
+            return FromRaysInTile(ray, new(endTile.PositionOnSphere, -ray.direction), endTile, 0.5f);
+        }
 
         public static ParametricCurve FromEdgeToEdge(Edge start, Edge end, Tile tile)
         {
@@ -20,26 +69,7 @@ namespace Map.GeometryGeneration
             if (Vector3.Dot(dir0, p3 - p0) < 0) dir0 = -dir0;
             if (Vector3.Dot(dir3, p0 - p3) < 0) dir3 = -dir3;
 
-            switch (tile.Type)
-            {
-                case Tile.TileType.Water:
-                    p0 = p0.normalized * (TileGeometryFactory.WATER_HEIGHT + Map.Instance.TEST_ROAD_HEIGHT);
-                    p3 = p3.normalized * (TileGeometryFactory.WATER_HEIGHT + Map.Instance.TEST_ROAD_HEIGHT);
-                    break;
-                case Tile.TileType.Plain:
-                case Tile.TileType.Forest:
-                    p0 = p0.normalized * (TileGeometryFactory.LAND_HEIGHT + Map.Instance.TEST_ROAD_HEIGHT);
-                    p3 = p3.normalized * (TileGeometryFactory.LAND_HEIGHT + Map.Instance.TEST_ROAD_HEIGHT);
-                    break;
-                case Tile.TileType.Mountain:
-                default:
-                    break;
-            }
-
-            var p1 = p0 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * dir0;
-            var p2 = p3 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * dir3;
-
-            return FromBezierPoints(p0, p1, p2, p3);
+            return FromRaysInTile(new(p0, dir0), new(p3, dir3), tile);
         }
 
         public static ParametricCurve FromEdgeToTileCenter(Edge edge, Tile tile)
@@ -50,6 +80,20 @@ namespace Map.GeometryGeneration
             var dir3 = -dir0;
             var p3 = tile.PositionOnSphere;
 
+            if (Vector3.Dot(dir0, p3 - p0) < 0) dir0 = -dir0;
+            if (Vector3.Dot(dir3, p0 - p3) < 0) dir3 = -dir3;
+
+            return FromRaysInTile(new(p0, dir0), new(p3, dir3), tile, 0.5f);
+        }
+
+        public static ParametricCurve FromRaysInTile(Ray startRay, Ray endRay, Tile tile, float handleDistanceScale = 1.0f)
+        {
+            var p0 = startRay.origin;
+            var dir0 = startRay.direction;
+
+            var p3 = endRay.origin;
+            var dir3 = endRay.direction;
+
             switch (tile.Type)
             {
                 case Tile.TileType.Water:
@@ -66,8 +110,8 @@ namespace Map.GeometryGeneration
                     break;
             }
 
-            var p1 = p0 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE / 2 * dir0;
-            var p2 = p3 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE / 2 * dir3;
+            var p1 = p0 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * handleDistanceScale * dir0;
+            var p2 = p3 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * handleDistanceScale * dir3;
 
             return FromBezierPoints(p0, p1, p2, p3);
         }

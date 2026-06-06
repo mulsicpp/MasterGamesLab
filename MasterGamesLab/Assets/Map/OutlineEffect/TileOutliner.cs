@@ -21,7 +21,8 @@ namespace Map.OutlineEffect
         public void OutlineTile(Tile tile)
         {
             ClearMeshData();
-            BuildTileGeometry(tile);
+            if(tile != null)
+                BuildTileGeometry(tile);
             StoreMeshData();
         }
 
