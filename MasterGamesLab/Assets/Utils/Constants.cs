@@ -15,6 +15,20 @@ public static class Constants
         public int TextureId;
     }
 
+    public static OutlineData HOVER_OUTLINE = new OutlineData()
+    {
+        OutlineColor = new Color(1f, 0.92f, 0.016f, 0.6f),
+        InnerColor = new Color(0, 0, 0, 0),
+        TextureId = 0,
+    };
+
+    public static OutlineData HOVER_OUTLINE_FILLED_IN = new OutlineData()
+    {
+        OutlineColor = HOVER_OUTLINE.OutlineColor,
+        InnerColor = new Color(1f, 0.92f, 0.016f, 0.5f),
+        TextureId = 1,
+    };
+
     public static OutlineData ROAD_BLUEPRINT_VALID_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.black,
