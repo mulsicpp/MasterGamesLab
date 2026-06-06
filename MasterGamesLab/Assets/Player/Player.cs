@@ -10,7 +10,8 @@ namespace Player
         public struct PlayerState : IState, INetworkSerializeByMemcpy
         {
             public PlayerId Id;
-            public int Money;
+            public int Cash;
+            public int Revenue;
 
             public int ArrayIndex { get => Id; set => Id = new PlayerId((byte)value); }
 
@@ -27,23 +28,30 @@ namespace Player
 
         public new Map.Timestamp Timestamp => base.Timestamp;
 
-        private int money;
-        public int Money
+        private int cash;
+        public int Cash
         {
-            get => money;
-            set { money = value; Touch(); }
+            get => cash;
+            set { cash = value; Touch(); }
+        }
+
+        private int revenue;
+        public int Revenue
+        {
+            get => revenue;
+            private set { revenue = value; Touch(); }
         }
 
         public PlayerState State
         {
-            get => new PlayerState { Id = Id, Money = Money };
-            set { Money = value.Money; }
+            get => new PlayerState { Id = Id, Cash = Cash };
+            set { Cash = value.Cash; Revenue = value.Revenue; }
         }
 
         public Player(PlayerId id)
         {
             Id = id;
-            money = Constants.PLAYER_START_MONEY;
+            cash = Constants.PLAYER_INITIAL_CASH;
             Touch();
         }
 

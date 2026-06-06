@@ -95,7 +95,7 @@ namespace UI
         {
             if(player.IsSelf)
             {
-                moneyLabel.text = "MONEY: " + player.Money;
+                moneyLabel.text = "MONEY: " + player.Cash;
             }
         }
 

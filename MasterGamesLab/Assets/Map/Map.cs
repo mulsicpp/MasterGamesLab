@@ -300,9 +300,38 @@ namespace Map
             var stats =  new Player.PlayerStats[Players.Count];
             for (int i = 0; i < Players.Count; i++)
             {
-                // TODO implement
                 stats[i] = default;
+                stats[i].Cash = Players[i].Cash;
+                stats[i].Revenue = Players[i].Revenue;
             }
+
+            foreach (var edge in Edges)
+            {
+                if(edge.Owner < Players.Count)
+                {
+                    switch(edge.Type)
+                    {
+                        case Edge.EdgeType.Road: stats[edge.Owner].RoadCount++; break;
+                        case Edge.EdgeType.Canal: stats[edge.Owner].CanalCount++; break;
+                    }
+                }
+            }
+
+            foreach (var port in Infrastructure.Ports)
+            {
+                if (port.Exists) stats[port.Owner].PortCount++;
+            }
+
+            foreach (var truck in Fleet.Trucks)
+            {
+                if (truck.Exists) stats[truck.Owner].TruckCount++;
+            }
+
+            foreach (var freighter in Fleet.Freighters)
+            {
+                if (freighter.Exists) stats[freighter.Owner].FreighterCount++;
+            }
+
             return stats;
         }
 

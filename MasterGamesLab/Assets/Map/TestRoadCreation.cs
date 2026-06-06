@@ -8,20 +8,9 @@ using Player;
 
 public class TestRoadCreation : NetworkBehaviour
 {
-    ITile startTile = null;
-
-    [SerializeField]
-    private Edge.EdgeType type = Edge.EdgeType.Road;
 
     [SerializeField]
     private Good good = Good.Apple;
-
-    private TileId[] connectedWaterTiles;
-
-    void Start()
-    {
-        connectedWaterTiles = new TileId[0];
-    }
 
     // Update is called once per frame
     void Update()
