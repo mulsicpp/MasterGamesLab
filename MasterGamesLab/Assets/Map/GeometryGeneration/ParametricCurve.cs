@@ -66,8 +66,8 @@ namespace Map.GeometryGeneration
                     break;
             }
 
-            var p1 = p0 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * dir0;
-            var p2 = p3 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * dir3;
+            var p1 = p0 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE / 2 * dir0;
+            var p2 = p3 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE / 2 * dir3;
 
             return FromBezierPoints(p0, p1, p2, p3);
         }

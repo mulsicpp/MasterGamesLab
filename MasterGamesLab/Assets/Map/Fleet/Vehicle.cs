@@ -274,13 +274,28 @@ namespace Map.Fleet
                     else if (visualProgress >= Route.Length - 1) return Route[Route.Length - 1].PositionOnSphere;
                     else
                     {
-                        int index = (int)visualProgress;
-                        float localProgress = visualProgress - index;
+                        int tileIndex = (int)(visualProgress + 0.5f);
+                        float localProgress = visualProgress - tileIndex;
 
-                        var pos1 = Route[index].PositionOnSphere;
-                        var pos2 = Route[index + 1].PositionOnSphere;
+                        if (tileIndex == 0)
+                        {
+                            var edge = Route[tileIndex].FindEdgeTo(Route[tileIndex + 1]);
 
-                        return pos1 * (1.0f - localProgress) + pos2 * localProgress;
+                            return GeometryGeneration.ParametricCurve.FromEdgeToTileCenter(edge, Route[tileIndex]).Evaluate(Mathf.Clamp(1 - localProgress * 2f, 0, 1));
+                        }
+                        else if (tileIndex >= (Route.Length - 1))
+                        {
+                            var edge = Route[tileIndex - 1].FindEdgeTo(Route[tileIndex]);
+
+                            return GeometryGeneration.ParametricCurve.FromEdgeToTileCenter(edge, Route[tileIndex]).Evaluate(Mathf.Clamp(1 + localProgress * 2f, 0, 1));
+                        }
+                        else
+                        {
+                            var startEdge = Route[tileIndex - 1].FindEdgeTo(Route[tileIndex]);
+                            var endEdge = Route[tileIndex].FindEdgeTo(Route[tileIndex + 1]);
+
+                            return GeometryGeneration.ParametricCurve.FromEdgeToEdge(startEdge, endEdge, Route[tileIndex]).Evaluate(localProgress + 0.5f);
+                        }
                     }
                 }
                 return null;
