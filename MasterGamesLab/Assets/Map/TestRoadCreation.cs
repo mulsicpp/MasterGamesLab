@@ -105,5 +105,12 @@ public class TestRoadCreation : NetworkBehaviour
         {
             var details = Map.Map.Instance.Blueprint.GetDetails();
         }
+
+        if (Input.GetKeyDown(KeyCode.Space) && IsServer) {
+            foreach (var player in Map.Map.Instance.Players)
+            {
+                player.Earn(1000);
+            }
+        }
     }
 }

@@ -21,9 +21,12 @@ namespace Player
         internal static PlayerId selfId = PlayerId.NONE;
         public static PlayerId SelfId => selfId;
 
+        public static Player Self => selfId != PlayerId.NONE ? Map.Map.Instance.Players[selfId] : null;
+
         public static event Action<Player> OnPlayerChanged;
 
         public readonly PlayerId Id;
+
         public bool IsSelf => Id == SelfId;
 
         public new Map.Timestamp Timestamp => base.Timestamp;
@@ -32,7 +35,7 @@ namespace Player
         public int Cash
         {
             get => cash;
-            set { cash = value; Touch(); }
+            private set { cash = value; Touch(); }
         }
 
         private int revenue;
@@ -62,5 +65,29 @@ namespace Player
         }
 
         public void ApplyServerState(PlayerState state, double _) { State = state; ResetDirty(); }
+
+        public void Pay(int amount)
+        {
+            if(amount > 0)
+                Cash -= amount;
+        }
+
+        public void Earn(int amount)
+        {
+            if (amount > 0)
+            {
+                Cash += amount;
+                Revenue += amount;
+            }
+        }
+
+        public void TransferMoneyTo(Player player, int amount)
+        {
+            if(amount > 0)
+            {
+                Pay(amount);
+                player.Earn(amount);
+            }
+        }
     }
 }

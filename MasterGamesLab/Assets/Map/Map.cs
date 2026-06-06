@@ -509,9 +509,7 @@ namespace Map
 
             Predicate<Timestamped> condition = obj => obj.Dirty;
 
-
-
-            ReliableSender.AddObjects<Player.Player, Player.Player.PlayerState>(players, p => { if (p.Dirty) { Debug.Log("Player was changed"); } return p.Dirty; });
+            ReliableSender.AddObjects<Player.Player, Player.Player.PlayerState>(players, condition);
 
             ReliableSender.AddObjects<Edge, Edge.EdgeState>(edges, condition);
 
@@ -610,6 +608,7 @@ namespace Map
 
             if (!hasNext)
             {
+                var player = Players[playerId];
                 var packet = storedBlueprintPackets[playerId];
 
                 var validatableBlueprint = new ServerValidatableBlueprint(packet);
@@ -624,28 +623,35 @@ namespace Map
 
                     if (edge.Type == Edge.EdgeType.None && validatableBlueprint.IsValid(edge))
                     {
-                        ReliableSender.Add(new Edge.EdgeState
-                        { Id = edgeData.EdgeId, Type = edgeData.Type, Owner = playerId });
+                        edge.Type = edgeData.Type;
+                        edge.Owner = playerId;
+
+                        player.Pay(validatableBlueprint.Cost(edge));
+
+                        //ReliableSender.Add(new Edge.EdgeState
+                        //{ Id = edgeData.EdgeId, Type = edgeData.Type, Owner = playerId });
                     }
                 }
 
                 foreach (var structureData in packet.Structures)
                 {
                     if (structureData.TileId < 0 || structureData.TileId > tiles.Count) continue;
-                    var tile = Tiles[structureData.TileId];
+                    var tile = Tiles[structureData.TileId] as Tile;
 
                     var structure = Infrastructure[structureData.StructureId];
 
                     if (tile.Structure == null && validatableBlueprint.IsValid(structure))
                     {
-                        switch (structure)
-                        {
-                            case Port port:
-                                var portState = port.State;
-                                portState.Common.TileId = tile.Id;
-                                ReliableSender.Add(portState);
-                                break;
-                        }
+                        // switch (structure)
+                        // {
+                        //     case Port port:
+                        //         var portState = port.State;
+                        //         portState.Common.TileId = tile.Id;
+                        //         ReliableSender.Add(portState);
+                        //         break;
+                        // }
+                        structure.Tile = tile;
+                        player.Pay(validatableBlueprint.Cost(structure));
                     }
                 }
 
@@ -662,7 +668,7 @@ namespace Map
 
                 BlueprintAcknowledgementClientRpc(responseRpcParams);
 
-                ReliableSender.Send();
+                UpdateDirtyObjectsOnClient();
             }
         }
 

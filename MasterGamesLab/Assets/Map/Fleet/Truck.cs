@@ -98,7 +98,7 @@ namespace Map.Fleet
                 {
                     c.RequestedGood = Good.None;
                     Good = Good.None;
-                    Map.Instance.Players[Owner].Cash += 10; // TODO calculate reward properly
+                    Map.Instance.Players[Owner].Earn(10); // TODO calculate reward properly
                 }
             }
 
