@@ -44,6 +44,8 @@ namespace Map
 
         [SerializeField] public bool Running = true;
 
+        public IReadOnlyList<Player.Player> Players => players;
+
         public IReadOnlyList<Edge> Edges => edges;
         public IReadOnlyInfrastructure Infrastructure => infrastructure;
         public IReadOnlyFleet Fleet => fleet;
@@ -87,6 +89,8 @@ namespace Map
 
         public IHoverable CurrentlyHovered;
 
+        private Player.Player[] players;
+
         private Edge[] edges;
         private Infrastructure.Infrastructure infrastructure;
         private Fleet.Fleet fleet;
@@ -94,31 +98,23 @@ namespace Map
         public ReliableSender ReliableSender;
         public UnreliableSender UnreliableSender;
 
-        private void OnEnable()
+        private void Awake()
         {
             Instance = this;
 
-            TileLayer = LayerMask.NameToLayer("Tiles");
-            EdgeLayer = LayerMask.NameToLayer("Edges");
-            EdgeOutlineLayer = LayerMask.NameToLayer("Edge Outline");
-            EdgeOutlineTransparentLayer = LayerMask.NameToLayer("Edge Outline Transparent");
-            VehicleLayer = LayerMask.NameToLayer("Vehicles");
-            VehicleOutlineLayer = LayerMask.NameToLayer("Vehicles Outline");
-            VehicleOutlineTransparentLayer = LayerMask.NameToLayer("Vehicles Outline Transparent");
-        }
-
-        private void Start()
-        {
             CurrentlyHovered = null;
-            Debug.Log("Starting Map Generation");
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
             tiles = new List<Tile>(numPoints);
             chunks = new List<MapChunk>(chunksPoints.Count);
+
+            players = new Player.Player[0];
+
             edges = Array.Empty<Edge>();
             infrastructure = new Infrastructure.Infrastructure();
             fleet = new Fleet.Fleet();
-            ReliableSender = new Networking.ReliableSender(true);
-            UnreliableSender = new Networking.UnreliableSender();
+
+            ReliableSender = new ReliableSender(true);
+            UnreliableSender = new UnreliableSender();
 
             Blueprint = new Blueprint.Blueprint();
             storedBlueprintPackets = new BlueprintPacket[4];
@@ -161,9 +157,21 @@ namespace Map
             //debug
             if (UIManager.Instance == null)
             {
-                Generate(UnityEngine.Random.Range(int.MinValue, int.MaxValue));
+                GenerateTerrain(UnityEngine.Random.Range(int.MinValue, int.MaxValue));
             }
         }
+
+        private void OnEnable()
+        {
+            TileLayer = LayerMask.NameToLayer("Tiles");
+            EdgeLayer = LayerMask.NameToLayer("Edges");
+            EdgeOutlineLayer = LayerMask.NameToLayer("Edge Outline");
+            EdgeOutlineTransparentLayer = LayerMask.NameToLayer("Edge Outline Transparent");
+            VehicleLayer = LayerMask.NameToLayer("Vehicles");
+            VehicleOutlineLayer = LayerMask.NameToLayer("Vehicles Outline");
+            VehicleOutlineTransparentLayer = LayerMask.NameToLayer("Vehicles Outline Transparent");
+        }
+
 
         private void UpdateEntireMesh()
         {
@@ -286,6 +294,19 @@ namespace Map
             }
         }
 
+
+        public Player.PlayerStats[] GetPlayerStats()
+        {
+            var stats =  new Player.PlayerStats[Players.Count];
+            for (int i = 0; i < Players.Count; i++)
+            {
+                // TODO implement
+                stats[i] = default;
+            }
+            return stats;
+        }
+
+
         public void GenerateEmpty()
         {
             foreach (var tile in tiles)
@@ -303,17 +324,9 @@ namespace Map
             GenerationSeed = null;
         }
 
-        public void Generate(int seed)
+        public void GenerateTerrain(int seed)
         {
             Debug.Log("Generating world with seed " + seed + " ...");
-
-            //foreach (var tile in tiles)
-            //{
-            //    if (tile.PositionOnSphere.z < -0.97f) tile.Type = Tile.TileType.Mountain;
-            //    else if (tile.PositionOnSphere.z < -0.9f) tile.Type = Tile.TileType.Forest;
-            //    else if (tile.PositionOnSphere.z < -0.7f) tile.Type = Tile.TileType.Plain;
-            //    else tile.Type = Tile.TileType.Water;
-            //}
 
             UnityEngine.Random.InitState(seed);
             ProceduralMapGenerator.GenerateMap(this);
@@ -344,11 +357,7 @@ namespace Map
 
             debugSpawnPoints = SpawnPointGenerator.SpawnInitialStructures(this, 4);
 
-            for (int i = 0; i < debugSpawnPoints.Length; i++)
-            {
-                Debug.Log(
-                    $"Player  {i + 1} Spawnpoint: ID {debugSpawnPoints[i].Id} on Continent {debugSpawnPoints[i].ContinentId}");
-            }
+            
 
             //Infrastructure.SpawnLocal(new Producer.ProducerState
             //    { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
@@ -381,19 +390,30 @@ namespace Map
             GenerationSeed = seed;
         }
 
-        public void Tick()
+        public void GenerateStructuresAndPlayers(int playerCount)
+        {
+            players = new Player.Player[playerCount];
+            for (int i = 0; i < players.Length; i++)
+            {
+                players[i] = new Player.Player(new PlayerId((byte)i));
+            }
+            
+            // TODO yixuan
+        }
+
+        public void FixedUpdate()
         {
             if (!Running) return;
 
-            uint tickRate = NetworkManager.Singleton.NetworkTickSystem.TickRate;
-            float tickDuration = 1.0f / tickRate;
-
-            Debug.Log("Map Tick");
-
             foreach (var vehicle in Fleet.Vehicles)
             {
-                vehicle.Tick(tickDuration);
+                vehicle.Tick(Time.fixedDeltaTime);
             }
+        }
+
+        public void Tick()
+        {
+            if (!Running) return;
 
             UpdateDirtyObjectsOnClient();
 
@@ -417,8 +437,6 @@ namespace Map
             foreach (var t in tiles) t.InitializeEdges(tempEdges);
             foreach (var t in tiles) t.SortEdges();
 
-            Debug.Log("Initialized " + tempEdges.Count + " edges");
-
             edges = tempEdges.ToArray();
         }
 
@@ -434,23 +452,14 @@ namespace Map
             return true;
         }
 
-        private ClientRpcParams GetRpcParams(ClientId clientId)
-        {
-            return new ClientRpcParams
-            {
-                Send = new ClientRpcSendParams
-                {
-                    TargetClientIds = new List<ulong> { clientId },
-                }
-            };
-        }
-
         public void SyncClientMap(Timestamp clientTimestamp, ClientId clientId)
         {
             if (!IsServer) return;
 
-            var sender = new Networking.ReliableSender(false, clientId);
+            var sender = new ReliableSender(false, clientId);
             Predicate<Timestamped> condition = obj => obj.Timestamp > clientTimestamp;
+
+            sender.AddObjects<Player.Player, Player.Player.PlayerState>(players, condition);
 
             sender.AddObjects<Edge, Edge.EdgeState>(edges, condition);
 
@@ -470,6 +479,10 @@ namespace Map
             if (!IsServer) return;
 
             Predicate<Timestamped> condition = obj => obj.Dirty;
+
+
+
+            ReliableSender.AddObjects<Player.Player, Player.Player.PlayerState>(players, p => { if (p.Dirty) { Debug.Log("Player was changed"); } return p.Dirty; });
 
             ReliableSender.AddObjects<Edge, Edge.EdgeState>(edges, condition);
 
@@ -495,6 +508,7 @@ namespace Map
         public void ApplyReliableStatesClientRpc(
             Timestamp timestamp,
             double serverTime,
+            Player.Player.PlayerState[] players,
             Edge.EdgeState[] edges,
             Producer.ProducerState[] producers,
             Consumer.ConsumerState[] consumers,
@@ -506,6 +520,8 @@ namespace Map
         )
         {
             Timestamp = timestamp;
+            ApplyStatesLocal(serverTime, this.players, players);
+
             ApplyStatesLocal(serverTime, this.edges, edges);
 
             ApplyStatesLocal(serverTime, Infrastructure.Producers, producers);
@@ -526,7 +542,6 @@ namespace Map
         public void ApplyUnreliableStatesClientRpc(double serverTime, Vehicle.VehicleProgressState[] vehicleProgresses,
             ClientRpcParams rpcParams = default)
         {
-            Debug.Log("received unreliable update! state count: " + vehicleProgresses.Length);
             ApplyStatesLocal(serverTime, Fleet.Vehicles, vehicleProgresses);
         }
 
@@ -559,8 +574,7 @@ namespace Map
             RpcParams rpcParams = default)
         {
             var playerId =
-                PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-            Debug.Log("Received new blueprint packet from player " + playerId.Value);
+                Player.PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
             if (playerId == PlayerId.NONE) return;
 
             storedBlueprintPackets[playerId].Append(new BlueprintPacket(edges, structures));
@@ -568,8 +582,6 @@ namespace Map
             if (!hasNext)
             {
                 var packet = storedBlueprintPackets[playerId];
-                Debug.Log("Applying blueprint from player " + playerId.Value);
-                Debug.Log("Blueprint edge count: " + packet.Edges.Count);
 
                 var validatableBlueprint = new ServerValidatableBlueprint(packet);
 
@@ -584,7 +596,7 @@ namespace Map
                     if (edge.Type == Edge.EdgeType.None && validatableBlueprint.IsValid(edge))
                     {
                         ReliableSender.Add(new Edge.EdgeState
-                            { Id = edgeData.EdgeId, Type = edgeData.Type, Owner = playerId });
+                        { Id = edgeData.EdgeId, Type = edgeData.Type, Owner = playerId });
                     }
                 }
 
@@ -626,53 +638,12 @@ namespace Map
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void RequestNewEdgesServerRpc(Edge.EdgeType edgeType, EdgeId[] edgeIds, RpcParams rpcParams = default)
-        {
-            var playerId =
-                PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-            Debug.Log("Received new edges request from player " + playerId.Value);
-
-            if (playerId == PlayerId.NONE) return;
-
-            var validPath = true;
-            foreach (var id in edgeIds)
-            {
-                if (id >= edges.Length || id < 0)
-                {
-                    Debug.Log("Id out of range: " + id.Value);
-                    validPath = false;
-                    break;
-                }
-
-                var edge = edges[id];
-                if (!edge.CanBecomeType(edgeType))
-                {
-                    Debug.Log("Edge cannot become type: " + id.Value);
-                    validPath = false;
-                    break;
-                }
-            }
-
-            Debug.Log("Path is valid: " + validPath);
-            if (!validPath) return;
-
-            Edge.EdgeState[] edgeStates = new Edge.EdgeState[edgeIds.Length];
-            for (var i = 0; i < edgeIds.Length; i++)
-            {
-                edgeStates[i] = new Edge.EdgeState { Id = edgeIds[i], Type = edgeType, Owner = playerId };
-            }
-
-            ReliableSender.AddStates(edgeStates);
-            ReliableSender.Send();
-        }
-
-        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
         public void RequestNewVehicleServerRpc(Vehicle.VehicleType type, TileId parkedTileId,
             RpcParams rpcParams = default)
         {
             var playerId =
-                PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-            Debug.Log("Received new vehicle request from player " + playerId.Value);
+                Player.PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
+            
             if (playerId == PlayerId.NONE) return;
 
             int index = fleet.GetFirstEmptyIndex(type, playerId);
@@ -683,15 +654,13 @@ namespace Map
             var tile = tiles[parkedTileId];
             if (!tile.CanSpawnVehicle(type)) return;
 
-            Debug.Log("Found free index for vehicle:" + index);
-
             var commonState = new Vehicle.CommonVehicleState
-                { Index = new((byte)index), Exists = true, ParkedTileId = parkedTileId, RouteIds = null };
+            { Index = new((byte)index), Exists = true, ParkedTileId = parkedTileId, RouteIds = null };
 
 
             if (type == Vehicle.VehicleType.Truck)
                 ReliableSender.Add(new Truck.TruckState
-                    { Common = commonState, Good = Good.None, FreighterIndex = VehicleIndex.NONE });
+                { Common = commonState, Good = Good.None, FreighterIndex = VehicleIndex.NONE });
             else
                 ReliableSender.Add(new Freighter.FreighterState { Common = commonState });
             ReliableSender.Send();
@@ -701,8 +670,7 @@ namespace Map
         public void RequestVehicleRouteServerRpc(int vehicleIndex, TileId[] routeIds, RpcParams rpcParams = default)
         {
             var playerId =
-                PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-            Debug.Log("Received vehicle route request from player " + playerId.Value + " for vehicle " + vehicleIndex);
+                Player.PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
 
             if (playerId == PlayerId.NONE) return;
             if (vehicleIndex < 0 || vehicleIndex >= Fleet.Vehicles.Count) return;
@@ -720,13 +688,10 @@ namespace Map
                 route[i] = tiles[routeIds[i]];
             }
 
-            Debug.Log("Checking path");
             for (int i = 1; i < routeIds.Length; i++)
             {
                 if (!Vehicle.CanCross(route[i - 1], route[i], vehicle.Type)) return;
             }
-
-            Debug.Log("Path OK");
 
             if (vehicle.Type == Vehicle.VehicleType.Truck)
             {
@@ -757,14 +722,12 @@ namespace Map
         public void LoadFirstTruckOnFreighterServerRpc(RpcParams rpcParams = default)
         {
             var playerId =
-                PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-            Debug.Log("Received load request from player " + playerId.Value);
+                Player.PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
 
             if (playerId == PlayerId.NONE) return;
 
             var truck = Fleet.Trucks.FirstOrDefault(truck => truck.Owner == playerId);
             var freighter = Fleet.Freighters.FirstOrDefault(freighter => freighter.Owner == playerId);
-            Debug.Log("Loading truck" + truck.Index.Value + "onto freighter " + freighter.Index.Value);
 
             var truckState = truck.State;
 
@@ -918,7 +881,7 @@ namespace Map
                 if (port.Tile != null)
                 {
                     Vector3 basePos = GetProjectedPosition(port.Tile.PositionOnSphere, 1.015f);
-                    Gizmos.color = PlayerManager.Instance.GetPlayerColor(port.Owner);
+                    Gizmos.color = Player.PlayerManager.Instance.GetPlayerColor(port.Owner);
                     Gizmos.DrawSphere(basePos, 0.025f);
                 }
                 else if (port.BlueprintTile != null)

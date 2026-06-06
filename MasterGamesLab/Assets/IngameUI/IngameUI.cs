@@ -1,6 +1,6 @@
+using Map.Blueprint;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static ConstructionControls;
 
 namespace UI
 {
@@ -18,7 +18,9 @@ namespace UI
         private ShrinkWrapContainer container;
         private GroupBox div;
         public const string activeClass = "ingame-build-button--active";
-        VisualElement blueprintCountContainer;
+        ShrinkWrapContainer blueprintCountContainer;
+
+        private Label totalCostLabel;
 
         public override MenuId Id => MenuId.Ingame;
 
@@ -35,6 +37,8 @@ namespace UI
             constructionControls = GetComponent<ConstructionControls>();
             constructionControls.OnConstructionTypeChanged += HandleStateUIUpdate;
 
+            Map.Map.Instance.Blueprint.OnChanged += HandleBlueprintUpdate;
+
             buildRoadButton = root.Q<Button>("BuildRoadButton");
             buildCanalButton = root.Q<Button>("BuildCanalButton");
             buildPortButton = root.Q<Button>("BuildPortButton");
@@ -46,7 +50,10 @@ namespace UI
             moneyLabel = root.Q<Label>("MONEY");
             container = root.Q<ShrinkWrapContainer>("Container");
             div = root.Q<GroupBox>("Devider");
-            blueprintCountContainer = root.Q<VisualElement>("BlueprintCountContainer");
+            blueprintCountContainer = root.Q<ShrinkWrapContainer>("BlueprintCountContainer");
+            totalCostLabel = root.Q<Label>("TotalCost");
+
+            blueprintCountContainer.style.display = DisplayStyle.None;
 
 
 
@@ -59,10 +66,13 @@ namespace UI
             confirmButton.clicked += OnConfirmPressed;
             cancelButton.clicked += OnCancelPressed;
             hideButton.clicked += OnHidePressed;
+
+            Player.Player.OnPlayerChanged += ChangePlayerInfo;
         }
 
         void OnDisable()
         {
+            Map.Map.Instance.Blueprint.OnChanged -= HandleBlueprintUpdate;
             if (constructionControls != null)
                 constructionControls.OnConstructionTypeChanged -= HandleStateUIUpdate;
 
@@ -75,9 +85,19 @@ namespace UI
             confirmButton.clicked -= OnConfirmPressed;
             cancelButton.clicked -= OnCancelPressed;
             hideButton.clicked -= OnHidePressed;
+
+            Player.Player.OnPlayerChanged -= ChangePlayerInfo;
         }
 
 
+
+        public void ChangePlayerInfo(Player.Player player)
+        {
+            if(player.IsSelf)
+            {
+                moneyLabel.text = "MONEY: " + player.Money;
+            }
+        }
 
         public void setMoney(ulong money)
         {
@@ -146,16 +166,46 @@ namespace UI
                 container.AddToClassList("container-hidden");
         }
 
+        private void setTotalCost(int cost)
+        {
+            totalCostLabel.text = "Total Cost: " + cost;
+        }
 
-        public void UpdateBlueprintCount(ConstructionType type, int count)
+
+        private void HandleBlueprintUpdate(Blueprint blueprint)
+        {
+            if (blueprint.IsEmpty)
+            {
+                blueprintCountContainer.style.display = DisplayStyle.None;
+                return;
+            }
+            blueprintCountContainer.style.display = DisplayStyle.Flex;
+            var details = blueprint.GetDetails();
+            var objectInfos = details.ObjectInfos;
+
+            foreach (ConstructibleType type in System.Enum.GetValues(typeof(ConstructibleType)))
+            {
+                int count = objectInfos.TryGetValue(type, out var info) ? info.Count : 0;
+
+                UpdateBlueprintCount(type, count);
+            }
+            setTotalCost(details.TotalCost);
+
+            blueprintCountContainer.schedule.Execute(() =>
+            {
+                blueprintCountContainer.RecalculateHeight();
+            }).ExecuteLater(1);
+        }
+
+        public void UpdateBlueprintCount(ConstructibleType type, int count)
         {
             string elementName = type switch
             {
-                ConstructionType.Road => "RoadCount",
-                ConstructionType.Canal => "CanalCount",
-                ConstructionType.Port => "PortCount",
-                ConstructionType.Truck => "TruckCount",
-                ConstructionType.Freighter => "FreighterCount",
+                ConstructibleType.Road => "RoadCount",
+                ConstructibleType.Canal => "CanalCount",
+                ConstructibleType.Port => "PortCount",
+                ConstructibleType.Truck => "TruckCount",
+                ConstructibleType.Freighter => "FreighterCount",
                 _ => null
             };
 
@@ -163,19 +213,16 @@ namespace UI
 
             var countContainer = blueprintCountContainer.Q<VisualElement>(elementName);
 
-            if (countContainer != null)
+            Label countLabel = countContainer.Q<Label>();
+
+            if (count > 0)
             {
-                // 3. Find the Label element nested inside your BlueprintCount template instance
-                Label countLabel = countContainer.Q<Label>();
-                if (countLabel != null)
-                {
-                    // Update the text safely
-                    countLabel.text = count.ToString();
-                }
-                else
-                {
-                    Debug.LogWarning($"Label not found inside template instance for: {elementName}");
-                }
+                countLabel.text = count.ToString();
+                countContainer.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                countContainer.style.display = DisplayStyle.None;
             }
         }
 

@@ -4,6 +4,7 @@ using Map.Infrastructure;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using Player;
 
 public class TestRoadCreation : NetworkBehaviour
 {
@@ -28,24 +29,6 @@ public class TestRoadCreation : NetworkBehaviour
         var tile = Map.Map.Instance.CurrentlyHovered as Tile;
         if (tile == null) return;
 
-        if (Input.GetMouseButtonDown(1))
-        {
-            Debug.Log("Clickded on tile with id " + tile.Id.Value);
-            if (startTile == null) startTile = tile;
-            else
-            {
-                var endTile = tile;
-
-                var edge = startTile.FindEdgeTo(endTile);
-                if (edge != null && edge.CanBecomeType(type))
-                {
-                    Debug.Log("Valid edge selected");
-                    Map.Map.Instance.RequestNewEdgesServerRpc(type, new EdgeId[] { edge.Id });
-                }
-                startTile = null;
-            }
-        }
-
         if (Input.GetKeyDown(KeyCode.P) && IsServer)
         {
             if (tile.CanSpawnStructure(Structure.StructureType.Producer))
@@ -64,13 +47,11 @@ public class TestRoadCreation : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.I) && IsServer)
         {
-            Debug.Log("Spawning port");
             Map.Map.Instance.Infrastructure.SpawnGlobal(new Port.PortState { Common = { TileId = tile.Id } }, new PlayerId(0));
         }
 
         if (Input.GetKeyDown(KeyCode.O) && IsServer)
         {
-            Debug.Log("Spawning garage");
             Map.Map.Instance.Infrastructure.SpawnGlobal(new Garage.GarageState { Common = { TileId = tile.Id } });
         }
 
@@ -117,39 +98,23 @@ public class TestRoadCreation : NetworkBehaviour
 
             if (tileIds == null) return;
 
-            Debug.Log("Freighter Path Length: " + tileIds.Length);
-
             Map.Map.Instance.RequestVehicleRouteServerRpc(Vehicle.GetOffsetFromType(Vehicle.VehicleType.Freighter) + freighter.Index, tileIds);
         }
 
         if(Input.GetKeyDown(KeyCode.A)) 
         {
-            Debug.Log("Loading truck");
             Map.Map.Instance.LoadFirstTruckOnFreighterServerRpc();
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (!IsServer) return;
-            Debug.Log("Finishing game");
             Map.Map.Instance.FinishGame();
         }
 
-        if (Input.GetKeyDown(KeyCode.V))
+        if (Input.GetKeyDown(KeyCode.X))
         {
-            connectedWaterTiles = Pathfinding.FindAllReachable(tile, t => t.Type is Tile.TileType.Water, (s, t) => s.FindEdgeTo(t)?.Type == Edge.EdgeType.Canal);
-            Debug.Log("Reachable water tile count: " + connectedWaterTiles.Length);
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        foreach(var tileId in connectedWaterTiles)
-        {
-            var tile = (Tile)Map.Map.Instance.Tiles[tileId];
-            Gizmos.color = Color.hotPink;
-
-            Gizmos.DrawSphere(Map.Map.Instance.GetProjectedPosition(tile.PositionOnSphere, 1.01f), 0.015f);
+            var details = Map.Map.Instance.Blueprint.GetDetails();
         }
     }
 }

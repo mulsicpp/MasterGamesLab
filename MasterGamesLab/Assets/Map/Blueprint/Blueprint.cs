@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Player;
 
 namespace Map.Blueprint
 {
@@ -29,7 +30,7 @@ namespace Map.Blueprint
 
         public bool IsEmpty => structures.Count == 0 && edges.Count == 0;
 
-        public Action<Blueprint> OnChanged;
+        public event Action<Blueprint> OnChanged;
 
         public Blueprint()
         {
@@ -167,6 +168,7 @@ namespace Map.Blueprint
             structures.Clear();
 
             ClearPreview();
+            Validate();
         }
 
         public void ApplyPreviewEdges()
@@ -210,8 +212,6 @@ namespace Map.Blueprint
             {
                 lastPacket = lastPacket.AddEdgeToPackets(edge, packets);
             }
-
-            Debug.Log("Structure count: " + structures.Count);
             
             foreach (var structure in structures)
             {
@@ -234,13 +234,30 @@ namespace Map.Blueprint
             lastPacket.Send(false);
         }
 
+        private static BlueprintDetails.ObjectInfo GetOrAdd(SortedList<ConstructibleType, BlueprintDetails.ObjectInfo> list, ConstructibleType key)
+        {
+            if(!list.ContainsKey(key))
+            {
+                list.Add(key, new());
+            }
+            return list[key];
+        }
+
         public BlueprintDetails GetDetails()
         {
+            int invalidObjectCount = 0;
             var objectInfos = new SortedList<ConstructibleType, BlueprintDetails.ObjectInfo>();
+
+            var values = (ConstructibleType[])Enum.GetValues(typeof(ConstructibleType));
+
+            foreach (var value in values)
+            {
+                objectInfos.Add(value, new());
+            }
         
             foreach (var edge in edges)
             {
-                var objectInfo = edge.Type switch
+                var objectInfo = edge.BlueprintType switch
                 {
                     Edge.EdgeType.Road => objectInfos[ConstructibleType.Road],
                     Edge.EdgeType.Canal => objectInfos[ConstructibleType.Canal],
@@ -249,6 +266,7 @@ namespace Map.Blueprint
                 if (objectInfo == null) continue;
                 objectInfo.Count++;
                 objectInfo.Cost += Cost(edge);
+                invalidObjectCount += IsValid(edge) ? 0 : 1;
             }
 
             foreach (var structure in structures)
@@ -261,6 +279,7 @@ namespace Map.Blueprint
                 if (objectInfo == null) continue;
                 objectInfo.Count++;
                 objectInfo.Cost += Cost(structure);
+                invalidObjectCount += IsValid(structure) ? 0 : 1;
             }
 
             int totalCost = 0;
@@ -269,7 +288,7 @@ namespace Map.Blueprint
                 totalCost += info.Cost;
             }
 
-            return new BlueprintDetails(objectInfos, totalCost);
+            return new BlueprintDetails(objectInfos, totalCost, invalidObjectCount);
         }
 
         public override void Validate()

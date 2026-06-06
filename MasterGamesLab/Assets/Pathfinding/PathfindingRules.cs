@@ -1,4 +1,5 @@
 using Map;
+using Player;
 
 public static class PathfindingRules
 {

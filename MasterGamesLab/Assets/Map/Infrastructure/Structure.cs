@@ -59,7 +59,6 @@ namespace Map.Infrastructure
                         value.Structure.Tile = null;
                     value.Structure = this;
                 }
-                Debug.Log("tile changed to: " + (int)(value?.Id ?? -1));
                 tile = value;
                 base.Touch();
             }
@@ -82,7 +81,6 @@ namespace Map.Infrastructure
                         value.BlueprintStructure.BlueprintTile = null;
                     value.BlueprintStructure = this;
                 }
-                Debug.Log("blueprint tile changed to: " + (int)(value?.Id ?? -1));
                 blueprintTile = value;
             }
         }

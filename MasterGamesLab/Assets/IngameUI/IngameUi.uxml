@@ -22,7 +22,6 @@
                     <ui:VisualElement name="FreighterCount" class="element countlabel">
                         <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
                     </ui:VisualElement>
-                    <ui:VisualElement name="FreighterCount" class="element countlabel"/>
                     <ResponsiveLabel name="TotalCost" height-percentage="0.8" text="Total Cost: 500" class="element label" style="width: 100%; aspect-ratio: 6; padding-left: 3%;"/>
                 </ShrinkWrapContainer>
             </ui:GroupBox>

@@ -6,6 +6,9 @@ using Map.OutlineEffect;
 using Unity.Netcode;
 using UnityEngine;
 using Networking;
+using Unity.VisualScripting;
+using IState = Networking.IState;
+using Player;
 
 namespace Map
 {
@@ -147,7 +150,7 @@ namespace Map
                         ? Blueprint.VisualState.Preview
                         : Blueprint.VisualState.PreviewOverlapping;
                 if (type == blueprintType) return Blueprint.VisualState.Overlapping;
-                return BlueprintIsValid ?  Blueprint.VisualState.Valid : Blueprint.VisualState.Invalid;
+                return BlueprintIsValid ? Blueprint.VisualState.Valid : Blueprint.VisualState.Invalid;
             }
         }
 
@@ -262,25 +265,18 @@ namespace Map
                 geometry.SetEndMesh(partialGeometry);
             }
 
-            if (PlayerManager.Instance != null)
-            {
-                geometry.SetPlayerColor(PlayerManager.Instance.GetPlayerColor(Owner));
-            }
-            else
-            {
-                geometry.SetPlayerColor(Color.black);
-            }
-
-            if (Type == EdgeType.Canal)
-            {
-                geometry.SetPlayerColor(new Color(0, 0, 255, 1));
-                geometry.SetOutlineLayer();
-                geometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
-            }
-
+            SetColorAndOutline();
             // geometry.SetLayer(EdgeGeometry.outlineLayer);
             // geometry.SetRoadColor(Constants.ROAD_BLUEPRINT_INVALID_COLOR);
             // geometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_INVALID_OUTLINE);
+        }
+
+        public void SetOutlineParameters(Constants.OutlineData outlineData)
+        {
+            geometry.SetOutlineLayer();
+            blueprintGeometry.SetOutlineLayer();
+            geometry.SetOutlineParameters(outlineData);
+            blueprintGeometry.SetOutlineParameters(outlineData);
         }
 
         public void SetBluePrintGeometryFrom(PartialEdgeGeometry partialGeometry, Tile sender)
@@ -305,7 +301,29 @@ namespace Map
         public void ChangeVisualState()
         {
             SetBlueprintColorAndOutline();
+            SetColorAndOutline();
             EdgeDirty = false;
+        }
+
+        private void SetColorAndOutline()
+        {
+            if (PlayerManager.Instance != null)
+            {
+                geometry.SetPlayerColor(PlayerManager.Instance.GetPlayerColor(Owner));
+            }
+            else
+            {
+                geometry.SetPlayerColor(Color.black);
+            }
+
+            geometry.SetBaseLayer();
+
+            if (Type == EdgeType.Canal)
+            {
+                geometry.SetPlayerColor(new Color(0, 0, 255, 1));
+                geometry.SetOutlineLayer();
+                geometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
+            }
         }
 
         private void SetBlueprintColorAndOutline()
@@ -351,7 +369,7 @@ namespace Map
             EndTile.GeometryChanged = true;
         }
 
-        private void TriggerDirty()
+        public void TriggerDirty()
         {
             EdgeDirty = true;
             // StartTile.EdgeDirty = true;
