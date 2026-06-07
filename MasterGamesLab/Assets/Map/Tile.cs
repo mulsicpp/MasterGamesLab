@@ -369,7 +369,7 @@ namespace Map
 
             foreach (var edge in edges)
             {
-                if (edge.Type == Edge.EdgeType.Canal || edge.BlueprintType == Edge.EdgeType.Canal)
+                if (edge.Type == Edge.EdgeType.Canal)
                 {
                     Chunk.GeometryChanged = true;
                     wasCanal = true;

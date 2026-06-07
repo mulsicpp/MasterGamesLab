@@ -16,6 +16,12 @@ namespace Map.GeometryGeneration
             public List<Vector4> TileData;
             public List<Vector4> MaterialData;
             public List<Map.TreeData> TreeData;
+
+            public static ChunkGeometry Empty => new()
+            {
+                Vertices = new List<Vector3>(), Triangles = new List<int>(), TileData = new List<Vector4>(),
+                MaterialData = new List<Vector4>(), TreeData = new List<Map.TreeData>()
+            };
         }
 
         public struct TileGeometryInformation

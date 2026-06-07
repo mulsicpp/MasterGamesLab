@@ -10,6 +10,25 @@ namespace Map.GeometryGeneration
 {
     public static class TileGeometryFactory
     {
+        public struct CanalSectionData
+        {
+            public Tile Tile;
+            public int StartIdx;
+            public int EndIdx;
+            public bool IncludeHalfTriangleBefore; // to split a section between two edges.
+            public bool IncludeHalfTriangleAfter; // Does NOT work with IncludeBorderToNeighbors
+            public bool IsBluePrint;
+            public Vector4 UV1Data;
+            public Vector2 LandTextureCenter;
+            public Vector2 CanalWallsTextureCenter;
+            public float LandHeight;
+            public float WaterHeight;
+            public bool IncludeWater;
+            public bool IncludeLand;
+            public bool IncludeCanalWalls;
+            public bool IncludeBorderToNeighbors;
+        }
+
         private static readonly float TanPI3 = Mathf.Tan(Mathf.PI / 3);
         private static readonly float CosPI6 = Mathf.Cos(Mathf.PI / 6);
 
@@ -179,7 +198,10 @@ namespace Map.GeometryGeneration
                 {
                     Tile = tile,
                     StartIdx = 0,
-                    EndIdx = 0,
+                    EndIdx = tile.NeighborTiles.Count,
+                    IncludeHalfTriangleBefore = false,
+                    IncludeHalfTriangleAfter = false,
+                    IsBluePrint = false,
                     UV1Data = tileDataVec,
                     LandTextureCenter = textureCenter,
                     CanalWallsTextureCenter = textureBorderColor,
@@ -418,17 +440,33 @@ namespace Map.GeometryGeneration
             var neighbors = tile.NeighborTiles;
             var offsets = GetRandoms(tile.Id.Value, 3 * neighbors.Count * 2, GetRandomOffset);
 
-            for (var i = 0; i < neighbors.Count; i++)
+            var forStartIdx = data.IncludeHalfTriangleBefore ? data.StartIdx - 1 : data.StartIdx;
+            var forEndIdx = data.EndIdx;
+            if (forEndIdx <= forStartIdx)
             {
-                var iNext = (i + 1) % neighbors.Count;
-                var iPrev = (i - 1 + neighbors.Count) % neighbors.Count;
+                forEndIdx += neighbors.Count;
+            }
+
+            if (data.IncludeHalfTriangleAfter)
+            {
+                forEndIdx++;
+            }
+
+            for (var i = forStartIdx; i < forEndIdx; i++)
+            {
+                var onlyLeftSubTriangle = i == forEndIdx && data.IncludeHalfTriangleBefore;
+                var onlyRightSubTriangle = i == forEndIdx - 1 && data.IncludeHalfTriangleAfter;
+
+                var iCurr = i % neighbors.Count;
+                var iNext = (iCurr + 1) % neighbors.Count;
+                var iPrev = (iCurr - 1 + neighbors.Count) % neighbors.Count;
 
                 var prevEdge = tile.FindEdgeTo(neighbors[iPrev].Tile);
-                var edge = tile.FindEdgeTo(neighbors[i].Tile);
+                var edge = tile.FindEdgeTo(neighbors[iCurr].Tile);
                 var nextEdge = tile.FindEdgeTo(neighbors[iNext].Tile);
 
-                var (edgeLeftL, edgeRightL, edgeCenterL) = GetPoints(neighbors[i], landHeight);
-                var (edgeLeftW, edgeRightW, edgeCenterW) = GetPoints(neighbors[i], waterHeight);
+                var (edgeLeftL, edgeRightL, edgeCenterL) = GetPoints(neighbors[iCurr], landHeight);
+                var (edgeLeftW, edgeRightW, edgeCenterW) = GetPoints(neighbors[iCurr], waterHeight);
 
                 var randomsEdge = GetRandoms(edge != null ? edge.Id.Value : 0, 2 * 2, GetRandomValue);
                 if (edge != null && Vector3.Dot(Vector3.Cross(edge.VertexA, edge.VertexB), tileCenterW - edgeCenterW) <
@@ -443,24 +481,24 @@ namespace Map.GeometryGeneration
                 var nextCanal = IsCanal(nextEdge);
 
                 // Water things (lower)
-                var (lowerLeftW, lowerRightW) = GetLowerPointsToCenter(edgeLeftW, edgeRightW, tileCenterW, offsets, i,
-                    iNext, pctVertTileWater, true, waterHeight);
+                var (lowerLeftW, lowerRightW) = GetLowerPointsToCenter(edgeLeftW, edgeRightW, tileCenterW, offsets,
+                    iCurr, iNext, pctVertTileWater, true, waterHeight);
 
-                var onCenterLineW = GetPointOnCenterLine(edgeCenterW, tileCenterW, offsets, i, pctCenterLineTileWater,
-                    true, waterHeight);
+                var onCenterLineW = GetPointOnCenterLine(edgeCenterW, tileCenterW, offsets, iCurr,
+                    pctCenterLineTileWater, true, waterHeight);
 
                 var (upperLeftW, upperRightW) = GetUpperPointsToCenter(edgeLeftW, edgeRightW, tileCenterW, offsets,
-                    i, iNext, canalInsetWater, true, waterHeight);
+                    iCurr, iNext, canalInsetWater, true, waterHeight);
 
                 // Land things (upper)
-                var (lowerLeftL, lowerRightL) = GetLowerPointsToCenter(edgeLeftL, edgeRightL, tileCenterL, offsets, i,
-                    iNext, pctVertTileLand, true, landHeight);
+                var (lowerLeftL, lowerRightL) = GetLowerPointsToCenter(edgeLeftL, edgeRightL, tileCenterL, offsets,
+                    iCurr, iNext, pctVertTileLand, true, landHeight);
 
-                var onCenterLineL = GetPointOnCenterLine(edgeCenterL, tileCenterL, offsets, i,
+                var onCenterLineL = GetPointOnCenterLine(edgeCenterL, tileCenterL, offsets, iCurr,
                     pctCenterLineTileLand, true, landHeight);
 
                 var (upperLeftL, upperRightL) = GetUpperPointsToCenter(edgeLeftL, edgeRightL, tileCenterL, offsets,
-                    i, iNext, canalInsetLand, true, landHeight);
+                    iCurr, iNext, canalInsetLand, true, landHeight);
 
                 // Land things UVs
                 var normal = tileCenterL.normalized;
@@ -468,7 +506,7 @@ namespace Map.GeometryGeneration
                 var vR = edgeRightL - tileCenterL;
 
                 var uvLeft = HexagonCoordinates[iNext];
-                var uvRight = HexagonCoordinates[i];
+                var uvRight = HexagonCoordinates[iCurr];
                 var uvEdgeCenter = (uvLeft + uvRight) * 0.5f;
 
                 // Project 3D displacements directly onto the 2D HexagonCoordinates basis using Barycentric math
@@ -584,7 +622,7 @@ namespace Map.GeometryGeneration
 
                     if (data.IncludeBorderToNeighbors)
                     {
-                        if (tile.Type == Tile.TileType.Water || neighbors[i].Tile.Type != Tile.TileType.Water)
+                        if (tile.Type == Tile.TileType.Water || neighbors[iCurr].Tile.Type != Tile.TileType.Water)
                         {
                             continue;
                         }
@@ -630,54 +668,60 @@ namespace Map.GeometryGeneration
                     if (data.IncludeWater)
                     {
                         // Right part of the triangle
-                        if (prevCanal)
+                        if (!onlyRightSubTriangle)
                         {
-                            cg.AddVertex(onCenterLineW, uv1,
-                                BuildMaterialData(CanalRectangleOrigin, canalTextureTopUpperMiddle, true,
-                                    tile.RandomValue));
+                            if (prevCanal)
+                            {
+                                cg.AddVertex(onCenterLineW, uv1,
+                                    BuildMaterialData(CanalRectangleOrigin, canalTextureTopUpperMiddle, true,
+                                        tile.RandomValue));
 
-                            cg.AddVertex(lowerRightW, uv1,
-                                BuildMaterialData(CanalRectangleOrigin, canalTextureTopLowerMiddle, true,
-                                    tile.RandomValue));
+                                cg.AddVertex(lowerRightW, uv1,
+                                    BuildMaterialData(CanalRectangleOrigin, canalTextureTopLowerMiddle, true,
+                                        tile.RandomValue));
+                            }
+                            else
+                            {
+                                cg.AddVertex(onCenterLineW, uv1,
+                                    BuildMaterialData(CanalRectangleOrigin, canalTextureBottomUpperMiddle, true,
+                                        tile.RandomValue));
+
+                                cg.AddVertex(upperRightW, uv1,
+                                    BuildMaterialData(CanalRectangleOrigin, canalTextureBottomEnd, true,
+                                        tile.RandomValue));
+                            }
+
+                            cg.Triangles.AddRange(new List<int> { currentIdx, startIdx, currentIdx + 1 });
+                            currentIdx += 2;
                         }
-                        else
-                        {
-                            cg.AddVertex(onCenterLineW, uv1,
-                                BuildMaterialData(CanalRectangleOrigin, canalTextureBottomUpperMiddle, true,
-                                    tile.RandomValue));
-
-                            cg.AddVertex(upperRightW, uv1,
-                                BuildMaterialData(CanalRectangleOrigin, canalTextureBottomEnd, true,
-                                    tile.RandomValue));
-                        }
-
-                        cg.Triangles.AddRange(new List<int> { currentIdx, startIdx, currentIdx + 1 });
-                        currentIdx += 2;
 
                         // Left part of the triangle
-                        if (nextCanal)
+                        if (!onlyLeftSubTriangle)
                         {
-                            cg.AddVertex(onCenterLineW, uv1,
-                                BuildMaterialData(CanalRectangleOrigin, canalTextureBottomUpperMiddle, true,
-                                    tile.RandomValue));
+                            if (nextCanal)
+                            {
+                                cg.AddVertex(onCenterLineW, uv1,
+                                    BuildMaterialData(CanalRectangleOrigin, canalTextureBottomUpperMiddle, true,
+                                        tile.RandomValue));
 
-                            cg.AddVertex(lowerLeftW, uv1,
-                                BuildMaterialData(CanalRectangleOrigin, canalTextureBottomLowerMiddle, true,
-                                    tile.RandomValue));
+                                cg.AddVertex(lowerLeftW, uv1,
+                                    BuildMaterialData(CanalRectangleOrigin, canalTextureBottomLowerMiddle, true,
+                                        tile.RandomValue));
+                            }
+                            else
+                            {
+                                cg.AddVertex(onCenterLineW, uv1,
+                                    BuildMaterialData(CanalRectangleOrigin, canalTextureTopUpperMiddle, true,
+                                        tile.RandomValue));
+
+                                cg.AddVertex(upperLeftW, uv1,
+                                    BuildMaterialData(CanalRectangleOrigin, canalTextureTopEnd, true,
+                                        tile.RandomValue));
+                            }
+
+                            cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 1, startIdx });
+                            currentIdx += 2;
                         }
-                        else
-                        {
-                            cg.AddVertex(onCenterLineW, uv1,
-                                BuildMaterialData(CanalRectangleOrigin, canalTextureTopUpperMiddle, true,
-                                    tile.RandomValue));
-
-                            cg.AddVertex(upperLeftW, uv1,
-                                BuildMaterialData(CanalRectangleOrigin, canalTextureTopEnd, true,
-                                    tile.RandomValue));
-                        }
-
-                        cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 1, startIdx });
-                        currentIdx += 2;
                     }
 
                     if (data.IncludeLand)
@@ -703,8 +747,11 @@ namespace Map.GeometryGeneration
                         cg.AddVertex(edgeRightL, uv1,
                             BuildMaterialData(uvCenter, uvRight, true, tile.RandomValue));
 
-                        cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 1, currentIdx + 2 });
-                        cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 2, currentIdx + 3 });
+                        if (!onlyRightSubTriangle)
+                        {
+                            cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 1, currentIdx + 2 });
+                            cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 2, currentIdx + 3 });
+                        }
 
                         // Left part of the triangle
                         if (nextCanal)
@@ -721,8 +768,11 @@ namespace Map.GeometryGeneration
                         cg.AddVertex(edgeLeftL, uv1,
                             BuildMaterialData(uvCenter, uvLeft, true, tile.RandomValue));
 
-                        cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 5, currentIdx + 4 });
-                        cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 4, currentIdx + 1 });
+                        if (!onlyLeftSubTriangle)
+                        {
+                            cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 5, currentIdx + 4 });
+                            cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 4, currentIdx + 1 });
+                        }
 
                         currentIdx += 6;
                     }
@@ -753,8 +803,11 @@ namespace Map.GeometryGeneration
                                 BuildMaterialData(uvCenterWall, Vector3.zero, false, tile.RandomValue));
                         }
 
-                        cg.Triangles.AddRange(new List<int> { currentIdx + 2, currentIdx + 3, currentIdx });
-                        cg.Triangles.AddRange(new List<int> { currentIdx + 3, currentIdx + 1, currentIdx });
+                        if (!onlyRightSubTriangle)
+                        {
+                            cg.Triangles.AddRange(new List<int> { currentIdx + 2, currentIdx + 3, currentIdx });
+                            cg.Triangles.AddRange(new List<int> { currentIdx + 3, currentIdx + 1, currentIdx });
+                        }
 
                         // Left part of the triangle
                         if (nextCanal)
@@ -774,8 +827,11 @@ namespace Map.GeometryGeneration
                                 BuildMaterialData(uvCenterWall, Vector3.zero, false, tile.RandomValue));
                         }
 
-                        cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 1, currentIdx + 4 });
-                        cg.Triangles.AddRange(new List<int> { currentIdx + 4, currentIdx + 1, currentIdx + 5 });
+                        if (!onlyLeftSubTriangle)
+                        {
+                            cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 1, currentIdx + 4 });
+                            cg.Triangles.AddRange(new List<int> { currentIdx + 4, currentIdx + 1, currentIdx + 5 });
+                        }
 
                         currentIdx += 6;
                     }
@@ -838,7 +894,7 @@ namespace Map.GeometryGeneration
 
                 if (!thisCanal && data.IncludeBorderToNeighbors)
                 {
-                    if (tile.Type == Tile.TileType.Water || neighbors[i].Tile.Type != Tile.TileType.Water)
+                    if (tile.Type == Tile.TileType.Water || neighbors[iCurr].Tile.Type != Tile.TileType.Water)
                     {
                         continue;
                     }
@@ -874,23 +930,8 @@ namespace Map.GeometryGeneration
             return currentIdx - startIdx;
 
             bool IsCanal(Edge e) =>
-                e != null && (e.Type == Edge.EdgeType.Canal || e.BlueprintType == Edge.EdgeType.Canal);
-        }
-
-        public struct CanalSectionData
-        {
-            public Tile Tile;
-            public float StartIdx;
-            public float EndIdx;
-            public Vector4 UV1Data;
-            public Vector2 LandTextureCenter;
-            public Vector2 CanalWallsTextureCenter;
-            public float LandHeight;
-            public float WaterHeight;
-            public bool IncludeWater;
-            public bool IncludeLand;
-            public bool IncludeCanalWalls;
-            public bool IncludeBorderToNeighbors;
+                e != null && ((!data.IsBluePrint && e.Type == Edge.EdgeType.Canal) ||
+                              (data.IsBluePrint && e.BlueprintType == Edge.EdgeType.Canal));
         }
 
         private static Vector4 BuildMaterialData(Vector2 center, Vector2 offset, bool animate, float randomValue)
@@ -899,7 +940,6 @@ namespace Map.GeometryGeneration
             return new Vector4(uv.x, uv.y, animate ? 1 : 0, randomValue);
         }
 
-
         private static void AddVertex(this MapChunk.ChunkGeometry cg, Vector3 vertex, Vector4 tileData,
             Vector4 materialData)
         {
@@ -907,7 +947,7 @@ namespace Map.GeometryGeneration
             cg.TileData.Add(tileData);
             cg.MaterialData.Add(materialData);
         }
-        
+
         private static (Vector3 left, Vector3 right, Vector3 center) GetPoints(Tile.NeighborTile nt, float height)
         {
             var left = nt.LeftVertex.normalized * height;

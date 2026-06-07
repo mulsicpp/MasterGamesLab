@@ -193,6 +193,7 @@ namespace Map
             {
                 oldTestCanalInsetLower = TEST_CANAL_INSET_LOWER;
                 oldTestCanalRandom = TEST_CANAL_RANDOM_;
+                oldTestCanalInsetUpper = TEST_CANAL_INSET_UPPER;
                 TileGeometryFactory.SetCanalInset(TEST_CANAL_INSET_UPPER, TEST_CANAL_INSET_LOWER, TEST_CANAL_RANDOM_);
                 foreach (var chunk in chunks)
                 {

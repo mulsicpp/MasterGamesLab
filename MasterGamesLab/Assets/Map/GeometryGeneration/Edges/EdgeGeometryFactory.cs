@@ -30,6 +30,11 @@ namespace Map.GeometryGeneration.Edges
                     : BuildConnectingParametricCurves(tile, edge, blueprint);
             }
 
+            if (edge.Type == Edge.EdgeType.Canal || edge.BlueprintType == Edge.EdgeType.Canal)
+            {
+                return BuildBlueprintCanal(tile, edge, info, blueprint);
+            }
+
             return Edge.PartialEdgeGeometry.Empty;
             return BuildBackup(tile, edge);
         }
@@ -386,6 +391,97 @@ namespace Map.GeometryGeneration.Edges
                 Vertices = vertices,
                 UV1 = uv1,
                 Triangles = triangles
+            };
+        }
+
+        public static Edge.PartialEdgeGeometry BuildBlueprintCanal(Tile tile, Edge edge, TileInformation info,
+            bool blueprint)
+        {
+            var tempGeo = MapChunk.ChunkGeometry.Empty;
+
+            int startIdx, endIdx;
+            if (info.AmountOfCanals == 1)
+            {
+                startIdx = 0;
+                endIdx = tile.NeighborTiles.Count;
+            }
+            else
+            {
+                var selfIdx = -1;
+                var numTiles = tile.NeighborTiles.Count;
+
+                for (var i = 0; i < numTiles; i++)
+                {
+                    var neighborEdge = tile.FindEdgeTo(tile.NeighborTiles[i].Tile);
+                    if (neighborEdge != null && neighborEdge.Id.Value == edge.Id.Value)
+                    {
+                        selfIdx = i;
+                        break;
+                    }
+                }
+
+                var nextCanalDist = numTiles;
+                for (var i = 1; i < numTiles; i++)
+                {
+                    var nextIdx = (selfIdx + i) % numTiles;
+                    var nextEdge = tile.FindEdgeTo(tile.NeighborTiles[nextIdx].Tile);
+                    if (nextEdge == null || (blueprint
+                            ? nextEdge.BlueprintType != Edge.EdgeType.Canal
+                            : nextEdge.Type != Edge.EdgeType.Canal))
+                    {
+                        continue;
+                    }
+
+                    nextCanalDist = i;
+                    break;
+                }
+
+                var prevCanalDist = numTiles;
+                for (var i = 1; i < numTiles; i++)
+                {
+                    var prevIdx = (selfIdx - i + numTiles) % numTiles;
+                    var prevEdge = tile.FindEdgeTo(tile.NeighborTiles[prevIdx].Tile);
+                    if (prevEdge == null || (blueprint
+                            ? prevEdge.BlueprintType != Edge.EdgeType.Canal
+                            : prevEdge.Type != Edge.EdgeType.Canal))
+                    {
+                        continue;
+                    }
+
+                    prevCanalDist = i;
+                    break;
+                }
+
+                startIdx = (selfIdx - prevCanalDist / 2 + numTiles) % numTiles;
+                endIdx = (selfIdx + nextCanalDist / 2 + 1) % numTiles;
+            }
+
+            TileGeometryFactory.BuildCanalSection(new TileGeometryFactory.CanalSectionData
+            {
+                Tile = tile,
+                StartIdx = startIdx,
+                EndIdx = endIdx,
+                IncludeHalfTriangleBefore = false,
+                IncludeHalfTriangleAfter = false,
+                IsBluePrint = blueprint,
+                UV1Data = edge.GetEdgeData(),
+                LandTextureCenter = Vector2.zero,
+                CanalWallsTextureCenter = Vector2.zero,
+                LandHeight = 1,
+                WaterHeight = blueprint
+                    ? TileGeometryFactory.LAND_HEIGHT + Map.Instance.TEST_ROAD_HEIGHT
+                    : TileGeometryFactory.WATER_HEIGHT + 0.001f,
+                IncludeWater = true,
+                IncludeLand = false,
+                IncludeCanalWalls = false,
+                IncludeBorderToNeighbors = false,
+            }, tempGeo);
+
+            return new Edge.PartialEdgeGeometry
+            {
+                Vertices = tempGeo.Vertices,
+                UV1 = tempGeo.TileData,
+                Triangles = tempGeo.Triangles,
             };
         }
     }

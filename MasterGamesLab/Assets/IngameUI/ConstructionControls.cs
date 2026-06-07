@@ -162,7 +162,7 @@ public class ConstructionControls : MonoBehaviour
                 }
 
                 tileOutliner.ClearOutline();
-                e.SetOutlineParameters(Constants.HOVER_OUTLINE_FILLED_IN);
+                e.SetOutlineParameters(Constants.HOVER_OUTLINE_FILLED_IN, e.Type == EdgeType.Canal);
                 previouslyHoveredEdge = e;
                 break;
         }
