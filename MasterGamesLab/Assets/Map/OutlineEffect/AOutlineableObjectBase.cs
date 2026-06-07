@@ -18,6 +18,7 @@ namespace Map.OutlineEffect
         private int outlineTransparentLayer;
 
         private Renderer objRenderer;
+        private MaterialPropertyBlock mpb;
 
         private Color outlineColor;
         private Color innerColor;
@@ -76,7 +77,7 @@ namespace Map.OutlineEffect
                 return;
             }
 
-            var mpb = new MaterialPropertyBlock();
+            if (mpb == null) mpb = new MaterialPropertyBlock();
             objRenderer.GetPropertyBlock(mpb);
             mpb.SetColor(PlayerColor, playerColor);
             mpb.SetColor(OutlineColor, outlineColor);

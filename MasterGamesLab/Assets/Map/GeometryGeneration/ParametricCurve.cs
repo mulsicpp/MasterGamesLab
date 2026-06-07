@@ -17,15 +17,17 @@ namespace Map.GeometryGeneration
             bool foundStart = false, foundEnd = false;
             foreach (var n in tile.NeighborTiles)
             {
-                if(n.Tile == startTile)
+                if (n.Tile == startTile)
                 {
-                    rStart = new((n.LeftVertex + n.RightVertex) / 2f, Vector3.Cross(n.LeftVertex, n.RightVertex).normalized);
+                    rStart = new Ray((n.LeftVertex + n.RightVertex) / 2f,
+                        Vector3.Cross(n.LeftVertex, n.RightVertex).normalized);
                     foundStart = true;
                 }
 
                 if (n.Tile == endTile)
                 {
-                    rEnd = new((n.LeftVertex + n.RightVertex) / 2f, Vector3.Cross(n.LeftVertex, n.RightVertex).normalized);
+                    rEnd = new Ray((n.LeftVertex + n.RightVertex) / 2f,
+                        Vector3.Cross(n.LeftVertex, n.RightVertex).normalized);
                     foundEnd = true;
                 }
             }
@@ -41,12 +43,13 @@ namespace Map.GeometryGeneration
         public static ParametricCurve FromTileToTileCenter(Tile startTile, Tile endTile)
         {
             Ray ray = default;
-            bool found = false;
+            var found = false;
             foreach (var n in endTile.NeighborTiles)
             {
                 if (n.Tile == startTile)
                 {
-                    ray = new((n.LeftVertex + n.RightVertex) / 2f, Vector3.Cross(n.LeftVertex, n.RightVertex).normalized);
+                    ray = new Ray((n.LeftVertex + n.RightVertex) / 2f,
+                        Vector3.Cross(n.LeftVertex, n.RightVertex).normalized);
                     found = true;
                 }
             }
@@ -55,7 +58,7 @@ namespace Map.GeometryGeneration
 
             if (Vector3.Dot(ray.direction, endTile.PositionOnSphere - ray.origin) < 0) ray.direction = -ray.direction;
 
-            return FromRaysInTile(ray, new(endTile.PositionOnSphere, -ray.direction), endTile, 0.5f);
+            return FromRaysInTile(ray, new Ray(endTile.PositionOnSphere, -ray.direction), endTile, 0.5f);
         }
 
         public static ParametricCurve FromEdgeToEdge(Edge start, Edge end, Tile tile)
@@ -69,7 +72,7 @@ namespace Map.GeometryGeneration
             if (Vector3.Dot(dir0, p3 - p0) < 0) dir0 = -dir0;
             if (Vector3.Dot(dir3, p0 - p3) < 0) dir3 = -dir3;
 
-            return FromRaysInTile(new(p0, dir0), new(p3, dir3), tile);
+            return FromRaysInTile(new Ray(p0, dir0), new Ray(p3, dir3), tile);
         }
 
         public static ParametricCurve FromEdgeToTileCenter(Edge edge, Tile tile)
@@ -83,10 +86,11 @@ namespace Map.GeometryGeneration
             if (Vector3.Dot(dir0, p3 - p0) < 0) dir0 = -dir0;
             if (Vector3.Dot(dir3, p0 - p3) < 0) dir3 = -dir3;
 
-            return FromRaysInTile(new(p0, dir0), new(p3, dir3), tile, 0.5f);
+            return FromRaysInTile(new Ray(p0, dir0), new Ray(p3, dir3), tile, 0.5f);
         }
 
-        public static ParametricCurve FromRaysInTile(Ray startRay, Ray endRay, Tile tile, float handleDistanceScale = 1.0f)
+        private static ParametricCurve FromRaysInTile(Ray startRay, Ray endRay, Tile tile,
+            float handleDistanceScale = 1.0f)
         {
             var p0 = startRay.origin;
             var dir0 = startRay.direction;
@@ -116,7 +120,7 @@ namespace Map.GeometryGeneration
             return FromBezierPoints(p0, p1, p2, p3);
         }
 
-        public static ParametricCurve FromBezierPoints(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
+        private static ParametricCurve FromBezierPoints(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
         {
             var a = -p0 + 3 * p1 - 3 * p2 + p3;
             var b = 3 * p0 - 6 * p1 + 3 * p2;

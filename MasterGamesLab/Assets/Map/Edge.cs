@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using Map.GeometryGeneration.Edges;
 using Map.Hoverables;
-using Map.OutlineEffect;
 using Unity.Netcode;
 using UnityEngine;
 using Networking;
-using Unity.VisualScripting;
 using IState = Networking.IState;
 using Player;
 
@@ -290,10 +288,19 @@ namespace Map
             // geometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_INVALID_OUTLINE);
         }
 
-        public void SetOutlineParameters(Constants.OutlineData outlineData)
+        public void SetOutlineParameters(Constants.OutlineData outlineData, bool transparent)
         {
-            geometry.SetOutlineLayer();
-            blueprintGeometry.SetOutlineLayer();
+            if (transparent)
+            {
+                geometry.SetOutlineTransparentLayer();
+                blueprintGeometry.SetOutlineTransparentLayer();
+            }
+            else
+            {
+                geometry.SetOutlineLayer();
+                blueprintGeometry.SetOutlineLayer();
+            }
+
             geometry.SetOutlineParameters(outlineData);
             blueprintGeometry.SetOutlineParameters(outlineData);
         }
@@ -340,8 +347,8 @@ namespace Map
             if (Type == EdgeType.Canal)
             {
                 geometry.SetPlayerColor(new Color(0, 0, 255, 1));
-                geometry.SetOutlineLayer();
-                geometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
+                geometry.SetOutlineTransparentLayer();
+                geometry.SetOutlineParameters(Constants.TRANSPARENT_OUTLINE);
             }
         }
 
@@ -350,15 +357,23 @@ namespace Map
             switch (BlueprintVisualState)
             {
                 case Blueprint.VisualState.Valid:
-                    blueprintGeometry.SetOutlineLayer();
-                    blueprintGeometry.SetPlayerColor(Constants.ROAD_BLUEPRINT_COLOR);
 
-                    var outline = BlueprintType switch
+                    switch (BlueprintType)
                     {
-                        EdgeType.Canal => Constants.CANAL_BLUEPRINT_VALID_OUTLINE,
-                        _ => Constants.ROAD_BLUEPRINT_VALID_OUTLINE
-                    };
-                    blueprintGeometry.SetOutlineParameters(outline);
+                        case EdgeType.Road:
+                            blueprintGeometry.SetOutlineLayer();
+                            blueprintGeometry.SetPlayerColor(Constants.ROAD_BLUEPRINT_COLOR);
+                            blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_VALID_OUTLINE);
+                            break;
+                        case EdgeType.Canal:
+                            blueprintGeometry.SetOutlineTransparentLayer();
+                            blueprintGeometry.SetOutlineParameters(Constants.CANAL_BLUEPRINT_VALID_OUTLINE);
+                            break;
+                        default:
+                            blueprintGeometry.SetBaseLayer();
+                            break;
+                    }
+
                     break;
                 case Blueprint.VisualState.Preview:
                     blueprintGeometry.SetBaseLayer();

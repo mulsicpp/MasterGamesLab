@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using Map.OutlineEffect;
-using UnityEngine;
 
 namespace Map.GeometryGeneration.Edges
 {

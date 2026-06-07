@@ -39,6 +39,13 @@ namespace Map
 
         public float TEST_ROAD_HANDLE_DISTANCE = 0.025f;
         public float TEST_ROAD_HEIGHT = 0.01f;
+        public float TEST_CANAL_INSET_LOWER = 0.7f;
+        public float TEST_CANAL_INSET_UPPER = 0.6f;
+        public float TEST_CANAL_RANDOM_ = 0.00f;
+
+        private float oldTestCanalInsetLower;
+        private float oldTestCanalInsetUpper;
+        private float oldTestCanalRandom;
 
         public Timestamp Timestamp = new Timestamp(0);
 
@@ -107,6 +114,7 @@ namespace Map
         private void Awake()
         {
             Instance = this;
+
 
             CurrentlyHovered = null;
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
@@ -193,6 +201,19 @@ namespace Map
 
         private void Update()
         {
+            if (TEST_CANAL_INSET_LOWER != oldTestCanalInsetLower || TEST_CANAL_RANDOM_ != oldTestCanalRandom ||
+                TEST_CANAL_INSET_UPPER != oldTestCanalInsetUpper)
+            {
+                oldTestCanalInsetLower = TEST_CANAL_INSET_LOWER;
+                oldTestCanalRandom = TEST_CANAL_RANDOM_;
+                oldTestCanalInsetUpper = TEST_CANAL_INSET_UPPER;
+                TileGeometryFactory.SetCanalInset(TEST_CANAL_INSET_UPPER, TEST_CANAL_INSET_LOWER, TEST_CANAL_RANDOM_);
+                foreach (var chunk in chunks)
+                {
+                    chunk.UpdateMesh();
+                }
+            }
+
             foreach (var chunk in chunks)
             {
                 if (chunk.GeometryChanged)

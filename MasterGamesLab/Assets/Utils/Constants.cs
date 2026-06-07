@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public static class Constants
 {
@@ -94,6 +95,13 @@ public static class Constants
         public int TextureId;
     }
 
+    public static OutlineData TRANSPARENT_OUTLINE = new OutlineData()
+    {
+        OutlineColor = new Color(0, 0, 0, 0),
+        InnerColor = new Color(0, 0, 0, 0),
+        TextureId = 0,
+    };
+    
     public static OutlineData HOVER_OUTLINE = new OutlineData()
     {
         OutlineColor = new Color(1f, 0.92f, 0.016f, 0.6f),
