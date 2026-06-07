@@ -356,7 +356,7 @@ namespace Map.Fleet
 
             gameObject.SetActive(true);
             var tProj = Map.Instance.GetProjectedVehicleTransform(t);
-            gameObject.transform.position = tProj.Position * 1.01f;
+            gameObject.transform.position = tProj.Position;
             gameObject.transform.rotation = Quaternion.LookRotation(tProj.Forward, tProj.Up);
 
         }
