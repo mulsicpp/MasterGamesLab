@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using Networking;
+using System.Security.Cryptography;
 
 namespace Map.Fleet
 {
@@ -80,13 +81,39 @@ namespace Map.Fleet
 
         public abstract Player.Player Owner { get; }
 
+        protected abstract GameObject VehiclePrefab { get; }
+
+        private GameObject gameObject;
+
         private bool exists;
-        public bool Exists { get { return exists; } set { exists = value; Touch(); } }
+        public bool Exists
+        {
+            get { return exists; }
+            set
+            {
+                if (exists != value)
+                {
+                    exists = value;
+                    Touch();
+                    if (exists)
+                    {
+                        gameObject = Object.Instantiate(VehiclePrefab);
+                        UpdateGameobject();
+                    }
+                    else
+                    {
+                        Object.Destroy(gameObject);
+                        gameObject = null;
+                    }
+                }
+            }
+        }
 
         public new Timestamp Timestamp => base.Timestamp;
 
         private Tile[] route;
-        public Tile[] Route {
+        public Tile[] Route
+        {
             get { return route; }
             set
             {
@@ -101,9 +128,11 @@ namespace Map.Fleet
         public bool ProgressDirty => progressDirty;
 
         private float routeProgress;
-        public float RouteProgress { 
+        public float RouteProgress
+        {
             get { return routeProgress; }
-            set { 
+            set
+            {
                 routeProgress = value;
                 PutTimestamp();
                 progressDirty = true;
@@ -114,7 +143,8 @@ namespace Map.Fleet
 
 
         private Tile parkedTile;
-        public Tile ParkedTile {
+        public Tile ParkedTile
+        {
             get { return parkedTile; }
             set
             {
@@ -176,7 +206,8 @@ namespace Map.Fleet
 
         VehicleProgressState ISynchableObject<VehicleProgressState>.State { get => ProgressState; set => ProgressState = value; }
 
-        public void ApplyServerState(VehicleProgressState state, double serverTime) {
+        public void ApplyServerState(VehicleProgressState state, double serverTime)
+        {
 
             ProgressState = state;
             ResetProgressDirty();
@@ -261,38 +292,73 @@ namespace Map.Fleet
 
         protected abstract void OnParked();
 
-        public virtual Vector3? PositionOnSphere
+        public virtual VehicleTransform Transform
         {
             get
             {
                 if (!Exists) return null;
-                if (IsParked) return ParkedTile.PositionOnSphere;
+                if (IsParked) return ParkedTile.ParkedVehicleTransform();
                 else if (IsDriving)
                 {
                     float visualProgress = smoothDriving?.VisualProgress ?? RouteProgress;
-                    if (visualProgress <= 0.0f) return Route[0].PositionOnSphere;
-                    else if (visualProgress >= Route.Length - 1) return Route[Route.Length - 1].PositionOnSphere;
+                    if (visualProgress <= 0.0f) return Route[0].ParkedVehicleTransform();
+                    else if (visualProgress >= Route.Length - 1) return Route[Route.Length - 1].ParkedVehicleTransform();
                     else
                     {
                         int tileIndex = (int)(visualProgress + 0.5f);
                         float localProgress = visualProgress - tileIndex;
 
+                        Vector3 position = default;
+                        Vector3 tangent = default;
+
                         if (tileIndex == 0)
                         {
-                            return GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex + 1], Route[tileIndex]).Evaluate(1 - localProgress * 2f);
+                            var curve = GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex + 1], Route[tileIndex]);
+                            position = curve.Evaluate(1 - localProgress * 2f);
+                            tangent = -curve.Derivative(1 - localProgress * 2f).normalized;
                         }
                         else if (tileIndex >= (Route.Length - 1))
                         {
-                            return GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex - 1], Route[tileIndex]).Evaluate(1 + localProgress * 2f);
+                            var curve = GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex - 1], Route[tileIndex]);
+                            position = curve.Evaluate(1 + localProgress * 2f);
+                            tangent = curve.Derivative(1 + localProgress * 2f).normalized;
                         }
                         else
                         {
-                            return GeometryGeneration.ParametricCurve.FromTileToTileOverTile(Route[tileIndex - 1], Route[tileIndex + 1], Route[tileIndex]).Evaluate(localProgress + 0.5f);
+                            var curve = GeometryGeneration.ParametricCurve.FromTileToTileOverTile(Route[tileIndex - 1], Route[tileIndex + 1], Route[tileIndex]);
+                            position = curve.Evaluate(localProgress + 0.5f);
+                            tangent = curve.Derivative(localProgress + 0.5f).normalized;
                         }
+
+                        return new VehicleTransform
+                        {
+                            Position = position,
+                            Up = position.normalized,
+                            Forward = tangent.normalized,
+                        }.AdjustUpVector();
                     }
                 }
                 return null;
             }
+        }
+
+        public virtual void UpdateGameobject()
+        {
+            if (gameObject == null) return;
+
+            var t = Transform;
+
+            if (t == null)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+
+            gameObject.SetActive(true);
+            var tProj = Map.Instance.GetProjectedVehicleTransform(t);
+            gameObject.transform.position = tProj.Position * 1.01f;
+            gameObject.transform.rotation = Quaternion.LookRotation(tProj.Forward, tProj.Up);
+
         }
     }
 }

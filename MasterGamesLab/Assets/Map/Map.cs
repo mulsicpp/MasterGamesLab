@@ -64,6 +64,12 @@ namespace Map
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
 
+        [SerializeField] private GameObject truckPrefab;
+        [SerializeField] private GameObject freighterPrefab;
+
+        public GameObject TruckPrefab => truckPrefab;
+        public GameObject FreighterPrefab => freighterPrefab;
+
         public HoverablePicker.HoverableLayer HoverLayers = HoverablePicker.HoverableLayer.All;
 
         //debug
@@ -225,6 +231,8 @@ namespace Map
 
             // Update the projection
             UpdateProjectionUniforms();
+
+            ClientUpdate();
         }
 
         public void AddActiveTile(Tile tile) => activeTiles.Add(tile);
@@ -428,6 +436,17 @@ namespace Map
             }
             
             // TODO yixuan
+        }
+
+        private void ClientUpdate()
+        {
+            if(IsClient)
+            {
+                foreach (var vehicle in Fleet.Vehicles)
+                {
+                    if(vehicle.Exists) vehicle.UpdateGameobject();
+                }
+            }
         }
 
         public void FixedUpdate()
@@ -786,6 +805,23 @@ namespace Map
             return Vector3.Lerp(worldPos, flatPos, projectionFactor);
         }
 
+        public VehicleTransform GetProjectedVehicleTransform(VehicleTransform transform)
+        {
+            const float DELTA = 0.0001f;
+
+            var projPos = GetProjectedPosition(transform.Position);
+            var projPosAbove = GetProjectedPosition(transform.Position + transform.Up * DELTA);
+            var projPosInfront = GetProjectedPosition(transform.Position + transform.Forward * DELTA);
+            var projPosBehind = GetProjectedPosition(transform.Position - transform.Forward * DELTA);
+
+            return new VehicleTransform
+            {
+                Position = projPos,
+                Up = (projPosAbove - projPos).normalized,
+                Forward = (projPosInfront - projPosBehind).normalized,
+            };
+        }
+
         public void OnDrawGizmos()
         {
             if (edges == null) return;
@@ -922,8 +958,8 @@ namespace Map
 
             foreach (var vehicle in Fleet.Vehicles)
             {
-                if (vehicle.PositionOnSphere == null) continue;
-                Vector3 basePos = vehicle.PositionOnSphere ?? Vector3.zero;
+                if (vehicle.Transform == null) continue;
+                Vector3 basePos = vehicle.Transform.Position;
                 Gizmos.color = vehicle.Owner.Color;
                 Gizmos.DrawSphere(GetProjectedPosition(basePos, 1.01f), 0.015f);
 
