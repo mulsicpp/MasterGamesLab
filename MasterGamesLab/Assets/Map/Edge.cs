@@ -19,8 +19,7 @@ namespace Map
         {
             None,
             Road,
-            Canal,
-            Rail
+            Canal
         }
 
         public enum VisualEdgeState
@@ -210,19 +209,12 @@ namespace Map
             return (startHasWater && endCanBuild) || (startCanBuild && endHasWater);
         }
 
-        public bool CanBecomeRail()
-        {
-            // TODO correct rail condition
-            return false;
-        }
-
         public bool CanBecomeType(EdgeType type)
         {
             switch (type)
             {
                 case EdgeType.Road: return CanBecomeRoad();
                 case EdgeType.Canal: return CanBecomeCanal();
-                case EdgeType.Rail: return CanBecomeRail();
             }
 
             return true;
@@ -247,6 +239,33 @@ namespace Map
             else if (CanBecomeType(type)) return true;
 
             return false;
+        }
+
+        public int GetTraversalCost(Player.Player player)
+        {
+            return Type switch
+            {
+                EdgeType.Road =>
+                    owner == null ? Constants.ROAD_TRAVERSAL_COST_PUBLIC :
+                        owner == player ? Constants.ROAD_TRAVERSAL_COST_OWN :
+                        Constants.ROAD_TRAVERSAL_COST_ENEMY,
+
+                EdgeType.Canal =>
+                    owner == null ? Constants.CANAL_TRAVERSAL_COST_PUBLIC :
+                        owner == player ? Constants.CANAL_TRAVERSAL_COST_OWN :
+                        Constants.CANAL_TRAVERSAL_COST_ENEMY,
+                _ => 0,
+            };
+        }
+
+        public float GetSpeedMultiplier()
+        {
+            return Type switch
+            {
+                EdgeType.Road => Constants.ROAD_SPEED_MULTIPLIER,
+                EdgeType.Canal => Constants.CANAL_SPEED_MULTIPLIER,
+                _ => 1.0f,
+            };
         }
 
         public void SetGeometryFrom(PartialEdgeGeometry partialGeometry, Tile sender)

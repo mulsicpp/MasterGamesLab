@@ -836,9 +836,6 @@ namespace Map
                     case Edge.EdgeType.Canal:
                         Gizmos.color = Color.blue;
                         break;
-                    case Edge.EdgeType.Rail:
-                        Gizmos.color = new Color(0.1f, 0.1f, 0.1f);
-                        break;
                     default:
                         Gizmos.color = new Color(1.0f, 1.0f, 1.0f, 0.05f);
                         break;

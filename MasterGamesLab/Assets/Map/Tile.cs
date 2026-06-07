@@ -356,8 +356,6 @@ namespace Map
                     case Edge.EdgeType.Canal:
                         infoNormal.AmountOfCanals++;
                         break;
-                    case Edge.EdgeType.Rail:
-                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -371,8 +369,6 @@ namespace Map
                         break;
                     case Edge.EdgeType.Canal:
                         infoBlueprint.AmountOfCanals++;
-                        break;
-                    case Edge.EdgeType.Rail:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

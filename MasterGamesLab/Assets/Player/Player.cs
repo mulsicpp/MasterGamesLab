@@ -88,7 +88,7 @@ namespace Player
             if(amount > 0)
             {
                 Pay(amount);
-                player.Earn(amount);
+                player?.Earn(amount);
             }
         }
     }

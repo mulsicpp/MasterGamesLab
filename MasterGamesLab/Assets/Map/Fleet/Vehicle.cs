@@ -283,8 +283,20 @@ namespace Map.Fleet
                 if (Route.Length == 0) { Route = null; return; }
                 if (Route.Length == 1 || RouteProgress < -0.01f) { ParkedTile = Route[0]; return; }
 
-                RouteProgress += tickDuration * SpeedTPS;
                 int lastIndex = Route.Length - 1;
+
+                int oldTileIndex = Mathf.Clamp((int)(RouteProgress + 0.5f), 0, lastIndex);
+
+                RouteProgress += tickDuration * SpeedTPS;
+
+                int newTileIndex = Mathf.Clamp((int)(RouteProgress + 0.5f), 0, lastIndex);
+                for(int i = oldTileIndex; i < newTileIndex; i++)
+                {
+                    var edge = Route[i].FindEdgeTo(Route[i + 1]);
+                    if (edge == null) continue;
+
+                    Owner?.TransferMoneyTo(edge.Owner, edge.GetTraversalCost(Owner));
+                }
 
                 if (RouteProgress >= lastIndex) ParkedTile = Route[lastIndex];
             }
