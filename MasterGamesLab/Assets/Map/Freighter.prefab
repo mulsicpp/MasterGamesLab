@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3602080725676237816}
   - component: {fileID: 6946132223089722154}
   m_Layer: 0
-  m_Name: Truck
+  m_Name: Freighter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

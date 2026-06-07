@@ -305,6 +305,18 @@ namespace Map
             }
         }
 
+
+        public VehicleTransform ParkedVehicleTransform()
+        {
+            return new VehicleTransform
+            {
+                Position = PositionOnSphere,
+                Up = PositionOnSphere.normalized,
+                Forward = Neighbors[0].PositionOnSphere.normalized
+            }.AdjustForwardVector();
+        }
+
+
         public void BuildFaces(MapChunk.ChunkGeometry cg)
         {
             tileGeometryInformation = TileGeometryFactory.BuildFaces(this, cg);

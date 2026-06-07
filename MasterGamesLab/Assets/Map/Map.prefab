@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2831127296
+  GlobalObjectIdHash: 563265020
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -71,7 +71,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map.Map
   ShowTopMostFoldoutHeaderGroup: 1
-  timestamp:
+  TEST_ROAD_HANDLE_DISTANCE: 0.025
+  TEST_ROAD_HEIGHT: 0.01
+  Timestamp:
     Value: 0
   Running: 1
   radius: 1
@@ -80,3 +82,7 @@ MonoBehaviour:
   edgeGeometryPrefab: {fileID: 420706747741259336, guid: 062ae24f83397864ca7ba25153e53b3e, type: 3}
   fullSphereDistance: 2.6
   fullProjectionDistance: 2.3
+  truckPrefab: {fileID: 4004374116097416254, guid: 1e6c5a2adf8ef274ea0ead42ecdfe4bf, type: 3}
+  freighterPrefab: {fileID: 4004374116097416254, guid: a977a9c6a29009f47bc5bd137c5e29eb, type: 3}
+  HoverLayers: -1
+  renderTrees: 1
