@@ -3,12 +3,12 @@
     <Style src="project://database/Assets/IngameUI/template.uss?fileID=7433441132597879392&amp;guid=3723fea38ff90684baaec6994f354e62&amp;type=3#template"/>
     <ui:VisualElement name="Root" class="unity-ui-document__root" style="flex-grow: 1; width: auto; height: auto; flex-direction: row;">
         <ResponsiveLabel name="ResponsiveLabel" text="Atomseuche3" height-percentage="0.4" class="element label tab-menu-column" style="width: 25%; height: 100%; padding-left: 2%;"/>
-        <ResponsiveLabel text="99999" height-percentage="0.4" class="element column label tab-menu-column" style="width: 15%;"/>
-        <ResponsiveLabel text="10000" height-percentage="0.4" class="element column label tab-menu-column" style="width: 15%;"/>
-        <ResponsiveLabel text="100" height-percentage="0.4" class="element column label tab-menu-column"/>
-        <ResponsiveLabel text="1000" height-percentage="0.4" class="element column label tab-menu-column"/>
-        <ResponsiveLabel text="22" height-percentage="0.4" class="element column label tab-menu-column"/>
-        <ResponsiveLabel text="22" height-percentage="0.4" class="element column label tab-menu-column"/>
-        <ResponsiveLabel text="22" height-percentage="0.4" class="element column label tab-menu-column"/>
+        <ResponsiveLabel text="99999" height-percentage="0.4" name="MarketCap" class="element column label tab-menu-column" style="width: 15%;"/>
+        <ResponsiveLabel text="10000" height-percentage="0.4" name="Cash" class="element column label tab-menu-column" style="width: 15%;"/>
+        <ResponsiveLabel text="100" height-percentage="0.4" name="Trucks" class="element column label tab-menu-column"/>
+        <ResponsiveLabel text="1000" height-percentage="0.4" name="Freighters" class="element column label tab-menu-column"/>
+        <ResponsiveLabel text="22" height-percentage="0.4" name="Roads" class="element column label tab-menu-column"/>
+        <ResponsiveLabel text="22" height-percentage="0.4" name="Canals" class="element column label tab-menu-column"/>
+        <ResponsiveLabel text="22" height-percentage="0.4" name="Ports" class="element column label tab-menu-column"/>
     </ui:VisualElement>
 </ui:UXML>
