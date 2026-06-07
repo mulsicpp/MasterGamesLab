@@ -149,7 +149,6 @@ namespace UI
             PlayerStats[] rawStats = Map.Map.Instance.GetPlayerStats();
             if (rawStats == null || rawStats.Length == 0 || playersContainer == null) return;
 
-            // 1. Get the property key we want to sort by
             System.Func<PlayerStats, object> keySelector = currentSortColumn switch
             {
                 SortColumn.Name => s => s.Id,
@@ -163,7 +162,6 @@ namespace UI
                 _ => s => s.MarketCap
             };
 
-            // 2. Simply sort the data into a plain array/list
             var sortedStats = currentSortColumn switch
             {
                 SortColumn.Name => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.Id)), // Native IComparable<PlayerId> Sort
@@ -177,7 +175,6 @@ namespace UI
                 _ => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderBy(rawStats, s => s.Id))
             };
             
-            // 3. Just loop through your rows sequentially and assign the sorted text data!
             for (int i = 0; i < playersContainer.childCount; i++)
             {
                 if (i >= sortedStats.Count) break;
@@ -185,7 +182,6 @@ namespace UI
                 VisualElement rowInstance = playersContainer[i];
                 PlayerStats stats = sortedStats[i];
 
-                // This row gets whichever data ended up at this position after sorting
                 UpdatePlayerRowData(rowInstance, stats);
             }
         }
@@ -219,7 +215,6 @@ namespace UI
             canalsLabel.RemoveFromClassList(activeColumnClass);
             portsLabel.RemoveFromClassList(activeColumnClass);
 
-            // --- APPLY ACTIVE CLASS TO TARGET HEADER LABELS ---
             ResponsiveLabel targetSortedLabel = currentSortColumn switch
             {
                 SortColumn.Name => nameLabel,
@@ -266,7 +261,6 @@ namespace UI
             }
         }
 
-        // Keep your existing UI button styling logic completely identical below here...
         private void OnRoadClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Road;
         private void OnCanalClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Canal;
         private void OnPortClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Port;
