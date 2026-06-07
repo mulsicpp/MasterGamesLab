@@ -458,5 +458,5 @@
 }
 
 .active-column{
-    color: rgba(175, 152, 0, 0.04);
+    color: rgb(175, 152, 0);
 }
