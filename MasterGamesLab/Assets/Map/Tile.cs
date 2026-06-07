@@ -115,6 +115,7 @@ namespace Map
 
         // public bool EdgeDirty;
         public bool StructureDirty;
+        private bool wasCanal;
 
         private readonly List<Tile> neighbors;
         private TileType tileType;
@@ -207,8 +208,8 @@ namespace Map
                     NeighborTiles.Add(new NeighborTile
                     {
                         Tile = commonTile,
-                        LeftVertex = ProjectToSphere(t1.Center, sphereRadius),
-                        RightVertex = ProjectToSphere(t2.Center, sphereRadius)
+                        LeftVertex = ProjectToSphere(t2.Center, sphereRadius),
+                        RightVertex = ProjectToSphere(t1.Center, sphereRadius)
                     });
                 }
             }
@@ -239,7 +240,6 @@ namespace Map
                 edgeList.Add(edge);
             }
         }
-
 
         public void SortEdges() => SortList(edges, e => (e.VertexA + e.VertexB) / 2f);
 
@@ -356,8 +356,6 @@ namespace Map
                     case Edge.EdgeType.Canal:
                         infoNormal.AmountOfCanals++;
                         break;
-                    case Edge.EdgeType.Rail:
-                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -372,8 +370,6 @@ namespace Map
                     case Edge.EdgeType.Canal:
                         infoBlueprint.AmountOfCanals++;
                         break;
-                    case Edge.EdgeType.Rail:
-                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -381,6 +377,20 @@ namespace Map
 
             foreach (var edge in edges)
             {
+                if (edge.Type == Edge.EdgeType.Canal)
+                {
+                    Chunk.GeometryChanged = true;
+                    wasCanal = true;
+                }
+                else
+                {
+                    if (wasCanal)
+                    {
+                        wasCanal = false;
+                        Chunk.GeometryChanged = true;
+                    }
+                }
+
                 if (edge.Type == Edge.EdgeType.None)
                 {
                     edge.SetGeometryFrom(Edge.PartialEdgeGeometry.Empty, this);

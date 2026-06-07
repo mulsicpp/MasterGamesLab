@@ -16,6 +16,12 @@ namespace Map.GeometryGeneration
             public List<Vector4> TileData;
             public List<Vector4> MaterialData;
             public List<Map.TreeData> TreeData;
+
+            public static ChunkGeometry Empty => new()
+            {
+                Vertices = new List<Vector3>(), Triangles = new List<int>(), TileData = new List<Vector4>(),
+                MaterialData = new List<Vector4>(), TreeData = new List<Map.TreeData>()
+            };
         }
 
         public struct TileGeometryInformation
@@ -99,7 +105,7 @@ namespace Map.GeometryGeneration
 
         public void RenderTrees()
         {
-            if (treeBuffer == null)
+            if (treeBuffer == null || treeMesh == null || treeMaterial == null)
             {
                 return;
             }
@@ -134,12 +140,25 @@ namespace Map.GeometryGeneration
                 return;
             }
 
-            mpb = new MaterialPropertyBlock();
+            if (mpb == null)
+            {
+                mpb = new MaterialPropertyBlock();
+            }
 
             var stride = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Map.TreeData));
             treeBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, treeData.Count, stride);
             treeBuffer.SetData(treeData);
             mpb.SetBuffer(TreeBuffer, treeBuffer);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            if (treeBuffer != null)
+            {
+                treeBuffer.Release();
+                treeBuffer = null;
+            }
         }
     }
 }

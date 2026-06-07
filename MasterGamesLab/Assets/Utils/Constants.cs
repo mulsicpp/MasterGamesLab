@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public static class Constants
 {
@@ -64,10 +65,17 @@ public static class Constants
 
     public const int MAX_PRIORITYS_FOR_PATHFINDING = 4;
 
-    public const int ENEMY_ROAD_MOVEMENT_COST = 1;
-    public const int OWN_ROAD_MOVEMENT_COST = 0;
-    public const int PUBLIC_ROAD_MOVEMENT_COST = 0;
-    public const int ROAD_MOVEMENT_DISTANCE = 1;
+    public const int ROAD_TRAVERSAL_COST_PUBLIC = 1;
+    public const int ROAD_TRAVERSAL_COST_OWN = 0;
+    public const int ROAD_TRAVERSAL_COST_ENEMY = 5;
+
+    public const float ROAD_SPEED_MULTIPLIER = 1.0f;
+
+    public const int CANAL_TRAVERSAL_COST_PUBLIC = 1;
+    public const int CANAL_TRAVERSAL_COST_OWN = 0;
+    public const int CANAL_TRAVERSAL_COST_ENEMY = 5;
+
+    public const float CANAL_SPEED_MULTIPLIER = 1.0f;
 
 
     // ------------------- Networking -------------------
@@ -87,6 +95,13 @@ public static class Constants
         public int TextureId;
     }
 
+    public static OutlineData TRANSPARENT_OUTLINE = new OutlineData()
+    {
+        OutlineColor = new Color(0, 0, 0, 0),
+        InnerColor = new Color(0, 0, 0, 0),
+        TextureId = 0,
+    };
+    
     public static OutlineData HOVER_OUTLINE = new OutlineData()
     {
         OutlineColor = new Color(1f, 0.92f, 0.016f, 0.6f),

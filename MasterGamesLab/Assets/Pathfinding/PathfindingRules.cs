@@ -60,22 +60,15 @@ public static class PathfindingRules
     /// <summary>
     /// Base Metric: Measures raw physical traversal distance (Shortest Path baseline).
     /// </summary>
-    public static void MinimizeDistance(Tile current, Tile neighbor, ref PathScore score, int slot)
+    public static void MinimizeDuration(Tile current, Tile neighbor, ref PathScore score, int slot)
     {
-        score[slot] += Constants.ROAD_MOVEMENT_DISTANCE; // 1 standard physical tile step
+        score[slot] += (long)(100.0f / (current.FindEdgeTo(neighbor)?.GetSpeedMultiplier() ?? 1.0f)); // 1 standard physical tile step
     }
 
     public static void MinimizeCost(Tile current, Tile neighbor, ref PathScore score, int slot)
     {
         PlayerId self = Player.Player.SelfId;
-        var edge = current.FindEdgeTo(neighbor);
-        if (edge == null)
-        {
-            score[slot] += Constants.PUBLIC_ROAD_MOVEMENT_COST;
-            return;
-        }
-        PlayerId ownerId = edge.Owner?.Id ?? PlayerId.NONE;
-        score[slot] += edge.Owner.IsSelf ? Constants.OWN_ROAD_MOVEMENT_COST : ownerId == PlayerId.NONE ? Constants.PUBLIC_ROAD_MOVEMENT_COST : Constants.ENEMY_ROAD_MOVEMENT_COST; // 1 standard physical tile step
+        score[slot] += current.FindEdgeTo(neighbor)?.GetTraversalCost(Player.Player.Self) ?? 0;
     }
 
 
