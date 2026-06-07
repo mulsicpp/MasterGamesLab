@@ -1,4 +1,5 @@
 using Map.Infrastructure;
+using System;
 using System.Collections.Generic;
 
 namespace Map.Fleet
@@ -12,7 +13,9 @@ namespace Map.Fleet
         public Vehicle this[VehicleId id] { get; }
         public IReadOnlyList<Vehicle> this[Vehicle.VehicleType type] { get; }
 
-        public bool SpawnLocal<T>(T state, PlayerId owner) where T : struct, Vehicle.IVehicleState;
-        public bool SpawnGlobal<T>(T state, PlayerId owner) where T : struct, Vehicle.IVehicleState;
+        public Vehicle GetFirstWith(Vehicle.VehicleType type, Predicate<Vehicle> condition = null);
+
+        public bool SpawnLocal<T>(T state, Player.Player owner) where T : struct, Vehicle.IVehicleState;
+        public bool SpawnGlobal<T>(T state, Player.Player owner) where T : struct, Vehicle.IVehicleState;
     }
 }

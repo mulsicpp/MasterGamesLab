@@ -41,19 +41,21 @@ namespace Map.Fleet
             }
         }
 
-        public int GetFirstEmptyIndex(Vehicle.VehicleType type, PlayerId owner)
+        public Vehicle GetFirstWith(Vehicle.VehicleType type, Predicate<Vehicle> condition = null)
         {
-            IReadOnlyList<Vehicle> vehicles = this[type];
+            condition ??= v => !v.Exists;
 
-            if (vehicles == null) return -1;
+            var vehicles = this[type];
 
-            int countPerPlayer = Vehicle.GetMaxCountPerPlayer(type);
-            for (int i = owner * countPerPlayer; i < ((int)owner + 1) * countPerPlayer; i++)
+            if (vehicles == null) return null;
+
+            for (int i = 0; i < vehicles.Count; i++)
             {
-                if (!vehicles[i].Exists)
-                    return i;
+                if (condition(vehicles[i]))
+                    return vehicles[i];
             }
-            return -1;
+
+            return null;
         }
 
         public void UpdateVehicle<T>(T state) where T : struct, Vehicle.IVehicleState
@@ -64,29 +66,32 @@ namespace Map.Fleet
         }
 
 
-        public bool SpawnLocal<T>(T state, PlayerId owner) where T : struct, Vehicle.IVehicleState
+        public bool SpawnLocal<T>(T state, Player.Player owner = null) where T : struct, Vehicle.IVehicleState
         {
-            int index = GetFirstEmptyIndex(state.Type, owner);
-            if (index > -1)
+            var vehicle = GetFirstWith(state.Type, v => !v.Exists && v.Owner == owner);
+            if (vehicle != null)
             {
+                state.ArrayIndex = vehicle.Index;
                 UpdateVehicle(state);
                 return true;
             }
+
             return false;
         }
 
-        public bool SpawnGlobal<T>(T state, PlayerId owner) where T : struct, Vehicle.IVehicleState
+        public bool SpawnGlobal<T>(T state, Player.Player owner) where T : struct, Vehicle.IVehicleState
         {
-            int index = GetFirstEmptyIndex(state.Type, owner);
-            if (index > -1)
+            var vehicle = GetFirstWith(state.Type, v => !v.Exists && v.Owner == owner);
+            if (vehicle != null)
             {
-                state.ArrayIndex = index;
+                state.ArrayIndex = vehicle.Index;
 
                 Map.Instance.ReliableSender.Add(state);
                 Map.Instance.ReliableSender.Send();
 
                 return true;
             }
+
             return false;
         }
     }

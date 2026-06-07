@@ -34,7 +34,7 @@ namespace Map.Fleet
         }
 
         public override VehicleType Type => VehicleType.Freighter;
-        public override PlayerId Owner => new PlayerId((byte)(Index / Constants.MAX_FREIGHTERS_PER_PLAYER));
+        public override Player.Player Owner => Map.Instance.Players[(byte)(Index / Constants.MAX_FREIGHTERS_PER_PLAYER)];
         public override float SpeedTPS => Constants.FREIGHTER_BASE_SPEED_TPS;
 
         public Truck Truck;

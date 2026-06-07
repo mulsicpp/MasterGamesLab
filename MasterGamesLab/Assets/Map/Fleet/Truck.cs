@@ -40,7 +40,7 @@ namespace Map.Fleet
         }
 
         public override VehicleType Type => VehicleType.Truck;
-        public override PlayerId Owner => new PlayerId((byte)(Index / Constants.MAX_TRUCKS_PER_PLAYER));
+        public override Player.Player Owner => Map.Instance.Players[(byte)(Index / Constants.MAX_TRUCKS_PER_PLAYER)];
         public override float SpeedTPS => Constants.TRUCK_BASE_SPEED_TPS;
 
         private Good good;
@@ -98,7 +98,7 @@ namespace Map.Fleet
                 {
                     c.RequestedGood = Good.None;
                     Good = Good.None;
-                    Map.Instance.Players[Owner].Earn(10); // TODO calculate reward properly
+                    Owner.Earn(10); // TODO calculate reward properly
                 }
             }
 

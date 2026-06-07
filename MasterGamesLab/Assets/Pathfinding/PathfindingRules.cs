@@ -67,15 +67,15 @@ public static class PathfindingRules
 
     public static void MinimizeCost(Tile current, Tile neighbor, ref PathScore score, int slot)
     {
-        PlayerId self = PlayerManager.Instance.SelfId;
+        PlayerId self = Player.Player.SelfId;
         var edge = current.FindEdgeTo(neighbor);
         if (edge == null)
         {
             score[slot] += Constants.PUBLIC_ROAD_MOVEMENT_COST;
             return;
         }
-        PlayerId owner = edge.Owner;
-        score[slot] += self == owner ? Constants.OWN_ROAD_MOVEMENT_COST : owner == PlayerId.NONE ? Constants.PUBLIC_ROAD_MOVEMENT_COST : Constants.ENEMY_ROAD_MOVEMENT_COST; // 1 standard physical tile step
+        PlayerId ownerId = edge.Owner?.Id ?? PlayerId.NONE;
+        score[slot] += edge.Owner.IsSelf ? Constants.OWN_ROAD_MOVEMENT_COST : ownerId == PlayerId.NONE ? Constants.PUBLIC_ROAD_MOVEMENT_COST : Constants.ENEMY_ROAD_MOVEMENT_COST; // 1 standard physical tile step
     }
 
 

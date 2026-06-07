@@ -34,11 +34,6 @@ public class TestRoadCreation : NetworkBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.I) && IsServer)
-        {
-            Map.Map.Instance.Infrastructure.SpawnGlobal(new Port.PortState { Common = { TileId = tile.Id } }, new PlayerId(0));
-        }
-
         if (Input.GetKeyDown(KeyCode.O) && IsServer)
         {
             Map.Map.Instance.Infrastructure.SpawnGlobal(new Garage.GarageState { Common = { TileId = tile.Id } });
@@ -56,7 +51,7 @@ public class TestRoadCreation : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.D))
         {
-            var truck = Map.Map.Instance.Fleet.Trucks.FirstOrDefault(truck => truck.Owner == PlayerManager.Instance.SelfId && truck.IsParked);
+            var truck = Map.Map.Instance.Fleet.Trucks.FirstOrDefault(truck => truck.Owner.IsSelf && truck.IsParked);
 
             if (truck == null) return;
 
@@ -74,7 +69,7 @@ public class TestRoadCreation : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.S))
         {
-            var freighter = Map.Map.Instance.Fleet.Freighters.FirstOrDefault(freighter => freighter.Owner == PlayerManager.Instance.SelfId && freighter.IsParked);
+            var freighter = Map.Map.Instance.Fleet.Freighters.FirstOrDefault(freighter => freighter.Owner.IsSelf && freighter.IsParked);
 
             if (freighter == null) return;
 
@@ -89,11 +84,11 @@ public class TestRoadCreation : NetworkBehaviour
 
             Map.Map.Instance.RequestVehicleRouteServerRpc(Vehicle.GetOffsetFromType(Vehicle.VehicleType.Freighter) + freighter.Index, tileIds);
         }
-
-        if(Input.GetKeyDown(KeyCode.A)) 
-        {
-            Map.Map.Instance.LoadFirstTruckOnFreighterServerRpc();
-        }
+        
+        // if(Input.GetKeyDown(KeyCode.A)) 
+        // {
+        //     Map.Map.Instance.LoadFirstTruckOnFreighterServerRpc();
+        // }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {

@@ -31,6 +31,8 @@ namespace Player
 
         public new Map.Timestamp Timestamp => base.Timestamp;
 
+        public Color Color => Constants.PLAYER_COLORS[Id % Constants.MAX_PLAYER_COUNT];
+
         private int cash;
         public int Cash
         {

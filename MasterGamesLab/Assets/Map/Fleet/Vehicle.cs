@@ -78,7 +78,7 @@ namespace Map.Fleet
 
         public VehicleId Id => new VehicleId(Type, Index);
 
-        public abstract PlayerId Owner { get; }
+        public abstract Player.Player Owner { get; }
 
         private bool exists;
         public bool Exists { get { return exists; } set { exists = value; Touch(); } }

@@ -294,7 +294,7 @@ public class UIManager : MonoBehaviour
     {
         CurrentMenu = MenuId.Loading;
         yield return new WaitUntil(() => PlayerManager.Instance.GameCanStart);
-        Map.Map.Instance.GenerateStructuresAndPlayers(PlayerManager.Instance.Players.Length);
+        Map.Map.Instance.GenerateStructuresAndPlayers(PlayerManager.Instance.PlayerConnections.Length);
 
         Map.Map.Instance.Running = true;
         CurrentMenu = MenuId.Ingame;

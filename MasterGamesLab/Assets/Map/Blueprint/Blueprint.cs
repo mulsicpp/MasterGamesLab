@@ -138,7 +138,7 @@ namespace Map.Blueprint
 
             if (tile == null) return false;
 
-            var structure = Map.Instance.Infrastructure.GetFirstWith(type, s => !s.Exists && s.BlueprintTile == null && s.Owner == PlayerManager.Instance.SelfId);
+            var structure = Map.Instance.Infrastructure.GetFirstWith(type, s => !s.Exists && s.BlueprintTile == null && s.Owner.IsSelf);
 
             if (structure == null) return false;
 
