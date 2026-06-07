@@ -175,9 +175,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
   ShowTopMostFoldoutHeaderGroup: 1
-  Players: []
-  SelfId:
-    value: 255
+  PlayerConnections: []
 --- !u!4 &2800778
 Transform:
   m_ObjectHideFlags: 0
@@ -287,7 +285,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestRoadCreation
   ShowTopMostFoldoutHeaderGroup: 1
-  type: 1
   good: 1
 --- !u!1 &549263512
 GameObject:

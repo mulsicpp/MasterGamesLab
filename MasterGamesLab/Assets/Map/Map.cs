@@ -444,12 +444,8 @@ namespace Map
         {
             if (!Running) return;
 
+            UpdateUnreliableDataOnClient();
             UpdateDirtyObjectsOnClient();
-
-            foreach (var vehicle in Fleet.Vehicles)
-            {
-                vehicle.ResetProgressDirty();
-            }
         }
 
         public void FinishGame()
@@ -486,7 +482,7 @@ namespace Map
             if (!IsServer) return;
 
             var sender = new ReliableSender(false, clientId);
-            Predicate<Timestamped> condition = obj => obj.Timestamp > clientTimestamp;
+            Predicate<Timestamped> condition = obj => obj.ChangedSince(clientTimestamp);
 
             sender.AddObjects<Player.Player, Player.Player.PlayerState>(players, condition);
 
@@ -507,7 +503,7 @@ namespace Map
         {
             if (!IsServer) return;
 
-            Predicate<Timestamped> condition = obj => obj.Dirty;
+            Predicate<Timestamped> condition = obj => obj.DirtyCheckAndReset();
 
             ReliableSender.AddObjects<Player.Player, Player.Player.PlayerState>(players, condition);
 
@@ -522,11 +518,23 @@ namespace Map
             ReliableSender.AddObjects<Freighter, Freighter.FreighterState>(fleet.Freighters, condition);
 
             ReliableSender.Send();
+        }
 
+        public void UpdateUnreliableDataOnClient()
+        {
+            if (!IsServer) return;
 
-            UnreliableSender.AddObjects<Vehicle, Vehicle.VehicleProgressState>(fleet.Vehicles,
-                obj => !obj.Dirty && obj.ProgressDirty);
+            Predicate<Vehicle> routeProgressCondition = v =>
+            {
+                if (!v.Dirty && v.ProgressDirty)
+                {
+                    v.ResetProgressDirty();
+                    return true;
+                }
+                return false;
+            };
 
+            UnreliableSender.AddObjects<Vehicle, Vehicle.VehicleProgressState>(fleet.Vehicles, routeProgressCondition);
             UnreliableSender.Send();
         }
 
@@ -546,6 +554,7 @@ namespace Map
             ClientRpcParams rpcParams = default
         )
         {
+            Debug.Log("Received reliable states");
             Timestamp = timestamp;
             ApplyStatesLocal(serverTime, this.players, players);
 
@@ -569,6 +578,7 @@ namespace Map
         public void ApplyUnreliableStatesClientRpc(double serverTime, Vehicle.VehicleProgressState[] vehicleProgresses,
             ClientRpcParams rpcParams = default)
         {
+            Debug.Log("Received unreliable states");
             ApplyStatesLocal(serverTime, Fleet.Vehicles, vehicleProgresses);
         }
 
