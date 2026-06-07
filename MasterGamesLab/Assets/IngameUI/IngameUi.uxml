@@ -1,5 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Template name="BlueprintCount" src="project://database/Assets/IngameUI/BlueprintCount.uxml?fileID=9197481963319205126&amp;guid=8815f6fe27465df4bb0661e06bed9c0f&amp;type=3#BlueprintCount"/>
+    <ui:Template name="TabMenu" src="project://database/Assets/IngameUI/TabMenu.uxml?fileID=9197481963319205126&amp;guid=1226372f1629f6c45a297bd9a0f823c2&amp;type=3#TabMenu"/>
     <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
     <ui:VisualElement name="Root" class="unity-ui-document__root">
         <ResponsiveLabel name="MONEY" text="Money: 100" class="element label money-display"/>
@@ -70,5 +71,8 @@
                 </ui:GroupBox>
             </ShrinkWrapContainer>
         </ui:GroupBox>
+        <ui:VisualElement name="TabMenu" class="container" style="position: absolute; top: 27.5%; width: 45%; height: 45%; left: 27.5%; padding-top: 0.5%; padding-right: 0.5%; padding-bottom: 0.5%; padding-left: 0.5%;">
+            <ui:Instance template="TabMenu" style="width: 100%; height: 100%;"/>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
