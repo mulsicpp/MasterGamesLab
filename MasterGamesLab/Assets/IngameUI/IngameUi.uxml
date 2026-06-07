@@ -50,7 +50,7 @@
                         </ui:Button>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
-                        <ui:Button text="" name="BuildCanalButton" class="button element ingame-build-button" style="visibility: visible;">
+                        <ui:Button text="" name="BuildCanalButton" class="button element ingame-build-button">
                             <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
                         </ui:Button>
                     </ui:VisualElement>
