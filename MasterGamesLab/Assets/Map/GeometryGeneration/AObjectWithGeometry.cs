@@ -14,8 +14,35 @@ namespace Map.GeometryGeneration
         protected void Init()
         {
             meshFilter = GetComponent<MeshFilter>();
+            if (Mesh != null)
+            {
+                if (Application.isEditor)
+                {
+                    DestroyImmediate(Mesh);
+                }
+                else
+                {
+                    Destroy(Mesh);
+                }
+            }
             Mesh = new Mesh { name = "Mesh" };
             meshFilter.mesh = Mesh;
+        }
+
+        protected virtual void OnDestroy()
+        {
+            if (Mesh != null)
+            {
+                if (Application.isEditor)
+                {
+                    DestroyImmediate(Mesh);
+                }
+                else
+                {
+                    Destroy(Mesh);
+                }
+                Mesh = null;
+            }
         }
 
         protected void ClearMeshData()

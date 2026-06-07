@@ -39,6 +39,13 @@ namespace Map
 
         public float TEST_ROAD_HANDLE_DISTANCE = 0.025f;
         public float TEST_ROAD_HEIGHT = 0.01f;
+        public float TEST_CANAL_INSET_LOWER = 0.7f;
+        public float TEST_CANAL_INSET_UPPER = 0.6f;
+        public float TEST_CANAL_RANDOM_ = 0.00f;
+
+        private float oldTestCanalInsetLower;
+        private float oldTestCanalInsetUpper;
+        private float oldTestCanalRandom;
 
         public Timestamp Timestamp = new Timestamp(0);
 
@@ -97,7 +104,6 @@ namespace Map
         private void Awake()
         {
             Instance = this;
-
 
 
             CurrentlyHovered = null;
@@ -182,6 +188,18 @@ namespace Map
 
         private void Update()
         {
+            if (TEST_CANAL_INSET_LOWER != oldTestCanalInsetLower || TEST_CANAL_RANDOM_ != oldTestCanalRandom ||
+                TEST_CANAL_INSET_UPPER != oldTestCanalInsetUpper)
+            {
+                oldTestCanalInsetLower = TEST_CANAL_INSET_LOWER;
+                oldTestCanalRandom = TEST_CANAL_RANDOM_;
+                TileGeometryFactory.SetCanalInset(TEST_CANAL_INSET_UPPER, TEST_CANAL_INSET_LOWER, TEST_CANAL_RANDOM_);
+                foreach (var chunk in chunks)
+                {
+                    chunk.UpdateMesh();
+                }
+            }
+
             foreach (var chunk in chunks)
             {
                 if (chunk.GeometryChanged)
@@ -587,7 +605,7 @@ namespace Map
                     if (edge.Type == Edge.EdgeType.None && validatableBlueprint.IsValid(edge))
                     {
                         ReliableSender.Add(new Edge.EdgeState
-                        { Id = edgeData.EdgeId, Type = edgeData.Type, Owner = playerId });
+                            { Id = edgeData.EdgeId, Type = edgeData.Type, Owner = playerId });
                     }
                 }
 
@@ -689,12 +707,12 @@ namespace Map
             Debug.Log("Found free index for vehicle:" + index);
 
             var commonState = new Vehicle.CommonVehicleState
-            { Index = new((byte)index), Exists = true, ParkedTileId = parkedTileId, RouteIds = null };
+                { Index = new((byte)index), Exists = true, ParkedTileId = parkedTileId, RouteIds = null };
 
 
             if (type == Vehicle.VehicleType.Truck)
                 ReliableSender.Add(new Truck.TruckState
-                { Common = commonState, Good = Good.None, FreighterIndex = VehicleIndex.NONE });
+                    { Common = commonState, Good = Good.None, FreighterIndex = VehicleIndex.NONE });
             else
                 ReliableSender.Add(new Freighter.FreighterState { Common = commonState });
             ReliableSender.Send();

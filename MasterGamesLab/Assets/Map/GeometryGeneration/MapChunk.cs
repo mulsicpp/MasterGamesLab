@@ -99,7 +99,7 @@ namespace Map.GeometryGeneration
 
         public void RenderTrees()
         {
-            if (treeBuffer == null)
+            if (treeBuffer == null || treeMesh == null || treeMaterial == null)
             {
                 return;
             }
@@ -134,12 +134,25 @@ namespace Map.GeometryGeneration
                 return;
             }
 
-            mpb = new MaterialPropertyBlock();
+            if (mpb == null)
+            {
+                mpb = new MaterialPropertyBlock();
+            }
 
             var stride = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Map.TreeData));
             treeBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, treeData.Count, stride);
             treeBuffer.SetData(treeData);
             mpb.SetBuffer(TreeBuffer, treeBuffer);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            if (treeBuffer != null)
+            {
+                treeBuffer.Release();
+                treeBuffer = null;
+            }
         }
     }
 }

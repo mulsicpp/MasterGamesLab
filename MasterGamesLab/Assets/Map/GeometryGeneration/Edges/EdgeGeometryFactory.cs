@@ -30,6 +30,7 @@ namespace Map.GeometryGeneration.Edges
                     : BuildConnectingParametricCurves(tile, edge, blueprint);
             }
 
+            return Edge.PartialEdgeGeometry.Empty;
             return BuildBackup(tile, edge);
         }
 
@@ -69,8 +70,8 @@ namespace Map.GeometryGeneration.Edges
 
                 var (p, normal) = GetPosAndNormal(curve, t);
 
-                var leftPoint = p - normal * ROAD_RADIUS;
-                var rightPoint = p + normal * ROAD_RADIUS;
+                var leftPoint = p + normal * ROAD_RADIUS;
+                var rightPoint = p - normal * ROAD_RADIUS;
 
                 vertices.Add(leftPoint);
                 vertices.Add(rightPoint);
@@ -85,12 +86,12 @@ namespace Map.GeometryGeneration.Edges
 
                 var i2 = i * 2;
                 triangles.Add(i2 - 2);
-                triangles.Add(i2 - 1);
                 triangles.Add(i2);
+                triangles.Add(i2 - 1);
 
                 triangles.Add(i2 - 1);
-                triangles.Add(i2 + 1);
                 triangles.Add(i2);
+                triangles.Add(i2 + 1);
             }
 
             return new Edge.PartialEdgeGeometry
@@ -177,8 +178,8 @@ namespace Map.GeometryGeneration.Edges
                 var (pToNext, normalToNext) = GetPosAndNormal(curveToNext, t);
 
 
-                var leftPoint = pToPrev - normalToPrev * ROAD_RADIUS;
-                var rightPoint = pToNext + normalToNext * ROAD_RADIUS;
+                var leftPoint = pToNext + normalToNext * ROAD_RADIUS;
+                var rightPoint = pToPrev - normalToPrev * ROAD_RADIUS;
 
                 vertices.Add(leftPoint);
                 vertices.Add(rightPoint);
@@ -193,19 +194,19 @@ namespace Map.GeometryGeneration.Edges
 
                 var i2 = i * 2;
                 triangles.Add(i2 - 2);
-                triangles.Add(i2 - 1);
                 triangles.Add(i2);
+                triangles.Add(i2 - 1);
 
                 triangles.Add(i2 - 1);
-                triangles.Add(i2 + 1);
                 triangles.Add(i2);
+                triangles.Add(i2 + 1);
             }
 
             vertices.Add(center);
             uv1.Add(data);
-            triangles.Add(vertices.Count - 2);
-            triangles.Add(vertices.Count - 1);
             triangles.Add(vertices.Count - 3);
+            triangles.Add(vertices.Count - 1);
+            triangles.Add(vertices.Count - 2);
 
             return new Edge.PartialEdgeGeometry
             {

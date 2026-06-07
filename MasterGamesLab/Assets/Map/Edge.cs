@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using Map.GeometryGeneration.Edges;
 using Map.Hoverables;
-using Map.OutlineEffect;
 using Unity.Netcode;
 using UnityEngine;
 using Networking;
-using Unity.VisualScripting;
 using IState = Networking.IState;
 
 namespace Map

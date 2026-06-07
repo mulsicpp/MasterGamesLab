@@ -14,17 +14,19 @@ namespace Map.OutlineEffect
         public int textureId = 0;
 
         private Renderer objRenderer;
+        private MaterialPropertyBlock mpb;
 
         private void Start()
         {
             objRenderer = GetComponent<Renderer>();
+            mpb = new MaterialPropertyBlock();
         }
 
         private void Update()
         {
             if (objRenderer != null)
             {
-                var mpb = new MaterialPropertyBlock();
+                if (mpb == null) mpb = new MaterialPropertyBlock();
                 objRenderer.GetPropertyBlock(mpb);
                 mpb.SetColor(OutlineColor, outlineColor);
                 mpb.SetColor(InnerColor, innerColor);
