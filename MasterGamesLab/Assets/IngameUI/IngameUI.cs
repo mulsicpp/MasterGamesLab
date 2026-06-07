@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Linq;
 using Map.Blueprint;
 using Player;
 using UnityEngine;
@@ -29,6 +31,10 @@ namespace UI
         private VisualElement playersContainer;
         private Coroutine uiUpdateCoroutine;
         private VisualElement tabMenu;
+
+        public const string activeColumnClass = ".active-column";
+        private enum SortColumn { Name, MarketCap, Cash, Trucks, Freighters, Roads, Canals, Ports }
+        private SortColumn currentSortColumn = SortColumn.Name;
 
 
         private void Awake()
@@ -65,6 +71,20 @@ namespace UI
             totalCostLabel = root.Q<Label>("TotalCost");
             playersContainer = root.Q<VisualElement>("players-container");
             tabMenu = root.Q<VisualElement>("TabMenu");
+
+            var headerRow = root.Q<VisualElement>("header-row");
+
+            var headers = headerRow.Query<ResponsiveButton>().ToList();
+
+            headers[0].clicked += () => SetSortTarget(SortColumn.Name);
+            headers[1].clicked += () => SetSortTarget(SortColumn.MarketCap);
+            headers[2].clicked += () => SetSortTarget(SortColumn.Cash);
+            headers[3].clicked += () => SetSortTarget(SortColumn.Trucks);
+            headers[4].clicked += () => SetSortTarget(SortColumn.Freighters);
+            headers[5].clicked += () => SetSortTarget(SortColumn.Roads);
+            headers[6].clicked += () => SetSortTarget(SortColumn.Canals);
+            headers[7].clicked += () => SetSortTarget(SortColumn.Ports);
+
 
             UpdateAllPlayerStats();
             uiUpdateCoroutine = StartCoroutine(PeriodicUiUpdateLoop());
@@ -107,6 +127,12 @@ namespace UI
             Player.Player.OnPlayerChanged -= ChangePlayerInfo;
         }
 
+        private void SetSortTarget(SortColumn column)
+        {
+            currentSortColumn = column;
+            UpdateAllPlayerStats();
+        }
+
         private IEnumerator PeriodicUiUpdateLoop()
         {
             WaitForSeconds delay = new WaitForSeconds(5.0f);
@@ -120,30 +146,94 @@ namespace UI
 
         private void UpdateAllPlayerStats()
         {
-            PlayerStats[] allStats = Map.Map.Instance.GetPlayerStats();
-            if (allStats.Length == 0 || playersContainer == null) return;
+            PlayerStats[] rawStats = Map.Map.Instance.GetPlayerStats();
+            if (rawStats == null || rawStats.Length == 0 || playersContainer == null) return;
 
+            // 1. Get the property key we want to sort by
+            System.Func<PlayerStats, object> keySelector = currentSortColumn switch
+            {
+                SortColumn.Name => s => s.Id,
+                SortColumn.MarketCap => s => s.MarketCap,
+                SortColumn.Cash => s => s.Cash,
+                SortColumn.Trucks => s => s.TruckCount,
+                SortColumn.Freighters => s => s.FreighterCount,
+                SortColumn.Roads => s => s.RoadCount,
+                SortColumn.Canals => s => s.CanalCount,
+                SortColumn.Ports => s => s.PortCount,
+                _ => s => s.MarketCap
+            };
+
+            // 2. Simply sort the data into a plain array/list
+            var sortedStats = currentSortColumn switch
+            {
+                SortColumn.Name => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.Id)), // Native IComparable<PlayerId> Sort
+                SortColumn.MarketCap => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.MarketCap)),
+                SortColumn.Cash => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.Cash)),
+                SortColumn.Trucks => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.TruckCount)),
+                SortColumn.Freighters => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.FreighterCount)),
+                SortColumn.Roads => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.RoadCount)),
+                SortColumn.Canals => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.CanalCount)),
+                SortColumn.Ports => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.PortCount)),
+                _ => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderBy(rawStats, s => s.Id))
+            };
+            
+            // 3. Just loop through your rows sequentially and assign the sorted text data!
             for (int i = 0; i < playersContainer.childCount; i++)
             {
-                if (i >= allStats.Length) break;
+                if (i >= sortedStats.Count) break;
 
                 VisualElement rowInstance = playersContainer[i];
-                PlayerStats stats = allStats[i];
+                PlayerStats stats = sortedStats[i];
 
+                // This row gets whichever data ended up at this position after sorting
                 UpdatePlayerRowData(rowInstance, stats);
             }
         }
 
         private void UpdatePlayerRowData(VisualElement row, PlayerStats stats)
         {
-            row.Q<ResponsiveLabel>("Name").text = stats.Name;
-            row.Q<ResponsiveLabel>("MarketCap").text = stats.MarketCap.ToString();
-            row.Q<ResponsiveLabel>("Cash").text = stats.Cash.ToString();
-            row.Q<ResponsiveLabel>("Trucks").text = stats.TruckCount.ToString();
-            row.Q<ResponsiveLabel>("Freighters").text = stats.FreighterCount.ToString();
-            row.Q<ResponsiveLabel>("Roads").text = stats.RoadCount.ToString();
-            row.Q<ResponsiveLabel>("Canals").text = stats.CanalCount.ToString();
-            row.Q<ResponsiveLabel>("Ports").text = stats.PortCount.ToString();
+            var nameLabel = row.Q<ResponsiveLabel>("Name");
+            var marketCapLabel = row.Q<ResponsiveLabel>("MarketCap");
+            var cashLabel = row.Q<ResponsiveLabel>("Cash");
+            var trucksLabel = row.Q<ResponsiveLabel>("Trucks");
+            var freightersLabel = row.Q<ResponsiveLabel>("Freighters");
+            var roadsLabel = row.Q<ResponsiveLabel>("Roads");
+            var canalsLabel = row.Q<ResponsiveLabel>("Canals");
+            var portsLabel = row.Q<ResponsiveLabel>("Ports");
+
+            nameLabel.text = stats.Name;
+            marketCapLabel.text = stats.MarketCap.ToString();
+            cashLabel.text = stats.Cash.ToString();
+            trucksLabel.text = stats.TruckCount.ToString();
+            freightersLabel.text = stats.FreighterCount.ToString();
+            roadsLabel.text = stats.RoadCount.ToString();
+            canalsLabel.text = stats.CanalCount.ToString();
+            portsLabel.text = stats.PortCount.ToString();
+
+            nameLabel.RemoveFromClassList(activeColumnClass);
+            marketCapLabel.RemoveFromClassList(activeColumnClass);
+            cashLabel.RemoveFromClassList(activeColumnClass);
+            trucksLabel.RemoveFromClassList(activeColumnClass);
+            freightersLabel.RemoveFromClassList(activeColumnClass);
+            roadsLabel.RemoveFromClassList(activeColumnClass);
+            canalsLabel.RemoveFromClassList(activeColumnClass);
+            portsLabel.RemoveFromClassList(activeColumnClass);
+
+            // --- APPLY ACTIVE CLASS TO TARGET HEADER LABELS ---
+            ResponsiveLabel targetSortedLabel = currentSortColumn switch
+            {
+                SortColumn.Name => nameLabel,
+                SortColumn.MarketCap => marketCapLabel,
+                SortColumn.Cash => cashLabel,
+                SortColumn.Trucks => trucksLabel,
+                SortColumn.Freighters => freightersLabel,
+                SortColumn.Roads => roadsLabel,
+                SortColumn.Canals => canalsLabel,
+                SortColumn.Ports => portsLabel,
+                _ => null
+            };
+
+            targetSortedLabel?.AddToClassList(activeColumnClass);
         }
 
         public void ShowTabMenu(bool visible)

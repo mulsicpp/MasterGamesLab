@@ -456,3 +456,7 @@
 .tab-menu-player-row-uneven {
     background-color: rgba(130, 130, 130, 0.04);
 }
+
+.active-column{
+    color: rgba(175, 152, 0, 0.04);
+}
