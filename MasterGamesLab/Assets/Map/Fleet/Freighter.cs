@@ -2,6 +2,7 @@ using Map.Infrastructure;
 using Unity.Collections;
 using Unity.Netcode;
 using Networking;
+using UnityEngine;
 
 namespace Map.Fleet
 {
@@ -34,8 +35,10 @@ namespace Map.Fleet
         }
 
         public override VehicleType Type => VehicleType.Freighter;
-        public override PlayerId Owner => new PlayerId((byte)(Index / Constants.MAX_FREIGHTERS_PER_PLAYER));
-        public override float SpeedTPS => Constants.FREIGHTER_SPEED_TPS;
+        public override Player.Player Owner => Map.Instance.Players[(byte)(Index / Constants.MAX_FREIGHTERS_PER_PLAYER)];
+        protected override GameObject VehiclePrefab => Map.Instance.FreighterPrefab;
+
+        public override float SpeedTPS => Constants.FREIGHTER_BASE_SPEED_TPS;
 
         public Truck Truck;
 

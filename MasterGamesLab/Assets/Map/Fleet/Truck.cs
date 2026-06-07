@@ -40,8 +40,10 @@ namespace Map.Fleet
         }
 
         public override VehicleType Type => VehicleType.Truck;
-        public override PlayerId Owner => new PlayerId((byte)(Index / Constants.MAX_TRUCKS_PER_PLAYER));
-        public override float SpeedTPS => Constants.TRUCK_SPEED_TPS;
+        public override Player.Player Owner => Map.Instance.Players[(byte)(Index / Constants.MAX_TRUCKS_PER_PLAYER)];
+        protected override GameObject VehiclePrefab => Map.Instance.TruckPrefab;
+
+        public override float SpeedTPS => Constants.TRUCK_BASE_SPEED_TPS;
 
         private Good good;
         public Good Good { get => good; set { good = value; Touch(); } }
@@ -64,7 +66,6 @@ namespace Map.Fleet
                     ParkedTile = null;
                     Route = null;
                 }
-                Debug.Log("tile changed to: " + (int)(value?.Index ?? -1));
                 freighter = value;
                 Touch();
             }
@@ -76,7 +77,6 @@ namespace Map.Fleet
             set { 
                 CommonState = value.Common;
                 Good = value.Good;
-                Debug.Log("Received new truck state with FreighterID: " + (int)value.FreighterIndex);
                 Freighter = value.FreighterIndex != VehicleIndex.NONE ? Map.Instance.Fleet.Freighters[value.FreighterIndex] : null;
             }
         }
@@ -100,21 +100,21 @@ namespace Map.Fleet
                 {
                     c.RequestedGood = Good.None;
                     Good = Good.None;
-                    PlayerManager.Instance.Players[Owner].Money += 10; // TODO calculate reward properly
+                    Owner.Earn(10); // TODO calculate reward properly
                 }
             }
 
         }
 
-        public override Vector3? PositionOnSphere
+        public override VehicleTransform Transform
         {
             get
             {
                 if(Exists && Freighter != null)
                 {
-                    return Freighter.PositionOnSphere * 1.02f;
+                    return null;
                 }
-                return base.PositionOnSphere;
+                return base.Transform;
             }
         }
     }

@@ -232,7 +232,7 @@ namespace Map
 
                 var neighborTile = NeighborTiles.First(nt => nt.Tile == n);
 
-                var edge = new Edge(new EdgeId(edgeList.Count), this, n, Edge.EdgeType.None, PlayerId.NONE,
+                var edge = new Edge(new EdgeId(edgeList.Count), this, n, Edge.EdgeType.None, null,
                     neighborTile.LeftVertex, neighborTile.RightVertex);
 
                 edges.Add(edge);
@@ -304,6 +304,18 @@ namespace Map
                 default: return false;
             }
         }
+
+
+        public VehicleTransform ParkedVehicleTransform()
+        {
+            return new VehicleTransform
+            {
+                Position = PositionOnSphere,
+                Up = PositionOnSphere.normalized,
+                Forward = Neighbors[0].PositionOnSphere.normalized
+            }.AdjustForwardVector();
+        }
+
 
         public void BuildFaces(MapChunk.ChunkGeometry cg)
         {

@@ -17,7 +17,7 @@ namespace Map.Infrastructure
         }
 
         public override StructureType Type => StructureType.Port;
-        public override PlayerId Owner => new PlayerId((byte)(Index / Constants.MAX_PORTS_PER_PLAYER));
+        public override Player.Player Owner => Map.Instance.Players[(byte)(Index / Constants.MAX_PORTS_PER_PLAYER)];
 
         public PortState State
         {

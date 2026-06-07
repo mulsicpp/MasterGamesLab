@@ -2,6 +2,7 @@
 using Map;
 using Map.Fleet;
 using Map.Infrastructure;
+using Player;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -21,6 +22,9 @@ namespace Networking
         {
             private int nettoSize;
             public int NettoSize => nettoSize;
+
+            private List<Player.Player.PlayerState> players;
+
             private List<Edge.EdgeState> edges;
 
             private List<Producer.ProducerState> producers;
@@ -33,6 +37,7 @@ namespace Networking
 
             public Packet() {
                 nettoSize = 0;
+                players = new();
                 edges = new();
                 producers = new();
                 consumers = new();
@@ -46,6 +51,7 @@ namespace Networking
             {
                 switch (state)
                 {
+                    case Player.Player.PlayerState pl: players.Add(pl); break;
                     case Edge.EdgeState e: edges.Add(e); break;
                     case Producer.ProducerState p: producers.Add(p); break;
                     case Consumer.ConsumerState c: consumers.Add(c); break;
@@ -64,6 +70,7 @@ namespace Networking
                 Map.Map.Instance.ApplyReliableStatesClientRpc(
                     Map.Map.Instance.Timestamp,
                     Time.timeAsDouble,
+                    players.ToArray(),
                     edges.ToArray(),
                     producers.ToArray(),
                     consumers.ToArray(),

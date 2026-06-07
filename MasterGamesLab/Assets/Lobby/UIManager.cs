@@ -12,9 +12,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System;
+using Player;
+
+using LobbyPlayer = Unity.Services.Lobbies.Models.Player;
 
 using MenuId = UI.Menu.MenuId;
-using System.Linq;
 
 public class UIManager : MonoBehaviour
 {
@@ -68,14 +70,14 @@ public class UIManager : MonoBehaviour
 
         lobbyHeartbeat = StartCoroutine(LobbyHeartbeat());
         connectToIngame = StartCoroutine(ConnectToIngame());
+
+        NetworkManager.Singleton.LogLevel = LogLevel.Nothing;
     }
 
     public void Start()
     {
         menus = new UI.Menu[Enum.GetValues(typeof(MenuId)).Length];
         var foundMenus = gameObject.GetComponentsInChildren<UI.Menu>();
-
-        Debug.Log("Menu count: " + foundMenus.Length);
 
         foreach (var menu in foundMenus)
         {
@@ -114,7 +116,7 @@ public class UIManager : MonoBehaviour
     {
         JoinLobbyByIdOptions options = new JoinLobbyByIdOptions
         {
-            Player = new Player
+            Player = new LobbyPlayer
             {
                 Data = new Dictionary<string, PlayerDataObject> {
                 {
@@ -132,7 +134,7 @@ public class UIManager : MonoBehaviour
     {
         JoinLobbyByCodeOptions options = new JoinLobbyByCodeOptions
         {
-            Player = new Player
+            Player = new LobbyPlayer
             {
                 Data = new Dictionary<string, PlayerDataObject> {
                 {
@@ -149,8 +151,6 @@ public class UIManager : MonoBehaviour
 
     private void JoinLobby(Lobby lobby)
     {
-        Debug.Log("Joined the lobby" + lobby.Name);
-
         // string relayJoinCode = lobby.Data["JoinCode"].Value;
         // Debug.Log("Relay code: " + relayJoinCode);
         // 
@@ -164,7 +164,7 @@ public class UIManager : MonoBehaviour
         SubscribeToLobby();
 
         int mapSeed = int.Parse(Lobby.Data["MapSeed"].Value);
-        Map.Map.Instance.Generate(mapSeed);
+        Map.Map.Instance.GenerateTerrain(mapSeed);
 
         CurrentMenu = MenuId.Lobby;
     }
@@ -194,7 +194,7 @@ public class UIManager : MonoBehaviour
                 "MapSeed", new DataObject(DataObject.VisibilityOptions.Member, mapSeed.ToString())
             }
             },
-            Player = new Player
+            Player = new LobbyPlayer
             {
                 Data = new Dictionary<string, PlayerDataObject> {
                 {
@@ -207,7 +207,7 @@ public class UIManager : MonoBehaviour
         Lobby = await LobbyService.Instance.CreateLobbyAsync(PlayerName + "'s Lobby", 4, options);
         SubscribeToLobby();
 
-        Map.Map.Instance.Generate(mapSeed);
+        Map.Map.Instance.GenerateTerrain(mapSeed);
 
         CurrentMenu = MenuId.Lobby;
     }
@@ -294,8 +294,7 @@ public class UIManager : MonoBehaviour
     {
         CurrentMenu = MenuId.Loading;
         yield return new WaitUntil(() => PlayerManager.Instance.GameCanStart);
-
-        Debug.Log("Game can start");
+        Map.Map.Instance.GenerateStructuresAndPlayers(PlayerManager.Instance.PlayerConnections.Length);
 
         Map.Map.Instance.Running = true;
         CurrentMenu = MenuId.Ingame;
@@ -439,7 +438,7 @@ public class UIManager : MonoBehaviour
             {
                 int mapSeed = int.Parse(Lobby.Data?["MapSeed"]?.Value);
                 if (Map.Map.Instance.GenerationSeed != mapSeed)
-                    Map.Map.Instance.Generate(mapSeed);
+                    Map.Map.Instance.GenerateTerrain(mapSeed);
             } catch (Exception)
             {
                 Map.Map.Instance.GenerateEmpty();

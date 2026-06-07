@@ -670,6 +670,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "OpenTabMenu",
+                    "type": "Button",
+                    "id": "edebbd4f-c1b0-4182-9271-137d72bbec91",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -769,6 +778,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "27f0d4d5-ffdf-4257-9536-498bab9f85a5",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OpenTabMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

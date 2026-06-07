@@ -175,9 +175,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
   ShowTopMostFoldoutHeaderGroup: 1
-  Players: []
-  SelfId:
-    value: 255
+  PlayerConnections: []
 --- !u!4 &2800778
 Transform:
   m_ObjectHideFlags: 0
@@ -262,6 +260,14 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: fullSphereDistance
+      value: 2.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: fullProjectionDistance
+      value: 2.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: TEST_CANAL_RANDOM_
       value: 0.01
       objectReference: {fileID: 0}
@@ -299,7 +305,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestRoadCreation
   ShowTopMostFoldoutHeaderGroup: 1
-  type: 1
   good: 1
 --- !u!1 &549263512
 GameObject:

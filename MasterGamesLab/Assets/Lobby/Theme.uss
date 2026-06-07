@@ -22,6 +22,7 @@
     align-items: flex-start;
     width: 100%;
     height: 100%;
+    --tab-menu-header-border: rgba(255, 255, 255, 0.22);
 }
 
 .element {
@@ -370,7 +371,7 @@
 }
 
 .container {
-    background-color: rgba(0, 0, 0, 0.77);
+    background-color: rgba(0, 0, 0, 0.94);
 }
 
 .container-hidden {
@@ -385,4 +386,77 @@
 
 .x {
     box-sizing: border-box;
+}
+
+.tab-menu-header-icon {
+    aspect-ratio: 1;
+    max-width: 100%;
+    max-height: 100%;
+    background-color: rgba(255, 0, 0, 0);
+    width: auto;
+    background-image: url("project://database/Assets/IngameUI/LKW_Icon.svg?fileID=7388822144124034973&guid=bee6275bf0ec2d2498c79c7cb139def1&type=3#LKW_Icon");
+    height: 100%;
+}
+
+.tab-menu-header {
+    width: 9%;
+    height: 100%;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0);
+    padding-top: 0%;
+    padding-right: 1%;
+    padding-bottom: 0%;
+    padding-left: 1%;
+    flex-direction: row;
+    justify-content: center;
+    border-right-width: 0;
+    border-left-width: 0;
+    border-color: var(--tab-menu-header-border);
+}
+
+.tab-menu-column {
+    height: 100%;
+    width: 9%;
+}
+
+.tab-menu {
+    position: absolute;
+    top: 27.5%;
+    width: 45%;
+    height: 45%;
+    left: 27.5%;
+    padding-top: 0.5%;
+    padding-right: 0.5%;
+    padding-bottom: 0.5%;
+    padding-left: 0.5%;
+    background-color: rgb(0, 0, 0);
+    border-color: rgba(255, 255, 255, 0.15);
+    border-width: 1px;
+    border-radius: 8px;
+    display: flex;
+    visibility: visible;
+}
+
+.tab-menu-player-row {
+    width: 100%;
+    height: 25%;
+}
+
+.tab-menu-header-row {
+    width: 100%;
+    height: 20%;
+    flex-direction: row;
+    border-top-width: 1.5px;
+    border-right-width: 1.5px;
+    border-bottom-width: 1.5px;
+    border-left-width: 1.5px;
+    border-color: var(--tab-menu-header-border);
+}
+
+.tab-menu-player-row-uneven {
+    background-color: rgba(130, 130, 130, 0.04);
+}
+
+.active-column{
+    color: rgb(175, 152, 0);
 }
