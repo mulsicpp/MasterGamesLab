@@ -36,7 +36,7 @@ namespace Map
         {
             public EdgeId Id;
             public EdgeType Type;
-            public PlayerId Owner;
+            public PlayerId OwnerId;
 
             public int ArrayIndex
             {
@@ -77,9 +77,9 @@ namespace Map
             }
         }
 
-        private PlayerId owner;
+        private Player.Player owner;
 
-        public PlayerId Owner
+        public Player.Player Owner
         {
             get { return owner; }
             set
@@ -156,11 +156,11 @@ namespace Map
 
         public EdgeState State
         {
-            get => new EdgeState { Id = Id, Type = type, Owner = owner };
+            get => new EdgeState { Id = Id, Type = type, OwnerId = owner?.Id ?? PlayerId.NONE };
             set
             {
                 Type = value.Type;
-                Owner = value.Owner;
+                Owner = value.OwnerId != PlayerId.NONE ? Map.Instance.Players[value.OwnerId] : null;
             }
         }
 
@@ -171,14 +171,14 @@ namespace Map
         private EdgeGeometry geometry;
         private EdgeGeometry blueprintGeometry;
 
-        public Edge(EdgeId id, Tile startTile, Tile endTile, EdgeType type, PlayerId playerId, Vector3 vertexA,
+        public Edge(EdgeId id, Tile startTile, Tile endTile, EdgeType type, Player.Player player, Vector3 vertexA,
             Vector3 vertexB)
         {
             Id = id;
             StartTile = startTile;
             EndTile = endTile;
             this.type = type;
-            owner = playerId;
+            owner = player;
             this.VertexA = vertexA;
             this.VertexB = vertexB;
             Touch();
@@ -307,9 +307,9 @@ namespace Map
 
         private void SetColorAndOutline()
         {
-            if (PlayerManager.Instance != null)
+            if (Owner != null)
             {
-                geometry.SetPlayerColor(PlayerManager.Instance.GetPlayerColor(Owner));
+                geometry.SetPlayerColor(Owner.Color);
             }
             else
             {

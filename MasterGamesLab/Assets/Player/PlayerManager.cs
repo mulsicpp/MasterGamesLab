@@ -17,27 +17,27 @@ namespace Player
 
         private Dictionary<ClientId, Map.Timestamp> clientTimestamps = new Dictionary<ClientId, Map.Timestamp>();
 
-        public PlayerData[] Players;
-        public PlayerId SelfId = PlayerId.NONE;
+        public PlayerConnection[] PlayerConnections;
+        public PlayerConnection? Self => PlayerConnections[Player.SelfId];
 
-        public int ConnectedPlayerCount => Players.Where(d => d.IsConnected).Count();
+        public int ConnectedPlayerCount => PlayerConnections.Where(d => d.IsConnected).Count();
 
-        public bool GameCanStart => (NetworkManager.Singleton?.IsListening ?? false) && Players.Length > 0 && ConnectedPlayerCount == Players.Length;
+        public bool GameCanStart => (NetworkManager.Singleton?.IsListening ?? false) && PlayerConnections.Length > 0 && ConnectedPlayerCount == PlayerConnections.Length;
 
         public void Awake()
         {
             if (Instance != null) { Destroy(gameObject); return; }
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            Players = new PlayerData[0];
+            PlayerConnections = new PlayerConnection[0];
         }
 
         public void SetPlayersFromLobby(Unity.Services.Lobbies.Models.Lobby lobby)
         {
-            Players = new PlayerData[lobby.Players.Count];
+            PlayerConnections = new PlayerConnection[lobby.Players.Count];
             for (int i = 0; i < lobby.Players.Count; i++)
             {
-                Players[i] = new PlayerData(lobby.Players[i]);
+                PlayerConnections[i] = new PlayerConnection(lobby.Players[i]);
             }
         }
 
@@ -83,7 +83,7 @@ namespace Player
 
             Debug.Log("Incoming connection PlayerId: '" + playerAuthId + "'");
 
-            int index = Array.FindIndex(Players, playerData => playerData.PlayerAuthId == playerAuthId);
+            int index = Array.FindIndex(PlayerConnections, playerData => playerData.PlayerAuthId == playerAuthId);
 
             if (index == -1)
             {
@@ -96,7 +96,7 @@ namespace Player
                 return;
             }
             var clientId = new ClientId(request.ClientNetworkId);
-            Players[index].ClientId = clientId;
+            PlayerConnections[index].ClientId = clientId;
 
             clientTimestamps[clientId] = data.Timestamp;
 
@@ -109,7 +109,7 @@ namespace Player
             if (NetworkManager.Singleton == null) return;
             if (!IsServer) return;
 
-            UpdatePlayersClientRpc(Players);
+            UpdatePlayersClientRpc(PlayerConnections);
 
             if (clientid == NetworkManager.Singleton.LocalClientId) return;
 
@@ -123,15 +123,15 @@ namespace Player
             if (NetworkManager.Singleton == null) return;
             if (IsServer)
             {
-                int index = Array.FindIndex(Players, data => data.ClientId == clientid);
+                int index = Array.FindIndex(PlayerConnections, data => data.ClientId == clientid);
                 if (index != -1)
                 {
-                    Players[index].ClientId = ClientId.NONE;
+                    PlayerConnections[index].ClientId = ClientId.NONE;
                 }
 
                 if (NetworkManager.Singleton.IsListening)
                 {
-                    UpdatePlayersClientRpc(Players);
+                    UpdatePlayersClientRpc(PlayerConnections);
                 }
             }
             else if (clientid == NetworkManager.Singleton.LocalClientId)
@@ -143,7 +143,7 @@ namespace Player
 
         public void OnNetworkTick()
         {
-            UpdatePlayersClientRpc(Players);
+            UpdatePlayersClientRpc(PlayerConnections);
         }
 
 
@@ -151,23 +151,19 @@ namespace Player
         // - UpdatePlayerStatus (on Connect/Disconnect)
         // - UpdatePlayerData (every server tick)
         [Rpc(SendTo.ClientsAndHost)]
-        public void UpdatePlayersClientRpc(PlayerData[] players)
+        public void UpdatePlayersClientRpc(PlayerConnection[] players)
         {
-            this.Players = players;
+            this.PlayerConnections = players;
             var index = Array.FindIndex(players, data => data.PlayerAuthId == AuthenticationService.Instance.PlayerId);
-            SelfId = index == -1 ? PlayerId.NONE : new PlayerId((byte)index);
-            Player.selfId = SelfId;
+            Player.selfId = index == -1 ? PlayerId.NONE : new PlayerId((byte)index);
         }
 
-        public PlayerData? GetSelf()
+        public Player GetPlayerFromClientId(ClientId clientId)
         {
-            return SelfId != PlayerId.NONE ? Players[SelfId] : null;
-        }
-
-        public PlayerId GetPlayerIdFromClientId(ClientId clientId)
-        {
-            int index = Array.FindIndex(Players, data => data.ClientId == clientId);
-            return index == -1 ? PlayerId.NONE : new PlayerId((byte)index);
+            int index = Array.FindIndex(PlayerConnections, data => data.ClientId == clientId);
+            if(index != -1 && index < Map.Map.Instance.Players.Count)
+                return Map.Map.Instance.Players[index];
+            return null;
         }
 
         public Color GetPlayerColor(PlayerId playerId)
@@ -177,13 +173,13 @@ namespace Player
     }
 
     [System.Serializable]
-    public struct PlayerData : INetworkSerializable
+    public struct PlayerConnection : INetworkSerializable
     {
         public ClientId ClientId;
         public string PlayerAuthId;
         public string Name;
 
-        public PlayerData(Unity.Services.Lobbies.Models.Player player)
+        public PlayerConnection(Unity.Services.Lobbies.Models.Player player)
         {
             ClientId = ClientId.NONE;
             PlayerAuthId = player.Id;

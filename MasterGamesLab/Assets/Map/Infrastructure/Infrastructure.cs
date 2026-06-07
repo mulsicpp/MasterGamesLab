@@ -80,7 +80,7 @@ namespace Map.Infrastructure
             else throw new ArgumentException("Given IStructureState is not supported: " + state.GetType().FullName);
         }
 
-        public bool SpawnLocal<T>(T state, PlayerId owner) where T : struct, Structure.IStructureState
+        public bool SpawnLocal<T>(T state, Player.Player owner = null) where T : struct, Structure.IStructureState
         {
             var structure = GetFirstWith(state.Type, s => !s.Exists && s.Owner == owner);
             if (structure != null)
@@ -93,7 +93,7 @@ namespace Map.Infrastructure
             return false;
         }
 
-        public bool SpawnGlobal<T>(T state, PlayerId owner) where T : struct, Structure.IStructureState
+        public bool SpawnGlobal<T>(T state, Player.Player owner = null) where T : struct, Structure.IStructureState
         {
             var structure = GetFirstWith(state.Type, s => !s.Exists && s.Owner == owner);
             if (structure != null)

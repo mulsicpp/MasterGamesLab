@@ -231,7 +231,7 @@ namespace Map
 
                 var neighborTile = NeighborTiles.First(nt => nt.Tile == n);
 
-                var edge = new Edge(new EdgeId(edgeList.Count), this, n, Edge.EdgeType.None, PlayerId.NONE,
+                var edge = new Edge(new EdgeId(edgeList.Count), this, n, Edge.EdgeType.None, null,
                     neighborTile.LeftVertex, neighborTile.RightVertex);
 
                 edges.Add(edge);

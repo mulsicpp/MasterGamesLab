@@ -2,11 +2,83 @@ using UnityEngine;
 
 public static class Constants
 {
+
+    // ------------------- Player -------------------
+
     public const byte MIN_PLAYER_COUNT = 2;
     public const byte MAX_PLAYER_COUNT = 4;
 
-    public static readonly Color ROAD_BLUEPRINT_COLOR = Color.darkCyan;
-    public static readonly Color ROAD_BLUEPRINT_PREVIEW_COLOR = Color.mediumAquamarine;
+    public static readonly Color[] PLAYER_COLORS = { Color.red, Color.blue, Color.yellow, Color.green };
+
+    public const int PLAYER_INITIAL_CASH = 100;
+
+    // ------------------- Vehicles -------------------
+
+    public const byte MAX_TRUCKS_PER_PLAYER = 32;
+    public const byte MAX_TRUCK_COUNT = MAX_TRUCKS_PER_PLAYER * MAX_PLAYER_COUNT;
+    public const float TRUCK_BASE_SPEED_TPS = 1.0f;
+
+    public const byte MAX_FREIGHTERS_PER_PLAYER = 8;
+    public const byte MAX_FREIGHTER_COUNT = MAX_FREIGHTERS_PER_PLAYER * MAX_PLAYER_COUNT;
+    public const float FREIGHTER_BASE_SPEED_TPS = 1.0f;
+
+
+    // ------------------- Structures -------------------
+
+    public const byte MAX_PRODUCER_COUNT = 64;
+    public const byte MAX_CONSUMER_COUNT = 128;
+
+    public const byte MAX_PORTS_PER_PLAYER = 12;
+    public const byte MAX_GARAGES_PER_PLAYER = 1;
+
+    public const byte MAX_PORT_COUNT = MAX_PORTS_PER_PLAYER * MAX_PLAYER_COUNT;
+    public const byte MAX_GARAGE_COUNT = MAX_GARAGES_PER_PLAYER * MAX_PLAYER_COUNT;
+
+
+    // ------------------- Build Costs -------------------
+
+    public const float PLAIN_BUILD_COST_FACTOR = 1f;
+    public const float FOREST_BUILD_COST_FACTOR = 2f;
+
+    public const int ROAD_BUILD_COST = 20;
+    public const int BASE_CANAL_BUILD_COST = 50;
+
+    public const int PORT_BUILD_COST = 300;
+
+    public const int TRUCK_BUILD_COST = 60;
+    public const int FREIGHTER_BUILD_COST = 100;
+
+
+    // ------------------- Market Cap -------------------
+
+    public const int ROAD_MARKET_CAP = (int)(0.5f * ROAD_BUILD_COST);
+    public const int CANAL_MARKET_CAP = (int)(1.0f * BASE_CANAL_BUILD_COST);
+
+    public const int PORT_MARKET_CAP = (int)(0.8f * PORT_BUILD_COST);
+
+    public const int TRUCK_MARKET_CAP = (int)(0.6f * TRUCK_BUILD_COST);
+    public const int FREIGHTER_MARKET_CAP = (int)(0.8f * FREIGHTER_BUILD_COST);
+
+
+    // ------------------- Pathfinding -------------------
+
+    public const int MAX_PRIORITYS_FOR_PATHFINDING = 4;
+
+    public const int ENEMY_ROAD_MOVEMENT_COST = 1;
+    public const int OWN_ROAD_MOVEMENT_COST = 0;
+    public const int PUBLIC_ROAD_MOVEMENT_COST = 0;
+    public const int ROAD_MOVEMENT_DISTANCE = 1;
+
+
+    // ------------------- Networking -------------------
+
+    public const int MAX_NETTO_BYTES_PER_RPC = 1000;
+
+
+    // ------------------- Rendering -------------------
+
+    public static readonly Color ROAD_BLUEPRINT_COLOR = Color.orange;
+    public static readonly Color ROAD_BLUEPRINT_PREVIEW_COLOR = Color.yellow;
 
     public struct OutlineData
     {
@@ -65,46 +137,4 @@ public static class Constants
         InnerColor = new Color(255, 0, 0, 0.5f),
         TextureId = 1,
     };
-
-    public static readonly Color[] PLAYER_COLORS = { Color.red, Color.blue, Color.yellow, Color.green };
-
-    public const int PLAYER_START_MONEY = 100;
-
-    public const byte MAX_TRUCKS_PER_PLAYER = 32;
-    public const byte MAX_FREIGHTERS_PER_PLAYER = 8;
-
-    public const byte MAX_TRUCK_COUNT = MAX_TRUCKS_PER_PLAYER * MAX_PLAYER_COUNT;
-    public const byte MAX_FREIGHTER_COUNT = MAX_FREIGHTERS_PER_PLAYER * MAX_PLAYER_COUNT;
-
-    public const float TRUCK_SPEED_TPS = 1.0f;
-    public const float FREIGHTER_SPEED_TPS = 1.0f;
-
-
-    public const byte MAX_PRODUCER_COUNT = 64;
-    public const byte MAX_CONSUMER_COUNT = 128;
-
-    public const byte MAX_PORTS_PER_PLAYER = 12;
-    public const byte MAX_GARAGES_PER_PLAYER = 1;
-
-    public const byte MAX_PORT_COUNT = MAX_PORTS_PER_PLAYER * MAX_PLAYER_COUNT;
-    public const byte MAX_GARAGE_COUNT = MAX_GARAGES_PER_PLAYER * MAX_PLAYER_COUNT;
-
-
-    public const int MAX_NETTO_BYTES_PER_RPC = 1000;
-
-
-    public const float PLAIN_BUILD_COST_FACTOR = 1f;
-    public const float FOREST_BUILD_COST_FACTOR = 2f;
-
-    public const int ROAD_BUILD_COST = 20;
-    public const int BASE_CANAL_BUILD_COST = 50;
-    public const int PORT_BUILD_COST = 300;
-
-
-    public const int ENEMY_ROAD_MOVEMENT_COST = 1;
-    public const int OWN_ROAD_MOVEMENT_COST = 0;
-    public const int PUBLIC_ROAD_MOVEMENT_COST = 0;
-    public const int ROAD_MOVEMENT_DISTANCE = 1;
-
-    public const int MAX_PRIORITYS_FOR_PATHFINDING = 4;
 }
