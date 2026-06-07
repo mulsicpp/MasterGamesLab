@@ -594,7 +594,6 @@ namespace Map
             ClientRpcParams rpcParams = default
         )
         {
-            Debug.Log("Received reliable states");
             Timestamp = timestamp;
             ApplyStatesLocal(serverTime, this.players, players);
 
@@ -618,7 +617,6 @@ namespace Map
         public void ApplyUnreliableStatesClientRpc(double serverTime, Vehicle.VehicleProgressState[] vehicleProgresses,
             ClientRpcParams rpcParams = default)
         {
-            Debug.Log("Received unreliable states");
             ApplyStatesLocal(serverTime, Fleet.Vehicles, vehicleProgresses);
         }
 
@@ -828,7 +826,7 @@ namespace Map
 
         public VehicleTransform GetProjectedVehicleTransform(VehicleTransform transform)
         {
-            const float DELTA = 0.0001f;
+            const float DELTA = 0.001f;
 
             var projPos = GetProjectedPosition(transform.Position);
             var projPosAbove = GetProjectedPosition(transform.Position + transform.Up * DELTA);

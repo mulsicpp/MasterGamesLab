@@ -43,7 +43,7 @@ namespace Map.Fleet
         public override Player.Player Owner => Map.Instance.Players[(byte)(Index / Constants.MAX_TRUCKS_PER_PLAYER)];
         protected override GameObject VehiclePrefab => Map.Instance.TruckPrefab;
 
-        public override float SpeedTPS => Constants.TRUCK_BASE_SPEED_TPS;
+        public override float BaseSpeedTPS => Constants.TRUCK_BASE_SPEED_TPS;
 
         private Good good;
         public Good Good { get => good; set { good = value; Touch(); } }

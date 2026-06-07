@@ -118,7 +118,7 @@ namespace Map.Fleet
             set
             {
                 if (value == null || value.Length < 2) route = null;
-                else { route = value; parkedTile = null; smoothDriving.Reset(); }
+                else { route = value; parkedTile = null; }
                 Touch();
             }
         }
@@ -139,7 +139,18 @@ namespace Map.Fleet
             }
         }
 
-        public abstract float SpeedTPS { get; }
+        public abstract float BaseSpeedTPS { get; }
+
+        public float SpeedTPS
+        {
+            get
+            {
+                if(Route == null || Route?.Length < 2) return 0.0f;
+                int index = Mathf.Clamp((int)RouteProgress, 0, Route.Length - 2);
+
+                return BaseSpeedTPS * (Route[index].FindEdgeTo(Route[index + 1])?.GetSpeedMultiplier() ?? 1.0f);
+            }
+        }
 
 
         private Tile parkedTile;
@@ -159,7 +170,7 @@ namespace Map.Fleet
         }
         public bool IsParked => parkedTile != null;
 
-        private SmoothDriving smoothDriving;
+        // private SmoothDriving smoothDriving;
 
         public CommonVehicleState CommonState
         {
@@ -204,15 +215,9 @@ namespace Map.Fleet
             set { RouteProgress = value.Progress; }
         }
 
+        private double lastServerTime;
+
         VehicleProgressState ISynchableObject<VehicleProgressState>.State { get => ProgressState; set => ProgressState = value; }
-
-        public void ApplyServerState(VehicleProgressState state, double serverTime)
-        {
-
-            ProgressState = state;
-            ResetProgressDirty();
-            smoothDriving.AddProgressUpdate(state, serverTime);
-        }
 
         public static int GetOffsetFromType(VehicleType type)
         {
@@ -264,8 +269,18 @@ namespace Map.Fleet
             route = null;
             routeProgress = 0;
             parkedTile = null;
-            smoothDriving = new SmoothDrivingPredictNewest(this);
+            lastServerTime = 0;
             Touch();
+        }
+
+        public void ApplyServerState(VehicleProgressState state, double serverTime)
+        {
+            if(serverTime > lastServerTime)
+            {
+                ProgressState = state;
+                ResetProgressDirty();
+                lastServerTime = serverTime;
+            }
         }
 
         public override void ResetDirty() { base.ResetDirty(); ResetProgressDirty(); }
@@ -312,7 +327,8 @@ namespace Map.Fleet
                 if (IsParked) return ParkedTile.ParkedVehicleTransform();
                 else if (IsDriving)
                 {
-                    float visualProgress = smoothDriving?.VisualProgress ?? RouteProgress;
+                    // Debug.Log("Time since last simulation tick(s): " + (Time.time - Time.fixedTime) + "      Current speed (tiles/s): " + SpeedTPS);
+                    float visualProgress = RouteProgress + SpeedTPS * (Time.time - Time.fixedTime);
                     if (visualProgress <= 0.0f) return Route[0].ParkedVehicleTransform();
                     else if (visualProgress >= Route.Length - 1) return Route[Route.Length - 1].ParkedVehicleTransform();
                     else

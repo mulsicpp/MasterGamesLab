@@ -28,7 +28,7 @@ namespace Map.Fleet
 
     public class SmoothDrivingPredictNewest : SmoothDriving
     {
-        public override float VisualProgress => bestState.Progress + (float)(vehicle.SpeedTPS * (Time.timeAsDouble - stateClientTime));
+        public override float VisualProgress => bestState.Progress + (float)(vehicle.BaseSpeedTPS * (Time.timeAsDouble - stateClientTime));
         private Vehicle.VehicleProgressState bestState;
         private double stateServerTime;
         private double stateClientTime;
