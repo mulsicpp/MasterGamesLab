@@ -189,8 +189,7 @@ namespace Map.GeometryGeneration
 
             var addedVertices = 0;
             var starTreeIdx = cg.TreeData.Count;
-            var hasCanals = tile.Edges.Any(edge =>
-                edge.Type == Edge.EdgeType.Canal || edge.BlueprintType == Edge.EdgeType.Canal);
+            var hasCanals = tile.Edges.Any(edge => edge.Type == Edge.EdgeType.Canal);
 
             if (hasCanals && tile.Type != Tile.TileType.Water)
             {
