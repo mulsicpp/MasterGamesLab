@@ -300,7 +300,7 @@ namespace Map
             var stats =  new Player.PlayerStats[Players.Count];
             for (int i = 0; i < Players.Count; i++)
             {
-                stats[i] = default;
+                stats[i] = new();
                 stats[i].Cash = Players[i].Cash;
                 stats[i].Revenue = Players[i].Revenue;
             }

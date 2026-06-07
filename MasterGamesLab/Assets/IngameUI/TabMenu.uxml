@@ -2,15 +2,17 @@
     <ui:Template name="RowTemplate" src="project://database/Assets/IngameUI/tabmenutemplates/RowTemplate.uxml?fileID=9197481963319205126&amp;guid=80ac94e3d95f55c45bc6e55e8298e8b1&amp;type=3#RowTemplate"/>
     <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
     <ui:VisualElement name="root" class="unity-ui-document__root" style="width: 100%; height: 100%; flex-direction: column;">
-        <ui:VisualElement name="header-row" style="width: 100%; height: 20%; flex-direction: row;">
-            <ResponsiveButton class="element tab-menu-header" style="width: 25%; padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%;"/>
+        <ui:VisualElement name="header-row" class="tab-menu-header-row" style="background-color: rgba(53, 53, 53, 0.45);">
+            <ResponsiveButton class="element tab-menu-header" style="width: 25%; padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%; border-left-width: 0;">
+                <ResponsiveLabel height-percentage="0.4" text="Player" class="element label" style="width: 100%; height: 100%; padding-left: 7%;"/>
+            </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header" style="width: 15%; padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%;">
-                <ui:VisualElement class="element tab-menu-header" style="width: 60%; padding-right: 6.67%; padding-left: 6.67%;">
+                <ui:VisualElement class="element tab-menu-header" style="width: 60%; padding-right: 6.67%; padding-left: 6.67%; border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0);">
                     <ui:VisualElement name="VisualElement" class="element tab-menu-header-icon"/>
                 </ui:VisualElement>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header" style="width: 15%; padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%;">
-                <ui:VisualElement class="element tab-menu-header" style="width: 60%; padding-right: 6.67%; padding-left: 6.67%;">
+                <ui:VisualElement class="element tab-menu-header" style="width: 60%; padding-right: 6.67%; padding-left: 6.67%; border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0);">
                     <ui:VisualElement name="VisualElement" class="element tab-menu-header-icon"/>
                 </ui:VisualElement>
             </ResponsiveButton>
@@ -26,15 +28,15 @@
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header">
                 <ui:VisualElement name="VisualElement" class="element tab-menu-header-icon"/>
             </ResponsiveButton>
-            <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header">
+            <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header" style="border-right-width: 0;">
                 <ui:VisualElement name="VisualElement" class="element tab-menu-header-icon"/>
             </ResponsiveButton>
         </ui:VisualElement>
         <ui:VisualElement name="players-container" style="width: 100%; height: 80%; flex-direction: column;">
-            <ui:Instance template="RowTemplate" style="width: 100%; height: 25%;"/>
-            <ui:Instance template="RowTemplate" style="width: 100%; height: 25%;"/>
-            <ui:Instance template="RowTemplate" style="width: 100%; height: 25%;"/>
-            <ui:Instance template="RowTemplate" style="width: 100%; height: 25%;"/>
+            <ui:Instance template="RowTemplate" name="PlayerRow" class="tab-menu-player-row"/>
+            <ui:Instance template="RowTemplate" name="PlayerRow" class="tab-menu-player-row tab-menu-player-row-uneven"/>
+            <ui:Instance template="RowTemplate" name="PlayerRow" class="tab-menu-player-row"/>
+            <ui:Instance template="RowTemplate" name="PlayerRow" class="tab-menu-player-row tab-menu-player-row-uneven"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

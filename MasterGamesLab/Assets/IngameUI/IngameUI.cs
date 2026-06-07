@@ -1,4 +1,6 @@
+using System.Collections;
 using Map.Blueprint;
+using Player;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -24,10 +26,19 @@ namespace UI
 
         public override MenuId Id => MenuId.Ingame;
 
+        private VisualElement playersContainer;
+        private Coroutine uiUpdateCoroutine;
+        private VisualElement tabMenu;
+
+
         private void Awake()
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+        }
+        private void Update()
+        {
+            Map.Map.Instance.GetPlayerStats();
         }
 
         protected override void OnEnable()
@@ -52,11 +63,13 @@ namespace UI
             div = root.Q<GroupBox>("Devider");
             blueprintCountContainer = root.Q<ShrinkWrapContainer>("BlueprintCountContainer");
             totalCostLabel = root.Q<Label>("TotalCost");
+            playersContainer = root.Q<VisualElement>("players-container");
+            tabMenu = root.Q<VisualElement>("TabMenu");
+
+            UpdateAllPlayerStats();
+            uiUpdateCoroutine = StartCoroutine(PeriodicUiUpdateLoop());
 
             blueprintCountContainer.style.display = DisplayStyle.None;
-
-
-
 
             buildRoadButton.clicked += OnRoadClicked;
             buildCanalButton.clicked += OnCanalClicked;
@@ -86,22 +99,67 @@ namespace UI
             cancelButton.clicked -= OnCancelPressed;
             hideButton.clicked -= OnHidePressed;
 
+            if (uiUpdateCoroutine != null)
+            {
+                StopCoroutine(uiUpdateCoroutine);
+            }
+
             Player.Player.OnPlayerChanged -= ChangePlayerInfo;
+        }
+
+        private IEnumerator PeriodicUiUpdateLoop()
+        {
+            WaitForSeconds delay = new WaitForSeconds(5.0f);
+
+            while (true)
+            {
+                UpdateAllPlayerStats();
+                yield return delay;
+            }
+        }
+
+        private void UpdateAllPlayerStats()
+        {
+            PlayerStats[] allStats = Map.Map.Instance.GetPlayerStats();
+            if (allStats.Length == 0 || playersContainer == null) return;
+
+            for (int i = 0; i < playersContainer.childCount; i++)
+            {
+                if (i >= allStats.Length) break;
+
+                VisualElement rowInstance = playersContainer[i];
+                PlayerStats stats = allStats[i];
+
+                UpdatePlayerRowData(rowInstance, stats);
+            }
+        }
+
+        private void UpdatePlayerRowData(VisualElement row, PlayerStats stats)
+        {
+            row.Q<ResponsiveLabel>("Name").text = stats.Name;
+            row.Q<ResponsiveLabel>("MarketCap").text = stats.MarketCap.ToString();
+            row.Q<ResponsiveLabel>("Cash").text = stats.Cash.ToString();
+            row.Q<ResponsiveLabel>("Trucks").text = stats.TruckCount.ToString();
+            row.Q<ResponsiveLabel>("Freighters").text = stats.FreighterCount.ToString();
+            row.Q<ResponsiveLabel>("Roads").text = stats.RoadCount.ToString();
+            row.Q<ResponsiveLabel>("Canals").text = stats.CanalCount.ToString();
+            row.Q<ResponsiveLabel>("Ports").text = stats.PortCount.ToString();
+        }
+
+        public void ShowTabMenu(bool visible)
+        {
+            Visibility style = visible ? Visibility.Visible : Visibility.Hidden;
+            tabMenu.style.visibility = style;
         }
 
 
 
         public void ChangePlayerInfo(Player.Player player)
         {
-            if(player.IsSelf)
+            if (player.IsSelf)
             {
                 moneyLabel.text = "MONEY: " + player.Cash;
             }
-        }
-
-        public void setMoney(ulong money)
-        {
-            moneyLabel.text = "MONEY: " + money;
         }
 
         private void HandleStateUIUpdate(ConstructionControls.ConstructionType state)
