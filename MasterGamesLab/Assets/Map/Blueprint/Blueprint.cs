@@ -28,7 +28,7 @@ namespace Map.Blueprint
         private Vehicle previewVehicle;
         public Vehicle PreviewVehicle => previewVehicle;
 
-        public bool IsEmpty => structures.Count == 0 && edges.Count == 0;
+        public bool IsEmpty => vehicles.Count == 0 && structures.Count == 0 && edges.Count == 0;
 
         public event Action<Blueprint> OnChanged;
 
