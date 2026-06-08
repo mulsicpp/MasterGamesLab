@@ -23,6 +23,8 @@
     width: 100%;
     height: 100%;
     --tab-menu-header-border: rgba(255, 255, 255, 0.22);
+    --tab-menu-hover-column: rgb(255, 238, 123);
+    --tab-menu-active-column: rgb(175, 152, 0);
 }
 
 .element {
@@ -371,7 +373,10 @@
 }
 
 .container {
-    background-color: rgba(0, 0, 0, 0.94);
+    background-color: rgba(0, 0, 0, 0.98);
+    border-color: rgba(255, 255, 255, 0.15);
+    border-width: 1px;
+    border-radius: 8px;
 }
 
 .container-hidden {
@@ -379,7 +384,7 @@
 }
 
 .countlabel {
-    width: 50%;
+    width: 49.9%;
     flex-shrink: 0;
     aspect-ratio: 2.5;
 }
@@ -429,12 +434,12 @@
     padding-right: 0.5%;
     padding-bottom: 0.5%;
     padding-left: 0.5%;
-    background-color: rgb(0, 0, 0);
-    border-color: rgba(255, 255, 255, 0.15);
-    border-width: 1px;
-    border-radius: 8px;
     display: flex;
     visibility: visible;
+}
+
+.tab-menu-header:hover .tab-menu-header-icon {
+    -unity-background-image-tint-color: var(--tab-menu-hover-column);
 }
 
 .tab-menu-player-row {
@@ -457,7 +462,16 @@
     background-color: rgba(130, 130, 130, 0.04);
 }
 
-.active-column {
-    color: rgb(175, 152, 0);
-    -unity-background-image-tint-color: rgb(175, 152, 0);
+.tab-menu-hovered-row {
+    color: var(--tab-menu-hover-column);
+}
+
+.tab-menu-active-column {
+    color: var(--tab-menu-active-column);
+    -unity-background-image-tint-color: var(--tab-menu-active-column);
+}
+
+.tab-menu-header:hover .tab-menu-active-column {
+    -unity-background-image-tint-color: var(--tab-menu-active-column);
+    color: var(--tab-menu-active-column);
 }

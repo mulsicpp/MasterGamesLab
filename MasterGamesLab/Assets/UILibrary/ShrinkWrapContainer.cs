@@ -30,16 +30,17 @@ public partial class ShrinkWrapContainer : GroupBox
         {
             VisualElement child = this[i];
             
-            // CRITICAL FIX: Check resolvedStyle instead of raw style properties
+            // Check resolvedStyle instead of raw style properties
             if (child.resolvedStyle.display == DisplayStyle.None) 
                 continue;
 
+            // FIX: Increment visible children correctly for ANY visible child element
+            visibleChildren++;
+
             float childBottom = child.layout.yMax;
-            
             if (childBottom > maxBottomEdge)
             {
                 maxBottomEdge = childBottom;
-                visibleChildren++;
             }
         }
 
@@ -50,7 +51,9 @@ public partial class ShrinkWrapContainer : GroupBox
         }
         else if (maxBottomEdge > 0)
         {
-            style.height = maxBottomEdge;
+            // FIX: Retrieve and add the container's own resolved bottom padding
+            float currentPaddingBottom = resolvedStyle.paddingBottom;
+            style.height = maxBottomEdge + currentPaddingBottom;
         }
 
         _isCalculating = false;
