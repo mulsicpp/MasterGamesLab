@@ -106,6 +106,12 @@ public struct StructureId : INetworkSerializeByMemcpy, IEquatable<StructureId>, 
         return comparison == 0 ? Index.CompareTo(other.Index) : comparison;
     }
 
+    public void Deconstruct(out Structure.StructureType type, out StructureIndex index)
+    {
+        type = Type;
+        index = Index;
+    }
+
     public StructureId(Structure.StructureType type, StructureIndex index)
     {
         Type = type;
@@ -161,6 +167,12 @@ public struct VehicleId : INetworkSerializeByMemcpy, IEquatable<VehicleId>, ICom
         var comparison = Type.CompareTo(other.Type);
 
         return comparison == 0 ? Index.CompareTo(other.Index) : comparison;
+    }
+
+    public void Deconstruct(out Vehicle.VehicleType type, out VehicleIndex index)
+    {
+        type = Type;
+        index = Index;
     }
 
     public VehicleId(Vehicle.VehicleType type, VehicleIndex index)

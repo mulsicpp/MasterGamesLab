@@ -169,13 +169,24 @@ namespace Map.Blueprint
 
             if (structure == null) return false;
 
-            if (tile.BlueprintStructure != null || !tile.CanSpawnStructure(structure.Type)) return false;
+            if (tile.BlueprintStructure != null) return false;
+
             structure.BlueprintTile = tile;
-            structure.BlueprintPreview = true;
 
-            previewStructure = structure;
-
-            return true;
+            if (ValidateStructure(structure))
+            {
+                structure.BlueprintPreview = true;
+                SetValid(structure, false, 0);
+                previewStructure = structure;
+                return true;
+            }
+            else
+            {
+                structure.BlueprintTile = null;
+                structure.BlueprintPreview = false;
+                SetValid(structure, false, 0);
+                return false;
+            }
         }
 
         public bool SetPreviewVehicle(Tile tile, Vehicle.VehicleType type)
@@ -188,13 +199,22 @@ namespace Map.Blueprint
 
             if (vehicle == null) return false;
 
-            // if (tile.BlueprintStructure != null || !tile.CanSpawnStructure(vehicle.Type)) return false;
             vehicle.BlueprintTile = tile;
-            vehicle.BlueprintPreview = true;
 
-            previewVehicle = vehicle;
-
-            return true;
+            if (ValidateVehicle(vehicle))
+            {
+                vehicle.BlueprintPreview = true;
+                SetValid(vehicle, false, 0);
+                previewVehicle = vehicle;
+                return true;
+            }
+            else
+            {
+                vehicle.BlueprintTile = null;
+                vehicle.BlueprintPreview = false;
+                SetValid(vehicle, false, 0);
+                return false;
+            }
         }
 
         public void Clear()
@@ -398,7 +418,7 @@ namespace Map.Blueprint
 
         public override bool IsValid(Structure structure) => structure.BlueprintIsValid;
         public override int Cost(Structure structure) => structure.BlueprintCost;
-        public override StructureId BlueprintedStructure(Tile tile) => (!tile.BlueprintStructure?.BlueprintPreview ?? false) ? tile.BlueprintStructure.Id : StructureId.NONE;
+        public override StructureId? BlueprintedStructure(Tile tile) => (!tile.BlueprintStructure?.BlueprintPreview ?? false) ? tile.BlueprintStructure.Id : null;
         public override Tile BlueprintedStructureTile(Structure structure) => structure.BlueprintTile;
 
 
@@ -410,5 +430,6 @@ namespace Map.Blueprint
 
         public override bool IsValid(Vehicle vehicle) => vehicle.BlueprintIsValid;
         public override int Cost(Vehicle vehicle) => vehicle.BlueprintCost;
+        public override Tile BlueprintedVehicleTile(Vehicle vehicle) => vehicle.BlueprintTile;
     }
 }

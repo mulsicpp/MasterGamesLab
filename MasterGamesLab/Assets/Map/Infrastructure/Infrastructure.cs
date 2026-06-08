@@ -21,7 +21,7 @@ namespace Map.Infrastructure
         // TrainStation[] trainStations;
         // public IReadOnlyList<TrainStation> TrainStations => trainStations;
 
-        public Infrastructure()
+        public Infrastructure(int playerCount)
         {
             producers = new Producer[Constants.MAX_PRODUCER_COUNT];
             for (var i = 0; i < producers.Length; i++) producers[i] = new Producer(new StructureIndex((byte)i));
@@ -29,10 +29,10 @@ namespace Map.Infrastructure
             consumers = new Consumer[Constants.MAX_CONSUMER_COUNT];
             for (var i = 0; i < consumers.Length; i++) consumers[i] = new Consumer(new StructureIndex((byte)i));
 
-            garages = new Garage[Constants.MAX_GARAGE_COUNT];
+            garages = new Garage[Constants.MAX_GARAGES_PER_PLAYER * playerCount];
             for (var i = 0; i < garages.Length; i++) garages[i] = new Garage(new StructureIndex((byte)i));
 
-            ports = new Port[Constants.MAX_PORT_COUNT];
+            ports = new Port[Constants.MAX_PORTS_PER_PLAYER * playerCount];
             for (var i = 0; i < ports.Length; i++) ports[i] = new Port(new StructureIndex((byte)i));
         }
 

@@ -124,8 +124,8 @@ namespace Map
             players = new Player.Player[0];
 
             edges = Array.Empty<Edge>();
-            infrastructure = new Infrastructure.Infrastructure();
-            fleet = new Fleet.Fleet();
+            infrastructure = new Infrastructure.Infrastructure(0);
+            fleet = new Fleet.Fleet(0);
 
             ReliableSender = new ReliableSender(true);
             UnreliableSender = new UnreliableSender();
@@ -377,8 +377,8 @@ namespace Map
 
             InitEdges();
 
-            infrastructure = new Infrastructure.Infrastructure();
-            fleet = new Fleet.Fleet();
+            infrastructure = new Infrastructure.Infrastructure(0);
+            fleet = new Fleet.Fleet(0);
 
             UpdateEntireMesh();
 
@@ -394,8 +394,8 @@ namespace Map
 
             InitEdges();
 
-            infrastructure = new Infrastructure.Infrastructure();
-            fleet = new Fleet.Fleet();
+            infrastructure = new Infrastructure.Infrastructure(0);
+            fleet = new Fleet.Fleet(0);
 
             foreach (var chunk in chunks)
             {
@@ -458,7 +458,10 @@ namespace Map
             {
                 players[i] = new Player.Player(new PlayerId((byte)i));
             }
-            
+
+            infrastructure = new Infrastructure.Infrastructure(playerCount);
+            fleet = new Fleet.Fleet(playerCount);
+
             // TODO yixuan
         }
 

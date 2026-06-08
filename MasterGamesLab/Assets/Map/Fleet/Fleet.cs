@@ -15,12 +15,12 @@ namespace Map.Fleet
         private Vehicle[] vehicles;
         public IReadOnlyList<Vehicle> Vehicles => vehicles;
 
-        public Fleet()
+        public Fleet(int playerCount)
         {
-            trucks = new Truck[Constants.MAX_TRUCK_COUNT];
+            trucks = new Truck[Constants.MAX_TRUCKS_PER_PLAYER * playerCount];
             for (int i = 0; i < trucks.Length; i++) trucks[i] = new Truck(new VehicleIndex((byte)i));
 
-            freighters = new Freighter[Constants.MAX_FREIGHTER_COUNT];
+            freighters = new Freighter[Constants.MAX_FREIGHTERS_PER_PLAYER * playerCount];
             for (int i = 0; i < freighters.Length; i++) freighters[i] = new Freighter(new VehicleIndex((byte)i));
 
             vehicles = new Vehicle[trucks.Length + freighters.Length];

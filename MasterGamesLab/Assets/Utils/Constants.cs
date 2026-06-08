@@ -46,8 +46,8 @@ public static class Constants
 
     public const int PORT_BUILD_COST = 300;
 
-    public const int TRUCK_BUILD_COST = 60;
-    public const int FREIGHTER_BUILD_COST = 100;
+    public const int TRUCK_BUILD_COST = 150;
+    public const int FREIGHTER_BUILD_COST = 300;
 
 
     // ------------------- Market Cap -------------------

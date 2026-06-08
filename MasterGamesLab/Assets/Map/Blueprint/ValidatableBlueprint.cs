@@ -33,20 +33,22 @@ namespace Map.Blueprint
         protected abstract void SetValid(Structure structure, bool valid, int cost);
         public abstract bool IsValid(Structure structure);
         public abstract int Cost(Structure structure);
-        public abstract StructureId BlueprintedStructure(Tile tile);
+        public abstract StructureId? BlueprintedStructure(Tile tile);
         public abstract Tile BlueprintedStructureTile(Structure structure);
 
-        protected StructureId ConfirmedStructure(Tile tile)
+        protected StructureId? ConfirmedStructure(Tile tile)
         {
             if (tile.Structure != null) return tile.Structure.Id;
-            if (IsValid(Map.Instance.Infrastructure[BlueprintedStructure(tile)])) return BlueprintedStructure(tile);
-            return StructureId.NONE;
+            var structure = BlueprintedStructure(tile);
+            if (structure is StructureId structureId && IsValid(Map.Instance.Infrastructure[structureId])) return structure;
+            return null;
 
         }
 
         protected abstract void SetValid(Vehicle vehicle, bool valid, int cost);
         public abstract bool IsValid(Vehicle vehicle);
         public abstract int Cost(Vehicle vehicle);
+        public abstract Tile BlueprintedVehicleTile(Vehicle vehicle);
 
         public virtual void Validate()
         {
@@ -172,7 +174,7 @@ namespace Map.Blueprint
             {
                 case Structure.StructureType.Port:
                     Tile tile = BlueprintedStructureTile(structure);
-                    if (structure.Tile != null || ConfirmedStructure(tile) != StructureId.NONE) return false;
+                    if (structure.Tile != null || ConfirmedStructure(tile) != null) return false;
 
                     float factor;
                     if(!tile.CanBuild(out factor)) return false;
@@ -189,12 +191,26 @@ namespace Map.Blueprint
 
         public bool ValidateVehicle(Vehicle vehicle)
         {
-            if (vehicle == null) return false;
+            if (vehicle == null || vehicle.Exists) return false;
             if (IsValid(vehicle)) return true;
 
-            // TODO correct vehicle validation
-            SetValid(vehicle, true, 500);
-            return true;
+            var tile = BlueprintedVehicleTile(vehicle);
+
+            switch (vehicle.Type)
+            {
+                case Vehicle.VehicleType.Truck:
+                    if (!(ConfirmedStructure(tile)?.Type == Structure.StructureType.Garage)) return false;
+
+                    SetValid(vehicle, true, Constants.TRUCK_BUILD_COST);
+                    return true;
+                case Vehicle.VehicleType.Freighter:
+                    if (tile.Type != Tile.TileType.Water) return false;
+                    if (tile.Neighbors.FirstOrDefault(n => ConfirmedStructure(n as Tile)?.Type == Structure.StructureType.Port) == null) return false;
+
+                    SetValid(vehicle, true, Constants.FREIGHTER_BUILD_COST);
+                    return true;
+            }
+            return false;
         }
     }
 }

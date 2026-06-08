@@ -71,7 +71,11 @@ namespace Map.Fleet
 
             public float Progress;
 
-            public int ArrayIndex { get => GetOffsetFromType(Type) + Index; set => Type = GetTypeFromIndex(value, out Index); }
+            public int ArrayIndex { get => GetOffsetFromType(Type) + Index; set
+                {
+                    GetTypeFromIndex(value).Deconstruct(out Type, out Index);
+                }
+            }
             public int SerializedSize => FastBufferWriter.GetWriteSize(this);
         }
 
@@ -247,24 +251,18 @@ namespace Map.Fleet
         {
             int offset = 0;
             if (type == VehicleType.Truck) return offset;
-            offset += Constants.MAX_TRUCK_COUNT;
+            offset += Map.Instance.Fleet.Trucks.Count;
             if (type == VehicleType.Freighter) return offset;
-            offset += Constants.MAX_FREIGHTER_COUNT;
+            offset += Map.Instance.Fleet.Freighters.Count;
             return offset;
         }
 
-        public static VehicleType GetTypeFromIndex(int index, out VehicleIndex localIndex)
+        public static VehicleId GetTypeFromIndex(int index)
         {
-            if (index < Constants.MAX_TRUCK_COUNT)
-            {
-                localIndex = new((byte)index);
-                return VehicleType.Truck;
-            }
+            if (index < Map.Instance.Fleet.Trucks.Count)
+                return new VehicleId(VehicleType.Truck, new((byte)index));
             else
-            {
-                localIndex = new((byte)(index - Constants.MAX_TRUCK_COUNT));
-                return VehicleType.Freighter;
-            }
+                return new VehicleId(VehicleType.Freighter, new((byte)(index - Map.Instance.Fleet.Trucks.Count)));
         }
 
         public static int GetMaxCountPerPlayer(VehicleType type)

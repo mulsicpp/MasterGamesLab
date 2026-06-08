@@ -24,6 +24,7 @@ namespace Map.Blueprint
 
         private struct VehicleData
         {
+            public Tile Tile;
             public bool Valid;
             public int Cost;
         }
@@ -54,7 +55,7 @@ namespace Map.Blueprint
             vehicleData = new();
             foreach (var v in blueprintPacket.Vehicles)
             {
-                vehicleData.Add(v.VehicleId, new VehicleData { });
+                vehicleData.Add(v.VehicleId, new VehicleData { Tile = (Tile)Map.Instance.Tiles[v.TileId] });
             }
         }
 
@@ -86,14 +87,14 @@ namespace Map.Blueprint
         public override bool IsValid(Structure structure) => structureData.ContainsKey(structure.Id) ? structureData[structure.Id].Valid : false;
         public override int Cost(Structure structure) => structureData.ContainsKey(structure.Id) ? structureData[structure.Id].Cost : 0;
 
-        public override StructureId BlueprintedStructure(Tile tile)
+        public override StructureId? BlueprintedStructure(Tile tile)
         {
             foreach (var data in structureData)
             {
                 if (data.Value.Tile == tile)
                     return data.Key;
             }
-            return StructureId.NONE;
+            return null;
         }
 
         public override Tile BlueprintedStructureTile(Structure structure) => structureData.ContainsKey(structure.Id) ? structureData[structure.Id].Tile : null;
@@ -108,5 +109,6 @@ namespace Map.Blueprint
 
         public override bool IsValid(Vehicle vehicle) => vehicleData.ContainsKey(vehicle.Id) ? vehicleData[vehicle.Id].Valid : false;
         public override int Cost(Vehicle vehicle) => vehicleData.ContainsKey(vehicle.Id) ? vehicleData[vehicle.Id].Cost : 0;
+        public override Tile BlueprintedVehicleTile(Vehicle vehicle) => vehicleData.ContainsKey(vehicle.Id) ? vehicleData[vehicle.Id].Tile : null;
     }
 }
