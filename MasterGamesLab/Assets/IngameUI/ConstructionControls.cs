@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using static Map.Edge;
 using Map.Hoverables;
 using Map.OutlineEffect;
+using Map.Fleet;
 
 public class ConstructionControls : MonoBehaviour
 {
@@ -78,6 +79,7 @@ public class ConstructionControls : MonoBehaviour
         var newTile = Map.Map.Instance.CurrentlyHovered as Tile;
 
         var edgeType = GetEdgeType();
+        var vehicleType = GetVehicleType();
         if (edgeType != EdgeType.None)
         {
             if (hoveredTile != newTile)
@@ -100,6 +102,17 @@ public class ConstructionControls : MonoBehaviour
             if (hoveredTile != newTile)
                 previewIsValidOrNonExistent =
                     Map.Map.Instance.Blueprint.SetPreviewStructure(newTile, Structure.StructureType.Port);
+
+            if (previewIsValidOrNonExistent && leftClickAction.WasPerformedThisFrame())
+            {
+                Map.Map.Instance.Blueprint.ApplyPreview();
+            }
+        }
+        else if (vehicleType is Vehicle.VehicleType type)
+        {
+            if (hoveredTile != newTile)
+                previewIsValidOrNonExistent =
+                    Map.Map.Instance.Blueprint.SetPreviewVehicle(newTile, type);
 
             if (previewIsValidOrNonExistent && leftClickAction.WasPerformedThisFrame())
             {
@@ -175,6 +188,16 @@ public class ConstructionControls : MonoBehaviour
             ConstructionType.Road => EdgeType.Road,
             ConstructionType.Canal => EdgeType.Canal,
             _ => EdgeType.None
+        };
+    }
+
+    private Vehicle.VehicleType? GetVehicleType()
+    {
+        return Type switch
+        {
+            ConstructionType.Truck => Vehicle.VehicleType.Truck,
+            ConstructionType.Freighter => Vehicle.VehicleType.Freighter,
+            _ => null
         };
     }
 

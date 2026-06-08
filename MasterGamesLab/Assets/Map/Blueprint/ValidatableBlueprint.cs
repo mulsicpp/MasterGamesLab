@@ -1,3 +1,4 @@
+using Map.Fleet;
 using Map.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace Map.Blueprint
 
         protected abstract IEnumerable<Edge> EnumerateEdges();
         protected abstract IEnumerable<Structure> EnumerateStructures();
+        protected abstract IEnumerable<Vehicle> EnumerateVehicles();
 
         protected abstract void SetValid(Edge edge, bool valid, int cost);
         public abstract bool IsValid(Edge edge);
@@ -42,6 +44,10 @@ namespace Map.Blueprint
 
         }
 
+        protected abstract void SetValid(Vehicle vehicle, bool valid, int cost);
+        public abstract bool IsValid(Vehicle vehicle);
+        public abstract int Cost(Vehicle vehicle);
+
         public virtual void Validate()
         {
             canalDepths = new();
@@ -49,10 +55,12 @@ namespace Map.Blueprint
 
             foreach (var edge in EnumerateEdges()) SetValid(edge, false, 0);
             foreach (var structure in EnumerateStructures()) SetValid(structure, false, 0);
+            foreach (var vehicle in EnumerateVehicles()) SetValid(vehicle, false, 0);
 
             foreach (var edge in EnumerateEdges()) ValidateEdge(edge);
             ValidateCanals();
             foreach (var structure in EnumerateStructures()) ValidateStructure(structure);
+            foreach (var vehicle in EnumerateVehicles()) ValidateVehicle(vehicle);
         }
 
         public void ValidateEdge(Edge edge)
@@ -177,6 +185,16 @@ namespace Map.Blueprint
                     return true;
             }
             return false;
+        }
+
+        public bool ValidateVehicle(Vehicle vehicle)
+        {
+            if (vehicle == null) return false;
+            if (IsValid(vehicle)) return true;
+
+            // TODO correct vehicle validation
+            SetValid(vehicle, true, 500);
+            return true;
         }
     }
 }

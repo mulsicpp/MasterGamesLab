@@ -468,7 +468,7 @@ namespace Map
             {
                 foreach (var vehicle in Fleet.Vehicles)
                 {
-                    if(vehicle.Exists) vehicle.UpdateGameobject();
+                    vehicle.UpdateGameobject();
                 }
             }
         }
@@ -648,6 +648,7 @@ namespace Map
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
         public void SendBlueprintPacketServerRpc(BlueprintPacket.EdgeData[] edges,
             BlueprintPacket.StructureData[] structures,
+            BlueprintPacket.VehicleData[] vehicles,
             bool hasNext,
             RpcParams rpcParams = default)
         {
@@ -655,7 +656,7 @@ namespace Map
                 Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
             if (player == null) return;
 
-            storedBlueprintPackets[player.Id].Append(new BlueprintPacket(edges, structures));
+            storedBlueprintPackets[player.Id].Append(new BlueprintPacket(edges, structures, vehicles));
 
             if (!hasNext)
             {
@@ -677,9 +678,6 @@ namespace Map
                         edge.Owner = player;
 
                         player.Pay(validatableBlueprint.Cost(edge));
-
-                        //ReliableSender.Add(new Edge.EdgeState
-                        //{ Id = edgeData.EdgeId, Type = edgeData.Type, Owner = playerId });
                     }
                 }
 
@@ -694,6 +692,21 @@ namespace Map
                     {
                         structure.Tile = tile;
                         player.Pay(validatableBlueprint.Cost(structure));
+                    }
+                }
+
+                foreach (var vehicleData in packet.Vehicles)
+                {
+                    if (vehicleData.TileId < 0 || vehicleData.TileId > tiles.Count) continue;
+                    var tile = Tiles[vehicleData.TileId] as Tile;
+
+                    var vehicle = Fleet[vehicleData.VehicleId];
+
+                    if (validatableBlueprint.IsValid(vehicle) && vehicle.Owner.Id == player.Id)
+                    {
+                        vehicle.Exists = true;
+                        vehicle.ParkedTile = tile;
+                        player.Pay(validatableBlueprint.Cost(vehicle));
                     }
                 }
 

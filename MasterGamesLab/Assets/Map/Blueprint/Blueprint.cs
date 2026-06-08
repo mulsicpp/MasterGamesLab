@@ -82,6 +82,25 @@ namespace Map.Blueprint
             Validate();
         }
 
+        public bool AddVehicle(Tile tile, Vehicle vehicle)
+        {
+            if (vehicles.Contains(vehicle)) return false;
+            vehicle.BlueprintTile = tile;
+            vehicle.BlueprintPreview = false;
+            vehicles.Add(vehicle);
+
+            Validate();
+            return true;
+        }
+
+        public void RemoveStructure(Vehicle vehicle)
+        {
+            vehicle.BlueprintTile = null;
+            vehicle.BlueprintPreview = false;
+            if (vehicles.Contains(vehicle)) vehicles.Remove(vehicle);
+            Validate();
+        }
+
         public void ClearPreview()
         {
             foreach (var edge in previewEdges)
@@ -97,6 +116,14 @@ namespace Map.Blueprint
                 previewStructure.BlueprintPreview = false;
 
                 previewStructure = null;
+            }
+
+            if (previewVehicle != null)
+            {
+                previewVehicle.BlueprintTile = null;
+                previewVehicle.BlueprintPreview = false;
+                
+                previewVehicle = null;
             }
         }
 
@@ -151,6 +178,25 @@ namespace Map.Blueprint
             return true;
         }
 
+        public bool SetPreviewVehicle(Tile tile, Vehicle.VehicleType type)
+        {
+            ClearPreview();
+
+            if (tile == null) return false;
+
+            var vehicle = Map.Instance.Fleet.GetFirstWith(type, v => !v.Exists && v.BlueprintTile == null && v.Owner.IsSelf);
+
+            if (vehicle == null) return false;
+
+            // if (tile.BlueprintStructure != null || !tile.CanSpawnStructure(vehicle.Type)) return false;
+            vehicle.BlueprintTile = tile;
+            vehicle.BlueprintPreview = true;
+
+            previewVehicle = vehicle;
+
+            return true;
+        }
+
         public void Clear()
         {
             foreach (var edge in edges)
@@ -166,6 +212,13 @@ namespace Map.Blueprint
                 structure.BlueprintPreview = false;
             }
             structures.Clear();
+
+            foreach (var vehicle in vehicles)
+            {
+                vehicle.BlueprintTile = null;
+                vehicle.BlueprintPreview = false;
+            }
+            vehicles.Clear();
 
             ClearPreview();
             Validate();
@@ -195,10 +248,23 @@ namespace Map.Blueprint
             Validate();
         }
 
+        public void ApplyPreviewVehicle()
+        {
+            if (previewVehicle == null) return;
+
+            previewVehicle.BlueprintPreview = false;
+
+            vehicles.Add(previewVehicle);
+            previewVehicle = null;
+
+            Validate();
+        }
+
         public void ApplyPreview()
         {
             ApplyPreviewEdges();
             ApplyPreviewStructure();
+            ApplyPreviewVehicle();
         }
 
         public void Submit()
@@ -218,6 +284,11 @@ namespace Map.Blueprint
                 lastPacket = lastPacket.AddStructureToPackets(structure, packets);
             }
 
+            foreach (var vehicle in vehicles)
+            {
+                lastPacket = lastPacket.AddVehicleToPackets(vehicle, packets);
+            }
+
             if (lastPacket.NettoSize == 0)
             {
                 if (packets.Count == 0)
@@ -234,14 +305,6 @@ namespace Map.Blueprint
             lastPacket.Send(false);
         }
 
-        private static BlueprintDetails.ObjectInfo GetOrAdd(SortedList<ConstructibleType, BlueprintDetails.ObjectInfo> list, ConstructibleType key)
-        {
-            if(!list.ContainsKey(key))
-            {
-                list.Add(key, new());
-            }
-            return list[key];
-        }
 
         public BlueprintDetails GetDetails()
         {
@@ -282,6 +345,20 @@ namespace Map.Blueprint
                 invalidObjectCount += IsValid(structure) ? 0 : 1;
             }
 
+            foreach (var vehicle in vehicles)
+            {
+                var objectInfo = vehicle.Type switch
+                {
+                    Vehicle.VehicleType.Truck => objectInfos[ConstructibleType.Truck],
+                    Vehicle.VehicleType.Freighter => objectInfos[ConstructibleType.Freighter],
+                    _ => null
+                };
+                if (objectInfo == null) continue;
+                objectInfo.Count++;
+                objectInfo.Cost += Cost(vehicle);
+                invalidObjectCount += IsValid(vehicle) ? 0 : 1;
+            }
+
             int totalCost = 0;
             foreach (var (_, info) in objectInfos)
             {
@@ -300,6 +377,7 @@ namespace Map.Blueprint
 
         protected override IEnumerable<Edge> EnumerateEdges() => edges.AsEnumerable();
         protected override IEnumerable<Structure> EnumerateStructures() => structures.AsEnumerable();
+        protected override IEnumerable<Vehicle> EnumerateVehicles() => vehicles.AsEnumerable();
 
         protected override void SetValid(Edge edge, bool valid, int cost)
         {
@@ -322,5 +400,15 @@ namespace Map.Blueprint
         public override int Cost(Structure structure) => structure.BlueprintCost;
         public override StructureId BlueprintedStructure(Tile tile) => (!tile.BlueprintStructure?.BlueprintPreview ?? false) ? tile.BlueprintStructure.Id : StructureId.NONE;
         public override Tile BlueprintedStructureTile(Structure structure) => structure.BlueprintTile;
+
+
+        protected override void SetValid(Vehicle vehicle, bool valid, int cost)
+        {
+            vehicle.BlueprintIsValid = valid;
+            vehicle.BlueprintCost = cost;
+        }
+
+        public override bool IsValid(Vehicle vehicle) => vehicle.BlueprintIsValid;
+        public override int Cost(Vehicle vehicle) => vehicle.BlueprintCost;
     }
 }

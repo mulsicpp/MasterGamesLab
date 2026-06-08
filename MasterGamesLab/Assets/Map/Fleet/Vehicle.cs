@@ -95,16 +95,7 @@ namespace Map.Fleet
                 {
                     exists = value;
                     Touch();
-                    if (exists)
-                    {
-                        gameObject = Object.Instantiate(VehiclePrefab);
-                        UpdateGameobject();
-                    }
-                    else
-                    {
-                        Object.Destroy(gameObject);
-                        gameObject = null;
-                    }
+                    EvaluateGameobjectPresence();
                 }
             }
         }
@@ -169,6 +160,28 @@ namespace Map.Fleet
             }
         }
         public bool IsParked => parkedTile != null;
+
+
+        private Tile blueprintTile;
+        public Tile BlueprintTile
+        {
+            get { return blueprintTile; }
+            set
+            {
+                if (blueprintTile != value)
+                {
+                    blueprintTile = value;
+                    Touch();
+                    EvaluateGameobjectPresence();
+                }
+            }
+        }
+
+        public bool BlueprintPreview;
+        public bool BlueprintValid;
+
+        public bool BlueprintIsValid;
+        public int BlueprintCost = 0;
 
         // private SmoothDriving smoothDriving;
 
@@ -323,11 +336,13 @@ namespace Map.Fleet
         {
             get
             {
-                if (!Exists) return null;
+                if (!Exists)
+                {
+                    return BlueprintTile?.ParkedVehicleTransform();
+                }
                 if (IsParked) return ParkedTile.ParkedVehicleTransform();
                 else if (IsDriving)
                 {
-                    // Debug.Log("Time since last simulation tick(s): " + (Time.time - Time.fixedTime) + "      Current speed (tiles/s): " + SpeedTPS);
                     float visualProgress = RouteProgress + SpeedTPS * (Time.time - Time.fixedTime);
                     if (visualProgress <= 0.0f) return Route[0].ParkedVehicleTransform();
                     else if (visualProgress >= Route.Length - 1) return Route[Route.Length - 1].ParkedVehicleTransform();
@@ -367,6 +382,23 @@ namespace Map.Fleet
                     }
                 }
                 return null;
+            }
+        }
+
+        public void EvaluateGameobjectPresence()
+        {
+            if (Exists || BlueprintTile != null)
+            {
+                if (gameObject == null)
+                {
+                    gameObject = Object.Instantiate(VehiclePrefab);
+                    UpdateGameobject();
+                }
+            }
+            else if (gameObject != null)
+            {
+                Object.Destroy(gameObject);
+                gameObject = null;
             }
         }
 

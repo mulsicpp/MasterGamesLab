@@ -39,15 +39,15 @@ public class TestRoadCreation : NetworkBehaviour
             Map.Map.Instance.Infrastructure.SpawnGlobal(new Garage.GarageState { Common = { TileId = tile.Id } });
         }
 
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Truck, tile.Id);
-        }
-
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
-        }
+        // if (Input.GetKeyDown(KeyCode.L))
+        // {
+        //     Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Truck, tile.Id);
+        // }
+        // 
+        // if (Input.GetKeyDown(KeyCode.B))
+        // {
+        //     Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
+        // }
 
         if (Input.GetKeyDown(KeyCode.D))
         {
