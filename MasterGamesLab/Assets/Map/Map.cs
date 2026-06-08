@@ -992,8 +992,23 @@ namespace Map
             {
                 if (vehicle.Transform == null) continue;
                 Vector3 basePos = vehicle.Transform.Position;
-                Gizmos.color = vehicle.Owner.Color;
-                Gizmos.DrawSphere(GetProjectedPosition(basePos, 1.01f), 0.015f);
+                if(vehicle.BlueprintTile != null)
+                {
+                    Gizmos.color = vehicle.BlueprintVisualState switch
+                    {
+                        VisualState.Preview => Color.purple,
+                        VisualState.PreviewOverlapping => Color.blue,
+                        VisualState.Valid => Color.cyan,
+                        VisualState.Overlapping => Color.green,
+                        _ => Color.red,
+                    };
+                    Gizmos.DrawWireSphere(GetProjectedPosition(basePos, 1.01f), 0.015f);
+                }
+                else
+                {
+                    Gizmos.color = vehicle.Owner.Color;
+                    Gizmos.DrawSphere(GetProjectedPosition(basePos, 1.01f), 0.015f);
+                }
 
                 if (vehicle is Truck truck && truck.Good != Good.None)
                 {

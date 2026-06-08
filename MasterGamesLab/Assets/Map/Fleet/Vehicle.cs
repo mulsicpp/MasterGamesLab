@@ -3,6 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using Networking;
 using System.Security.Cryptography;
+using Map.Blueprint;
 
 namespace Map.Fleet
 {
@@ -182,6 +183,16 @@ namespace Map.Fleet
 
         public bool BlueprintIsValid;
         public int BlueprintCost = 0;
+
+        public VisualState BlueprintVisualState
+        {
+            get
+            {
+                if (BlueprintTile == null) return VisualState.Valid;
+                if (BlueprintPreview) return VisualState.Preview;
+                return BlueprintIsValid ? VisualState.Valid : VisualState.Invalid;
+            }
+        }
 
         // private SmoothDriving smoothDriving;
 
