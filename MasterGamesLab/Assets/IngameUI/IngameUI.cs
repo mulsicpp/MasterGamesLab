@@ -18,7 +18,8 @@ namespace UI
 
         // --- Configuration Constants ---
         public const string activeClass = "ingame-build-button--active";
-        public const string activeColumnClass = "active-column";
+        public const string activeColumnClass = "tab-menu-active-column";
+        public const string hoveredColumnClass = "tab-menu-hovered-row";
 
         // --- Sorting Enums & Variables ---
         private enum SortColumn { Name, MarketCap, Cash, Trucks, Freighters, Roads, Canals, Ports }
@@ -90,6 +91,19 @@ namespace UI
             headers[6].clicked += () => SetSortTarget(SortColumn.Canals, headers, 6);
             headers[7].clicked += () => SetSortTarget(SortColumn.Ports, headers, 7);
 
+            headers[1].RegisterCallback<PointerEnterEvent>(e => HighliteHoveredColumn(SortColumn.MarketCap));
+            headers[2].RegisterCallback<PointerEnterEvent>(e => HighliteHoveredColumn(SortColumn.Cash));
+            headers[3].RegisterCallback<PointerEnterEvent>(e => HighliteHoveredColumn(SortColumn.Trucks));
+            headers[4].RegisterCallback<PointerEnterEvent>(e => HighliteHoveredColumn(SortColumn.Freighters));
+            headers[5].RegisterCallback<PointerEnterEvent>(e => HighliteHoveredColumn(SortColumn.Roads));
+            headers[6].RegisterCallback<PointerEnterEvent>(e => HighliteHoveredColumn(SortColumn.Canals));
+            headers[7].RegisterCallback<PointerEnterEvent>(e => HighliteHoveredColumn(SortColumn.Ports));
+
+            for (int i = 1; i < headers.Count; i++)
+            {
+                headers[i].RegisterCallback<PointerLeaveEvent>(e => ClearHoveredColumns());
+            }
+
             // 4. Setup Interaction Button Events
             buildRoadButton.clicked += OnRoadClicked;
             buildCanalButton.clicked += OnCanalClicked;
@@ -133,6 +147,46 @@ namespace UI
         #endregion
 
         #region Leaderboard Sorting Logic
+
+        private void HighliteHoveredColumn(SortColumn column)
+        {
+            // First, strip old hover classes so columns don't stack highlights
+            ClearHoveredColumns();
+
+            string elementName = column switch
+            {
+                SortColumn.MarketCap => "MarketCap",
+                SortColumn.Cash => "Cash",
+                SortColumn.Trucks => "Trucks",
+                SortColumn.Freighters => "Freighters",
+                SortColumn.Roads => "Roads",
+                SortColumn.Canals => "Canals",
+                SortColumn.Ports => "Ports",
+                _ => null
+            };
+
+            if (elementName == null) return;
+
+            for (int i = 0; i < playersContainer.childCount; i++)
+            {
+                VisualElement row = playersContainer[i];
+                row.Q<Label>(elementName)?.AddToClassList(hoveredColumnClass);
+            }
+        }
+
+        private void ClearHoveredColumns()
+        {
+            for (int i = 0; i < playersContainer.childCount; i++)
+            {
+                VisualElement row = playersContainer[i];
+
+                // Find all labels within this row and strip the hover class
+                row.Query<Label>().ForEach(label =>
+                {
+                    label.RemoveFromClassList(hoveredColumnClass);
+                });
+            }
+        }
 
         private void SetSortTarget(SortColumn column, List<ResponsiveButton> buttons, int clicked)
         {

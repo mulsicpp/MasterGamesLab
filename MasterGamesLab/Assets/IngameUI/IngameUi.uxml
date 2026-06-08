@@ -7,7 +7,7 @@
         <ui:GroupBox name="Row1" class="element ingam-build-menu-row"/>
         <ui:GroupBox name="BuildMenu" class="element build-menu-sidebar" style="justify-content: flex-end; height: auto; position: absolute; right: 1%; bottom: 2%; left: auto; top: auto; width: 12%;">
             <ui:GroupBox class="element" style="margin-bottom: 5%;">
-                <ShrinkWrapContainer name="BlueprintCountContainer" class="element container" style="flex-direction: row; flex-wrap: wrap;">
+                <ShrinkWrapContainer name="BlueprintCountContainer" class="element container" style="flex-direction: row; flex-wrap: wrap; padding-top: 5%; padding-right: 5%; padding-bottom: 5%; padding-left: 5%;">
                     <ui:VisualElement name="RoadCount" class="element countlabel">
                         <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
                     </ui:VisualElement>
@@ -23,7 +23,7 @@
                     <ui:VisualElement name="FreighterCount" class="element countlabel">
                         <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
                     </ui:VisualElement>
-                    <ResponsiveLabel name="TotalCost" height-percentage="0.8" text="Total Cost: 500" class="element label" style="width: 100%; aspect-ratio: 6; padding-left: 3%;"/>
+                    <ResponsiveLabel name="TotalCost" height-percentage="0.8" text="Total Cost: 500" class="element label" style="width: 100%; aspect-ratio: 6;"/>
                 </ShrinkWrapContainer>
             </ui:GroupBox>
             <ShrinkWrapContainer name="Container" class="element container" style="right: 0; bottom: 0;">
