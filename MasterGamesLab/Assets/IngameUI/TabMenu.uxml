@@ -8,28 +8,28 @@
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header" style="width: 15%; padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%;">
                 <ui:VisualElement class="element tab-menu-header" style="width: 60%; padding-right: 6.67%; padding-left: 6.67%; border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0);">
-                    <ui:VisualElement name="VisualElement" class="element tab-menu-header-icon"/>
+                    <ui:VisualElement name="Icon" class="element tab-menu-header-icon"/>
                 </ui:VisualElement>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header" style="width: 15%; padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%;">
                 <ui:VisualElement class="element tab-menu-header" style="width: 60%; padding-right: 6.67%; padding-left: 6.67%; border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0);">
-                    <ui:VisualElement name="VisualElement" class="element tab-menu-header-icon"/>
+                    <ui:VisualElement name="Icon" class="element tab-menu-header-icon"/>
                 </ui:VisualElement>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header">
-                <ui:VisualElement name="VisualElement" class="element tab-menu-header-icon"/>
+                <ui:VisualElement name="Icon" class="element tab-menu-header-icon"/>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header">
-                <ui:VisualElement name="VisualElement" class="element tab-menu-header-icon"/>
+                <ui:VisualElement name="Icon" class="element tab-menu-header-icon"/>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header">
-                <ui:VisualElement name="VisualElement" class="element tab-menu-header-icon"/>
+                <ui:VisualElement name="Icon" class="element tab-menu-header-icon"/>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header">
-                <ui:VisualElement name="VisualElement" class="element tab-menu-header-icon"/>
+                <ui:VisualElement name="Icon" class="element tab-menu-header-icon"/>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header" style="border-right-width: 0;">
-                <ui:VisualElement name="VisualElement" class="element tab-menu-header-icon"/>
+                <ui:VisualElement name="Icon" class="element tab-menu-header-icon"/>
             </ResponsiveButton>
         </ui:VisualElement>
         <ui:VisualElement name="players-container" style="width: 100%; height: 80%; flex-direction: column;">
