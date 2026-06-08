@@ -601,6 +601,9 @@ namespace Map
         )
         {
             Timestamp = timestamp;
+
+            Debug.Log("Player count: " + Players.Count);
+
             ApplyStatesLocal(serverTime, this.players, players);
 
             ApplyStatesLocal(serverTime, this.edges, edges);

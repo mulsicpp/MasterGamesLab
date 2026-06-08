@@ -230,9 +230,12 @@ public class UIManager : MonoBehaviour
             yield return new WaitUntil(() => updateTask.IsCompleted);
             if (updateTask.IsCanceled || updateTask.IsFaulted) yield break;
 
+            Lobby = updateTask.Result;
+            PlayerManager.Instance.SetPlayersFromLobby(Lobby);
+            Map.Map.Instance.GenerateStructuresAndPlayers(Lobby.Players.Count);
+
             StartCoroutine(LoadingScreen());
 
-            PlayerManager.Instance.SetPlayersFromLobby(Lobby);
 
             var allocationTask = RelayService.Instance.CreateAllocationAsync(4);
             yield return new WaitUntil(() => allocationTask.IsCompleted);
@@ -294,7 +297,6 @@ public class UIManager : MonoBehaviour
     {
         CurrentMenu = MenuId.Loading;
         yield return new WaitUntil(() => PlayerManager.Instance.GameCanStart);
-        Map.Map.Instance.GenerateStructuresAndPlayers(PlayerManager.Instance.PlayerConnections.Length);
 
         Map.Map.Instance.Running = true;
         CurrentMenu = MenuId.Ingame;
@@ -427,12 +429,15 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            if (changes.IsLocked.Changed && changes.IsLocked.Value == true)
-            {
-                StartCoroutine(LoadingScreen());
-            }
+            bool lobbyWasLocked = changes.IsLocked.Changed && changes.IsLocked.Value == true;
 
             changes.ApplyToLobby(Lobby);
+
+            if(lobbyWasLocked)
+            {
+                Map.Map.Instance.GenerateStructuresAndPlayers(Lobby.Players.Count);
+                StartCoroutine(LoadingScreen());
+            }
 
             try
             {

@@ -7,6 +7,8 @@ using static Map.Edge;
 using Map.Hoverables;
 using Map.OutlineEffect;
 using Map.Fleet;
+using System.Collections.Generic;
+using System.Linq;
 
 public class ConstructionControls : MonoBehaviour
 {
@@ -27,12 +29,13 @@ public class ConstructionControls : MonoBehaviour
     private InputAction leftClickAction;
     private InputAction cancelAction;
     private Tile startTile = null;
-    private Tile hoveredTile = null;
-    private bool previewIsValidOrNonExistent = true;
+    // private Tile hoveredTile = null;
+    // private bool previewIsValidOrNonExistent = true;
     [SerializeField] private ConstructionType type = ConstructionType.None;
     [SerializeField] private GameObject tileOutlinerPrefab;
 
     private TileOutliner tileOutliner;
+    private TileOutliner startTileOutliner;
     private Edge previouslyHoveredEdge;
 
     public ConstructionType Type
@@ -70,51 +73,67 @@ public class ConstructionControls : MonoBehaviour
         cancelAction = IngameInputs.cancelAction;
 
         tileOutliner = Instantiate(tileOutlinerPrefab).GetComponent<TileOutliner>();
-
         tileOutliner.SetOutlineParameters(Constants.HOVER_OUTLINE);
+
+        startTileOutliner = Instantiate(tileOutlinerPrefab).GetComponent<TileOutliner>();
+        startTileOutliner.SetOutlineParameters(Constants.HOVER_OUTLINE);
     }
 
     public void Update()
     {
-        var newTile = Map.Map.Instance.CurrentlyHovered as Tile;
+        var hoveredTile = Map.Map.Instance.CurrentlyHovered as Tile;
+
+        var outlineData = Constants.HOVER_OUTLINE;
 
         var edgeType = GetEdgeType();
         var vehicleType = GetVehicleType();
         if (edgeType != EdgeType.None)
         {
-            if (hoveredTile != newTile)
-                previewIsValidOrNonExistent = startTile == null ||
-                                              Map.Map.Instance.Blueprint.SetPreviewEdges(startTile, newTile, edgeType);
+            bool previewIsValidOrNonExistent = startTile == null ||
+                                              Map.Map.Instance.Blueprint.SetPreviewEdges(startTile, hoveredTile, edgeType);
 
-            if (previewIsValidOrNonExistent && newTile != null && leftClickAction.WasPerformedThisFrame())
+            if(startTile == null && !isValidStartTile(hoveredTile, Type))
+                outlineData = Constants.ROAD_BLUEPRINT_INVALID_OUTLINE;
+            else if (!previewIsValidOrNonExistent)
+                outlineData = Constants.ROAD_BLUEPRINT_INVALID_OUTLINE;
+
+            if (previewIsValidOrNonExistent && hoveredTile != null && leftClickAction.WasPerformedThisFrame())
             {
                 if (startTile != null)
                 {
                     Map.Map.Instance.Blueprint.ApplyPreview();
-                    startTile = newTile;
+                    startTile = hoveredTile;
                 }
-                else if (isValidStartTile(newTile, Type))
-                    startTile = newTile;
+                else if (isValidStartTile(hoveredTile, Type))
+                    startTile = hoveredTile;
+                else
+                    outlineData = Constants.ROAD_BLUEPRINT_INVALID_OUTLINE;
             }
         }
         else if (Type is ConstructionType.Port)
         {
-            if (hoveredTile != newTile)
-                previewIsValidOrNonExistent =
-                    Map.Map.Instance.Blueprint.SetPreviewStructure(newTile, Structure.StructureType.Port);
+            bool previewIsValid = Map.Map.Instance.Blueprint.SetPreviewStructure(hoveredTile, Structure.StructureType.Port);
 
-            if (previewIsValidOrNonExistent && leftClickAction.WasPerformedThisFrame())
+            if (!previewIsValid)
+            {
+                outlineData = Constants.ROAD_BLUEPRINT_INVALID_OUTLINE;
+            }
+
+            if (previewIsValid && leftClickAction.WasPerformedThisFrame())
             {
                 Map.Map.Instance.Blueprint.ApplyPreview();
             }
         }
         else if (vehicleType is Vehicle.VehicleType type)
         {
-            if (hoveredTile != newTile)
-                previewIsValidOrNonExistent =
-                    Map.Map.Instance.Blueprint.SetPreviewVehicle(newTile, type);
+            bool previewIsValid = Map.Map.Instance.Blueprint.SetPreviewVehicle(hoveredTile, type);
 
-            if (previewIsValidOrNonExistent && leftClickAction.WasPerformedThisFrame())
+            if (!previewIsValid)
+            {
+                outlineData = Constants.ROAD_BLUEPRINT_INVALID_OUTLINE;
+            }
+
+            if (previewIsValid && leftClickAction.WasPerformedThisFrame())
             {
                 Map.Map.Instance.Blueprint.ApplyPreview();
             }
@@ -124,7 +143,8 @@ public class ConstructionControls : MonoBehaviour
             Map.Map.Instance.Blueprint.ClearPreview();
         }
 
-        hoveredTile = newTile;
+        if(edgeType == EdgeType.None)
+            startTile = null;
 
         if (Type is ConstructionType.None && Input.GetMouseButtonDown(2))
         {
@@ -148,12 +168,30 @@ public class ConstructionControls : MonoBehaviour
                 case Tile t:
                     if (t.BlueprintStructure != null)
                         Map.Map.Instance.Blueprint.RemoveStructure(t.BlueprintStructure);
+                    var removeList = new List<Vehicle>();
+                    foreach (var vehicle in Map.Map.Instance.Blueprint.Vehicles)
+                    {
+                        if (vehicle.BlueprintTile == t)
+                            removeList.Add(vehicle);
+                    }
+                    foreach (var vehicle in removeList)
+                        Map.Map.Instance.Blueprint.RemoveVehicle(vehicle);
                     break;
                 case Edge e:
                     if (e.BlueprintType != EdgeType.None)
                         Map.Map.Instance.Blueprint.RemoveEdge(e);
                     break;
             }
+        }
+
+        if (startTile != null)
+        {
+            startTileOutliner.SetOutlineParameters(outlineData);
+            startTileOutliner.OutlineTile(startTile);
+        }
+        else
+        {
+            startTileOutliner.ClearOutline();
         }
 
 
@@ -166,6 +204,7 @@ public class ConstructionControls : MonoBehaviour
                     previouslyHoveredEdge = null;
                 }
 
+                tileOutliner.SetOutlineParameters(outlineData);
                 tileOutliner.OutlineTile(t);
                 break;
             case Edge e:
@@ -230,7 +269,7 @@ public class ConstructionControls : MonoBehaviour
                     return true;
                 break;
             case ConstructionType.Canal:
-                if (tile.Type == Tile.TileType.Water ||
+                if ((tile.Type == Tile.TileType.Water && tile.Neighbors.FirstOrDefault(n => (n as Tile)?.CanBuild(out _) ?? false) != null) ||
                     tile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0)
                     return true;
                 break;

@@ -93,7 +93,7 @@ namespace Map.Blueprint
             return true;
         }
 
-        public void RemoveStructure(Vehicle vehicle)
+        public void RemoveVehicle(Vehicle vehicle)
         {
             vehicle.BlueprintTile = null;
             vehicle.BlueprintPreview = false;
