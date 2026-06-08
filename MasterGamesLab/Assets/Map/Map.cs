@@ -330,6 +330,9 @@ namespace Map
             for (int i = 0; i < Players.Count; i++)
             {
                 stats[i] = new();
+                stats[i].Id = Players[i].Id;
+                stats[i].Name = Players[i].Name;
+                stats[i].Color = Players[i].Color;
                 stats[i].Cash = Players[i].Cash;
                 stats[i].Revenue = Players[i].Revenue;
             }

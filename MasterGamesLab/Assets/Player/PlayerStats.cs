@@ -1,9 +1,13 @@
+using UnityEngine;
+
 namespace Player
 {
     public class PlayerStats
     {
         public PlayerId Id;
         public string Name;
+        public Color Color;
+
         public int Cash;
         public int MarketCap
         { 
