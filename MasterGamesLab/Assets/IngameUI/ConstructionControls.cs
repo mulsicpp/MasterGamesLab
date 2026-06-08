@@ -8,6 +8,7 @@ using Map.Hoverables;
 using Map.OutlineEffect;
 using Map.Fleet;
 using System.Collections.Generic;
+using System.Linq;
 
 public class ConstructionControls : MonoBehaviour
 {
@@ -90,11 +91,11 @@ public class ConstructionControls : MonoBehaviour
         {
             bool previewIsValidOrNonExistent = startTile == null ||
                                               Map.Map.Instance.Blueprint.SetPreviewEdges(startTile, hoveredTile, edgeType);
-            
-            if(!previewIsValidOrNonExistent)
-            {
+
+            if(startTile == null && !isValidStartTile(hoveredTile, Type))
                 outlineData = Constants.ROAD_BLUEPRINT_INVALID_OUTLINE;
-            }
+            else if (!previewIsValidOrNonExistent)
+                outlineData = Constants.ROAD_BLUEPRINT_INVALID_OUTLINE;
 
             if (previewIsValidOrNonExistent && hoveredTile != null && leftClickAction.WasPerformedThisFrame())
             {
@@ -111,7 +112,6 @@ public class ConstructionControls : MonoBehaviour
         }
         else if (Type is ConstructionType.Port)
         {
-            startTile = null;
             bool previewIsValid = Map.Map.Instance.Blueprint.SetPreviewStructure(hoveredTile, Structure.StructureType.Port);
 
             if (!previewIsValid)
@@ -126,7 +126,6 @@ public class ConstructionControls : MonoBehaviour
         }
         else if (vehicleType is Vehicle.VehicleType type)
         {
-            startTile = null;
             bool previewIsValid = Map.Map.Instance.Blueprint.SetPreviewVehicle(hoveredTile, type);
 
             if (!previewIsValid)
@@ -141,7 +140,6 @@ public class ConstructionControls : MonoBehaviour
         }
         else
         {
-            startTile = null;
             Map.Map.Instance.Blueprint.ClearPreview();
         }
 
@@ -271,7 +269,7 @@ public class ConstructionControls : MonoBehaviour
                     return true;
                 break;
             case ConstructionType.Canal:
-                if (tile.Type == Tile.TileType.Water ||
+                if ((tile.Type == Tile.TileType.Water && tile.Neighbors.FirstOrDefault(n => (n as Tile)?.CanBuild(out _) ?? false) != null) ||
                     tile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0)
                     return true;
                 break;
