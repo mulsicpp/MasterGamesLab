@@ -457,6 +457,7 @@
     background-color: rgba(130, 130, 130, 0.04);
 }
 
-.active-column{
+.active-column {
     color: rgb(175, 152, 0);
+    -unity-background-image-tint-color: rgb(175, 152, 0);
 }

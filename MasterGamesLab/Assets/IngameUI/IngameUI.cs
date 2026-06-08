@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Map.Blueprint;
 using Player;
@@ -80,14 +81,14 @@ namespace UI
             // 3. Setup Sorting Header Events
             var headerRow = root.Q<VisualElement>("header-row");
             var headers = headerRow.Query<ResponsiveButton>().ToList();
-            headers[0].clicked += () => SetSortTarget(SortColumn.Name);
-            headers[1].clicked += () => SetSortTarget(SortColumn.MarketCap);
-            headers[2].clicked += () => SetSortTarget(SortColumn.Cash);
-            headers[3].clicked += () => SetSortTarget(SortColumn.Trucks);
-            headers[4].clicked += () => SetSortTarget(SortColumn.Freighters);
-            headers[5].clicked += () => SetSortTarget(SortColumn.Roads);
-            headers[6].clicked += () => SetSortTarget(SortColumn.Canals);
-            headers[7].clicked += () => SetSortTarget(SortColumn.Ports);
+            //headers[0].clicked += () => SetSortTarget(SortColumn.Name);
+            headers[1].clicked += () => SetSortTarget(SortColumn.MarketCap, headers, 1);
+            headers[2].clicked += () => SetSortTarget(SortColumn.Cash, headers, 2);
+            headers[3].clicked += () => SetSortTarget(SortColumn.Trucks, headers, 3);
+            headers[4].clicked += () => SetSortTarget(SortColumn.Freighters, headers, 4);
+            headers[5].clicked += () => SetSortTarget(SortColumn.Roads, headers, 5);
+            headers[6].clicked += () => SetSortTarget(SortColumn.Canals, headers, 6);
+            headers[7].clicked += () => SetSortTarget(SortColumn.Ports, headers, 7);
 
             // 4. Setup Interaction Button Events
             buildRoadButton.clicked += OnRoadClicked;
@@ -133,15 +134,25 @@ namespace UI
 
         #region Leaderboard Sorting Logic
 
-        private void SetSortTarget(SortColumn column)
+        private void SetSortTarget(SortColumn column, List<ResponsiveButton> buttons, int clicked)
         {
-            currentSortColumn = column;
+            foreach (var button in buttons)
+            {
+                button.Q<VisualElement>("Icon")?.RemoveFromClassList(activeColumnClass);
+            }
+            if (column == currentSortColumn)
+                currentSortColumn = SortColumn.Name;
+            else
+            {
+                currentSortColumn = column;
+                buttons[clicked].Q<VisualElement>("Icon").AddToClassList(activeColumnClass);
+            }
             UpdateAllPlayerStats();
         }
 
         private IEnumerator PeriodicUiUpdateLoop()
         {
-            WaitForSeconds delay = new WaitForSeconds(5.0f);
+            WaitForSeconds delay = new WaitForSeconds(1.0f);
             while (true)
             {
                 UpdateAllPlayerStats();
@@ -156,17 +167,17 @@ namespace UI
 
             var sortedStats = currentSortColumn switch
             {
-                SortColumn.Name => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.Id)),
-                SortColumn.MarketCap => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.MarketCap)),
-                SortColumn.Cash => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.Cash)),
-                SortColumn.Trucks => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.TruckCount)),
-                SortColumn.Freighters => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.FreighterCount)),
-                SortColumn.Roads => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.RoadCount)),
-                SortColumn.Canals => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.CanalCount)),
-                SortColumn.Ports => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderByDescending(rawStats, s => s.PortCount)),
-                _ => System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderBy(rawStats, s => s.Id))
+                SortColumn.Name => Enumerable.ToList(Enumerable.OrderBy(rawStats, s => s.Id)),
+                SortColumn.MarketCap => Enumerable.ToList(Enumerable.OrderByDescending(rawStats, s => s.MarketCap)),
+                SortColumn.Cash => Enumerable.ToList(Enumerable.OrderByDescending(rawStats, s => s.Cash)),
+                SortColumn.Trucks => Enumerable.ToList(Enumerable.OrderByDescending(rawStats, s => s.TruckCount)),
+                SortColumn.Freighters => Enumerable.ToList(Enumerable.OrderByDescending(rawStats, s => s.FreighterCount)),
+                SortColumn.Roads => Enumerable.ToList(Enumerable.OrderByDescending(rawStats, s => s.RoadCount)),
+                SortColumn.Canals => Enumerable.ToList(Enumerable.OrderByDescending(rawStats, s => s.CanalCount)),
+                SortColumn.Ports => Enumerable.ToList(Enumerable.OrderByDescending(rawStats, s => s.PortCount)),
+                _ => Enumerable.ToList(Enumerable.OrderBy(rawStats, s => s.Id))
             };
-            
+
             for (int i = 0; i < playersContainer.childCount; i++)
             {
                 if (i >= sortedStats.Count) break;
@@ -190,6 +201,7 @@ namespace UI
             var portsLabel = row.Q<ResponsiveLabel>("Ports");
 
             nameLabel.text = stats.Name;
+            nameLabel.style.color = stats.Color;
             marketCapLabel.text = stats.MarketCap.ToString();
             cashLabel.text = stats.Cash.ToString();
             trucksLabel.text = stats.TruckCount.ToString();
@@ -198,7 +210,6 @@ namespace UI
             canalsLabel.text = stats.CanalCount.ToString();
             portsLabel.text = stats.PortCount.ToString();
 
-            nameLabel.RemoveFromClassList(activeColumnClass);
             marketCapLabel.RemoveFromClassList(activeColumnClass);
             cashLabel.RemoveFromClassList(activeColumnClass);
             trucksLabel.RemoveFromClassList(activeColumnClass);
@@ -209,7 +220,6 @@ namespace UI
 
             ResponsiveLabel targetSortedLabel = currentSortColumn switch
             {
-                SortColumn.Name => nameLabel,
                 SortColumn.MarketCap => marketCapLabel,
                 SortColumn.Cash => cashLabel,
                 SortColumn.Trucks => trucksLabel,

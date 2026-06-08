@@ -26,7 +26,7 @@ namespace Player
         public static event Action<Player> OnPlayerChanged;
 
         public readonly PlayerId Id;
-        public string Name => PlayerManager.Instance?.PlayerConnections?[selfId].Name ?? "Name";
+        public string Name => PlayerManager.Instance?.PlayerConnections?[Id].Name ?? "Name";
 
         public bool IsSelf => Id == SelfId;
 
