@@ -29,11 +29,15 @@ namespace InGameCamera
         [SerializeField] private float zoomFactor = 2.5f;
         [SerializeField] private float zoomOffset = 0.5f;
 
+        [SerializeField] private float rotationSpeedFactor = 0.95f;
+
         [SerializeField] private float minRotationSpeed = 0.03f;
         [SerializeField] private float maxRotationSpeed = 0.3f;
 
         [SerializeField] private float minPitch = -90f;
         [SerializeField] private float maxPitch = 90f;
+
+        private new Camera camera;
 
         private float zoomExp;
 
@@ -53,6 +57,8 @@ namespace InGameCamera
         {
             sphereNavigationActionMap = inputActions.FindActionMap("SphereNavigation");
             sphereNavigationActionMap.Enable();
+
+            camera = gameObject.GetComponent<Camera>();
         }
 
         private void Start()
@@ -66,8 +72,9 @@ namespace InGameCamera
 
         private void LateUpdate()
         {
-            HandleInput();
-            UpdateCameraTransform();
+            // HandleInput();
+            // UpdateCameraTransform();
+            UpdateCameraTransformNew();
         }
 
         private void OnDisable()
@@ -120,11 +127,46 @@ namespace InGameCamera
             transform.rotation = rotation;
         }
 
+        private void UpdateCameraTransformNew()
+        {
+            if (primaryMousePressedAction.IsPressed())
+            {
+                var lookDelta = lookAction.ReadValue<Vector2>();
+
+                var velocityWorld = camera.ScreenToWorldPoint(new(0, 0, CurrentDistance - 1)) - camera.ScreenToWorldPoint(new(lookDelta.x, lookDelta.y, CurrentDistance - 1));
+                var axis = Vector3.Cross(transform.position, velocityWorld).normalized;
+
+                transform.rotation = Quaternion.AngleAxis(velocityWorld.magnitude * rotationSpeedFactor * 180 / Mathf.PI, axis) * transform.rotation;
+            }
+
+            var scrollDelta = zoomAction.ReadValue<Vector2>();
+
+            float minZoomExp = Mathf.Log((minZoom - zoomOffset) / zoomFactor, zoomBase);
+            float maxZoomExp = Mathf.Log((maxZoom - zoomOffset) / zoomFactor, zoomBase);
+
+            if (zoomExp - scrollDelta.y <= maxZoomExp && zoomExp - scrollDelta.y >= minZoomExp)
+            {
+                zoomExp -= scrollDelta.y;
+                CurrentDistance = Mathf.Pow(zoomBase, zoomExp) * zoomFactor + zoomOffset;
+            }
+
+            var position = Target.position + transform.rotation * new Vector3(0f, 0f, -CurrentDistance);
+            transform.position = position;
+        }
+
         private static float ExponentialMapRange(float value, float minX, float maxX, float minY, float maxY)
         {
             value = Mathf.Clamp(value, minX, maxX);
             var k = Math.Log(maxY / minY) / (maxX - minX);
             return minY * (float)Math.Exp(k * (value - minX));
         }
+
+        // private void OnDrawGizmos()
+        // {
+        //     Gizmos.color = Color.red;
+        // 
+        //     var worldSpacePos = MainCamera.Instance.GetComponentInChildren<Camera>().ScreenToWorldPoint(new(0, 0, CurrentDistance - 1));
+        //     Gizmos.DrawSphere(worldSpacePos, 0.02f);
+        // }
     }
 }
