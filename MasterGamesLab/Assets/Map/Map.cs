@@ -865,6 +865,7 @@ namespace Map
 
         public void OnDrawGizmos()
         {
+            Debug.Log("Gizmos");
             if (edges == null) return;
 
             for (int i = 0; i < edges.Length; i++)

@@ -1,0 +1,12 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
+    <ui:VisualElement name="Root" class="element unity-ui-document__root" style="flex-grow: 1; flex-direction: row;">
+        <ui:VisualElement name="Icon" class="element" style="height: 100%; aspect-ratio: 1; background-image: url(&quot;project://database/Assets/IngameUI/LKW_Icon.svg?fileID=7388822144124034973&amp;guid=bee6275bf0ec2d2498c79c7cb139def1&amp;type=3#LKW_Icon&quot;);"/>
+        <ui:VisualElement name="Infos" class="element" style="flex-grow: 1; height: 100%;">
+            <ui:VisualElement name="RemainingDuration" style="flex-grow: 1;"/>
+            <ui:VisualElement name="Destination" style="flex-grow: 1;"/>
+            <ui:VisualElement name="FullDuration" style="flex-grow: 1;"/>
+            <ui:VisualElement name="Start" style="flex-grow: 1;"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
