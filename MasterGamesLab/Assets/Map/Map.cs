@@ -12,6 +12,7 @@ using Map.Blueprint;
 using Networking;
 using Map.Hoverables;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.Universal;
 
 namespace Map
 {
@@ -416,7 +417,7 @@ namespace Map
             //      // { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
             //  }
 
-            debugSpawnPoints = SpawnPointGenerator.SpawnInitialStructures(this, 4);
+            // debugSpawnPoints = SpawnPointGenerator.SpawnInitialStructures(this, 4);
 
             
 
@@ -425,28 +426,28 @@ namespace Map
 
             //debug: Spawn Manager Beispiel
             //var spawnManager = new ProducerConsumerSpawnPoint(this);
-            spawnPointManager = new ProducerConsumerSpawnPoint(this);
-
-
-            //5 producer
-            for (int i = 0; i < 5; i++)
-            {
-                var prodTile = spawnPointManager.GetSpawnTileProducer();
-                if (prodTile != null)
-                {
-                    spawnPointManager.RegisterProducerSpawned(prodTile);
-                }
-            }
-
-            //5 consumer (groups)
-            for (int i = 0; i < 5; i++)
-            {
-                var consTiles = spawnPointManager.GetSpawnTileConsumer();
-                if (consTiles != null && consTiles.Count > 0)
-                {
-                    spawnPointManager.RegisterConsumerSpawned(consTiles);
-                }
-            }
+            // spawnPointManager = new ProducerConsumerSpawnPoint(this);
+            // 
+            // 
+            // //5 producer
+            // for (int i = 0; i < 5; i++)
+            // {
+            //     var prodTile = spawnPointManager.GetSpawnTileProducer();
+            //     if (prodTile != null)
+            //     {
+            //         spawnPointManager.RegisterProducerSpawned(prodTile);
+            //     }
+            // }
+            // 
+            // //5 consumer (groups)
+            // for (int i = 0; i < 5; i++)
+            // {
+            //     var consTiles = spawnPointManager.GetSpawnTileConsumer();
+            //     if (consTiles != null && consTiles.Count > 0)
+            //     {
+            //         spawnPointManager.RegisterConsumerSpawned(consTiles);
+            //     }
+            // }
 
             GenerationSeed = seed;
         }
@@ -462,7 +463,40 @@ namespace Map
             infrastructure = new Infrastructure.Infrastructure(playerCount);
             fleet = new Fleet.Fleet(playerCount);
 
-            // TODO yixuan
+            var playerSpawnTiles = SpawnPointGenerator.GetFairSpawnPoints(this, playerCount);
+
+            for(int i = 0; i < playerSpawnTiles.Length; i++)
+            {
+                Infrastructure.SpawnLocal(new Garage.GarageState { Common = { TileId = playerSpawnTiles[i].Id } });
+                Fleet.SpawnLocal(new Truck.TruckState { Common = { Exists = true, ParkedTileId = playerSpawnTiles[i].Id }, FreighterIndex = VehicleIndex.NONE, Good = Good.None }, players[i]);
+            }
+
+            spawnPointManager = new ProducerConsumerSpawnPoint(this);
+
+            //5 producer
+            for (int i = 0; i < 5; i++)
+            {
+                var prodTile = spawnPointManager.GetSpawnTileProducer();
+                if (prodTile != null)
+                {
+                    Infrastructure.SpawnLocal(new Producer.ProducerState { Common = { TileId = prodTile.Id }, Good = (Good)UnityEngine.Random.Range((int)Good.Apple, (int)Good.Banana + 1) });
+                    spawnPointManager.RegisterProducerSpawned(prodTile);
+                }
+            }
+            
+            //5 consumer (groups)
+            for (int i = 0; i < 5; i++)
+            {
+                var consTiles = spawnPointManager.GetSpawnTileConsumer();
+                if (consTiles != null && consTiles.Count > 0)
+                {
+                    foreach (var consTile in consTiles)
+                    {
+                        Infrastructure.SpawnLocal(new Consumer.ConsumerState { Common = { TileId = consTile.Id } });
+                    }
+                    spawnPointManager.RegisterConsumerSpawned(consTiles);
+                }
+            }
         }
 
         private void ClientUpdate()
@@ -480,9 +514,25 @@ namespace Map
         {
             if (!Running) return;
 
-            foreach (var vehicle in Fleet.Vehicles)
+            if (IsServer)
             {
-                vehicle.Tick(Time.fixedDeltaTime);
+                foreach (var consumer in Infrastructure.Consumers)
+                {
+                    consumer.Tick(Time.fixedDeltaTime);
+                }
+                foreach (var vehicle in Fleet.Vehicles)
+                {
+                    vehicle.Tick(Time.fixedDeltaTime);
+                }
+                UpdateDirtyObjectsOnClient();
+            }
+            
+            if(IsClient)
+            {
+                foreach (var vehicle in Fleet.Vehicles)
+                {
+                    vehicle.ClientTick(Time.fixedDeltaTime);
+                }
             }
         }
 
@@ -491,7 +541,6 @@ namespace Map
             if (!Running) return;
 
             UpdateUnreliableDataOnClient();
-            UpdateDirtyObjectsOnClient();
         }
 
         public void FinishGame()
@@ -1036,53 +1085,54 @@ namespace Map
                 }
             }
 
-            //debug map
-            if (debugSpawnPoints != null)
-            {
-                for (int i = 0; i < debugSpawnPoints.Length; i++)
-                {
-                    var spawnTile = debugSpawnPoints[i];
-                    if (spawnTile != null)
-                    {
-                        Gizmos.color = Color.magenta;
-                        Vector3 debugPos = GetProjectedPosition(spawnTile.PositionOnSphere, 1.05f);
-                        Gizmos.DrawSphere(debugPos, 0.04f);
 
-                        Vector3 groundPos = GetProjectedPosition(spawnTile.PositionOnSphere, 1.0f);
-                        Gizmos.DrawLine(groundPos, debugPos);
-                    }
-                }
-            }
-
-            //debug producer/consumer spawn manager
-            if (spawnPointManager != null)
-            {
-                Gizmos.color = Color.green;
-                foreach (var tile in spawnPointManager.ValidProducerTiles)
-                {
-                    Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.03f);
-                    Gizmos.DrawSphere(pos, 0.01f);
-                }
-
-                foreach (var tile in spawnPointManager.PlacedProducers)
-                {
-                    Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.06f);
-                    Gizmos.DrawSphere(pos, 0.035f);
-                }
-
-                Gizmos.color = Color.yellow;
-                foreach (var tile in spawnPointManager.ValidConsumerTiles)
-                {
-                    Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.04f);
-                    Gizmos.DrawSphere(pos, 0.008f);
-                }
-
-                foreach (var tile in spawnPointManager.PlacedConsumers)
-                {
-                    Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.07f);
-                    Gizmos.DrawSphere(pos, 0.03f);
-                }
-            }
+            // //debug map
+            // if (debugSpawnPoints != null)
+            // {
+            //     for (int i = 0; i < debugSpawnPoints.Length; i++)
+            //     {
+            //         var spawnTile = debugSpawnPoints[i];
+            //         if (spawnTile != null)
+            //         {
+            //             Gizmos.color = Color.magenta;
+            //             Vector3 debugPos = GetProjectedPosition(spawnTile.PositionOnSphere, 1.05f);
+            //             Gizmos.DrawSphere(debugPos, 0.04f);
+            // 
+            //             Vector3 groundPos = GetProjectedPosition(spawnTile.PositionOnSphere, 1.0f);
+            //             Gizmos.DrawLine(groundPos, debugPos);
+            //         }
+            //     }
+            // }
+            // 
+            // //debug producer/consumer spawn manager
+            // if (spawnPointManager != null)
+            // {
+            //     Gizmos.color = Color.green;
+            //     foreach (var tile in spawnPointManager.ValidProducerTiles)
+            //     {
+            //         Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.03f);
+            //         Gizmos.DrawSphere(pos, 0.01f);
+            //     }
+            // 
+            //     foreach (var tile in spawnPointManager.PlacedProducers)
+            //     {
+            //         Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.06f);
+            //         Gizmos.DrawSphere(pos, 0.035f);
+            //     }
+            // 
+            //     Gizmos.color = Color.yellow;
+            //     foreach (var tile in spawnPointManager.ValidConsumerTiles)
+            //     {
+            //         Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.04f);
+            //         Gizmos.DrawSphere(pos, 0.008f);
+            //     }
+            // 
+            //     foreach (var tile in spawnPointManager.PlacedConsumers)
+            //     {
+            //         Vector3 pos = GetProjectedPosition(tile.PositionOnSphere, 1.07f);
+            //         Gizmos.DrawSphere(pos, 0.03f);
+            //     }
+            // }
         }
     }
 }

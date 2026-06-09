@@ -433,7 +433,7 @@ public class UIManager : MonoBehaviour
 
             changes.ApplyToLobby(Lobby);
 
-            if(lobbyWasLocked)
+            if(lobbyWasLocked && !IsHost())
             {
                 Map.Map.Instance.GenerateStructuresAndPlayers(Lobby.Players.Count);
                 StartCoroutine(LoadingScreen());
