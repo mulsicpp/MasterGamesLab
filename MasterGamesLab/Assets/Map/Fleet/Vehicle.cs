@@ -100,7 +100,6 @@ namespace Map.Fleet
                 {
                     exists = value;
                     Touch();
-                    EvaluateGameobjectPresence();
                 }
             }
         }
@@ -177,7 +176,6 @@ namespace Map.Fleet
                 {
                     blueprintTile = value;
                     Touch();
-                    EvaluateGameobjectPresence();
                 }
             }
         }
@@ -339,6 +337,14 @@ namespace Map.Fleet
             }
         }
 
+        public virtual void ClientTick(float tickDuration)
+        {
+            if (Exists && IsDriving)
+            {
+                RouteProgress += tickDuration * SpeedTPS;
+            }
+        }
+
         protected abstract void OnParked();
 
         public virtual VehicleTransform Transform
@@ -400,7 +406,7 @@ namespace Map.Fleet
             {
                 if (gameObject == null)
                 {
-                    gameObject = Object.Instantiate(VehiclePrefab);
+                    gameObject = Object.Instantiate(VehiclePrefab, Map.Instance.transform);
                     UpdateGameobject();
                 }
             }
@@ -413,6 +419,7 @@ namespace Map.Fleet
 
         public virtual void UpdateGameobject()
         {
+            EvaluateGameobjectPresence();
             if (gameObject == null) return;
 
             var t = Transform;
@@ -425,8 +432,8 @@ namespace Map.Fleet
 
             gameObject.SetActive(true);
             var tProj = Map.Instance.GetProjectedVehicleTransform(t);
-            gameObject.transform.position = tProj.Position;
-            gameObject.transform.rotation = Quaternion.LookRotation(tProj.Forward, tProj.Up);
+            gameObject.transform.localPosition = tProj.Position;
+            gameObject.transform.localRotation = Quaternion.LookRotation(tProj.Forward, tProj.Up);
 
         }
     }

@@ -256,6 +256,10 @@ PrefabInstance:
       value: 563265020
       objectReference: {fileID: 0}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: resolution
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: renderTrees
       value: 1
       objectReference: {fileID: 0}

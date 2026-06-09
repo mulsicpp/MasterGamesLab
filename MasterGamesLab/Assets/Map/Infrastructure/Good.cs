@@ -6,6 +6,6 @@ namespace Map.Infrastructure
         None,
         Apple,
         Orange,
-        Banana,
+        Banana
     }
 }

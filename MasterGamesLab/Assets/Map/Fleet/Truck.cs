@@ -98,9 +98,9 @@ namespace Map.Fleet
             {
                 if(c.RequestedGood != Good.None && c.RequestedGood == Good)
                 {
-                    c.RequestedGood = Good.None;
+                    Owner.Earn(c.CurrentPayout);
                     Good = Good.None;
-                    Owner.Earn(10); // TODO calculate reward properly
+                    c.ClearRequest();
                 }
             }
 

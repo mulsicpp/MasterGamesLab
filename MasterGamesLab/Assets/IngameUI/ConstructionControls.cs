@@ -153,6 +153,8 @@ public class ConstructionControls : MonoBehaviour
                 case Tile t:
                     if (t.BlueprintStructure != null)
                         Debug.Log("Structure cost: " + t.BlueprintStructure.BlueprintCost);
+                    if (t.Structure is Consumer consumer)
+                        Debug.Log("Consumer { good = " + consumer.RequestedGood.ToString() + ", payout = " + consumer.CurrentPayout + " }");
                     break;
                 case Edge e:
                     if (e.BlueprintType != EdgeType.None)
