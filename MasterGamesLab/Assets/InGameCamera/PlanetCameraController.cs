@@ -174,7 +174,7 @@ namespace InGameCamera
         //     Gizmos.DrawSphere(worldSpacePos, 0.02f);
         // }
 
-        public static float Remap(this float value, float fromMin, float fromMax, float toMin, float toMax)
+        public static float Remap(float value, float fromMin, float fromMax, float toMin, float toMax)
         {
             // 1. Convert the value into a 0.0 to 1.0 percentage of the original range
             float percentage = (value - fromMin) / (fromMax - fromMin);
