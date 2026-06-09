@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace Map.GeometryGeneration.Edges
 {
@@ -36,7 +38,7 @@ namespace Map.GeometryGeneration.Edges
             }
 
             return Edge.PartialEdgeGeometry.Empty;
-            return BuildBackup(tile, edge);
+            // return BuildBackup(tile, edge);
         }
 
         public static Edge.PartialEdgeGeometry BuildParametricCurve(Tile tile, Edge edge, bool blueprint)
@@ -400,6 +402,8 @@ namespace Map.GeometryGeneration.Edges
             var tempGeo = MapChunk.ChunkGeometry.Empty;
 
             int startIdx, endIdx;
+            var includeHalfTriangleBefore = false;
+            var includeHalfTriangleAfter = false;
             if (info.AmountOfCanals == 1)
             {
                 startIdx = 0;
@@ -452,6 +456,18 @@ namespace Map.GeometryGeneration.Edges
                     break;
                 }
 
+                if (nextCanalDist % 2 == 0)
+                {
+                    nextCanalDist--;
+                    includeHalfTriangleAfter = true;
+                }
+
+                if (prevCanalDist % 2 == 0)
+                {
+                    prevCanalDist--;
+                    includeHalfTriangleBefore = true;
+                }
+
                 startIdx = (selfIdx - prevCanalDist / 2 + numTiles) % numTiles;
                 endIdx = (selfIdx + nextCanalDist / 2 + 1) % numTiles;
             }
@@ -461,8 +477,8 @@ namespace Map.GeometryGeneration.Edges
                 Tile = tile,
                 StartIdx = startIdx,
                 EndIdx = endIdx,
-                IncludeHalfTriangleBefore = false,
-                IncludeHalfTriangleAfter = false,
+                IncludeHalfTriangleBefore = includeHalfTriangleBefore,
+                IncludeHalfTriangleAfter = includeHalfTriangleAfter,
                 IsBluePrint = blueprint,
                 UV1Data = edge.GetEdgeData(),
                 LandTextureCenter = Vector2.zero,

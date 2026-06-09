@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 using Vector4 = UnityEngine.Vector4;
@@ -441,6 +442,13 @@ namespace Map.GeometryGeneration
 
             var forStartIdx = data.IncludeHalfTriangleBefore ? data.StartIdx - 1 : data.StartIdx;
             var forEndIdx = data.EndIdx;
+
+            if (forStartIdx < 0)
+            {
+                forStartIdx += neighbors.Count;
+                forEndIdx += neighbors.Count;
+            }
+
             if (forEndIdx <= forStartIdx)
             {
                 forEndIdx += neighbors.Count;
@@ -453,7 +461,7 @@ namespace Map.GeometryGeneration
 
             for (var i = forStartIdx; i < forEndIdx; i++)
             {
-                var onlyLeftSubTriangle = i == forEndIdx && data.IncludeHalfTriangleBefore;
+                var onlyLeftSubTriangle = i == forStartIdx && data.IncludeHalfTriangleBefore;
                 var onlyRightSubTriangle = i == forEndIdx - 1 && data.IncludeHalfTriangleAfter;
 
                 var iCurr = i % neighbors.Count;
@@ -667,7 +675,7 @@ namespace Map.GeometryGeneration
                     if (data.IncludeWater)
                     {
                         // Right part of the triangle
-                        if (!onlyRightSubTriangle)
+                        if (!onlyLeftSubTriangle)
                         {
                             if (prevCanal)
                             {
@@ -695,7 +703,7 @@ namespace Map.GeometryGeneration
                         }
 
                         // Left part of the triangle
-                        if (!onlyLeftSubTriangle)
+                        if (!onlyRightSubTriangle)
                         {
                             if (nextCanal)
                             {
@@ -746,7 +754,7 @@ namespace Map.GeometryGeneration
                         cg.AddVertex(edgeRightL, uv1,
                             BuildMaterialData(uvCenter, uvRight, true, tile.RandomValue));
 
-                        if (!onlyRightSubTriangle)
+                        if (!onlyLeftSubTriangle)
                         {
                             cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 1, currentIdx + 2 });
                             cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 2, currentIdx + 3 });
@@ -767,7 +775,7 @@ namespace Map.GeometryGeneration
                         cg.AddVertex(edgeLeftL, uv1,
                             BuildMaterialData(uvCenter, uvLeft, true, tile.RandomValue));
 
-                        if (!onlyLeftSubTriangle)
+                        if (!onlyRightSubTriangle)
                         {
                             cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 5, currentIdx + 4 });
                             cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 4, currentIdx + 1 });
@@ -802,7 +810,7 @@ namespace Map.GeometryGeneration
                                 BuildMaterialData(uvCenterWall, Vector3.zero, false, tile.RandomValue));
                         }
 
-                        if (!onlyRightSubTriangle)
+                        if (!onlyLeftSubTriangle)
                         {
                             cg.Triangles.AddRange(new List<int> { currentIdx + 2, currentIdx + 3, currentIdx });
                             cg.Triangles.AddRange(new List<int> { currentIdx + 3, currentIdx + 1, currentIdx });
@@ -826,7 +834,7 @@ namespace Map.GeometryGeneration
                                 BuildMaterialData(uvCenterWall, Vector3.zero, false, tile.RandomValue));
                         }
 
-                        if (!onlyLeftSubTriangle)
+                        if (!onlyRightSubTriangle)
                         {
                             cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 1, currentIdx + 4 });
                             cg.Triangles.AddRange(new List<int> { currentIdx + 4, currentIdx + 1, currentIdx + 5 });
@@ -848,8 +856,23 @@ namespace Map.GeometryGeneration
                         cg.AddVertex(tileCenterW, uv1,
                             BuildMaterialData(CanalTriangleCenter, TriangleCoordinates[2], true, tile.RandomValue));
 
-                        cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 2, currentIdx + 1 });
-                        currentIdx += 3;
+                        if (!(onlyLeftSubTriangle || onlyRightSubTriangle))
+                        {
+                            cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 2, currentIdx + 1 });
+                            currentIdx += 3;
+                        }
+                        else
+                        {
+                            cg.AddVertex((upperRightW + upperLeftW) * 0.5f, uv1,
+                                BuildMaterialData(CanalTriangleCenter,
+                                    (TriangleCoordinates[0] + TriangleCoordinates[1]) * 0.5f, true, tile.RandomValue));
+
+                            cg.Triangles.AddRange(onlyLeftSubTriangle
+                                ? new List<int> { currentIdx, currentIdx + 2, currentIdx + 3 }
+                                : new List<int> { currentIdx + 1, currentIdx + 3, currentIdx + 2 });
+
+                            currentIdx += 4;
+                        }
                     }
 
                     if (data.IncludeLand)
