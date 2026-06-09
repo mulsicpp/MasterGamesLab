@@ -37,6 +37,9 @@ namespace InGameCamera
         [SerializeField] private float minPitch = -90f;
         [SerializeField] private float maxPitch = 90f;
 
+        [SerializeField] private float minScalingFactor = 0.5f;
+        [SerializeField] private float maxScalingFactor = 2f;
+
         private new Camera camera;
 
         private float zoomExp;
@@ -44,6 +47,8 @@ namespace InGameCamera
         // Internal tracking variables
         private float currentYaw = 0f;
         private float currentPitch = 0f;
+
+        public float ScalingFactor => Remap(CurrentDistance, minZoom, maxZoom, maxScalingFactor, minScalingFactor);
 
         private void Awake()
         {
@@ -168,5 +173,14 @@ namespace InGameCamera
         //     var worldSpacePos = MainCamera.Instance.GetComponentInChildren<Camera>().ScreenToWorldPoint(new(0, 0, CurrentDistance - 1));
         //     Gizmos.DrawSphere(worldSpacePos, 0.02f);
         // }
+
+        public static float Remap(this float value, float fromMin, float fromMax, float toMin, float toMax)
+        {
+            // 1. Convert the value into a 0.0 to 1.0 percentage of the original range
+            float percentage = (value - fromMin) / (fromMax - fromMin);
+
+            // 2. Project that percentage onto the new target range
+            return toMin + percentage * (toMax - toMin);
+        }
     }
 }
