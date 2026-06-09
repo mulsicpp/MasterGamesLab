@@ -7,23 +7,31 @@ public class PinboardUi : MonoBehaviour
 
     [SerializeField] private VisualTreeAsset truckTemplate;
 
-    protected VisualElement root;
+    public VisualElement root;
 
     protected virtual void OnEnable()
     {
-        root = GetComponent<UIDocument>().rootVisualElement;
+        root = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>("root");
     }
 
-    public VisualElement CreateTruckIndicator()
-    {
-        VisualElement truckElement = truckTemplate.Instantiate();
+public VisualElement CreateTruckIndicator()
+{
+    VisualElement wrapper = new VisualElement();
+    
+    wrapper.style.height = Length.Percent(5f);
+    wrapper.style.aspectRatio = 0.7f;
+    wrapper.AddToClassList("element");
+    
+    wrapper.style.position = Position.Absolute;
 
-        truckElement.style.position = Position.Absolute;
+    VisualElement truckElement = truckTemplate.Instantiate();
 
-        root.Add(truckElement);
+    wrapper.Add(truckElement);
+    root.Add(wrapper);
 
-        return truckElement;
-    }
+
+    return wrapper; 
+}
 
 
 }

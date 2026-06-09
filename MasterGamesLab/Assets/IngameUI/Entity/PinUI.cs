@@ -1,42 +1,48 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using UI; // Matches your PinboardUi namespace
+using UI;
+using InGameCamera;
+using Unity.VisualScripting; // Matches your PinboardUi namespace
 
 public class PinUI : MonoBehaviour
 {
-    [SerializeField] private Vector3 worldOffset = new Vector3(0, 2.5f, 0); // Height above the truck mesh
+    [SerializeField] private float panelOffset = 10f;
+    [SerializeField] private float invisibleTreshhold = -0.1f;
 
     private Camera mainCamera;
     private VisualElement myUiElement;
-    private Label timeLabel;
+    PinboardUi pinboard;
+    Transform meshTransform;
 
     void Start()
     {
-        mainCamera = Camera.main;
+        mainCamera = MainCamera.Instance.GetComponentInChildren<Camera>();
 
-        PinboardUi pinboard = FindAnyObjectByType<PinboardUi>();
+        pinboard = FindAnyObjectByType<PinboardUi>();
 
         myUiElement = pinboard.CreateTruckIndicator();
-        
-        timeLabel = myUiElement.Q<Label>("TimeLabel");
+
+        meshTransform = GetComponentInChildren<MeshRenderer>().transform;
+
     }
 
     void LateUpdate()
     {
-        if (myUiElement == null || mainCamera == null) return;
-
-        Vector3 targetWorldPosition = transform.position + worldOffset;
+        Vector3 targetWorldPosition = meshTransform.position;
 
         Vector3 screenPos = mainCamera.WorldToScreenPoint(targetWorldPosition);
-        if (screenPos.z < 0)
+
+        bool facingAway = Vector3.Dot((mainCamera.transform.position - targetWorldPosition).normalized, targetWorldPosition.normalized) < invisibleTreshhold;
+
+        if (screenPos.z < 0 || facingAway)
         {
             myUiElement.style.display = DisplayStyle.None;
             return;
         }
 
         Vector2 panelPosition = RuntimePanelUtils.CameraTransformWorldToPanel(
-            myUiElement.panel, 
-            targetWorldPosition, 
+            pinboard.root.panel,
+            targetWorldPosition,
             mainCamera
         );
 
@@ -44,13 +50,8 @@ public class PinUI : MonoBehaviour
         float halfHeight = myUiElement.layout.height / 2f;
 
         myUiElement.style.left = panelPosition.x - halfWidth;
-        myUiElement.style.top = panelPosition.y - halfHeight;
+        myUiElement.style.top = panelPosition.y - halfHeight - panelOffset;
         myUiElement.style.display = DisplayStyle.Flex;
-    }
-
-    public void UpdateMyTimer(string newTime)
-    {
-        if (timeLabel != null) timeLabel.text = newTime;
     }
 
     private void OnDestroy()
