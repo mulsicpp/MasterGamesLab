@@ -17,7 +17,7 @@
                     <ui:VisualElement name="PortCount" class="element countlabel">
                         <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
                     </ui:VisualElement>
-                    <ui:VisualElement name="TruckCount" class="element countlabel" style="flex-grow: 1;">
+                    <ui:VisualElement name="TruckCount" class="element countlabel">
                         <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="FreighterCount" class="element countlabel">
