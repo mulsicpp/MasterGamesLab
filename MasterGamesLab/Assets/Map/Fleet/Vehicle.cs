@@ -115,6 +115,7 @@ namespace Map.Fleet
                 if (value == null || value.Length < 2) route = null;
                 else { route = value; parkedTile = null; }
                 Touch();
+                smoothDriving?.Reset();
             }
         }
         public bool IsDriving => route != null;
@@ -136,16 +137,7 @@ namespace Map.Fleet
 
         public abstract float BaseSpeedTPS { get; }
 
-        public float SpeedTPS
-        {
-            get
-            {
-                if(Route == null || Route?.Length < 2) return 0.0f;
-                int index = Mathf.Clamp((int)RouteProgress, 0, Route.Length - 2);
-
-                return BaseSpeedTPS * (Route[index].FindEdgeTo(Route[index + 1])?.GetSpeedMultiplier() ?? 1.0f);
-            }
-        }
+        public float SpeedTPS => SpeedAt(RouteProgress);
 
 
         private Tile parkedTile;
@@ -196,7 +188,7 @@ namespace Map.Fleet
             }
         }
 
-        // private SmoothDriving smoothDriving;
+        private SmoothDriving smoothDriving;
 
         public CommonVehicleState CommonState
         {
@@ -290,6 +282,8 @@ namespace Map.Fleet
             routeProgress = 0;
             parkedTile = null;
             lastServerTime = 0;
+
+            smoothDriving = new SmoothDrivingLinearSimulationInterpolation(this);
             Touch();
         }
 
@@ -299,6 +293,7 @@ namespace Map.Fleet
             {
                 ProgressState = state;
                 ResetProgressDirty();
+                smoothDriving?.AddProgressUpdate(state, serverTime);
                 lastServerTime = serverTime;
             }
         }
@@ -339,13 +334,18 @@ namespace Map.Fleet
 
         public virtual void ClientTick(float tickDuration)
         {
-            if (Exists && IsDriving)
-            {
-                RouteProgress += tickDuration * SpeedTPS;
-            }
+            smoothDriving?.Tick(tickDuration);
         }
 
         protected abstract void OnParked();
+
+        public float SpeedAt(float progress)
+        {
+            if (Route == null || Route?.Length < 2) return 0.0f;
+            int index = Mathf.Clamp((int)progress, 0, Route.Length - 2);
+
+            return BaseSpeedTPS * (Route[index].FindEdgeTo(Route[index + 1])?.GetSpeedMultiplier() ?? 1.0f);
+        }
 
         public virtual VehicleTransform Transform
         {
@@ -358,7 +358,8 @@ namespace Map.Fleet
                 if (IsParked) return ParkedTile.ParkedVehicleTransform();
                 else if (IsDriving)
                 {
-                    float visualProgress = RouteProgress + SpeedTPS * (Time.time - Time.fixedTime);
+                    // float visualProgress = RouteProgress + SpeedTPS * (Time.time - Time.fixedTime);
+                    float visualProgress = smoothDriving?.VisualProgress ?? RouteProgress;
                     if (visualProgress <= 0.0f) return Route[0].ParkedVehicleTransform();
                     else if (visualProgress >= Route.Length - 1) return Route[Route.Length - 1].ParkedVehicleTransform();
                     else

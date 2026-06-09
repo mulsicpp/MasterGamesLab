@@ -89,7 +89,7 @@ public static class Constants
     public const int CANAL_TRAVERSAL_COST_OWN = 0;
     public const int CANAL_TRAVERSAL_COST_ENEMY = 5;
 
-    public const float CANAL_SPEED_MULTIPLIER = 1.0f;
+    public const float CANAL_SPEED_MULTIPLIER = 3.0f;
 
 
     // ------------------- Networking -------------------
