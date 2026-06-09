@@ -36,6 +36,20 @@ public static class Constants
     public const byte MAX_GARAGE_COUNT = MAX_GARAGES_PER_PLAYER * MAX_PLAYER_COUNT;
 
 
+    // ------------------- Producer & Consumer Logic -------------------
+
+    public const int CONSUMER_REQUEST_BASE_PAYOUT = 100;
+
+    public const float MIN_CONSUMER_REQUEST_COOLDOWN = 15f;
+    public const float MAX_CONSUMER_REQUEST_COOLDOWN = 30f;
+
+    public const float MIN_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 20f;
+    public const float MAX_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 50f;
+
+    public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.05f;
+    public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.2f;
+
+
     // ------------------- Build Costs -------------------
 
     public const float PLAIN_BUILD_COST_FACTOR = 1f;

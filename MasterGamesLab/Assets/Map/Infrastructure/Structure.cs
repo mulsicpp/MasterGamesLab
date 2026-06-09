@@ -1,8 +1,6 @@
 
 using Unity.Netcode;
 using Networking;
-using static Map.Fleet.Vehicle;
-using UnityEngine;
 using Map.Blueprint;
 
 namespace Map.Infrastructure
@@ -19,7 +17,7 @@ namespace Map.Infrastructure
             TrainStation
         }
 
-        public interface IStructureState: IState
+        public interface IStructureState : IState
         {
             public StructureType Type { get; }
         }
@@ -60,6 +58,8 @@ namespace Map.Infrastructure
                     value.Structure = this;
                 }
                 tile = value;
+                if (tile != null)
+                    OnStructureSpawned();
                 base.Touch();
             }
         }
@@ -147,9 +147,13 @@ namespace Map.Infrastructure
             Touch();
         }
 
+        public virtual void OnStructureSpawned() { }
+
+        public virtual void Tick(float tickDuration) { }
+
         public override void Touch()
         {
-            if(Tile != null)
+            if (Tile != null)
                 base.Touch();
         }
 

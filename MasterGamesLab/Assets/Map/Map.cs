@@ -480,9 +480,24 @@ namespace Map
         {
             if (!Running) return;
 
-            foreach (var vehicle in Fleet.Vehicles)
+            if (IsServer)
             {
-                vehicle.Tick(Time.fixedDeltaTime);
+                foreach (var consumer in Infrastructure.Consumers)
+                {
+                    consumer.Tick(Time.fixedDeltaTime);
+                }
+                foreach (var vehicle in Fleet.Vehicles)
+                {
+                    vehicle.Tick(Time.fixedDeltaTime);
+                }
+                UpdateDirtyObjectsOnClient();
+            }
+            else if(IsClient)
+            {
+                foreach (var vehicle in Fleet.Vehicles)
+                {
+                    vehicle.ClientTick(Time.fixedDeltaTime);
+                }
             }
         }
 
@@ -491,7 +506,6 @@ namespace Map
             if (!Running) return;
 
             UpdateUnreliableDataOnClient();
-            UpdateDirtyObjectsOnClient();
         }
 
         public void FinishGame()

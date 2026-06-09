@@ -337,6 +337,14 @@ namespace Map.Fleet
             }
         }
 
+        public virtual void ClientTick(float tickDuration)
+        {
+            if (Exists && IsDriving)
+            {
+                RouteProgress += tickDuration * SpeedTPS;
+            }
+        }
+
         protected abstract void OnParked();
 
         public virtual VehicleTransform Transform
