@@ -10,6 +10,8 @@ public class PinUI : MonoBehaviour
     [SerializeField] private float invisibleTreshhold = -0.1f;
 
     private Camera mainCamera;
+    private PlanetCameraController cameraController;
+
     private VisualElement myUiElement;
     PinboardUi pinboard;
     Transform meshTransform;
@@ -17,6 +19,7 @@ public class PinUI : MonoBehaviour
     void Start()
     {
         mainCamera = MainCamera.Instance.GetComponentInChildren<Camera>();
+        cameraController = MainCamera.Instance.GetComponentInChildren<PlanetCameraController>();
 
         pinboard = FindAnyObjectByType<PinboardUi>();
 
@@ -45,6 +48,9 @@ public class PinUI : MonoBehaviour
             targetWorldPosition,
             mainCamera
         );
+
+
+        myUiElement.style.scale = new StyleScale(new Scale(new Vector3(cameraController.ScalingFactor, cameraController.ScalingFactor, 1f)));
 
         float halfWidth = myUiElement.layout.width / 2f;
         float halfHeight = myUiElement.layout.height / 2f;
