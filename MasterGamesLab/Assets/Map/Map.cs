@@ -526,7 +526,8 @@ namespace Map
                 }
                 UpdateDirtyObjectsOnClient();
             }
-            else if(IsClient)
+            
+            if(IsClient)
             {
                 foreach (var vehicle in Fleet.Vehicles)
                 {
