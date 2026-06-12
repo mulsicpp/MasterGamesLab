@@ -1,3 +1,4 @@
+using Map.GeometryGeneration;
 using Map.Infrastructure;
 using Unity.Collections;
 using Unity.Netcode;
@@ -12,7 +13,12 @@ namespace Map.Fleet
         {
             public CommonVehicleState Common;
 
-            public int ArrayIndex { get => Common.ArrayIndex; set => Common.ArrayIndex = value; }
+            public int ArrayIndex
+            {
+                get => Common.ArrayIndex;
+                set => Common.ArrayIndex = value;
+            }
+
             public VehicleType Type => VehicleType.Freighter;
             public CommonVehicleState CommonState => Common;
 
@@ -35,8 +41,15 @@ namespace Map.Fleet
         }
 
         public override VehicleType Type => VehicleType.Freighter;
-        public override Player.Player Owner => Map.Instance.Players[(byte)(Index / Constants.MAX_FREIGHTERS_PER_PLAYER)];
-        protected override GameObject VehiclePrefab => Map.Instance.FreighterPrefab;
+
+        public override Player.Player Owner =>
+            Map.Instance.Players[(byte)(Index / Constants.MAX_FREIGHTERS_PER_PLAYER)];
+
+        protected override GameObject GetVehiclePrefab()
+        {
+            var id = Map.Instance.GetTileAndEdgeCount() + Index.Value;
+            return GeometriesManager.Instance.GetGameObject(GeometriesManager.GeometryType.Freighter, id);
+        }
 
         public override float BaseSpeedTPS => Constants.FREIGHTER_BASE_SPEED_TPS;
 
@@ -50,10 +63,13 @@ namespace Map.Fleet
 
         public Freighter(VehicleIndex index) : base(index)
         {
-
         }
 
-        public void ApplyServerState(FreighterState state, double _) { State = state; ResetDirty(); }
+        public void ApplyServerState(FreighterState state, double _)
+        {
+            State = state;
+            ResetDirty();
+        }
 
         protected override void OnParked()
         {

@@ -64,7 +64,7 @@ Shader "Hidden/HoverableIdFromUv1"
                     out_d
                 );
 
-                output.positionCS = TransformObjectToHClip(projected_pos);
+                output.positionCS = TransformWorldToHClip(projected_pos);
                 output.d = out_d;
                 output.tileId = input.uv1.x;
 

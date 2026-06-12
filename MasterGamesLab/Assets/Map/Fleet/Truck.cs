@@ -1,3 +1,4 @@
+using Map.GeometryGeneration;
 using Map.Infrastructure;
 using Unity.Collections;
 using Unity.Netcode;
@@ -15,7 +16,12 @@ namespace Map.Fleet
             public Good Good;
             public VehicleIndex FreighterIndex;
 
-            public int ArrayIndex { get => Common.ArrayIndex; set => Common.ArrayIndex = value; }
+            public int ArrayIndex
+            {
+                get => Common.ArrayIndex;
+                set => Common.ArrayIndex = value;
+            }
+
             public VehicleType Type => VehicleType.Truck;
             public CommonVehicleState CommonState => Common;
 
@@ -41,14 +47,29 @@ namespace Map.Fleet
 
         public override VehicleType Type => VehicleType.Truck;
         public override Player.Player Owner => Map.Instance.Players[(byte)(Index / Constants.MAX_TRUCKS_PER_PLAYER)];
-        protected override GameObject VehiclePrefab => Map.Instance.TruckPrefab;
+
+        protected override GameObject GetVehiclePrefab()
+        {
+            var id = Map.Instance.GetTileAndEdgeCount() + Index.Value;
+            return GeometriesManager.Instance.GetGameObject(GeometriesManager.GeometryType.Truck, id);
+        }
 
         public override float BaseSpeedTPS => Constants.TRUCK_BASE_SPEED_TPS;
 
         private Good good;
-        public Good Good { get => good; set { good = value; Touch(); } }
+
+        public Good Good
+        {
+            get => good;
+            set
+            {
+                good = value;
+                Touch();
+            }
+        }
 
         private Freighter freighter;
+
         public Freighter Freighter
         {
             get => freighter;
@@ -58,6 +79,7 @@ namespace Map.Fleet
                 {
                     freighter.Truck = null;
                 }
+
                 if (value != null)
                 {
                     if (value.Truck != null)
@@ -66,6 +88,7 @@ namespace Map.Fleet
                     ParkedTile = null;
                     Route = null;
                 }
+
                 freighter = value;
                 Touch();
             }
@@ -73,11 +96,15 @@ namespace Map.Fleet
 
         public TruckState State
         {
-            get => new TruckState { Common = CommonState, Good = Good, FreighterIndex = Freighter?.Index ?? VehicleIndex.NONE };
-            set { 
+            get => new TruckState
+                { Common = CommonState, Good = Good, FreighterIndex = Freighter?.Index ?? VehicleIndex.NONE };
+            set
+            {
                 CommonState = value.Common;
                 Good = value.Good;
-                Freighter = value.FreighterIndex != VehicleIndex.NONE ? Map.Instance.Fleet.Freighters[value.FreighterIndex] : null;
+                Freighter = value.FreighterIndex != VehicleIndex.NONE
+                    ? Map.Instance.Fleet.Freighters[value.FreighterIndex]
+                    : null;
             }
         }
 
@@ -87,33 +114,37 @@ namespace Map.Fleet
             freighter = null;
         }
 
-        public void ApplyServerState(TruckState state, double _) { State = state; ResetDirty(); }
+        public void ApplyServerState(TruckState state, double _)
+        {
+            State = state;
+            ResetDirty();
+        }
 
         protected override void OnParked()
         {
-            if(ParkedTile.Structure == null) return;
+            if (ParkedTile.Structure == null) return;
 
-            if(ParkedTile.Structure is Producer p) Good = p.Good;
-            else if(ParkedTile.Structure is Consumer c)
+            if (ParkedTile.Structure is Producer p) Good = p.Good;
+            else if (ParkedTile.Structure is Consumer c)
             {
-                if(c.RequestedGood != Good.None && c.RequestedGood == Good)
+                if (c.RequestedGood != Good.None && c.RequestedGood == Good)
                 {
                     Owner.Earn(c.CurrentPayout);
                     Good = Good.None;
                     c.ClearRequest();
                 }
             }
-
         }
 
         public override VehicleTransform Transform
         {
             get
             {
-                if(Exists && Freighter != null)
+                if (Exists && Freighter != null)
                 {
                     return null;
                 }
+
                 return base.Transform;
             }
         }

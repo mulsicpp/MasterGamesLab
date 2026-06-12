@@ -1,9 +1,8 @@
-﻿using Map.GeometryGeneration;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Map.OutlineEffect
 {
-    public abstract class AOutlineableObjectBase : AObjectWithGeometry
+    public abstract class AOutlineableObjectBase : MonoBehaviour
     {
         private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
         private static readonly int InnerColor = Shader.PropertyToID("_InnerColor");
@@ -25,11 +24,15 @@ namespace Map.OutlineEffect
         private int textureId;
         private Color playerColor;
 
-        protected new void Init()
+        protected void Init(string defaultLayerName = "")
         {
-            base.Init();
             if (defaultLayer == -1)
             {
+                if (defaultLayerName != "")
+                {
+                    gameObject.layer = LayerMask.NameToLayer(defaultLayerName);
+                }
+
                 defaultLayer = gameObject.layer;
                 outlineLayer = LayerMask.NameToLayer(OutlineLayerName());
                 outlineTransparentLayer = LayerMask.NameToLayer(OutlineTransparentLayerName());
@@ -77,7 +80,7 @@ namespace Map.OutlineEffect
                 return;
             }
 
-            if (mpb == null) mpb = new MaterialPropertyBlock();
+            mpb ??= new MaterialPropertyBlock();
             objRenderer.GetPropertyBlock(mpb);
             mpb.SetColor(PlayerColor, playerColor);
             mpb.SetColor(OutlineColor, outlineColor);

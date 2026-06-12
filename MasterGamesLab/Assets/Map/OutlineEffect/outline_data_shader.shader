@@ -81,7 +81,7 @@ Shader "Hidden/OutlineDataShader"
                     out_d
                 );
 
-                output.positionCS = TransformObjectToHClip(projected_pos);
+                output.positionCS = TransformWorldToHClip(projected_pos);
                 output.d = out_d;
                 return output;
             }

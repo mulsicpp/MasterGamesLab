@@ -9,6 +9,7 @@ using Map.OutlineEffect;
 using Map.Fleet;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Rendering.Universal;
 
 public class ConstructionControls : MonoBehaviour
 {
@@ -218,6 +219,8 @@ public class ConstructionControls : MonoBehaviour
                 tileOutliner.ClearOutline();
                 e.SetOutlineParameters(Constants.HOVER_OUTLINE_FILLED_IN, e.Type == EdgeType.Canal);
                 previouslyHoveredEdge = e;
+                break;
+            case Vehicle v:
                 break;
         }
     }

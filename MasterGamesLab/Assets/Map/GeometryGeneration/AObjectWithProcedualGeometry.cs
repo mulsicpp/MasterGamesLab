@@ -1,18 +1,25 @@
 ﻿using System.Collections.Generic;
+using Map.OutlineEffect;
 using UnityEngine;
 
 namespace Map.GeometryGeneration
 {
-    public abstract class AObjectWithGeometry : MonoBehaviour
+    public abstract class AObjectWithProcedualGeometry : AOutlineableObjectBase
     {
         private MeshFilter meshFilter;
 
         protected readonly List<Vector3> Vertices = new List<Vector3>();
         protected readonly List<Vector4> UV1 = new List<Vector4>();
         protected readonly List<int> Triangles = new List<int>();
+        protected Mesh Mesh { get; private set; }
 
-        protected void Init()
+        protected void Init(bool outlineable = true)
         {
+            if (outlineable)
+            {
+                base.Init();
+            }
+
             meshFilter = GetComponent<MeshFilter>();
             if (Mesh != null)
             {
@@ -25,6 +32,7 @@ namespace Map.GeometryGeneration
                     Destroy(Mesh);
                 }
             }
+
             Mesh = new Mesh { name = "Mesh" };
             meshFilter.mesh = Mesh;
         }
@@ -41,6 +49,7 @@ namespace Map.GeometryGeneration
                 {
                     Destroy(Mesh);
                 }
+
                 Mesh = null;
             }
         }
@@ -68,7 +77,5 @@ namespace Map.GeometryGeneration
             Mesh.RecalculateNormals();
             Mesh.RecalculateBounds();
         }
-
-        protected Mesh Mesh { get; private set; }
     }
 }

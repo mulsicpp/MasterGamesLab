@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using InGameCamera;
 using Map.GeometryGeneration;
 using Map.Infrastructure;
@@ -12,7 +11,6 @@ using Map.Blueprint;
 using Networking;
 using Map.Hoverables;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering.Universal;
 
 namespace Map
 {
@@ -72,12 +70,6 @@ namespace Map
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
 
-        [SerializeField] private GameObject truckPrefab;
-        [SerializeField] private GameObject freighterPrefab;
-
-        public GameObject TruckPrefab => truckPrefab;
-        public GameObject FreighterPrefab => freighterPrefab;
-
         public HoverablePicker.HoverableLayer HoverLayers = HoverablePicker.HoverableLayer.All;
 
         //debug
@@ -115,7 +107,6 @@ namespace Map
         private void Awake()
         {
             Instance = this;
-
 
             CurrentlyHovered = null;
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
@@ -186,7 +177,6 @@ namespace Map
             VehicleOutlineLayer = LayerMask.NameToLayer("Vehicles Outline");
             VehicleOutlineTransparentLayer = LayerMask.NameToLayer("Vehicles Outline Transparent");
         }
-
 
         private void UpdateEntireMesh()
         {
@@ -318,16 +308,21 @@ namespace Map
             {
                 CurrentlyHovered = tiles[currentlyHoveredId];
             }
-            else if (currentlyHoveredId < tiles.Count + edges.Length)
+            else if (currentlyHoveredId < GetTileAndEdgeCount())
             {
                 CurrentlyHovered = edges[currentlyHoveredId - tiles.Count];
             }
+            else if (currentlyHoveredId < GetTileAndEdgeCount() + 100)
+            {
+                CurrentlyHovered = Fleet.Vehicles[currentlyHoveredId - GetTileAndEdgeCount()];
+            }
         }
 
+        public int GetTileAndEdgeCount() => tiles.Count + edges.Length;
 
         public Player.PlayerStats[] GetPlayerStats()
         {
-            var stats =  new Player.PlayerStats[Players.Count];
+            var stats = new Player.PlayerStats[Players.Count];
             for (int i = 0; i < Players.Count; i++)
             {
                 stats[i] = new();
@@ -340,9 +335,9 @@ namespace Map
 
             foreach (var edge in Edges)
             {
-                if(edge.Owner != null)
+                if (edge.Owner != null)
                 {
-                    switch(edge.Type)
+                    switch (edge.Type)
                     {
                         case Edge.EdgeType.Road: stats[edge.Owner.Id].RoadCount++; break;
                         case Edge.EdgeType.Canal: stats[edge.Owner.Id].CanalCount++; break;
@@ -419,7 +414,6 @@ namespace Map
 
             // debugSpawnPoints = SpawnPointGenerator.SpawnInitialStructures(this, 4);
 
-            
 
             //Infrastructure.SpawnLocal(new Producer.ProducerState
             //    { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
@@ -465,10 +459,15 @@ namespace Map
 
             var playerSpawnTiles = SpawnPointGenerator.GetFairSpawnPoints(this, playerCount);
 
-            for(int i = 0; i < playerSpawnTiles.Length; i++)
+            for (int i = 0; i < playerSpawnTiles.Length; i++)
             {
                 Infrastructure.SpawnLocal(new Garage.GarageState { Common = { TileId = playerSpawnTiles[i].Id } });
-                Fleet.SpawnLocal(new Truck.TruckState { Common = { Exists = true, ParkedTileId = playerSpawnTiles[i].Id }, FreighterIndex = VehicleIndex.NONE, Good = Good.None }, players[i]);
+                Fleet.SpawnLocal(
+                    new Truck.TruckState
+                    {
+                        Common = { Exists = true, ParkedTileId = playerSpawnTiles[i].Id },
+                        FreighterIndex = VehicleIndex.NONE, Good = Good.None
+                    }, players[i]);
             }
 
             spawnPointManager = new ProducerConsumerSpawnPoint(this);
@@ -479,11 +478,15 @@ namespace Map
                 var prodTile = spawnPointManager.GetSpawnTileProducer();
                 if (prodTile != null)
                 {
-                    Infrastructure.SpawnLocal(new Producer.ProducerState { Common = { TileId = prodTile.Id }, Good = (Good)UnityEngine.Random.Range((int)Good.Apple, (int)Good.Banana + 1) });
+                    Infrastructure.SpawnLocal(new Producer.ProducerState
+                    {
+                        Common = { TileId = prodTile.Id },
+                        Good = (Good)UnityEngine.Random.Range((int)Good.Apple, (int)Good.Banana + 1)
+                    });
                     spawnPointManager.RegisterProducerSpawned(prodTile);
                 }
             }
-            
+
             //5 consumer (groups)
             for (int i = 0; i < 5; i++)
             {
@@ -494,6 +497,7 @@ namespace Map
                     {
                         Infrastructure.SpawnLocal(new Consumer.ConsumerState { Common = { TileId = consTile.Id } });
                     }
+
                     spawnPointManager.RegisterConsumerSpawned(consTiles);
                 }
             }
@@ -501,7 +505,7 @@ namespace Map
 
         private void ClientUpdate()
         {
-            if(IsClient)
+            if (IsClient)
             {
                 foreach (var vehicle in Fleet.Vehicles)
                 {
@@ -520,14 +524,16 @@ namespace Map
                 {
                     consumer.Tick(Time.fixedDeltaTime);
                 }
+
                 foreach (var vehicle in Fleet.Vehicles)
                 {
                     vehicle.Tick(Time.fixedDeltaTime);
                 }
+
                 UpdateDirtyObjectsOnClient();
             }
-            
-            if(IsClient)
+
+            if (IsClient)
             {
                 foreach (var vehicle in Fleet.Vehicles)
                 {
@@ -626,6 +632,7 @@ namespace Map
                     v.ResetProgressDirty();
                     return true;
                 }
+
                 return false;
             };
 
@@ -662,7 +669,8 @@ namespace Map
             ApplyStatesLocal(serverTime, Infrastructure.Garages, garages);
             ApplyStatesLocal(serverTime, Infrastructure.Ports, ports);
 
-            if (edges.Length + producers.Length + consumers.Length + ports.Length + garages.Length + trucks.Length + freighters.Length > 0)
+            if (edges.Length + producers.Length + consumers.Length + ports.Length + garages.Length + trucks.Length +
+                freighters.Length > 0)
             {
                 Blueprint.Validate();
             }
@@ -743,7 +751,8 @@ namespace Map
 
                     var structure = Infrastructure[structureData.StructureId];
 
-                    if (tile.Structure == null && validatableBlueprint.IsValid(structure) && structure.Owner.Id == player.Id)
+                    if (tile.Structure == null && validatableBlueprint.IsValid(structure) &&
+                        structure.Owner.Id == player.Id)
                     {
                         structure.Tile = tile;
                         player.Pay(validatableBlueprint.Cost(structure));
@@ -788,7 +797,7 @@ namespace Map
         {
             var player =
                 Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-            
+
             if (player == null) return;
 
             var vehicle = fleet.GetFirstWith(type, v => !v.Exists && v.Owner.Id == player.Id);
@@ -1047,7 +1056,7 @@ namespace Map
             {
                 if (vehicle.Transform == null) continue;
                 Vector3 basePos = vehicle.Transform.Position;
-                if(vehicle.BlueprintTile != null)
+                if (vehicle.BlueprintTile != null)
                 {
                     Gizmos.color = vehicle.BlueprintVisualState switch
                     {

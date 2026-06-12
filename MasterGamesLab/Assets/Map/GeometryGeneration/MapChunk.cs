@@ -5,9 +5,11 @@ using UnityEngine.Rendering;
 
 namespace Map.GeometryGeneration
 {
-    public class MapChunk : AObjectWithGeometry
+    public class MapChunk : AObjectWithProcedualGeometry
     {
         private static readonly int TreeBuffer = Shader.PropertyToID("_TreeBuffer");
+        protected override string OutlineLayerName() => "";
+        protected override string OutlineTransparentLayerName() => "";
 
         public struct ChunkGeometry
         {
@@ -47,7 +49,7 @@ namespace Map.GeometryGeneration
         private Bounds renderBounds;
         private MaterialPropertyBlock mpb;
 
-        private void Awake() => Init();
+        private void Awake() => Init(false);
 
         public void Init(IMap parentMap, int startIndex, int endIndex)
         {

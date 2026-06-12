@@ -1,6 +1,8 @@
-﻿namespace Map.OutlineEffect
+﻿using Map.GeometryGeneration;
+
+namespace Map.OutlineEffect
 {
-    public class AOutlinableObject : AOutlineableObjectBase
+    public class AOutlinableObject : AObjectWithProcedualGeometry
     {
         protected override string OutlineLayerName() => "Outline";
 

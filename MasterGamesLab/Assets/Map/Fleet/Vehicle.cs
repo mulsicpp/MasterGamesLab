@@ -4,10 +4,11 @@ using UnityEngine;
 using Networking;
 using System.Security.Cryptography;
 using Map.Blueprint;
+using Map.Hoverables;
 
 namespace Map.Fleet
 {
-    public abstract class Vehicle : Timestamped, ISynchableObject<Vehicle.VehicleProgressState>
+    public abstract class Vehicle : Timestamped, ISynchableObject<Vehicle.VehicleProgressState>, IHoverable
     {
         [System.Serializable]
         public enum VehicleType : byte
@@ -30,7 +31,11 @@ namespace Map.Fleet
             public float RouteProgress;
             public TileId ParkedTileId;
 
-            public int ArrayIndex { get => Index; set => Index = new VehicleIndex((byte)value); }
+            public int ArrayIndex
+            {
+                get => Index;
+                set => Index = new VehicleIndex((byte)value);
+            }
 
             public int SerializedSize
             {
@@ -59,6 +64,7 @@ namespace Map.Fleet
                     serializer.SerializeValue(ref routeIds);
                     RouteIds = routeIds.Length > 0 ? routeIds : null;
                 }
+
                 serializer.SerializeValue(ref RouteProgress);
                 serializer.SerializeValue(ref ParkedTileId);
             }
@@ -71,11 +77,12 @@ namespace Map.Fleet
 
             public float Progress;
 
-            public int ArrayIndex { get => GetOffsetFromType(Type) + Index; set
-                {
-                    GetTypeFromIndex(value).Deconstruct(out Type, out Index);
-                }
+            public int ArrayIndex
+            {
+                get => GetOffsetFromType(Type) + Index;
+                set { GetTypeFromIndex(value).Deconstruct(out Type, out Index); }
             }
+
             public int SerializedSize => FastBufferWriter.GetWriteSize(this);
         }
 
@@ -86,11 +93,12 @@ namespace Map.Fleet
 
         public abstract Player.Player Owner { get; }
 
-        protected abstract GameObject VehiclePrefab { get; }
+        protected abstract GameObject GetVehiclePrefab();
 
         private GameObject gameObject;
 
         private bool exists;
+
         public bool Exists
         {
             get { return exists; }
@@ -107,23 +115,31 @@ namespace Map.Fleet
         public new Timestamp Timestamp => base.Timestamp;
 
         private Tile[] route;
+
         public Tile[] Route
         {
             get { return route; }
             set
             {
                 if (value == null || value.Length < 2) route = null;
-                else { route = value; parkedTile = null; }
+                else
+                {
+                    route = value;
+                    parkedTile = null;
+                }
+
                 Touch();
                 smoothDriving?.Reset();
             }
         }
+
         public bool IsDriving => route != null;
 
         private bool progressDirty;
         public bool ProgressDirty => progressDirty;
 
         private float routeProgress;
+
         public float RouteProgress
         {
             get { return routeProgress; }
@@ -141,6 +157,7 @@ namespace Map.Fleet
 
 
         private Tile parkedTile;
+
         public Tile ParkedTile
         {
             get { return parkedTile; }
@@ -152,13 +169,16 @@ namespace Map.Fleet
                     route = null;
                     OnParked();
                 }
+
                 Touch();
             }
         }
+
         public bool IsParked => parkedTile != null;
 
 
         private Tile blueprintTile;
+
         public Tile BlueprintTile
         {
             get { return blueprintTile; }
@@ -217,13 +237,18 @@ namespace Map.Fleet
                 if (value.RouteIds != null)
                 {
                     route = new Tile[value.RouteIds.Length];
-                    for (int i = 0; i < route.Length; i++) route[i] = Map.Instance.Tiles[value.RouteIds[i]] is Tile r ? r : throw new System.NullReferenceException("Vehicle route cannot contain null tiles");
+                    for (int i = 0; i < route.Length; i++)
+                        route[i] = Map.Instance.Tiles[value.RouteIds[i]] is Tile r
+                            ? r
+                            : throw new System.NullReferenceException("Vehicle route cannot contain null tiles");
                 }
 
                 Exists = value.Exists;
                 Route = route;
                 RouteProgress = value.RouteProgress;
-                ParkedTile = value.ParkedTileId != TileId.NONE && Map.Instance.Tiles[value.ParkedTileId] is Tile t ? t : null;
+                ParkedTile = value.ParkedTileId != TileId.NONE && Map.Instance.Tiles[value.ParkedTileId] is Tile t
+                    ? t
+                    : null;
             }
         }
 
@@ -235,7 +260,11 @@ namespace Map.Fleet
 
         private double lastServerTime;
 
-        VehicleProgressState ISynchableObject<VehicleProgressState>.State { get => ProgressState; set => ProgressState = value; }
+        VehicleProgressState ISynchableObject<VehicleProgressState>.State
+        {
+            get => ProgressState;
+            set => ProgressState = value;
+        }
 
         public static int GetOffsetFromType(VehicleType type)
         {
@@ -289,7 +318,7 @@ namespace Map.Fleet
 
         public void ApplyServerState(VehicleProgressState state, double serverTime)
         {
-            if(serverTime > lastServerTime)
+            if (serverTime > lastServerTime)
             {
                 ProgressState = state;
                 ResetProgressDirty();
@@ -298,7 +327,11 @@ namespace Map.Fleet
             }
         }
 
-        public override void ResetDirty() { base.ResetDirty(); ResetProgressDirty(); }
+        public override void ResetDirty()
+        {
+            base.ResetDirty();
+            ResetProgressDirty();
+        }
 
         public void ResetProgressDirty()
         {
@@ -310,8 +343,17 @@ namespace Map.Fleet
             if (!Exists) return;
             if (IsDriving)
             {
-                if (Route.Length == 0) { Route = null; return; }
-                if (Route.Length == 1 || RouteProgress < -0.01f) { ParkedTile = Route[0]; return; }
+                if (Route.Length == 0)
+                {
+                    Route = null;
+                    return;
+                }
+
+                if (Route.Length == 1 || RouteProgress < -0.01f)
+                {
+                    ParkedTile = Route[0];
+                    return;
+                }
 
                 int lastIndex = Route.Length - 1;
 
@@ -320,7 +362,7 @@ namespace Map.Fleet
                 RouteProgress += tickDuration * SpeedTPS;
 
                 int newTileIndex = Mathf.Clamp((int)(RouteProgress + 0.5f), 0, lastIndex);
-                for(int i = oldTileIndex; i < newTileIndex; i++)
+                for (int i = oldTileIndex; i < newTileIndex; i++)
                 {
                     var edge = Route[i].FindEdgeTo(Route[i + 1]);
                     if (edge == null) continue;
@@ -355,13 +397,15 @@ namespace Map.Fleet
                 {
                     return BlueprintTile?.ParkedVehicleTransform();
                 }
+
                 if (IsParked) return ParkedTile.ParkedVehicleTransform();
                 else if (IsDriving)
                 {
                     // float visualProgress = RouteProgress + SpeedTPS * (Time.time - Time.fixedTime);
                     float visualProgress = smoothDriving?.VisualProgress ?? RouteProgress;
                     if (visualProgress <= 0.0f) return Route[0].ParkedVehicleTransform();
-                    else if (visualProgress >= Route.Length - 1) return Route[Route.Length - 1].ParkedVehicleTransform();
+                    else if (visualProgress >= Route.Length - 1)
+                        return Route[Route.Length - 1].ParkedVehicleTransform();
                     else
                     {
                         int tileIndex = (int)(visualProgress + 0.5f);
@@ -372,19 +416,22 @@ namespace Map.Fleet
 
                         if (tileIndex == 0)
                         {
-                            var curve = GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex + 1], Route[tileIndex]);
+                            var curve = GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex + 1],
+                                Route[tileIndex]);
                             position = curve.Evaluate(1 - localProgress * 2f);
                             tangent = -curve.Derivative(1 - localProgress * 2f).normalized;
                         }
                         else if (tileIndex >= (Route.Length - 1))
                         {
-                            var curve = GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex - 1], Route[tileIndex]);
+                            var curve = GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex - 1],
+                                Route[tileIndex]);
                             position = curve.Evaluate(1 + localProgress * 2f);
                             tangent = curve.Derivative(1 + localProgress * 2f).normalized;
                         }
                         else
                         {
-                            var curve = GeometryGeneration.ParametricCurve.FromTileToTileOverTile(Route[tileIndex - 1], Route[tileIndex + 1], Route[tileIndex]);
+                            var curve = GeometryGeneration.ParametricCurve.FromTileToTileOverTile(Route[tileIndex - 1],
+                                Route[tileIndex + 1], Route[tileIndex]);
                             position = curve.Evaluate(localProgress + 0.5f);
                             tangent = curve.Derivative(localProgress + 0.5f).normalized;
                         }
@@ -397,6 +444,7 @@ namespace Map.Fleet
                         }.AdjustUpVector();
                     }
                 }
+
                 return null;
             }
         }
@@ -407,7 +455,7 @@ namespace Map.Fleet
             {
                 if (gameObject == null)
                 {
-                    gameObject = Object.Instantiate(VehiclePrefab, Map.Instance.transform);
+                    gameObject = GetVehiclePrefab();
                     UpdateGameobject();
                 }
             }
@@ -432,10 +480,9 @@ namespace Map.Fleet
             }
 
             gameObject.SetActive(true);
-            var tProj = Map.Instance.GetProjectedVehicleTransform(t);
+            var tProj = t; // Map.Instance.GetProjectedVehicleTransform(t);
             gameObject.transform.localPosition = tProj.Position;
             gameObject.transform.localRotation = Quaternion.LookRotation(tProj.Forward, tProj.Up);
-
         }
     }
 }

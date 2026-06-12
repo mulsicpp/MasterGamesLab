@@ -2,8 +2,11 @@ using Map.OutlineEffect;
 
 namespace Map.GeometryGeneration.Edges
 {
-    public class EdgeGeometry : AOutlineableEdge
+    public class EdgeGeometry : AObjectWithProcedualGeometry
     {
+        protected override string OutlineLayerName() => "Edge Outline";
+        protected override string OutlineTransparentLayerName() => "Edge Outline Transparent";
+
         private Edge.PartialEdgeGeometry? startGeometry;
         private Edge.PartialEdgeGeometry? endGeometry;
 
