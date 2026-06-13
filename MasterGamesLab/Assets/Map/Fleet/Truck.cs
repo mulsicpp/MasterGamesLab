@@ -50,7 +50,7 @@ namespace Map.Fleet
 
         protected override GameObject GetVehiclePrefab()
         {
-            var id = Map.Instance.GetTileAndEdgeCount() + Index.Value;
+            var id = Map.Instance.GetTileAndEdgeCount() + GetOffsetFromType(VehicleType.Truck) + Index;
             return GeometriesManager.Instance.GetGameObject(GeometriesManager.GeometryType.Truck, id);
         }
 

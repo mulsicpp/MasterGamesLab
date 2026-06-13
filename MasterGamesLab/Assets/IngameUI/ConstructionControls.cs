@@ -161,6 +161,9 @@ public class ConstructionControls : MonoBehaviour
                     if (e.BlueprintType != EdgeType.None)
                         Debug.Log("Edge cost: " + e.BlueprintCost);
                     break;
+                case Vehicle v:
+                    Debug.Log("Vehicle info: " + v.Type.ToString() + " owned by " + v.Owner.Name + " with index " + v.Index.Value);
+                    break;
             }
         }
 
