@@ -45,10 +45,10 @@ namespace Map.Fleet
         public override Player.Player Owner =>
             Map.Instance.Players[(byte)(Index / Constants.MAX_FREIGHTERS_PER_PLAYER)];
 
-        protected override GameObject GetVehiclePrefab()
+        public override ObjectWithFixedGeometry AttachVehicleGeometry(Transform parent)
         {
             var id = Map.Instance.GetTileAndEdgeCount() + GetOffsetFromType(VehicleType.Freighter) + Index;
-            return GeometriesManager.Instance.GetGameObject(GeometriesManager.GeometryType.Freighter, id);
+            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Freighter, id, parent);
         }
 
         public override float BaseSpeedTPS => Constants.FREIGHTER_BASE_SPEED_TPS;

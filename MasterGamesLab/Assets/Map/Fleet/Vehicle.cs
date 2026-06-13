@@ -7,6 +7,8 @@ using Map.Blueprint;
 using Map.Hoverables;
 using Map.OutlineEffect;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Map.GeometryGeneration;
 
 namespace Map.Fleet
 {
@@ -95,9 +97,9 @@ namespace Map.Fleet
 
         public abstract Player.Player Owner { get; }
 
-        protected abstract GameObject GetVehiclePrefab();
+        public abstract ObjectWithFixedGeometry AttachVehicleGeometry(Transform parent);
 
-        private GameObject gameObject;
+        private VehicleRenderer renderer;
 
         private bool exists;
 
@@ -455,26 +457,29 @@ namespace Map.Fleet
         {
             if (Exists || BlueprintTile != null)
             {
-                if (gameObject == null)
+                if (renderer == null)
                 {
-                    gameObject = GetVehiclePrefab();
+                    var gameObject = Object.Instantiate(new GameObject("Vehicle"), Map.Instance.gameObject.transform);
+                    renderer = gameObject.AddComponent<VehicleRenderer>();
+                    renderer.Init(this);
                     UpdateGameobject();
                 }
             }
-            else if (gameObject != null)
+            else if (renderer != null)
             {
-                Object.Destroy(gameObject);
-                gameObject = null;
+                Object.Destroy(renderer.gameObject);
+                renderer = null;
             }
         }
 
         public virtual void UpdateGameobject()
         {
             EvaluateGameobjectPresence();
-            if (gameObject == null) return;
+
+            if (renderer == null) return;
+            var gameObject = renderer.gameObject;
 
             var t = Transform;
-
             if (t == null)
             {
                 gameObject.SetActive(false);
@@ -489,12 +494,13 @@ namespace Map.Fleet
 
         public void ClearOutline()
         {
-            // TODO implement
+            renderer?.Geometry.SetBaseLayer();
         }
 
         public void ShowOutline(Constants.OutlineData outlineData)
         {
-            // TODO implement
+            renderer?.Geometry.SetOutlineLayer();
+            renderer?.Geometry.SetOutlineParameters(outlineData);
         }
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)

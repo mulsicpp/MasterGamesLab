@@ -48,10 +48,10 @@ namespace Map.Fleet
         public override VehicleType Type => VehicleType.Truck;
         public override Player.Player Owner => Map.Instance.Players[(byte)(Index / Constants.MAX_TRUCKS_PER_PLAYER)];
 
-        protected override GameObject GetVehiclePrefab()
+        public override ObjectWithFixedGeometry AttachVehicleGeometry(Transform parent)
         {
             var id = Map.Instance.GetTileAndEdgeCount() + GetOffsetFromType(VehicleType.Truck) + Index;
-            return GeometriesManager.Instance.GetGameObject(GeometriesManager.GeometryType.Truck, id);
+            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Truck, id, parent);
         }
 
         public override float BaseSpeedTPS => Constants.TRUCK_BASE_SPEED_TPS;

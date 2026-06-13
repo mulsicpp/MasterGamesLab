@@ -30,12 +30,15 @@ namespace Map.GeometryGeneration
             Instance = this;
         }
 
-        public GameObject GetGameObject(GeometryType type, int id)
+        public ObjectWithFixedGeometry GetGameObjectGeometry(GeometryType type, int id, Transform parent)
         {
             Mesh mesh;
             var defaultLayerName = "Default";
             string outlineLayerName;
             string outlineTransparentLayerName;
+            Quaternion localRotation = Quaternion.identity;
+            Vector3 localPosition = Vector3.zero;
+
 
             switch (type)
             {
@@ -44,12 +47,14 @@ namespace Map.GeometryGeneration
                     defaultLayerName = "Vehicles";
                     outlineLayerName = "Vehicles Outline";
                     outlineTransparentLayerName = "Vehicles Outline Transparent";
+                    localRotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
                     break;
                 case GeometryType.Freighter:
                     mesh = freighterMesh;
                     defaultLayerName = "Vehicles";
                     outlineLayerName = "Vehicles Outline";
                     outlineTransparentLayerName = "Vehicles Outline Transparent";
+                    localRotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
                     break;
                 case GeometryType.Producer:
                     mesh = producerMesh;
@@ -70,11 +75,13 @@ namespace Map.GeometryGeneration
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
 
-            var gO = Instantiate(geometryPrefab, transform);
-            gO.transform.localScale = new Vector3(SCALE, SCALE, SCALE);
+            parent.localScale = new Vector3(SCALE, SCALE, SCALE);
+            var gO = Instantiate(geometryPrefab, parent);
+            gO.transform.localPosition = localPosition;
+            gO.transform.localRotation = localRotation;
             var fixedGeometry = gO.GetComponent<ObjectWithFixedGeometry>();
             fixedGeometry.Init(mesh, defaultLayerName, outlineLayerName, outlineTransparentLayerName, id);
-            return gO;
+            return fixedGeometry;
         }
     }
 }
