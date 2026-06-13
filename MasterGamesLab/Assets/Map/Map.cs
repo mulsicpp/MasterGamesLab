@@ -94,6 +94,7 @@ namespace Map
         private Vector3 oldProjectionCenter;
 
         public IHoverable CurrentlyHovered;
+        public OutlineCurrentlyHovered HoverOutliner;
 
         private Player.Player[] players;
 
@@ -109,6 +110,8 @@ namespace Map
             Instance = this;
 
             CurrentlyHovered = null;
+            HoverOutliner = GetComponent<OutlineCurrentlyHovered>();
+
             var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
             tiles = new List<Tile>(numPoints);
             chunks = new List<MapChunk>(chunksPoints.Count);
@@ -366,6 +369,8 @@ namespace Map
 
         public void GenerateEmpty()
         {
+
+            Timestamp = new Timestamp(0);
             foreach (var tile in tiles)
             {
                 tile.Type = Tile.TileType.Water;
@@ -383,6 +388,7 @@ namespace Map
 
         public void GenerateTerrain(int seed)
         {
+            Timestamp = new Timestamp(0);
             Debug.Log("Generating world with seed " + seed + " ...");
 
             UnityEngine.Random.InitState(seed);

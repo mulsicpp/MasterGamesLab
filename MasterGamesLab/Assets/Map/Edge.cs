@@ -7,10 +7,11 @@ using UnityEngine;
 using Networking;
 using IState = Networking.IState;
 using Player;
+using Map.OutlineEffect;
 
 namespace Map
 {
-    public class Edge : Timestamped, ISynchableObject<Edge.EdgeState>, IHoverable
+    public class Edge : Timestamped, ISynchableObject<Edge.EdgeState>, IHoverable, IOutlinable
     {
         [System.Serializable]
         public enum EdgeType : byte
@@ -168,6 +169,8 @@ namespace Map
         private EdgeGeometry geometry;
         private EdgeGeometry blueprintGeometry;
 
+        private Constants.OutlineData? outline;
+
         public Edge(EdgeId id, Tile startTile, Tile endTile, EdgeType type, Player.Player player, Vector3 vertexA,
             Vector3 vertexB)
         {
@@ -178,6 +181,7 @@ namespace Map
             owner = player;
             this.VertexA = vertexA;
             this.VertexB = vertexB;
+            outline = null;
             Touch();
         }
 
@@ -328,6 +332,8 @@ namespace Map
         {
             SetBlueprintColorAndOutline();
             SetColorAndOutline();
+            if (outline is Constants.OutlineData o)
+                SetOutlineParameters(o, Type == EdgeType.Canal);
             EdgeDirty = false;
         }
 
@@ -414,6 +420,29 @@ namespace Map
         {
             //return new Vector4(Id + Map.ID_OFFSET, randomValue, active ? 1 : 0, 0);
             return new Vector4(Id + Map.ID_OFFSET + Map.Instance.Tiles.Count, 0, 0, 0);
+        }
+
+
+        public void ClearOutline()
+        {
+            outline = null;
+            TriggerDirty();
+        }
+
+        public void ShowOutline(Constants.OutlineData outlineData)
+        {
+            outline = outlineData;
+            TriggerDirty();
+        }
+
+        public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
+        {
+            var outlineData = hoverState switch
+            {
+                HoverState.Invalid => Constants.ROAD_BLUEPRINT_INVALID_OUTLINE,
+                _ => Constants.HOVER_OUTLINE_FILLED_IN,
+            };
+            ShowOutline(outlineData);
         }
     }
 }

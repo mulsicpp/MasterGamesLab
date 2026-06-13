@@ -290,6 +290,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4806605983979696892, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       insertIndex: -1
       addedObject: {fileID: 264134040}
+    - targetCorrespondingSourceObject: {fileID: 4806605983979696892, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 264134044}
   m_SourcePrefab: {fileID: 100100000, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
 --- !u!1 &264134039 stripped
 GameObject:
@@ -310,6 +313,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TestRoadCreation
   ShowTopMostFoldoutHeaderGroup: 1
   good: 1
+--- !u!114 &264134044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 264134039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0090cedaa53b1ff4191859de64c03e26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI.OutlineCurrentlyHovered
 --- !u!1 &549263512
 GameObject:
   m_ObjectHideFlags: 0
@@ -774,6 +789,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1286418469
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1286418471}
+  - component: {fileID: 1286418470}
+  m_Layer: 0
+  m_Name: TileOutlinerPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1286418470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1286418469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 469626b177d964140b9185527eeac9c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Map.OutlineEffect.TileOutlinerPool
+  prefab: {fileID: 3355747564128440831, guid: 7a6832fdb2040b748abbdb4a3b062de1, type: 3}
+  defaultCapacity: 10
+  maxPoolSize: 100
+--- !u!4 &1286418471
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1286418469}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1740609991
 GameObject:
   m_ObjectHideFlags: 0
@@ -1103,3 +1165,4 @@ SceneRoots:
   - {fileID: 2800778}
   - {fileID: 264134038}
   - {fileID: 615409478525799809}
+  - {fileID: 1286418471}

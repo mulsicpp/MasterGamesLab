@@ -5,10 +5,12 @@ using Networking;
 using System.Security.Cryptography;
 using Map.Blueprint;
 using Map.Hoverables;
+using Map.OutlineEffect;
+using UnityEngine.UI;
 
 namespace Map.Fleet
 {
-    public abstract class Vehicle : Timestamped, ISynchableObject<Vehicle.VehicleProgressState>, IHoverable
+    public abstract class Vehicle : Timestamped, ISynchableObject<Vehicle.VehicleProgressState>, IHoverable, IOutlinable
     {
         [System.Serializable]
         public enum VehicleType : byte
@@ -483,6 +485,26 @@ namespace Map.Fleet
             var tProj = t; // Map.Instance.GetProjectedVehicleTransform(t);
             gameObject.transform.localPosition = tProj.Position;
             gameObject.transform.localRotation = Quaternion.LookRotation(tProj.Forward, tProj.Up);
+        }
+
+        public void ClearOutline()
+        {
+            // TODO implement
+        }
+
+        public void ShowOutline(Constants.OutlineData outlineData)
+        {
+            // TODO implement
+        }
+
+        public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
+        {
+            var outlineData = hoverState switch
+            {
+                HoverState.Invalid => Constants.ROAD_BLUEPRINT_INVALID_OUTLINE,
+                _ => Constants.HOVER_OUTLINE,
+            };
+            ShowOutline(outlineData);
         }
     }
 }

@@ -30,14 +30,18 @@ public class ConstructionControls : MonoBehaviour
     private InputAction leftClickAction;
     private InputAction cancelAction;
     private Tile startTile = null;
-    // private Tile hoveredTile = null;
-    // private bool previewIsValidOrNonExistent = true;
-    [SerializeField] private ConstructionType type = ConstructionType.None;
-    [SerializeField] private GameObject tileOutlinerPrefab;
+    public Tile StartTile
+    {
+        get { return startTile; }
+        set
+        {
+            if (startTile != null)
+                startTile?.ClearOutline();
+            startTile = value;
+        }
+    }
 
-    private TileOutliner tileOutliner;
-    private TileOutliner startTileOutliner;
-    private Edge previouslyHoveredEdge;
+    [SerializeField] private ConstructionType type = ConstructionType.None;
 
     public ConstructionType Type
     {
@@ -52,7 +56,7 @@ public class ConstructionControls : MonoBehaviour
             }
 
             type = value;
-            startTile = null;
+            StartTile = null;
             OnConstructionTypeChanged?.Invoke(type);
             Map.Map.Instance.Blueprint.ClearPreview();
 
@@ -72,43 +76,37 @@ public class ConstructionControls : MonoBehaviour
     {
         leftClickAction = IngameInputs.leftClickAction;
         cancelAction = IngameInputs.cancelAction;
-
-        tileOutliner = Instantiate(tileOutlinerPrefab).GetComponent<TileOutliner>();
-        tileOutliner.SetOutlineParameters(Constants.HOVER_OUTLINE);
-
-        startTileOutliner = Instantiate(tileOutlinerPrefab).GetComponent<TileOutliner>();
-        startTileOutliner.SetOutlineParameters(Constants.HOVER_OUTLINE);
     }
 
     public void Update()
     {
         var hoveredTile = Map.Map.Instance.CurrentlyHovered as Tile;
 
-        var outlineData = Constants.HOVER_OUTLINE;
+        HoverState hoverState = HoverState.Valid;
 
         var edgeType = GetEdgeType();
         var vehicleType = GetVehicleType();
         if (edgeType != EdgeType.None)
         {
-            bool previewIsValidOrNonExistent = startTile == null ||
-                                              Map.Map.Instance.Blueprint.SetPreviewEdges(startTile, hoveredTile, edgeType);
+            bool previewIsValidOrNonExistent = StartTile == null ||
+                                              Map.Map.Instance.Blueprint.SetPreviewEdges(StartTile, hoveredTile, edgeType);
 
-            if(startTile == null && !isValidStartTile(hoveredTile, Type))
-                outlineData = Constants.ROAD_BLUEPRINT_INVALID_OUTLINE;
+            if(StartTile == null && !isValidStartTile(hoveredTile, Type))
+                hoverState = HoverState.Invalid;
             else if (!previewIsValidOrNonExistent)
-                outlineData = Constants.ROAD_BLUEPRINT_INVALID_OUTLINE;
+                hoverState = HoverState.Invalid;
 
             if (previewIsValidOrNonExistent && hoveredTile != null && leftClickAction.WasPerformedThisFrame())
             {
-                if (startTile != null)
+                if (StartTile != null)
                 {
                     Map.Map.Instance.Blueprint.ApplyPreview();
-                    startTile = hoveredTile;
+                    StartTile = hoveredTile;
                 }
                 else if (isValidStartTile(hoveredTile, Type))
-                    startTile = hoveredTile;
+                    StartTile = hoveredTile;
                 else
-                    outlineData = Constants.ROAD_BLUEPRINT_INVALID_OUTLINE;
+                    hoverState = HoverState.Invalid;
             }
         }
         else if (Type is ConstructionType.Port)
@@ -117,7 +115,7 @@ public class ConstructionControls : MonoBehaviour
 
             if (!previewIsValid)
             {
-                outlineData = Constants.ROAD_BLUEPRINT_INVALID_OUTLINE;
+                hoverState = HoverState.Invalid;
             }
 
             if (previewIsValid && leftClickAction.WasPerformedThisFrame())
@@ -131,7 +129,7 @@ public class ConstructionControls : MonoBehaviour
 
             if (!previewIsValid)
             {
-                outlineData = Constants.ROAD_BLUEPRINT_INVALID_OUTLINE;
+                hoverState = HoverState.Invalid;
             }
 
             if (previewIsValid && leftClickAction.WasPerformedThisFrame())
@@ -144,8 +142,10 @@ public class ConstructionControls : MonoBehaviour
             Map.Map.Instance.Blueprint.ClearPreview();
         }
 
-        if(edgeType == EdgeType.None)
-            startTile = null;
+        if (edgeType == EdgeType.None)
+        {
+            StartTile = null;
+        }
 
         if (Type is ConstructionType.None && Input.GetMouseButtonDown(2))
         {
@@ -190,42 +190,8 @@ public class ConstructionControls : MonoBehaviour
             }
         }
 
-        if (startTile != null)
-        {
-            startTileOutliner.SetOutlineParameters(outlineData);
-            startTileOutliner.OutlineTile(startTile);
-        }
-        else
-        {
-            startTileOutliner.ClearOutline();
-        }
-
-
-        switch (Map.Map.Instance.CurrentlyHovered)
-        {
-            case Tile t:
-                if (previouslyHoveredEdge != null)
-                {
-                    previouslyHoveredEdge.EdgeDirty = true;
-                    previouslyHoveredEdge = null;
-                }
-
-                tileOutliner.SetOutlineParameters(outlineData);
-                tileOutliner.OutlineTile(t);
-                break;
-            case Edge e:
-                if (previouslyHoveredEdge != null && previouslyHoveredEdge != e)
-                {
-                    previouslyHoveredEdge.TriggerDirty();
-                }
-
-                tileOutliner.ClearOutline();
-                e.SetOutlineParameters(Constants.HOVER_OUTLINE_FILLED_IN, e.Type == EdgeType.Canal);
-                previouslyHoveredEdge = e;
-                break;
-            case Vehicle v:
-                break;
-        }
+        Map.Map.Instance.HoverOutliner.HoverState = hoverState;
+        StartTile?.ShowHoverOutline(hoverState);
     }
 
     private EdgeType GetEdgeType()

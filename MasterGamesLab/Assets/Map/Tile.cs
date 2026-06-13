@@ -4,12 +4,15 @@ using System.Linq;
 using Map.Fleet;
 using Map.GeometryGeneration;
 using Map.GeometryGeneration.Edges;
+using Map.Hoverables;
 using Map.Infrastructure;
+using Map.OutlineEffect;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Map
 {
-    public class Tile : ITile
+    public class Tile : ITile, IOutlinable
     {
         private const float FLOAT_COMPARISON_DELTA = 1e-5f;
 
@@ -123,6 +126,8 @@ namespace Map
         private readonly List<Edge> edges;
         private MapChunk.TileGeometryInformation tileGeometryInformation;
 
+        private TileOutliner outliner;
+
         public Tile(Vector3 position)
         {
             Position = position;
@@ -138,6 +143,8 @@ namespace Map
             edges = new List<Edge>();
 
             Structure = null;
+
+            outliner = null;
         }
 
         // Point Functions
@@ -453,6 +460,33 @@ namespace Map
                 var angleB = Mathf.Atan2(Vector3.Dot(vB, bitangent), Vector3.Dot(vB, tangent));
                 return angleA.CompareTo(angleB);
             }
+        }
+
+        public void ClearOutline()
+        {
+            if (outliner != null)
+            {
+                TileOutlinerPool.Instance.Release(outliner);
+                outliner = null;
+            }
+        }
+
+        public void ShowOutline(Constants.OutlineData outlineData)
+        {
+            if(outliner == null)
+                outliner = TileOutlinerPool.Instance.Get();
+            outliner.SetOutlineParameters(outlineData);
+            outliner.OutlineTile(this);
+        }
+
+        public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
+        {
+            var outlineData = hoverState switch
+            {
+                HoverState.Invalid => Constants.ROAD_BLUEPRINT_INVALID_OUTLINE,
+                _ => Constants.HOVER_OUTLINE,
+            };
+            ShowOutline(outlineData);
         }
     }
 }
