@@ -459,7 +459,8 @@ namespace Map.Fleet
             {
                 if (renderer == null)
                 {
-                    var gameObject = Object.Instantiate(new GameObject("Vehicle"), Map.Instance.gameObject.transform);
+                    var gameObject = new GameObject("Vehicle");
+                    gameObject.transform.parent = Map.Instance.gameObject.transform;
                     renderer = gameObject.AddComponent<VehicleRenderer>();
                     renderer.Init(this);
                     UpdateGameobject();

@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UI;
 using InGameCamera;
+using Map.GeometryGeneration;
+using Map.Fleet;
 
 public class PinUI : MonoBehaviour
 {
@@ -16,9 +18,9 @@ public class PinUI : MonoBehaviour
 
     private VisualElement myUiElement;
     private PinboardUi pinboard;
-    private Transform meshTransform;
+    private VehicleRenderer vehicleRenderer;
 
-    private Vector2 lastAppliedPosition = new Vector2(-9999f, -9999f); 
+    private Vector2 lastAppliedPosition = new Vector2(-9999f, -9999f);
 
     void Start()
     {
@@ -29,16 +31,16 @@ public class PinUI : MonoBehaviour
 
         myUiElement = pinboard.CreateTruckIndicator();
 
-        meshTransform = GetComponentInChildren<MeshRenderer>().transform;
+        vehicleRenderer = GetComponent<VehicleRenderer>();
     }
 
     void LateUpdate()
     {
-        Vector3 targetWorldPosition = meshTransform.position;
+        VehicleTransform vehicleTransform = Map.Map.Instance.GetProjectedVehicleTransform(vehicleRenderer.Vehicle.Transform);
 
-        Vector3 screenPos = mainCamera.WorldToScreenPoint(targetWorldPosition);
+        Vector3 screenPos = mainCamera.WorldToScreenPoint(vehicleTransform.Position);
 
-        bool facingAway = Vector3.Dot((mainCamera.transform.position - targetWorldPosition).normalized, meshTransform.rotation * Vector3.up) < invisibleTreshhold;
+        bool facingAway = Vector3.Dot((mainCamera.transform.position - vehicleTransform.Position).normalized, vehicleTransform.Up) < invisibleTreshhold;
 
         if (screenPos.z < 0 || facingAway)
         {
@@ -48,7 +50,7 @@ public class PinUI : MonoBehaviour
 
         Vector2 panelPosition = RuntimePanelUtils.CameraTransformWorldToPanel(
             pinboard.root.panel,
-            targetWorldPosition,
+            vehicleTransform.Position,
             mainCamera
         );
 

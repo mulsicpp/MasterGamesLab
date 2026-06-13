@@ -13,6 +13,7 @@ namespace Map.Fleet
         public void Init(Vehicle vehicle)
         {
             Vehicle = vehicle;
+            Pin = gameObject.AddComponent<PinUI>();
             Geometry = vehicle.AttachVehicleGeometry(transform);
         }
     }
