@@ -94,6 +94,7 @@ namespace Map.Fleet
         public readonly VehicleIndex Index;
 
         public VehicleId Id => new VehicleId(Type, Index);
+        public int IndexInVehicles => GetOffsetFromType(Type) + Index;
 
         public abstract Player.Player Owner { get; }
 

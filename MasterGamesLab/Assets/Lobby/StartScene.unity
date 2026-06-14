@@ -461,6 +461,7 @@ GameObject:
   - component: {fileID: 985979805}
   - component: {fileID: 985979806}
   - component: {fileID: 985979807}
+  - component: {fileID: 985979808}
   m_Layer: 5
   m_Name: IngameUI
   m_TagString: Untagged
@@ -545,7 +546,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConstructionControls
   type: 0
-  tileOutlinerPrefab: {fileID: 5734406959592703956, guid: 7a6832fdb2040b748abbdb4a3b062de1, type: 3}
+--- !u!114 &985979808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985979801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71ef25e7bdc5be0458be7005a3d6bfa3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI.VehicleControls
 --- !u!1 &986386887
 GameObject:
   m_ObjectHideFlags: 0
