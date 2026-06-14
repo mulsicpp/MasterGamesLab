@@ -912,6 +912,7 @@ namespace Map
 
         public VehicleTransform GetProjectedVehicleTransform(VehicleTransform transform)
         {
+            if (transform == null) return null;
             const float DELTA = 0.001f;
 
             var projPos = GetProjectedPosition(transform.Position);

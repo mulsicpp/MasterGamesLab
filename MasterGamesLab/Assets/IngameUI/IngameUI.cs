@@ -5,13 +5,15 @@ using System.Linq;
 using Map.Blueprint;
 using Player;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace UI
 {
     [RequireComponent(typeof(UIDocument))]
     [RequireComponent(typeof(ConstructionControls))]
-    public class IngameUI : Menu
+    [RequireComponent(typeof(VehicleControls))]
+    public class IngameUI : Menu, IClickEventHandler
     {
         public static IngameUI Instance { get; private set; }
         public override MenuId Id => MenuId.Ingame;
@@ -26,6 +28,7 @@ namespace UI
         private SortColumn currentSortColumn = SortColumn.Name;
 
         // --- Dependencies & Coroutines ---
+        private VehicleControls vehicleControls;
         private ConstructionControls constructionControls;
         private Coroutine uiUpdateCoroutine;
 
@@ -44,6 +47,8 @@ namespace UI
         private Button confirmButton, cancelButton, hideButton;
         private Button currentActiveButton;
 
+        private IClickEventHandler[] clickEventHandlers;
+
         #region Unity Lifecycle
 
         private void Awake()
@@ -57,8 +62,13 @@ namespace UI
             base.OnEnable();
 
             // 1. Resolve Dependencies
+            vehicleControls = GetComponent<VehicleControls>();
+
             constructionControls = GetComponent<ConstructionControls>();
             constructionControls.OnConstructionTypeChanged += HandleStateUIUpdate;
+
+            clickEventHandlers = new IClickEventHandler[] { vehicleControls, constructionControls };
+
             Map.Map.Instance.Blueprint.OnChanged += HandleBlueprintUpdate;
             Player.Player.OnPlayerChanged += ChangePlayerInfo;
 
@@ -142,6 +152,25 @@ namespace UI
             confirmButton.clicked -= OnConfirmPressed;
             cancelButton.clicked -= OnCancelPressed;
             hideButton.clicked -= OnHidePressed;
+        }
+
+        private void Update()
+        {
+            if (IngameInputs.selectClickAction.WasPerformedThisFrame())
+                HandleClick(ClickEventType.Select);
+            if (IngameInputs.cancelClickAction.WasPressedThisFrame())
+                HandleClick(ClickEventType.CancelPressed);
+            if (IngameInputs.cancelClickAction.WasReleasedThisFrame())
+                HandleClick(ClickEventType.CancelReleased);
+        }
+
+        public bool HandleClick(ClickEventType type)
+        {
+            foreach(var handler in clickEventHandlers)
+            {
+                if (handler.HandleClick(type)) return true;
+            }
+            return false;
         }
 
         #endregion

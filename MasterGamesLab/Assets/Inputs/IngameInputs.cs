@@ -8,7 +8,7 @@ public class IngameInputs : MonoBehaviour
     [SerializeField] private InputActionAsset inputActions;
     private static InputActionMap controlsActionMap;
 
-    public static InputAction leftClickAction;
+    public static InputAction selectClickAction;
     public static InputAction buildRoadAction;
     public static InputAction buildCanalAction;
     public static InputAction buildPortAction;
@@ -16,7 +16,7 @@ public class IngameInputs : MonoBehaviour
     public static InputAction buyFreighterAction;
     public static InputAction confirmBuildPlanAction;
     public static InputAction hideBuildPlanAction;
-    public static InputAction cancelAction;
+    public static InputAction cancelClickAction;
     public static InputAction openTabMenuAction;
 
     [SerializeField] private ConstructionControls constructionControls;
@@ -25,7 +25,7 @@ public class IngameInputs : MonoBehaviour
     {
         controlsActionMap = inputActions.FindActionMap("Controls");
 
-        leftClickAction = controlsActionMap.FindAction("LeftClick");
+        selectClickAction = controlsActionMap.FindAction("LeftClick");
         buildRoadAction = controlsActionMap.FindAction("BuildRoad");
         buildCanalAction = controlsActionMap.FindAction("BuildCanal");
         buildPortAction = controlsActionMap.FindAction("BuildPort");
@@ -33,7 +33,7 @@ public class IngameInputs : MonoBehaviour
         buyFreighterAction = controlsActionMap.FindAction("BuyFreighter");
         confirmBuildPlanAction = controlsActionMap.FindAction("ConfirmBuildPlan");
         hideBuildPlanAction = controlsActionMap.FindAction("HideBuild");
-        cancelAction = controlsActionMap.FindAction("Cancel");
+        cancelClickAction = controlsActionMap.FindAction("Cancel");
         openTabMenuAction = controlsActionMap.FindAction("OpenTabMenu");
     }
 
@@ -46,7 +46,7 @@ public class IngameInputs : MonoBehaviour
         buyFreighterAction.started += OnBuyFreighter;
         confirmBuildPlanAction.started += OnConfirm;
         hideBuildPlanAction.started += OnHide;
-        cancelAction.started += OnCancel;
+        // cancelAction.started += OnCancel;
         openTabMenuAction.started += OnTabPressed;
         openTabMenuAction.canceled += OnTabReleased;
 
@@ -61,7 +61,7 @@ public class IngameInputs : MonoBehaviour
         buyFreighterAction.started -= OnBuyFreighter;
         confirmBuildPlanAction.started -= OnConfirm;
         hideBuildPlanAction.started -= OnHide;
-        cancelAction.started -= OnCancel;
+        // cancelAction.started -= OnCancel;
         openTabMenuAction.started -= OnTabPressed;
         openTabMenuAction.canceled -= OnTabReleased;
     }
@@ -72,7 +72,7 @@ public class IngameInputs : MonoBehaviour
     private void OnBuyTruck(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Truck;
     private void OnBuyFreighter(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Freighter;
     private void OnConfirm(InputAction.CallbackContext ctx) => constructionControls.ConfirmConstruction();
-    private void OnCancel(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.None;
+    // private void OnCancel(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.None;
     private void OnHide(InputAction.CallbackContext ctx) => constructionControls.ToggleHide();
     private void OnTabPressed(InputAction.CallbackContext ctx) => IngameUI.Instance.ShowTabMenu(true);
     private void OnTabReleased(InputAction.CallbackContext ctx) => IngameUI.Instance.ShowTabMenu(false);

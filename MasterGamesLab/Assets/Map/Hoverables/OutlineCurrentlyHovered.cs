@@ -7,7 +7,19 @@ namespace Map.Hoverables
     {
         private IHoverable previouslyHovered;
 
-        public HoverState HoverState;
+        private HoverState hoverState;
+        public HoverState HoverState
+        {
+            get => hoverState;
+            set
+            {
+                if(value != hoverState)
+                {
+                    UpdateOutline(value);
+                    hoverState = value;
+                }
+            }
+        }
 
         public void Start()
         {
@@ -17,8 +29,13 @@ namespace Map.Hoverables
         private void LateUpdate()
         {
             if (previouslyHovered == Map.Instance.CurrentlyHovered) return;
+            UpdateOutline(HoverState);
+        }
+
+        private void UpdateOutline(HoverState state)
+        {
             previouslyHovered?.ClearOutline();
-            Map.Instance.CurrentlyHovered?.ShowHoverOutline(HoverState);
+            Map.Instance.CurrentlyHovered?.ShowHoverOutline(state);
 
             previouslyHovered = Map.Instance.CurrentlyHovered;
         }

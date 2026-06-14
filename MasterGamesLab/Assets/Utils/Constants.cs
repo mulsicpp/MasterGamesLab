@@ -130,6 +130,20 @@ public static class Constants
         TextureId = 1,
     };
 
+    public static OutlineData SELECTED_OUTLINE = new OutlineData()
+    {
+        OutlineColor = new Color(0f, 0.5f, 1.0f, 1f),
+        InnerColor = new Color(0, 0, 0, 0),
+        TextureId = 0,
+    };
+
+    public static OutlineData SELECTED_OUTLINE_FILLED_IN = new OutlineData()
+    {
+        OutlineColor = SELECTED_OUTLINE.OutlineColor,
+        InnerColor = new Color(0f, 0.5f, 1.0f, 0.5f),
+        TextureId = 0,
+    };
+
     public static OutlineData ROAD_BLUEPRINT_VALID_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.black,

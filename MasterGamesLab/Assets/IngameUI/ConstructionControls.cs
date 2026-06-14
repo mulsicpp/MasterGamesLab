@@ -10,8 +10,9 @@ using Map.Fleet;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Rendering.Universal;
+using UI;
 
-public class ConstructionControls : MonoBehaviour
+public class ConstructionControls : MonoBehaviour, IClickEventHandler
 {
     public enum ConstructionType
     {
@@ -41,6 +42,9 @@ public class ConstructionControls : MonoBehaviour
         }
     }
 
+    private bool previewIsValid = false;
+    private bool deleting = false;
+
     [SerializeField] private ConstructionType type = ConstructionType.None;
 
     public ConstructionType Type
@@ -48,15 +52,16 @@ public class ConstructionControls : MonoBehaviour
         get => type;
         set
         {
-            if (type == value)
+            if (type != ConstructionType.None && type == value)
             {
-                type = ConstructionType.None;
-                OnConstructionTypeChanged?.Invoke(type);
+                Type = ConstructionType.None;
+                // OnConstructionTypeChanged?.Invoke(type);
                 return;
             }
 
             type = value;
             StartTile = null;
+            deleting = false;
             OnConstructionTypeChanged?.Invoke(type);
             Map.Map.Instance.Blueprint.ClearPreview();
 
@@ -74,12 +79,13 @@ public class ConstructionControls : MonoBehaviour
 
     public void OnEnable()
     {
-        leftClickAction = IngameInputs.leftClickAction;
-        cancelAction = IngameInputs.cancelAction;
+        leftClickAction = IngameInputs.selectClickAction;
+        cancelAction = IngameInputs.cancelClickAction;
     }
 
     public void Update()
     {
+        previewIsValid = false;
         var hoveredTile = Map.Map.Instance.CurrentlyHovered as Tile;
 
         HoverState hoverState = HoverState.Valid;
@@ -88,53 +94,29 @@ public class ConstructionControls : MonoBehaviour
         var vehicleType = GetVehicleType();
         if (edgeType != EdgeType.None)
         {
-            bool previewIsValidOrNonExistent = StartTile == null ||
-                                              Map.Map.Instance.Blueprint.SetPreviewEdges(StartTile, hoveredTile, edgeType);
+            previewIsValid = Map.Map.Instance.Blueprint.SetPreviewEdges(StartTile, hoveredTile, edgeType);
 
             if(StartTile == null && !isValidStartTile(hoveredTile, Type))
                 hoverState = HoverState.Invalid;
-            else if (!previewIsValidOrNonExistent)
+            else if (StartTile != null && !previewIsValid)
                 hoverState = HoverState.Invalid;
-
-            if (previewIsValidOrNonExistent && hoveredTile != null && leftClickAction.WasPerformedThisFrame())
-            {
-                if (StartTile != null)
-                {
-                    Map.Map.Instance.Blueprint.ApplyPreview();
-                    StartTile = hoveredTile;
-                }
-                else if (isValidStartTile(hoveredTile, Type))
-                    StartTile = hoveredTile;
-                else
-                    hoverState = HoverState.Invalid;
-            }
         }
         else if (Type is ConstructionType.Port)
         {
-            bool previewIsValid = Map.Map.Instance.Blueprint.SetPreviewStructure(hoveredTile, Structure.StructureType.Port);
+            previewIsValid = Map.Map.Instance.Blueprint.SetPreviewStructure(hoveredTile, Structure.StructureType.Port);
 
             if (!previewIsValid)
             {
                 hoverState = HoverState.Invalid;
-            }
-
-            if (previewIsValid && leftClickAction.WasPerformedThisFrame())
-            {
-                Map.Map.Instance.Blueprint.ApplyPreview();
             }
         }
         else if (vehicleType is Vehicle.VehicleType type)
         {
-            bool previewIsValid = Map.Map.Instance.Blueprint.SetPreviewVehicle(hoveredTile, type);
+            previewIsValid = Map.Map.Instance.Blueprint.SetPreviewVehicle(hoveredTile, type);
 
             if (!previewIsValid)
             {
                 hoverState = HoverState.Invalid;
-            }
-
-            if (previewIsValid && leftClickAction.WasPerformedThisFrame())
-            {
-                Map.Map.Instance.Blueprint.ApplyPreview();
             }
         }
         else
@@ -167,7 +149,7 @@ public class ConstructionControls : MonoBehaviour
             }
         }
 
-        if (Type is ConstructionType.None && cancelAction.IsPressed())
+        if (Type is ConstructionType.None && deleting)
         {
             switch (Map.Map.Instance.CurrentlyHovered)
             {
@@ -192,6 +174,47 @@ public class ConstructionControls : MonoBehaviour
 
         Map.Map.Instance.HoverOutliner.HoverState = hoverState;
         StartTile?.ShowHoverOutline(hoverState);
+    }
+
+    public bool HandleClick(ClickEventType type)
+    {
+        if (Type == ConstructionType.Hidden) return false;
+        switch(type)
+        {
+            case ClickEventType.Select:
+                if(Type == ConstructionType.None) return false;
+                var hoveredTile = Map.Map.Instance.CurrentlyHovered as Tile;
+                if (GetEdgeType() != EdgeType.None)
+                {
+                    if(StartTile == null && isValidStartTile(hoveredTile, Type))
+                    {
+                        StartTile = hoveredTile;
+                    }
+                    else if (previewIsValid)
+                    {
+                        Map.Map.Instance.Blueprint.ApplyPreview();
+                        StartTile = hoveredTile;
+                    }
+                }
+                else if (previewIsValid)
+                {
+                    Map.Map.Instance.Blueprint.ApplyPreview();
+                }
+                return true;
+            case ClickEventType.CancelPressed:
+                if(Type == ConstructionType.None)
+                {
+                    deleting = true;
+                } else
+                {
+                    Type = ConstructionType.None;
+                }
+                return true;
+            case ClickEventType.CancelReleased:
+                deleting = false;
+                return true;
+        }
+        return false;
     }
 
     private EdgeType GetEdgeType()
