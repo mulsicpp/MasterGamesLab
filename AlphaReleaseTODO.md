@@ -35,6 +35,7 @@
 
 - Textures
 - Outline scaling
+- Canal tile black line artefact
 
 - Better pathfinding for roads/canals
 - Show canal owner 
