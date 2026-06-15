@@ -6,7 +6,7 @@
         <ResponsiveLabel name="MONEY" text="Money: 100" class="element label money-display"/>
         <ui:GroupBox name="Row1" class="element ingam-build-menu-row"/>
         <ui:GroupBox name="BuildMenu" class="element build-menu-sidebar" style="justify-content: flex-end; height: auto; position: absolute; right: 1%; bottom: 2%; left: auto; top: auto; width: 12%;">
-            <ui:GroupBox class="element" style="margin-bottom: 5%;">
+            <ui:GroupBox name="BuildCount" class="element" style="margin-bottom: 5%;">
                 <ShrinkWrapContainer name="BlueprintCountContainer" class="element container" style="flex-direction: row; flex-wrap: wrap; padding-top: 5%; padding-right: 5%; padding-bottom: 5%; padding-left: 5%;">
                     <ui:VisualElement name="RoadCount" class="element countlabel">
                         <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>

@@ -46,6 +46,8 @@ namespace UI
         private Button buyTruckButton, buyFreighterButton;
         private Button confirmButton, cancelButton, hideButton;
         private Button currentActiveButton;
+        private GroupBox buildCount;
+
 
         private IClickEventHandler[] clickEventHandlers;
 
@@ -88,6 +90,7 @@ namespace UI
             totalCostLabel = root.Q<Label>("TotalCost");
             playersContainer = root.Q<VisualElement>("players-container");
             tabMenu = root.Q<VisualElement>("TabMenu");
+            buildCount = root.Q<GroupBox>("BuildCount");
 
             // 3. Setup Sorting Header Events
             var headerRow = root.Q<VisualElement>("header-row");
@@ -166,7 +169,7 @@ namespace UI
 
         public bool HandleClick(ClickEventType type)
         {
-            foreach(var handler in clickEventHandlers)
+            foreach (var handler in clickEventHandlers)
             {
                 if (handler.HandleClick(type)) return true;
             }
@@ -442,6 +445,8 @@ namespace UI
         public void SetMenuVisibility(bool visible)
         {
             Visibility style = visible ? Visibility.Visible : Visibility.Hidden;
+
+            buildCount.style.visibility = style;
 
             var buildButtonsGroup = root.Q<GroupBox>("BuildButtons");
             buildButtonsGroup.style.visibility = style;
