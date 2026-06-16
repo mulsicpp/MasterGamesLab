@@ -1,5 +1,6 @@
 using Map;
 using Map.Fleet;
+using Map.Hoverables;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static ConstructionControls;
@@ -7,8 +8,10 @@ using static Map.Edge;
 
 namespace UI
 {
-    public class VehicleControls : MonoBehaviour, IClickEventHandler
+    public class VehicleControls : MonoBehaviour, IClickEventHandler, IControls
     {
+        public bool ControlsAreActive => SelectedVehicle != null;
+
         private Vehicle selectedVehicle = null;
         public Vehicle SelectedVehicle
         {
@@ -18,17 +21,29 @@ namespace UI
                 if (selectedVehicle != null)
                     selectedVehicle?.ClearOutline();
                 selectedVehicle = value;
+
+                if (ControlsAreActive)
+                {
+                    IngameUI.Instance.ConstructionControls.DisableControls();
+                }
             }
         }
 
-        public void Update()
+        public void DisableControls()
+        {
+            SelectedVehicle = null;
+        }
+
+        public HoverablePicker.HoverableLayer SelectHoverableLayers() => HoverablePicker.HoverableLayer.All;
+
+        public void UpdateControls()
         {
             if(SelectedVehicle != null)
             {
-
                 selectedVehicle.ShowOutline(Constants.SELECTED_OUTLINE);
             }
         }
+
 
         public bool HandleClick(ClickEventType type)
         {
