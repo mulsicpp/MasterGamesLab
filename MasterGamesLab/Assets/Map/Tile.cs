@@ -116,8 +116,6 @@ namespace Map
         public Vector3 EdgesCenter;
         public Vector3 EdgesCenterBlueprint;
 
-        // public bool EdgeDirty;
-        public bool StructureDirty;
         private bool wasCanal;
 
         private readonly List<Tile> neighbors;
@@ -425,7 +423,7 @@ namespace Map
                 }*/
             }
 
-            if (Type == TileType.Forest && (infoNormal.AmountOfCanals > 0 || infoNormal.AmountOfRoads > 0))
+            if (Type == TileType.Forest && (infoNormal.AmountOfCanals > 0 || infoNormal.AmountOfRoads > 0 || Structure != null))
             {
                 Chunk.GeometryChanged = true;
             }
@@ -487,6 +485,11 @@ namespace Map
                 _ => Constants.HOVER_OUTLINE,
             };
             ShowOutline(outlineData);
+        }
+
+        public void TriggerGeometryChange()
+        {
+            GeometryChanged = true;
         }
     }
 }

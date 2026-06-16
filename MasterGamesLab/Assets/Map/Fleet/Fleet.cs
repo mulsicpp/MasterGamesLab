@@ -6,26 +6,34 @@ namespace Map.Fleet
 {
     public class Fleet : IReadOnlyFleet
     {
-        private Truck[] trucks;
+        private readonly Truck[] trucks;
         public IReadOnlyList<Truck> Trucks => trucks;
 
-        private Freighter[] freighters;
+        private readonly Freighter[] freighters;
         public IReadOnlyList<Freighter> Freighters => freighters;
 
-        private Vehicle[] vehicles;
+        private readonly Vehicle[] vehicles;
         public IReadOnlyList<Vehicle> Vehicles => vehicles;
+
+        private readonly Dictionary<Vehicle.VehicleType, Range> vehicleRanges;
+        public IReadOnlyDictionary<Vehicle.VehicleType, Range> VehicleRanges => vehicleRanges;
 
         public Fleet(int playerCount)
         {
+            var tempVehicles = new List<Vehicle>();
+            vehicleRanges = new();
+
             trucks = new Truck[Constants.MAX_TRUCKS_PER_PLAYER * playerCount];
             for (int i = 0; i < trucks.Length; i++) trucks[i] = new Truck(new VehicleIndex((byte)i));
+            vehicleRanges[Vehicle.VehicleType.Truck] = tempVehicles.Count..(tempVehicles.Count + trucks.Length);
+            tempVehicles.AddRange(trucks);
 
             freighters = new Freighter[Constants.MAX_FREIGHTERS_PER_PLAYER * playerCount];
             for (int i = 0; i < freighters.Length; i++) freighters[i] = new Freighter(new VehicleIndex((byte)i));
+            vehicleRanges[Vehicle.VehicleType.Freighter] = tempVehicles.Count..(tempVehicles.Count + freighters.Length);
+            tempVehicles.AddRange(freighters);
 
-            vehicles = new Vehicle[trucks.Length + freighters.Length];
-            Array.Copy(trucks, 0, vehicles, 0, trucks.Length);
-            Array.Copy(freighters, 0, vehicles, trucks.Length, freighters.Length);
+            vehicles = tempVehicles.ToArray();
         }
 
         public Vehicle this[VehicleId id] => this[id.Type]?[id.Index];

@@ -64,7 +64,7 @@ public class TestRoadCreation : NetworkBehaviour
 
             if (tileIds == null) return;
 
-            Map.Map.Instance.RequestVehicleRouteServerRpc(truck.State.ArrayIndex, tileIds);
+            Map.Map.Instance.RequestVehicleRouteServerRpc(truck.IndexInVehicles, tileIds);
         }
 
         if (Input.GetKeyDown(KeyCode.S))
@@ -82,7 +82,7 @@ public class TestRoadCreation : NetworkBehaviour
 
             if (tileIds == null) return;
 
-            Map.Map.Instance.RequestVehicleRouteServerRpc(Vehicle.GetOffsetFromType(Vehicle.VehicleType.Freighter) + freighter.Index, tileIds);
+            Map.Map.Instance.RequestVehicleRouteServerRpc(freighter.IndexInVehicles, tileIds);
         }
         
         // if(Input.GetKeyDown(KeyCode.A)) 

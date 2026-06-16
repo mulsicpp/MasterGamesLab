@@ -2,6 +2,9 @@
 using Unity.Netcode;
 using Networking;
 using Map.Blueprint;
+using Map.Fleet;
+using UnityEngine;
+using Map.GeometryGeneration;
 
 namespace Map.Infrastructure
 {
@@ -35,10 +38,16 @@ namespace Map.Infrastructure
         public readonly StructureIndex Index;
 
         public StructureId Id => new StructureId(Type, Index);
+        public int IndexInStructures => Map.Instance.Infrastructure.StructureRanges[Type].Start.Value + Index;
 
         public new Timestamp Timestamp => base.Timestamp;
 
         public virtual Player.Player Owner => null;
+
+        public bool RendererUpdateTriggered;
+        public bool RendererRebuildTriggered;
+
+        private StructureRenderer renderer;
 
         private Tile tile;
         public Tile Tile
@@ -47,6 +56,7 @@ namespace Map.Infrastructure
             set
             {
                 if (tile == value) return;
+                tile?.TriggerGeometryChange();
                 if (tile != null)
                 {
                     tile.Structure = null;
@@ -59,8 +69,12 @@ namespace Map.Infrastructure
                 }
                 tile = value;
                 if (tile != null)
+                {
+                    tile.TriggerGeometryChange();
                     OnStructureSpawned();
+                }
                 base.Touch();
+                TriggerRendererRebuild();
             }
         }
 
@@ -71,6 +85,7 @@ namespace Map.Infrastructure
             set
             {
                 if (blueprintTile == value) return;
+                blueprintTile?.TriggerGeometryChange();
                 if (blueprintTile != null)
                 {
                     blueprintTile.BlueprintStructure = null;
@@ -82,6 +97,8 @@ namespace Map.Infrastructure
                     value.BlueprintStructure = this;
                 }
                 blueprintTile = value;
+                blueprintTile?.TriggerGeometryChange();
+                TriggerRendererRebuild();
             }
         }
 
@@ -93,7 +110,7 @@ namespace Map.Infrastructure
             set
             {
                 blueprintPreview = value;
-                TriggerDirty();
+                TriggerRendererUpdate();
             }
         }
 
@@ -105,7 +122,7 @@ namespace Map.Infrastructure
             set
             {
                 blueprintIsValid = value;
-                TriggerDirty();
+                TriggerRendererUpdate();
             }
         }
 
@@ -144,8 +161,13 @@ namespace Map.Infrastructure
         {
             Index = index;
             Tile = null;
+            renderer = null;
+            RendererRebuildTriggered = false;
+            RendererUpdateTriggered = false;
             Touch();
         }
+
+        public abstract ObjectWithFixedGeometry AttachStructureGeometry(Transform parent);
 
         public virtual void OnStructureSpawned() { }
 
@@ -153,14 +175,36 @@ namespace Map.Infrastructure
 
         public override void Touch()
         {
-            if (Tile != null)
+            if (Tile != null || BlueprintTile != null)
                 base.Touch();
         }
 
-        public void TriggerDirty()
+        public void TriggerRendererUpdate()
         {
-            if (Tile != null) Tile.StructureDirty = true;
-            if (BlueprintTile != null) BlueprintTile.StructureDirty = true;
+            RendererUpdateTriggered = true;
+        }
+
+        public void TriggerRendererRebuild()
+        {
+            RendererRebuildTriggered = true;
+            RendererUpdateTriggered = true;
+        }
+
+        public void RebuildRenderer()
+        {
+            if (renderer != null)
+            {
+                Object.Destroy(renderer.gameObject);
+                renderer = null;
+            }
+            if (Exists || BlueprintTile != null)
+            {
+                var gameObject = new GameObject("Structure");
+                gameObject.transform.parent = Map.Instance.gameObject.transform;
+                renderer = gameObject.AddComponent<StructureRenderer>();
+                renderer.Init(this);
+            }
+            RendererRebuildTriggered = false;
         }
     }
 }

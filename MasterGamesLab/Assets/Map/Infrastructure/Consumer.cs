@@ -2,6 +2,7 @@
 using Unity.Netcode;
 using Networking;
 using UnityEngine;
+using Map.GeometryGeneration;
 
 namespace Map.Infrastructure
 {
@@ -22,10 +23,10 @@ namespace Map.Infrastructure
         public override StructureType Type => StructureType.Consumer;
 
         private Good requestedGood;
-        public Good RequestedGood { get { return requestedGood; } set { requestedGood = value; Touch(); TriggerDirty(); } }
+        public Good RequestedGood { get { return requestedGood; } set { requestedGood = value; Touch(); TriggerRendererUpdate(); } }
 
         private int currentPayout;
-        public int CurrentPayout { get { return currentPayout; } set { currentPayout = value; Touch(); TriggerDirty(); } }
+        public int CurrentPayout { get { return currentPayout; } set { currentPayout = value; Touch(); TriggerRendererUpdate(); } }
 
         private float requestCooldown;
 
@@ -44,6 +45,14 @@ namespace Map.Infrastructure
         }
 
         public void ApplyServerState(ConsumerState state, double _) { State = state; ResetDirty(); }
+
+
+        public override ObjectWithFixedGeometry AttachStructureGeometry(Transform parent)
+        {
+            var id = Tile?.Id ?? BlueprintTile.Id;
+            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Consumer, id, parent);
+        }
+
 
         public override void OnStructureSpawned()
         {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Player;
+using System;
 using UnityEngine;
 
 namespace Map.GeometryGeneration
@@ -30,7 +31,7 @@ namespace Map.GeometryGeneration
             Instance = this;
         }
 
-        public ObjectWithFixedGeometry GetGameObjectGeometry(GeometryType type, int id, Transform parent)
+        public ObjectWithFixedGeometry GetGameObjectGeometry(GeometryType type, int id, Transform parent, Player.Player owner = null)
         {
             Mesh mesh;
             var defaultLayerName = "Default";
@@ -60,16 +61,19 @@ namespace Map.GeometryGeneration
                     mesh = producerMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.Consumer:
                     mesh = consumerMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.Port:
                     mesh = portMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);

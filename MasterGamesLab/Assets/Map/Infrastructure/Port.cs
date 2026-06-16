@@ -1,5 +1,7 @@
+using Map.GeometryGeneration;
 using Networking;
 using Unity.Netcode;
+using UnityEngine;
 using static Map.Infrastructure.Producer;
 
 namespace Map.Infrastructure
@@ -29,5 +31,11 @@ namespace Map.Infrastructure
         { }
 
         public void ApplyServerState(PortState state, double _) { State = state; ResetDirty(); }
+
+        public override ObjectWithFixedGeometry AttachStructureGeometry(Transform parent)
+        {
+            var id = Tile?.Id ?? BlueprintTile.Id;
+            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Port, id, parent, Owner);
+        }
     }
 }

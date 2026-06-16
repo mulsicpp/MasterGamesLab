@@ -241,6 +241,14 @@ namespace Map
                 }
             }
 
+            foreach (var structure in Infrastructure.Structures)
+            {
+                if (structure.RendererRebuildTriggered)
+                {
+                    structure.RebuildRenderer();
+                }
+            }
+
             UpdateHovered();
             MainCamera.Instance.PlanetControllerEnabled = Running;
 
@@ -515,7 +523,7 @@ namespace Map
             {
                 foreach (var vehicle in Fleet.Vehicles)
                 {
-                    vehicle.UpdateGameobject();
+                    vehicle.UpdateGameObject();
                 }
             }
         }

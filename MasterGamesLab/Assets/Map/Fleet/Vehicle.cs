@@ -83,8 +83,8 @@ namespace Map.Fleet
 
             public int ArrayIndex
             {
-                get => GetOffsetFromType(Type) + Index;
-                set { GetTypeFromIndex(value).Deconstruct(out Type, out Index); }
+                get => Map.Instance.Fleet.VehicleRanges[Type].Start.Value + Index;
+                set { VehicleIndexToId(value).Deconstruct(out Type, out Index); }
             }
 
             public int SerializedSize => FastBufferWriter.GetWriteSize(this);
@@ -94,11 +94,9 @@ namespace Map.Fleet
         public readonly VehicleIndex Index;
 
         public VehicleId Id => new VehicleId(Type, Index);
-        public int IndexInVehicles => GetOffsetFromType(Type) + Index;
+        public int IndexInVehicles => Map.Instance.Fleet.VehicleRanges[Type].Start.Value + Index;
 
         public abstract Player.Player Owner { get; }
-
-        public abstract ObjectWithFixedGeometry AttachVehicleGeometry(Transform parent);
 
         private VehicleRenderer renderer;
 
@@ -271,22 +269,16 @@ namespace Map.Fleet
             set => ProgressState = value;
         }
 
-        public static int GetOffsetFromType(VehicleType type)
+        public static VehicleId VehicleIndexToId(int index) 
         {
-            int offset = 0;
-            if (type == VehicleType.Truck) return offset;
-            offset += Map.Instance.Fleet.Trucks.Count;
-            if (type == VehicleType.Freighter) return offset;
-            offset += Map.Instance.Fleet.Freighters.Count;
-            return offset;
-        }
-
-        public static VehicleId GetTypeFromIndex(int index)
-        {
-            if (index < Map.Instance.Fleet.Trucks.Count)
-                return new VehicleId(VehicleType.Truck, new((byte)index));
-            else
-                return new VehicleId(VehicleType.Freighter, new((byte)(index - Map.Instance.Fleet.Trucks.Count)));
+            foreach (var (type, range) in Map.Instance.Fleet.VehicleRanges)
+            {
+                if(index >= range.Start.Value && index < range.End.Value)
+                {
+                    return new VehicleId(type, new((byte)(index - range.Start.Value)));
+                }
+            }
+            return VehicleId.NONE;
         }
 
         public static int GetMaxCountPerPlayer(VehicleType type)
@@ -331,6 +323,8 @@ namespace Map.Fleet
                 lastServerTime = serverTime;
             }
         }
+
+        public abstract ObjectWithFixedGeometry AttachVehicleGeometry(Transform parent);
 
         public override void ResetDirty()
         {
@@ -454,7 +448,7 @@ namespace Map.Fleet
             }
         }
 
-        public void EvaluateGameobjectPresence()
+        public void EvaluateGameObjectPresence()
         {
             if (Exists || BlueprintTile != null)
             {
@@ -464,7 +458,7 @@ namespace Map.Fleet
                     gameObject.transform.parent = Map.Instance.gameObject.transform;
                     renderer = gameObject.AddComponent<VehicleRenderer>();
                     renderer.Init(this);
-                    UpdateGameobject();
+                    UpdateGameObject();
                 }
             }
             else if (renderer != null)
@@ -474,9 +468,9 @@ namespace Map.Fleet
             }
         }
 
-        public virtual void UpdateGameobject()
+        public virtual void UpdateGameObject()
         {
-            EvaluateGameobjectPresence();
+            EvaluateGameObjectPresence();
 
             if (renderer == null) return;
             var gameObject = renderer.gameObject;

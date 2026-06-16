@@ -1,6 +1,8 @@
 
 using Unity.Netcode;
 using Networking;
+using Map.GeometryGeneration;
+using UnityEngine;
 
 namespace Map.Infrastructure
 {
@@ -20,7 +22,7 @@ namespace Map.Infrastructure
         public override StructureType Type => StructureType.Producer;
 
         private Good good;
-        public Good Good { get { return good; } set { good = value; Touch(); TriggerDirty(); } }
+        public Good Good { get { return good; } set { good = value; Touch(); TriggerRendererRebuild(); } }
 
         public ProducerState State
         {
@@ -34,5 +36,11 @@ namespace Map.Infrastructure
         }
 
         public void ApplyServerState(ProducerState state, double _) { State = state; ResetDirty(); }
+
+        public override ObjectWithFixedGeometry AttachStructureGeometry(Transform parent)
+        {
+            var id = Tile?.Id ?? BlueprintTile.Id;
+            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Producer, id, parent);
+        }
     }
 }
