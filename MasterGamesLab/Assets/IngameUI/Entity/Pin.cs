@@ -88,10 +88,15 @@ namespace UI
         {
             Map.Map.Instance.isOverUI = false;
         }
+        protected virtual void setActive(bool active)
+        {
+            UiElement.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
+        }
 
         protected virtual void OnDestroy()
         {
             UiElement?.RemoveFromHierarchy();
         }
+
     }
 }

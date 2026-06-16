@@ -186,7 +186,7 @@ namespace UI
 
         #endregion
 
-        #region Leaderboard Sorting Logic
+        #region Tab Menu Sorting Logic
 
         private void HighliteHoveredColumn(SortColumn column)
         {

@@ -16,6 +16,13 @@ namespace UI
             vehicleRenderer = renderer;
         }
 
+        protected override void LateUpdate()
+        {
+            base.LateUpdate();
+            if (!vehicleRenderer.Vehicle.Exists)
+                setActive(false);
+        }
+
         protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)
         {
             var projectedTransform = Map.Map.Instance.GetProjectedVehicleTransform(vehicleRenderer.Vehicle.Transform);

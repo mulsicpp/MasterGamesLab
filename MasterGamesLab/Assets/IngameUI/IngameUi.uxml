@@ -31,27 +31,27 @@
                     <ui:VisualElement name="Placeholder1" class="element ingame-construct-button-square"/>
                     <ui:VisualElement class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuyFreighterButton" class="button element ingame-build-button">
-                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element test freighter"/>
                         </ui:Button>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuyTruckButton" class="button element ingame-build-button">
-                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element truck"/>
                         </ui:Button>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuildRoadButton" class="button element ingame-build-button">
-                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element road"/>
                         </ui:Button>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuildPortButton" class="button element ingame-build-button">
-                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element port"/>
                         </ui:Button>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuildCanalButton" class="button element ingame-build-button">
-                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element canal"/>
                         </ui:Button>
                     </ui:VisualElement>
                 </ui:GroupBox>
