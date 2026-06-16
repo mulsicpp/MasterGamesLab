@@ -173,7 +173,8 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
             }
         }
 
-        Map.Map.Instance.HoverOutliner.HoverState = hoverState;
+        if (ControlsAreActive)
+            Map.Map.Instance.HoverOutliner.HoverState = hoverState;
         StartTile?.ShowHoverOutline(hoverState);
     }
 

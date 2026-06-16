@@ -11,6 +11,8 @@ using Map.Blueprint;
 using Networking;
 using Map.Hoverables;
 using UnityEngine.InputSystem;
+using static UnityEngine.GraphicsBuffer;
+using System.Linq;
 
 namespace Map
 {
@@ -861,24 +863,27 @@ namespace Map
         }
 
 
-        // [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        // public void LoadFirstTruckOnFreighterServerRpc(RpcParams rpcParams = default)
-        // {
-        //     var playerId =
-        //         Player.PlayerManager.Instance.GetPlayerIdFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-        // 
-        //     if (playerId == PlayerId.NONE) return;
-        // 
-        //     var truck = Fleet.Trucks.FirstOrDefault(truck => truck.Owner == playerId);
-        //     var freighter = Fleet.Freighters.FirstOrDefault(freighter => freighter.Owner == playerId);
-        // 
-        //     var truckState = truck.State;
-        // 
-        //     truckState.FreighterIndex = freighter.Index;
-        // 
-        //     ReliableSender.Add(truckState);
-        //     ReliableSender.Send();
-        // }
+        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
+        public void LoadFirstTruckOnFreighterServerRpc(VehicleIndex truckIndex, VehicleIndex freighterIndex, RpcParams rpcParams = default)
+        {
+            var player =
+                Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
+
+            if (player == null) return;
+
+            if (truckIndex < 0 || truckIndex >= Fleet.Trucks.Count) return;
+            if (freighterIndex < 0 || freighterIndex >= Fleet.Freighters.Count) return;
+
+            var truck = Fleet.Trucks[truckIndex];
+            var freighter = Fleet.Freighters[freighterIndex];
+
+            if (!(truck?.ParkedTile?.Structure?.Type == Structure.StructureType.Port)) return;
+            if (freighter?.ParkedTile?.Neighbors.Contains(truck?.ParkedTile) ?? false && freighter?.Truck == null)
+            {
+                truck.Freighter = freighter;
+            }
+            UpdateDirtyObjectsOnClient();
+        }
 
 
         public Vector3 GetProjectedPosition(Vector3 positionOnSphere, float heightOffsetFactor = 1.0f)
