@@ -78,17 +78,35 @@ namespace Map.Fleet
             // TODO implement
         }
 
-        public bool CanLoadTruck(Truck truck)
+        public bool CanLoadTruck(Player.Player player, Truck truck, out int cost)
         {
+            cost = 0;
             if (!(truck?.ParkedTile?.Structure?.Type == Structure.StructureType.Port)) return false;
-            return (ParkedTile?.Neighbors.Contains(truck?.ParkedTile) ?? false) && Truck == null;
+            if (Truck != null || truck.Owner != player || Owner != player || (!ParkedTile?.Neighbors.Contains(truck?.ParkedTile) ?? true)) return false;
+
+            var portOwner = truck.ParkedTile.Structure.Owner;
+            if (portOwner != null && portOwner != player)
+            {
+                cost = Constants.TRUCK_LOADING_COST_ENEMY;
+                return cost <= player.Cash;
+            }
+            return true;
         }
 
-        public bool CanUnloadTruck(Tile tile)
+        public bool CanUnloadTruck(Player.Player player, Tile tile, out int cost)
         {
+            cost = 0;
             if (!(tile?.Structure?.Type == Structure.StructureType.Port)) return false;
-            if (Truck == null) return false;
-            return ParkedTile?.Neighbors.Contains(tile) ?? false;
+            if (Truck == null || Truck.Owner != player || Owner != player) return false;
+            if (!ParkedTile?.Neighbors.Contains(tile) ?? true) return false;
+
+            var portOwner = tile.Structure.Owner;
+            if (portOwner != null && portOwner != player)
+            {
+                cost = Constants.TRUCK_UNLOADING_COST_ENEMY;
+                return cost <= player.Cash;
+            }
+            return true;
         }
     }
 }

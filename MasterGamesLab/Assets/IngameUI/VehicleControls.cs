@@ -57,15 +57,19 @@ namespace UI
         {
             public override bool IsValid => route != null;
 
-            private TileId[] route;
+            private TileId[] route = null;
 
             public HoveredSelectRoute(VehicleControls controls, Tile destination) : base(controls)
             {
-                route = null;
                 var vehicle = controls.SelectedVehicle;
-                if (vehicle == null || !vehicle.IsParked) return;
+                if (vehicle == null) return;
                 var movementProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckFastestRoute : MovementProfileRegistry.FreighterFastestRoute;
-                route = Pathfinding.FindPath(vehicle.ParkedTile, destination, movementProfile);
+                var route = Pathfinding.FindPath(vehicle.ParkedTile, destination, movementProfile);
+
+                if (vehicle.CanDriveRoute(Player.Player.Self, route, out _, out _))
+                {
+                    this.route = route;
+                }
             }
 
             public override bool Commit()
@@ -87,7 +91,7 @@ namespace UI
             {
                 var truck = controls.SelectedVehicle as Truck;
                 var freighter = target as Freighter;
-                if (freighter?.CanLoadTruck(truck) ?? false)
+                if (freighter?.CanLoadTruck(Player.Player.Self, truck, out _) ?? false)
                 {
                     this.truck = truck;
                     this.freighter = freighter;
@@ -113,10 +117,10 @@ namespace UI
             {
                 var freighter = controls.SelectedVehicle as Freighter;
 
-                if (freighter?.CanUnloadTruck(destination) ?? false)
+                if (freighter?.CanUnloadTruck(Player.Player.Self, destination, out _) ?? false)
                 {
                     this.freighter = freighter;
-                    this.portTile = destination;
+                    portTile = destination;
                 }
             }
 

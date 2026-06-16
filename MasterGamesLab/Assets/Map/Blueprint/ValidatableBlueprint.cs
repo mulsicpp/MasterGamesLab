@@ -212,5 +212,67 @@ namespace Map.Blueprint
             }
             return false;
         }
+
+        public BlueprintDetails GetDetails()
+        {
+            int invalidObjectCount = 0;
+            var objectInfos = new SortedList<ConstructibleType, BlueprintDetails.ObjectInfo>();
+
+            var values = (ConstructibleType[])Enum.GetValues(typeof(ConstructibleType));
+
+            foreach (var value in values)
+            {
+                objectInfos.Add(value, new());
+            }
+
+            foreach (var edge in EnumerateEdges())
+            {
+                var objectInfo = BlueprintedEdgeType(edge) switch
+                {
+                    Edge.EdgeType.Road => objectInfos[ConstructibleType.Road],
+                    Edge.EdgeType.Canal => objectInfos[ConstructibleType.Canal],
+                    _ => null
+                };
+                if (objectInfo == null) continue;
+                objectInfo.Count++;
+                objectInfo.Cost += Cost(edge);
+                invalidObjectCount += IsValid(edge) ? 0 : 1;
+            }
+
+            foreach (var structure in EnumerateStructures())
+            {
+                var objectInfo = structure.Type switch
+                {
+                    Structure.StructureType.Port => objectInfos[ConstructibleType.Port],
+                    _ => null
+                };
+                if (objectInfo == null) continue;
+                objectInfo.Count++;
+                objectInfo.Cost += Cost(structure);
+                invalidObjectCount += IsValid(structure) ? 0 : 1;
+            }
+
+            foreach (var vehicle in EnumerateVehicles())
+            {
+                var objectInfo = vehicle.Type switch
+                {
+                    Vehicle.VehicleType.Truck => objectInfos[ConstructibleType.Truck],
+                    Vehicle.VehicleType.Freighter => objectInfos[ConstructibleType.Freighter],
+                    _ => null
+                };
+                if (objectInfo == null) continue;
+                objectInfo.Count++;
+                objectInfo.Cost += Cost(vehicle);
+                invalidObjectCount += IsValid(vehicle) ? 0 : 1;
+            }
+
+            int totalCost = 0;
+            foreach (var (_, info) in objectInfos)
+            {
+                totalCost += info.Cost;
+            }
+
+            return new BlueprintDetails(objectInfos, totalCost, invalidObjectCount);
+        }
     }
 }

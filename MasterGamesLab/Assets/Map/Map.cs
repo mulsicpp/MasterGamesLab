@@ -753,6 +753,14 @@ namespace Map
                 var validatableBlueprint = new ServerValidatableBlueprint(packet);
 
                 validatableBlueprint.Validate();
+                int cost = validatableBlueprint.GetDetails().TotalCost;
+
+                if (cost > player.Cash)
+                {
+                    packet.Clear();
+                    return;
+                }
+                player.Pay(cost);
 
                 // TODO validation
                 foreach (var edgeData in packet.Edges)
@@ -764,8 +772,6 @@ namespace Map
                     {
                         edge.Type = edgeData.Type;
                         edge.Owner = player;
-
-                        player.Pay(validatableBlueprint.Cost(edge));
                     }
                 }
 
@@ -780,7 +786,6 @@ namespace Map
                         structure.Owner.Id == player.Id)
                     {
                         structure.Tile = tile;
-                        player.Pay(validatableBlueprint.Cost(structure));
                     }
                 }
 
@@ -795,7 +800,6 @@ namespace Map
                     {
                         vehicle.Exists = true;
                         vehicle.ParkedTile = tile;
-                        player.Pay(validatableBlueprint.Cost(vehicle));
                     }
                 }
 
@@ -849,9 +853,7 @@ namespace Map
 
             var vehicle = Fleet.Vehicles[vehicleIndex];
 
-            if (!vehicle.Exists || !vehicle.IsParked || vehicle.Owner.Id != player.Id) return;
             if (routeIds == null || routeIds.Length < 2) return;
-
             Tile[] route = new Tile[routeIds.Length];
 
             for (int i = 0; i < routeIds.Length; i++)
@@ -860,13 +862,17 @@ namespace Map
                 route[i] = tiles[routeIds[i]];
             }
 
-            for (int i = 1; i < routeIds.Length; i++)
+            if (vehicle.CanDriveRoute(player, route, out var publicCost, out var enemyCosts))
             {
-                if (!Vehicle.CanCross(route[i - 1], route[i], vehicle.Type)) return;
+                vehicle.Route = route;
+                vehicle.RouteProgress = 0;
+                player.Pay(publicCost);
+                foreach (var (p, c) in enemyCosts)
+                {
+                    player.TransferMoneyTo(p, c);
+                }
             }
 
-            vehicle.Route = route;
-            vehicle.RouteProgress = 0;
 
             UpdateDirtyObjectsOnClient();
         }
@@ -886,8 +892,10 @@ namespace Map
             var truck = Fleet.Trucks[truckIndex];
             var freighter = Fleet.Freighters[freighterIndex];
 
-            if (freighter?.CanLoadTruck(truck) ?? false)
+            if (freighter.CanLoadTruck(player, truck, out int cost))
             {
+                player.TransferMoneyTo(truck.ParkedTile.Structure.Owner, cost);
+
                 truck.Freighter = freighter;
             }
             UpdateDirtyObjectsOnClient();
@@ -907,11 +915,13 @@ namespace Map
             var freighter = Fleet.Freighters[freighterIndex];
             var tile = Tiles[tileId] as Tile;
 
-            if (freighter?.CanUnloadTruck(tile) ?? false)
+            if (freighter.CanUnloadTruck(player, tile, out int cost))
             {
                 var truck = freighter.Truck;
                 truck.Freighter = null;
                 truck.ParkedTile = tile;
+
+                player.TransferMoneyTo(tile.Structure.Owner, cost);
             }
             UpdateDirtyObjectsOnClient();
         }

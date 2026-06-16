@@ -9,6 +9,7 @@ using Map.OutlineEffect;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Map.GeometryGeneration;
+using System.Collections.Generic;
 
 namespace Map.Fleet
 {
@@ -269,11 +270,11 @@ namespace Map.Fleet
             set => ProgressState = value;
         }
 
-        public static VehicleId VehicleIndexToId(int index) 
+        public static VehicleId VehicleIndexToId(int index)
         {
             foreach (var (type, range) in Map.Instance.Fleet.VehicleRanges)
             {
-                if(index >= range.Start.Value && index < range.End.Value)
+                if (index >= range.Start.Value && index < range.End.Value)
                 {
                     return new VehicleId(type, new((byte)(index - range.Start.Value)));
                 }
@@ -298,6 +299,59 @@ namespace Map.Fleet
             }
 
             return false;
+        }
+
+        public bool CanDriveRoute(Player.Player player, TileId[] routeIds, out int publicCost, out Dictionary<Player.Player, int> enemyCosts)
+        {
+            publicCost = 0;
+            enemyCosts = new();
+
+            if (routeIds == null || routeIds.Length < 2) return false;
+            Tile[] route = new Tile[routeIds.Length];
+
+            for (int i = 0; i < routeIds.Length; i++)
+            {
+                if (routeIds[i] < 0 || routeIds[i] >= Map.Instance.Tiles.Count) return false;
+                route[i] = Map.Instance.Tiles[routeIds[i]] as Tile;
+            }
+
+            return CanDriveRoute(player, route, out publicCost, out enemyCosts);
+        }
+
+        public bool CanDriveRoute(Player.Player player, Tile[] route, out int publicCost, out Dictionary<Player.Player, int> enemyCosts)
+        {
+            publicCost = 0;
+            enemyCosts = new();
+
+            if (!Exists || !IsParked || Owner != player) return false;
+            if (route == null || route.Length < 2) return false;
+
+            foreach (var p in Map.Instance.Players)
+            {
+                enemyCosts.Add(p, 0);
+            }
+
+            for (int i = 1; i < route.Length; i++)
+            {
+                if (!CanCross(route[i - 1], route[i], Type)) return false;
+
+                if (route[i - 1]?.FindEdgeTo(route[i]) is Edge e)
+                {
+                    if (e.Owner == null)
+                        publicCost += e.GetTraversalCost(player);
+                    else
+                        enemyCosts[e.Owner] += e.GetTraversalCost(player);
+                }
+            }
+
+            int totalCost = publicCost;
+
+            foreach (var (p, c) in enemyCosts)
+            {
+                totalCost += c;
+            }
+
+            return totalCost <= player.Cash;
         }
 
         protected Vehicle(VehicleIndex index)
@@ -355,19 +409,19 @@ namespace Map.Fleet
                 }
 
                 int lastIndex = Route.Length - 1;
-
-                int oldTileIndex = Mathf.Clamp((int)(RouteProgress + 0.5f), 0, lastIndex);
+                
+                // int oldTileIndex = Mathf.Clamp((int)(RouteProgress + 0.5f), 0, lastIndex);
 
                 RouteProgress += tickDuration * SpeedTPS;
 
-                int newTileIndex = Mathf.Clamp((int)(RouteProgress + 0.5f), 0, lastIndex);
-                for (int i = oldTileIndex; i < newTileIndex; i++)
-                {
-                    var edge = Route[i].FindEdgeTo(Route[i + 1]);
-                    if (edge == null) continue;
-
-                    Owner?.TransferMoneyTo(edge.Owner, edge.GetTraversalCost(Owner));
-                }
+                // int newTileIndex = Mathf.Clamp((int)(RouteProgress + 0.5f), 0, lastIndex);
+                // for (int i = oldTileIndex; i < newTileIndex; i++)
+                // {
+                //     var edge = Route[i].FindEdgeTo(Route[i + 1]);
+                //     if (edge == null) continue;
+                // 
+                //     Owner?.TransferMoneyTo(edge.Owner, edge.GetTraversalCost(Owner));
+                // }
 
                 if (RouteProgress >= lastIndex) ParkedTile = Route[lastIndex];
             }

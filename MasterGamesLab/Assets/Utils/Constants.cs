@@ -23,6 +23,9 @@ public static class Constants
     public const byte MAX_FREIGHTER_COUNT = MAX_FREIGHTERS_PER_PLAYER * MAX_PLAYER_COUNT;
     public const float FREIGHTER_BASE_SPEED_TPS = 1.0f;
 
+    public const int TRUCK_LOADING_COST_ENEMY = 40;
+    public const int TRUCK_UNLOADING_COST_ENEMY = 80;
+
 
     // ------------------- Structures -------------------
 
@@ -66,13 +69,13 @@ public static class Constants
 
     // ------------------- Market Cap -------------------
 
-    public const int ROAD_MARKET_CAP = (int)(0.5f * ROAD_BUILD_COST);
+    public const int ROAD_MARKET_CAP = (int)(0.7f * ROAD_BUILD_COST);
     public const int CANAL_MARKET_CAP = (int)(1.0f * BASE_CANAL_BUILD_COST);
 
-    public const int PORT_MARKET_CAP = (int)(0.8f * PORT_BUILD_COST);
+    public const int PORT_MARKET_CAP = (int)(0.9f * PORT_BUILD_COST);
 
-    public const int TRUCK_MARKET_CAP = (int)(0.6f * TRUCK_BUILD_COST);
-    public const int FREIGHTER_MARKET_CAP = (int)(0.8f * FREIGHTER_BUILD_COST);
+    public const int TRUCK_MARKET_CAP = (int)(0.7f * TRUCK_BUILD_COST);
+    public const int FREIGHTER_MARKET_CAP = (int)(0.7f * FREIGHTER_BUILD_COST);
 
 
     // ------------------- Pathfinding -------------------
