@@ -134,6 +134,14 @@ namespace UI
             blueprintCountContainer.style.display = DisplayStyle.None;
             UpdateAllPlayerStats();
             uiUpdateCoroutine = StartCoroutine(PeriodicUiUpdateLoop());
+
+            container.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
+            container.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+            blueprintCountContainer.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
+            blueprintCountContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+            tabMenu.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
+            tabMenu.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+
         }
 
         void OnDisable()
@@ -187,7 +195,7 @@ namespace UI
 
         #endregion
 
-        #region Leaderboard Sorting Logic
+        #region Tab Menu Sorting Logic
 
         private void HighliteHoveredColumn(SortColumn column)
         {
@@ -472,6 +480,17 @@ namespace UI
                 container.RemoveFromClassList("container-hidden");
             else
                 container.AddToClassList("container-hidden");
+        }
+
+        private void OnMouseEnterElement(MouseEnterEvent evt)
+        {
+            Map.Map.Instance.CurrentlyHovered = null;
+            Map.Map.Instance.isOverUI = true;
+        }
+
+        private void OnMouseLeaveElement(MouseLeaveEvent evt)
+        {
+            Map.Map.Instance.isOverUI = false;
         }
 
         #endregion

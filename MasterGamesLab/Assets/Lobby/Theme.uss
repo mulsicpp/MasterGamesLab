@@ -25,6 +25,11 @@
     --tab-menu-header-border: rgba(255, 255, 255, 0.22);
     --tab-menu-hover-column: rgb(255, 238, 123);
     --tab-menu-active-column: rgb(175, 152, 0);
+    --icon-freighter: url("project://database/Assets/IngameUI/Freighter_Icon.svg?fileID=7388822144124034973&guid=4f2d2d410d5a0b04a9d28c66af7fd964&type=3#Freighter_Icon");
+    --icon-road: url("project://database/Assets/IngameUI/Road_Icon.svg?fileID=7388822144124034973&guid=6e6eff8ac554ae540bd44a3bd553b5df&type=3#Road_Icon");
+    --icon-port: url("project://database/Assets/IngameUI/Port_Icon.svg?fileID=7388822144124034973&guid=bb3dece4b5ab3434f9c6882fa7796f86&type=3#Port_Icon");
+    --icon-canal: url("project://database/Assets/IngameUI/Canal_icon.svg?fileID=7388822144124034973&guid=200d087653a6f0a4bb33f8d4b4a8cb9f&type=3#Canal_icon");
+    --icon-truck: url("project://database/Assets/IngameUI/LKW_Icon.svg?fileID=7388822144124034973&guid=bee6275bf0ec2d2498c79c7cb139def1&type=3#LKW_Icon");
 }
 
 .element {
@@ -173,7 +178,6 @@
     flex-grow: 1;
     width: 100%;
     -unity-background-scale-mode: scale-to-fit;
-    background-image: url("project://database/Assets/IngameUI/LKW_Icon.svg?fileID=7388822144124034973&guid=bee6275bf0ec2d2498c79c7cb139def1&type=3#LKW_Icon");
     border-top-width: 4px;
     border-right-width: 4px;
     border-bottom-width: 4px;
@@ -475,4 +479,44 @@
 .tab-menu-header:hover .tab-menu-active-column {
     -unity-background-image-tint-color: var(--tab-menu-active-column);
     color: var(--tab-menu-active-column);
+}
+
+.freighter {
+    background-image: var(--icon-freighter);
+}
+
+.road {
+    background-image: var(--icon-road);
+}
+
+.port {
+    background-image: var(--icon-port);
+}
+
+.canal {
+    background-image: var(--icon-canal);
+}
+
+.truck {
+    background-image: var(--icon-truck);
+}
+
+#RoadCount .template-icon-node {
+    background-image: var(--icon-road);
+}
+
+#CanalCount .template-icon-node {
+    background-image: var(--icon-canal);
+}
+
+#PortCount .template-icon-node {
+    background-image: var(--icon-port);
+}
+
+#TruckCount .template-icon-node {
+    background-image: var(--icon-truck);
+}
+
+#FreighterCount .template-icon-node {
+    background-image: var(--icon-freighter);
 }

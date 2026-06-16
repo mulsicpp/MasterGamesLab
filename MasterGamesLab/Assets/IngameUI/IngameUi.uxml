@@ -2,7 +2,7 @@
     <ui:Template name="BlueprintCount" src="project://database/Assets/IngameUI/BlueprintCount.uxml?fileID=9197481963319205126&amp;guid=8815f6fe27465df4bb0661e06bed9c0f&amp;type=3#BlueprintCount"/>
     <ui:Template name="TabMenu" src="project://database/Assets/IngameUI/TabMenu.uxml?fileID=9197481963319205126&amp;guid=1226372f1629f6c45a297bd9a0f823c2&amp;type=3#TabMenu"/>
     <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
-    <ui:VisualElement name="Root" class="unity-ui-document__root">
+    <ui:VisualElement name="Root" picking-mode="Ignore" class="unity-ui-document__root">
         <ResponsiveLabel name="MONEY" text="Money: 100" class="element label money-display"/>
         <ui:GroupBox name="Row1" class="element ingam-build-menu-row"/>
         <ui:GroupBox name="BuildMenu" class="element build-menu-sidebar" style="justify-content: flex-end; height: auto; position: absolute; right: 1%; bottom: 2%; left: auto; top: auto; width: 12%;">
@@ -31,27 +31,27 @@
                     <ui:VisualElement name="Placeholder1" class="element ingame-construct-button-square"/>
                     <ui:VisualElement class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuyFreighterButton" class="button element ingame-build-button">
-                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element test freighter"/>
                         </ui:Button>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuyTruckButton" class="button element ingame-build-button">
-                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element truck"/>
                         </ui:Button>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuildRoadButton" class="button element ingame-build-button">
-                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element road"/>
                         </ui:Button>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuildPortButton" class="button element ingame-build-button">
-                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element port"/>
                         </ui:Button>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuildCanalButton" class="button element ingame-build-button">
-                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element"/>
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element canal"/>
                         </ui:Button>
                     </ui:VisualElement>
                 </ui:GroupBox>
