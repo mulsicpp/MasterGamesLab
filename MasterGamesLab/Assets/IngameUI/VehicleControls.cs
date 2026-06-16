@@ -86,10 +86,8 @@ namespace UI
             public HoveredLoadTruck(VehicleControls controls, Vehicle target) : base(controls)
             {
                 var truck = controls.SelectedVehicle as Truck;
-
-                if (!(truck?.ParkedTile?.Structure?.Type == Structure.StructureType.Port)) return;
                 var freighter = target as Freighter;
-                if (freighter?.ParkedTile?.Neighbors.Contains(truck?.ParkedTile) ?? false && freighter?.Truck == null)
+                if (freighter?.CanLoadTruck(truck) ?? false)
                 {
                     this.truck = truck;
                     this.freighter = freighter;
@@ -98,7 +96,33 @@ namespace UI
 
             public override bool Commit()
             {
-                Map.Map.Instance.LoadFirstTruckOnFreighterServerRpc(truck.Index, freighter.Index);
+                Map.Map.Instance.LoadTruckOnFreighterServerRpc(truck.Index, freighter.Index);
+                controls.SelectedVehicle = null;
+                return true;
+            }
+        }
+
+        public class HoveredUnloadTruck : HoveredAction
+        {
+            public override bool IsValid => portTile != null;
+
+            private Freighter freighter = null;
+            private Tile portTile = null;
+
+            public HoveredUnloadTruck(VehicleControls controls, Tile destination) : base(controls)
+            {
+                var freighter = controls.SelectedVehicle as Freighter;
+
+                if (freighter?.CanUnloadTruck(destination) ?? false)
+                {
+                    this.freighter = freighter;
+                    this.portTile = destination;
+                }
+            }
+
+            public override bool Commit()
+            {
+                Map.Map.Instance.UnoadTruckOnPortServerRpc(freighter.Index, portTile.Id);
                 controls.SelectedVehicle = null;
                 return true;
             }
@@ -151,7 +175,10 @@ namespace UI
                 switch (Map.Map.Instance.CurrentlyHovered)
                 {
                     case Tile t:
-                        hoveredAction = new HoveredSelectRoute(this, t); break;
+                        hoveredAction = new HoveredSelectRoute(this, t);
+                        if (hoveredAction.IsValid) break;
+                        hoveredAction = new HoveredUnloadTruck(this, t);
+                        break;
                     case Vehicle v:
                         if (SelectedVehicle != v)
                             hoveredAction = new HoveredLoadTruck(this, v);

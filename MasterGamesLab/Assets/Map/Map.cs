@@ -873,7 +873,7 @@ namespace Map
 
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void LoadFirstTruckOnFreighterServerRpc(VehicleIndex truckIndex, VehicleIndex freighterIndex, RpcParams rpcParams = default)
+        public void LoadTruckOnFreighterServerRpc(VehicleIndex truckIndex, VehicleIndex freighterIndex, RpcParams rpcParams = default)
         {
             var player =
                 Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
@@ -886,10 +886,32 @@ namespace Map
             var truck = Fleet.Trucks[truckIndex];
             var freighter = Fleet.Freighters[freighterIndex];
 
-            if (!(truck?.ParkedTile?.Structure?.Type == Structure.StructureType.Port)) return;
-            if (freighter?.ParkedTile?.Neighbors.Contains(truck?.ParkedTile) ?? false && freighter?.Truck == null)
+            if (freighter?.CanLoadTruck(truck) ?? false)
             {
                 truck.Freighter = freighter;
+            }
+            UpdateDirtyObjectsOnClient();
+        }
+
+        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
+        public void UnoadTruckOnPortServerRpc(VehicleIndex freighterIndex, TileId tileId, RpcParams rpcParams = default)
+        {
+            var player =
+                Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
+
+            if (player == null) return;
+
+            if (freighterIndex < 0 || freighterIndex >= Fleet.Freighters.Count) return;
+            if (tileId < 0 || tileId >= Tiles.Count) return;
+
+            var freighter = Fleet.Freighters[freighterIndex];
+            var tile = Tiles[tileId] as Tile;
+
+            if (freighter?.CanUnloadTruck(tile) ?? false)
+            {
+                var truck = freighter.Truck;
+                truck.Freighter = null;
+                truck.ParkedTile = tile;
             }
             UpdateDirtyObjectsOnClient();
         }

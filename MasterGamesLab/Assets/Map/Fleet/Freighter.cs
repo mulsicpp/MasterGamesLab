@@ -4,6 +4,8 @@ using Unity.Collections;
 using Unity.Netcode;
 using Networking;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
+using System.Linq;
 
 namespace Map.Fleet
 {
@@ -74,6 +76,19 @@ namespace Map.Fleet
         protected override void OnParked()
         {
             // TODO implement
+        }
+
+        public bool CanLoadTruck(Truck truck)
+        {
+            if (!(truck?.ParkedTile?.Structure?.Type == Structure.StructureType.Port)) return false;
+            return (ParkedTile?.Neighbors.Contains(truck?.ParkedTile) ?? false) && Truck == null;
+        }
+
+        public bool CanUnloadTruck(Tile tile)
+        {
+            if (!(tile?.Structure?.Type == Structure.StructureType.Port)) return false;
+            if (Truck == null) return false;
+            return ParkedTile?.Neighbors.Contains(tile) ?? false;
         }
     }
 }

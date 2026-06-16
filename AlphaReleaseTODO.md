@@ -15,6 +15,8 @@
     - Load/Unload trucks
 
 - Check money before buying !!!
+- Hide blueprinted elements !!!
+- Only overwrite hovered object if enabled in layers
 
 - Pins
     - Clickable !!!

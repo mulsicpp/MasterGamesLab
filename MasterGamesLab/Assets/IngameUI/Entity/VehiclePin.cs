@@ -18,9 +18,12 @@ namespace UI
 
         protected override void LateUpdate()
         {
-            base.LateUpdate();
-            if (!vehicleRenderer.Vehicle.Exists)
+            if (!vehicleRenderer.Vehicle.Exists || vehicleRenderer.Vehicle.Transform == null)
+            {
                 setActive(false);
+                return;
+            }
+            base.LateUpdate();
         }
 
         protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)
