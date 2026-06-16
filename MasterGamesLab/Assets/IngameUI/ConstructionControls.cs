@@ -175,7 +175,7 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
 
         if (ControlsAreActive)
             Map.Map.Instance.HoverOutliner.HoverState = hoverState;
-        StartTile?.ShowHoverOutline(hoverState);
+        StartTile?.ShowOutline(Constants.SELECTED_OUTLINE);
     }
 
     public bool HandleClick(ClickEventType type)
