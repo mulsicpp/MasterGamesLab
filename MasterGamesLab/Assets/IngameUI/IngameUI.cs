@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Map.Blueprint;
+using Map.Hoverables;
 using Player;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -23,13 +24,15 @@ namespace UI
         public const string activeColumnClass = "tab-menu-active-column";
         public const string hoveredColumnClass = "tab-menu-hovered-row";
 
+        public const HoverablePicker.HoverableLayer DEFAULT_HOVERABLE_LAYERS = HoverablePicker.HoverableLayer.All;
+
         // --- Sorting Enums & Variables ---
         private enum SortColumn { Name, MarketCap, Cash, Trucks, Freighters, Roads, Canals, Ports }
         private SortColumn currentSortColumn = SortColumn.Name;
 
         // --- Dependencies & Coroutines ---
-        private VehicleControls vehicleControls;
-        private ConstructionControls constructionControls;
+        public VehicleControls VehicleControls { get; private set; }
+        public ConstructionControls ConstructionControls { get; private set; }
         private Coroutine uiUpdateCoroutine;
 
         // --- UI Toolkit Elements ---
@@ -49,7 +52,7 @@ namespace UI
         private GroupBox buildCount;
 
 
-        private IClickEventHandler[] clickEventHandlers;
+        private IControls[] controls;
 
         #region Unity Lifecycle
 
@@ -64,12 +67,12 @@ namespace UI
             base.OnEnable();
 
             // 1. Resolve Dependencies
-            vehicleControls = GetComponent<VehicleControls>();
+            VehicleControls = GetComponent<VehicleControls>();
 
-            constructionControls = GetComponent<ConstructionControls>();
-            constructionControls.OnConstructionTypeChanged += HandleStateUIUpdate;
+            ConstructionControls = GetComponent<ConstructionControls>();
+            ConstructionControls.OnConstructionTypeChanged += HandleStateUIUpdate;
 
-            clickEventHandlers = new IClickEventHandler[] { vehicleControls, constructionControls };
+            controls = new IControls[] { VehicleControls, ConstructionControls };
 
             Map.Map.Instance.Blueprint.OnChanged += HandleBlueprintUpdate;
             Player.Player.OnPlayerChanged += ChangePlayerInfo;
@@ -136,8 +139,8 @@ namespace UI
         void OnDisable()
         {
             Map.Map.Instance.Blueprint.OnChanged -= HandleBlueprintUpdate;
-            if (constructionControls != null)
-                constructionControls.OnConstructionTypeChanged -= HandleStateUIUpdate;
+            if (ConstructionControls != null)
+                ConstructionControls.OnConstructionTypeChanged -= HandleStateUIUpdate;
 
             Player.Player.OnPlayerChanged -= ChangePlayerInfo;
 
@@ -159,6 +162,11 @@ namespace UI
 
         private void Update()
         {
+            Map.Map.Instance.HoverLayers = controls.FirstOrDefault(c => c.ControlsAreActive)?.SelectHoverableLayers() ?? DEFAULT_HOVERABLE_LAYERS;
+
+            foreach (var c in controls)
+                c.UpdateControls();
+
             if (IngameInputs.selectClickAction.WasPerformedThisFrame())
                 HandleClick(ClickEventType.Select);
             if (IngameInputs.cancelClickAction.WasPressedThisFrame())
@@ -169,7 +177,7 @@ namespace UI
 
         public bool HandleClick(ClickEventType type)
         {
-            foreach (var handler in clickEventHandlers)
+            foreach (var handler in controls)
             {
                 if (handler.HandleClick(type)) return true;
             }
@@ -384,14 +392,14 @@ namespace UI
 
         #region Construction Infrastructure Interaction Callbacks
 
-        private void OnRoadClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Road;
-        private void OnCanalClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Canal;
-        private void OnPortClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Port;
-        private void OnTruckClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Truck;
-        private void OnFreighterClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Freighter;
-        public void OnConfirmPressed() => constructionControls.ConfirmConstruction();
-        public void OnCancelPressed() => constructionControls.CancelConstruction();
-        public void OnHidePressed() => constructionControls.ToggleHide();
+        private void OnRoadClicked() => ConstructionControls.Type = ConstructionControls.ConstructionType.Road;
+        private void OnCanalClicked() => ConstructionControls.Type = ConstructionControls.ConstructionType.Canal;
+        private void OnPortClicked() => ConstructionControls.Type = ConstructionControls.ConstructionType.Port;
+        private void OnTruckClicked() => ConstructionControls.Type = ConstructionControls.ConstructionType.Truck;
+        private void OnFreighterClicked() => ConstructionControls.Type = ConstructionControls.ConstructionType.Freighter;
+        public void OnConfirmPressed() => ConstructionControls.ConfirmConstruction();
+        public void OnCancelPressed() => ConstructionControls.CancelConstruction();
+        public void OnHidePressed() => ConstructionControls.ToggleHide();
 
         #endregion
 

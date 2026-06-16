@@ -6,6 +6,8 @@
     - Only request spawned goods
 
 - 3d models !!!
+- correct material/outline for blueprints/previews
+- correct driving across splines
 
 - Better keyboard shortcuts !
 - Vehicle controls !!!

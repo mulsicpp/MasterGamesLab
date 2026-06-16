@@ -12,7 +12,7 @@ using System.Linq;
 using UnityEngine.Rendering.Universal;
 using UI;
 
-public class ConstructionControls : MonoBehaviour, IClickEventHandler
+public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
 {
     public enum ConstructionType
     {
@@ -28,8 +28,6 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler
 
     public event Action<ConstructionType> OnConstructionTypeChanged;
 
-    private InputAction leftClickAction;
-    private InputAction cancelAction;
     private Tile startTile = null;
     public Tile StartTile
     {
@@ -65,25 +63,28 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler
             OnConstructionTypeChanged?.Invoke(type);
             Map.Map.Instance.Blueprint.ClearPreview();
 
-            if (type is ConstructionType.None or ConstructionType.Hidden)
-                Map.Map.Instance.HoverLayers = HoverablePicker.HoverableLayer.All;
-            else
-                Map.Map.Instance.HoverLayers = HoverablePicker.HoverableLayer.Tiles;
+            if (ControlsAreActive)
+            {
+                IngameUI.Instance.VehicleControls.DisableControls();
+            }
+            // 
+            // if (type is ConstructionType.None or ConstructionType.Hidden)
+            //     Map.Map.Instance.HoverLayers = HoverablePicker.HoverableLayer.All;
+            // else
+            //     Map.Map.Instance.HoverLayers = HoverablePicker.HoverableLayer.Tiles;
         }
     }
 
-    public void ToggleHide()
+    public bool ControlsAreActive => Type is not ConstructionType.None or ConstructionType.Hidden;
+
+    public void DisableControls()
     {
-        Type = (Type == ConstructionType.Hidden) ? ConstructionType.None : ConstructionType.Hidden;
+        Type = ConstructionType.None;
     }
 
-    public void OnEnable()
-    {
-        leftClickAction = IngameInputs.selectClickAction;
-        cancelAction = IngameInputs.cancelClickAction;
-    }
+    public HoverablePicker.HoverableLayer SelectHoverableLayers() => HoverablePicker.HoverableLayer.Tiles;
 
-    public void Update()
+    public void UpdateControls()
     {
         previewIsValid = false;
         var hoveredTile = Map.Map.Instance.CurrentlyHovered as Tile;
@@ -236,6 +237,13 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler
             _ => null
         };
     }
+
+
+    public void ToggleHide()
+    {
+        Type = (Type == ConstructionType.Hidden) ? ConstructionType.None : ConstructionType.Hidden;
+    }
+
 
     public void ConfirmConstruction()
     {
