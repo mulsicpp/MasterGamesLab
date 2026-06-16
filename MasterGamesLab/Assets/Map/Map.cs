@@ -93,6 +93,7 @@ namespace Map
         private float oldProjectionFactor;
         private Vector3 oldProjectionCenter;
 
+        public bool isOverUI = false;
         public IHoverable CurrentlyHovered;
         public OutlineCurrentlyHovered HoverOutliner;
 
@@ -286,6 +287,10 @@ namespace Map
 
         private void UpdateHovered()
         {
+            if (isOverUI)
+            {
+                return;
+            }
             var mousePos = Mouse.current.position.ReadValue();
             var mX = (int)mousePos.x;
             var mY = (int)mousePos.y;
@@ -294,12 +299,15 @@ namespace Map
             {
                 return;
             }
-
             HoverablePicker.Instance.RequestPick(new Vector2Int(mX, mY), OnReadbackComplete);
         }
 
         private void OnReadbackComplete(AsyncGPUReadbackRequest request)
         {
+            if (isOverUI)
+            {
+                return;
+            }
             if (request.hasError)
             {
                 CurrentlyHovered = null;
@@ -480,7 +488,8 @@ namespace Map
                     new Truck.TruckState
                     {
                         Common = { Exists = true, ParkedTileId = playerSpawnTiles[i].Id },
-                        FreighterIndex = VehicleIndex.NONE, Good = Good.None
+                        FreighterIndex = VehicleIndex.NONE,
+                        Good = Good.None
                     }, players[i]);
             }
 
