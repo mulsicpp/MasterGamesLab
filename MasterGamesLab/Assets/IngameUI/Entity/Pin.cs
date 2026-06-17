@@ -19,6 +19,8 @@ namespace UI
         public VisualElement UiElement { get; private set; }
         private Vector2 lastAppliedPosition = new Vector2(-9999f, -9999f);
 
+        public bool IsHovered { get; private set; }
+
         // Abstract definitions children MUST provide
         protected abstract VisualTreeAsset PinTemplate { get; }
         protected abstract Vector3 GetTargetWorldPosition(out Vector3 upVector);
@@ -80,13 +82,12 @@ namespace UI
 
         protected virtual void OnMouseEnterElement(MouseEnterEvent evt)
         {
-            Map.Map.Instance.isOverUI = true;
-            Map.Map.Instance.CurrentlyHovered = null;
+            IsHovered = true;
         }
 
         protected virtual void OnMouseLeaveElement(MouseLeaveEvent evt)
         {
-            Map.Map.Instance.isOverUI = false;
+            IsHovered = false;
         }
         protected virtual void setActive(bool active)
         {

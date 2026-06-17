@@ -15,6 +15,7 @@
     - Load/Unload trucks
 
 - Check money before buying !!!
+    - Disable submit button when blueprint is empty or price is too high
 - Hide blueprinted elements !!!
 - Only overwrite hovered object if enabled in layers
 

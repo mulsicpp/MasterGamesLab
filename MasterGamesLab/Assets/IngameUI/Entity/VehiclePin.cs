@@ -17,6 +17,18 @@ namespace UI
             vehicleRenderer = renderer;
         }
 
+        private void Update()
+        {
+            if (IsHovered && Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Vehicles))
+            {
+                Map.Map.Instance.isOverUI = true;
+                Map.Map.Instance.CurrentlyHovered = vehicleRenderer.Vehicle;
+            } else
+            {
+                Map.Map.Instance.isOverUI = false;
+            }
+        }
+
         protected override void LateUpdate()
         {
             if (!vehicleRenderer.Vehicle.Exists || vehicleRenderer.Vehicle.Transform == null)
@@ -39,11 +51,11 @@ namespace UI
 
         }
 
-        override protected void OnMouseEnterElement(MouseEnterEvent evt)
-        {
-            if (!Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Vehicles)) return;
-            Map.Map.Instance.isOverUI = true;
-            Map.Map.Instance.CurrentlyHovered = vehicleRenderer.Vehicle;
-        }
+        // override protected void OnMouseEnterElement(MouseEnterEvent evt)
+        // {
+        //     if (!Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Vehicles)) return;
+        //     Map.Map.Instance.isOverUI = true;
+        //     Map.Map.Instance.CurrentlyHovered = vehicleRenderer.Vehicle;
+        // }
     }
 }
