@@ -179,11 +179,13 @@ namespace UI
                 c.DisableControls();
             }
 
+            // Map.Map.Instance.enabled = true;
             // TODO enable ingame actions
         }
 
         private void BecameHidden()
         {
+            // Map.Map.Instance.enabled = false;
             // TODO disable ingame actions
         }
 

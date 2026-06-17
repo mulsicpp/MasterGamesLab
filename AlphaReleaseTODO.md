@@ -5,16 +5,16 @@
 - Correct consumer logic !!!
     - Only request spawned goods
 
-- 3d models !!!
+- 3d models !!! [done]
 - correct material/outline for blueprints/previews
 - correct driving across splines
 
 - Better keyboard shortcuts !
 - Vehicle controls !!!
     - Select fastest/cheapest route to valid structures
-    - Load/Unload trucks
+    - Load/Unload trucks [done]
 
-- Check money before buying !!!
+- Check money before buying !!! [done]
     - Disable submit button when blueprint is empty or price is too high
 - Hide blueprinted elements !!!
 - Only overwrite hovered object if enabled in layers
