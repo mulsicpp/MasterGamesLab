@@ -60,11 +60,15 @@ namespace UI
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
+
+            OnBecameVisible += BecameVisible;
+            OnBecameHidden += BecameHidden;
 
             // 1. Resolve Dependencies
             VehicleControls = GetComponent<VehicleControls>();
@@ -166,6 +170,21 @@ namespace UI
             confirmButton.clicked -= OnConfirmPressed;
             cancelButton.clicked -= OnCancelPressed;
             hideButton.clicked -= OnHidePressed;
+        }
+
+        private void BecameVisible()
+        {
+            foreach (var c in controls)
+            {
+                c.DisableControls();
+            }
+
+            // TODO enable ingame actions
+        }
+
+        private void BecameHidden()
+        {
+            // TODO disable ingame actions
         }
 
         private void Update()
