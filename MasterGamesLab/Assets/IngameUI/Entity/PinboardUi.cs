@@ -30,6 +30,10 @@ namespace UI
             wrapper.AddToClassList("element");
             wrapper.style.position = Position.Absolute;
 
+            wrapper.style.transformOrigin = new TransformOrigin(Length.Percent(50f), Length.Percent(50f));
+
+            wrapper.style.translate = new StyleTranslate(new Translate(Length.Percent(-50f), Length.Percent(-50f)));
+
             VisualElement visualContent = template.Instantiate();
             wrapper.Add(visualContent);
 

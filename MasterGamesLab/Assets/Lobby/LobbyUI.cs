@@ -55,7 +55,6 @@ namespace UI
 
         private void OnLobbyCodePressed()
         {
-            Debug.Log($"[Clipboard Attempt] Copying string: '{lobbyCodeLabel.text}' (Length: {lobbyCodeLabel.text?.Length})");
             GUIUtility.systemCopyBuffer = lobbyCodeLabel.text;
 
             // Trigger the floating text animation

@@ -9,9 +9,6 @@ namespace UI
         [SerializeField] private float panelOffset = 10f;
         [SerializeField] private float invisibleThreshold = -0.1f;
 
-        [Header("Optimization")]
-        [SerializeField] private float positionEpsilon = 0.5f;
-
         protected Camera mainCamera;
         protected PlanetCameraController cameraController;
         protected PinboardUi pinboard;
@@ -44,6 +41,7 @@ namespace UI
         {
             Vector3 worldPos = GetTargetWorldPosition(out Vector3 upVector);
             Vector3 screenPos = mainCamera.WorldToScreenPoint(worldPos);
+
             bool facingAway = Vector3.Dot((mainCamera.transform.position - worldPos).normalized, upVector) < invisibleThreshold;
 
             if (screenPos.z < 0 || facingAway)
@@ -58,26 +56,19 @@ namespace UI
                 mainCamera
             );
 
-            float halfWidth = UiElement.layout.width / 2f;
-            float halfHeight = UiElement.layout.height / 2f;
-
-            Vector2 targetLeftTop = new Vector2(
-                panelPosition.x - halfWidth,
-                panelPosition.y - halfHeight - panelOffset
+            // CLEAN: No more layout.width or layout.height checking! 
+            // Because of wrapper.style.translate, this positions the CENTER of the UI directly on the world point.
+            Vector2 targetPosition = new Vector2(
+                panelPosition.x,
+                panelPosition.y - panelOffset
             );
 
-            if (UiElement.style.display == DisplayStyle.Flex &&
-                Vector2.SqrMagnitude(targetLeftTop - lastAppliedPosition) < (positionEpsilon * positionEpsilon))
-            {
-                return;
-            }
-
             UiElement.style.scale = new StyleScale(new Scale(new Vector3(cameraController.ScalingFactor, cameraController.ScalingFactor, 1f)));
-            UiElement.style.left = targetLeftTop.x;
-            UiElement.style.top = targetLeftTop.y;
+            UiElement.style.left = targetPosition.x;
+            UiElement.style.top = targetPosition.y;
             UiElement.style.display = DisplayStyle.Flex;
 
-            lastAppliedPosition = targetLeftTop;
+            lastAppliedPosition = targetPosition;
         }
 
         protected virtual void OnMouseEnterElement(MouseEnterEvent evt)

@@ -108,6 +108,5 @@ public class LakePass : IGenerationPass
             validInlandCenters.RemoveAll(t => Vector3.Distance(t.PositionOnSphere, lakeCenter.PositionOnSphere) < 0.2f);
         }
 
-        Debug.Log($"LakePass: {spawnedLakes}");
     }
 }

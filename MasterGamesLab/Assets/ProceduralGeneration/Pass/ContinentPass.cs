@@ -132,10 +132,8 @@ public class ContinentPass : IGenerationPass
             }
         }
 
-        Debug.Log($"extraContinentCount: {extraCount}");
         foreach (var kvp in ContinentSizes)
         {
-            Debug.Log($"Continent {kvp.Key} has {kvp.Value} Land-Tiles.");
         }
     }
 
@@ -251,7 +249,6 @@ public class ContinentPass : IGenerationPass
             }
         }
 
-        Debug.Log($"Land-Tiles: {currentLandTiles}");
         return currentLandTiles;
     }
 

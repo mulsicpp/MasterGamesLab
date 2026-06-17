@@ -81,7 +81,6 @@ namespace Player
             var data = System.Runtime.InteropServices.MemoryMarshal.Read<PlayerConnectData>(request.Payload);
             string playerAuthId = data.PlayerAuthId.ToString();
 
-            Debug.Log("Incoming connection PlayerId: '" + playerAuthId + "'");
 
             int index = Array.FindIndex(PlayerConnections, playerData => playerData.PlayerAuthId == playerAuthId);
 
@@ -91,7 +90,6 @@ namespace Player
                 response.CreatePlayerObject = false;
                 response.Reason = "PlayerID could not be found";
 
-                Debug.Log(response.Reason);
 
                 return;
             }
@@ -136,7 +134,6 @@ namespace Player
             }
             else if (clientid == NetworkManager.Singleton.LocalClientId)
             {
-                Debug.Log("Client disconnected");
                 NetworkManager.Singleton.Shutdown();
             }
         }

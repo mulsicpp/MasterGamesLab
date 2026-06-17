@@ -366,7 +366,6 @@ namespace Map
             Shader.SetGlobalFloat(PlanetRadius, radius);
 
             Timestamp = new Timestamp(0);
-            Debug.Log("Generating world with seed " + seed + " ...");
 
             UnityEngine.Random.InitState(seed);
             ProceduralMapGenerator.GenerateMap(this);
@@ -425,36 +424,36 @@ namespace Map
             }
         
             spawnPointManager = new ProducerConsumerSpawnPoint(this);
-        
-            //5 producer
-            for (int i = 0; i < 5; i++)
-            {
-                var prodTile = spawnPointManager.GetSpawnTileProducer();
-                if (prodTile != null)
-                {
-                    Infrastructure.SpawnLocal(new Producer.ProducerState
-                    {
-                        Common = { TileId = prodTile.Id },
-                        Good = (Good)UnityEngine.Random.Range((int)Good.Apple, (int)Good.Banana + 1)
-                    });
-                    spawnPointManager.RegisterProducerSpawned(prodTile);
-                }
-            }
-        
-            //5 consumer (groups)
-            for (int i = 0; i < 5; i++)
-            {
-                var consTiles = spawnPointManager.GetSpawnTileConsumer();
-                if (consTiles != null && consTiles.Count > 0)
-                {
-                    foreach (var consTile in consTiles)
-                    {
-                        Infrastructure.SpawnLocal(new Consumer.ConsumerState { Common = { TileId = consTile.Id } });
-                    }
-        
-                    spawnPointManager.RegisterConsumerSpawned(consTiles);
-                }
-            }
+
+            ////5 producer
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    var prodTile = spawnPointManager.GetSpawnTileProducer();
+            //    if (prodTile != null)
+            //    {
+            //        Infrastructure.SpawnLocal(new Producer.ProducerState
+            //        {
+            //            Common = { TileId = prodTile.Id },
+            //            Good = (Good)UnityEngine.Random.Range((int)Good.Apple, (int)Good.Banana + 1)
+            //        });
+            //        spawnPointManager.RegisterProducerSpawned(prodTile);
+            //    }
+            //}
+
+            ////5 consumer (groups)
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    var consTiles = spawnPointManager.GetSpawnTileConsumer();
+            //    if (consTiles != null && consTiles.Count > 0)
+            //    {
+            //        foreach (var consTile in consTiles)
+            //        {
+            //            Infrastructure.SpawnLocal(new Consumer.ConsumerState { Common = { TileId = consTile.Id } });
+            //        }
+
+            //        spawnPointManager.RegisterConsumerSpawned(consTiles);
+            //    }
+            //}
         }
 
         private void ClientUpdate()
@@ -610,7 +609,6 @@ namespace Map
         {
             Timestamp = timestamp;
 
-            Debug.Log("Player count: " + Players.Count);
 
             ApplyStatesLocal(serverTime, this.players, players);
 

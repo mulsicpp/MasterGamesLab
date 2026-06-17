@@ -76,7 +76,6 @@ namespace Map.OutlineEffect
         {
             if (objRenderer == null)
             {
-                Debug.LogError("Renderer is null");
                 return;
             }
 

@@ -19,7 +19,6 @@ public static class SpawnPointGenerator
         for (int i = 0; i < playerSpawns.Length; i++)
         {
             var spawnTile = playerSpawns[i];
-            Debug.Log($"PLayer {i + 1} spawns on tile-id {spawnTile.Id} (continent: {spawnTile.ContinentId}).");
 
             //player spawn
         }
