@@ -15,7 +15,9 @@ namespace Map.GeometryGeneration
             Port,
         }
 
-        private const float SCALE = 0.015f;
+        private const float SCALE_VALUE = 0.015f;
+
+        public static Vector3 Scale => new Vector3(SCALE_VALUE, SCALE_VALUE, SCALE_VALUE);
         public static GeometriesManager Instance { get; private set; }
 
         public Mesh truckMesh;
@@ -79,7 +81,7 @@ namespace Map.GeometryGeneration
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
 
-            parent.localScale = new Vector3(SCALE, SCALE, SCALE);
+            parent.localScale = Scale;
             var gO = Instantiate(geometryPrefab, parent);
             gO.transform.localPosition = localPosition;
             gO.transform.localRotation = localRotation;

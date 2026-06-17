@@ -19,7 +19,8 @@ namespace UI
         public bool IsHovered { get; private set; }
 
         // Abstract definitions children MUST provide
-        protected abstract VisualTreeAsset PinTemplate { get; }
+        [SerializeField] protected VisualTreeAsset PinTemplate;
+
         protected abstract Vector3 GetTargetWorldPosition(out Vector3 upVector);
         protected abstract void InitializeUiComponents();
 

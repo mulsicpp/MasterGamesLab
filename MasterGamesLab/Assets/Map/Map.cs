@@ -67,6 +67,14 @@ namespace Map
         [SerializeField] private GameObject chunkPrefab;
         [SerializeField] private GameObject edgeGeometryPrefab;
 
+        public GameObject TruckPrefab;
+        public GameObject FreighterPrefab;
+        
+        public GameObject ProducerPrefab;
+        public GameObject ConsumerPrefab;
+        public GameObject GaragePrefab;
+        public GameObject PortPrefab;
+
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
 
@@ -462,7 +470,7 @@ namespace Map
             {
                 foreach (var vehicle in Fleet.Vehicles)
                 {
-                    vehicle.UpdateGameObject();
+                    vehicle.EvaluateGameObjectPresence();
                 }
             }
         }

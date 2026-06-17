@@ -10,11 +10,9 @@ namespace UI
         private VehicleRenderer vehicleRenderer;
         private Button pinButton;
 
-        protected override VisualTreeAsset PinTemplate => PinboardUi.Instance.truckTemplate;
-
-        public void AssignRenderer(VehicleRenderer renderer)
+        public void OnEnable()
         {
-            vehicleRenderer = renderer;
+            vehicleRenderer = GetComponent<VehicleRenderer>();
         }
 
         private void Update()

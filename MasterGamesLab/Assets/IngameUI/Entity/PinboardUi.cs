@@ -5,8 +5,6 @@ namespace UI
 {
     public class PinboardUi : MonoBehaviour
     {
-        public VisualTreeAsset truckTemplate;
-
         public static PinboardUi Instance { get; private set; }
 
         public VisualElement root { get; private set; }

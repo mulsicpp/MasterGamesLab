@@ -99,7 +99,8 @@ namespace Map.Fleet
 
         public abstract Player.Player Owner { get; }
 
-        private VehicleRenderer renderer;
+        public VehicleRenderer Renderer { get; private set; }
+        public abstract GameObject VehiclePrefab { get; }
 
         private bool exists;
 
@@ -506,51 +507,29 @@ namespace Map.Fleet
         {
             if (Exists || BlueprintTile != null)
             {
-                if (renderer == null)
+                if (Renderer == null)
                 {
-                    var gameObject = new GameObject("Vehicle");
-                    gameObject.transform.parent = Map.Instance.gameObject.transform;
-                    renderer = gameObject.AddComponent<VehicleRenderer>();
-                    renderer.Init(this);
-                    UpdateGameObject();
+                    var gameObject = Object.Instantiate(VehiclePrefab, Map.Instance.gameObject.transform);
+                    Renderer = gameObject.GetComponent<VehicleRenderer>();
+                    Renderer.Init(this);
                 }
             }
-            else if (renderer != null)
+            else if (Renderer != null)
             {
-                Object.Destroy(renderer.gameObject);
-                renderer = null;
+                Object.Destroy(Renderer.gameObject);
+                Renderer = null;
             }
-        }
-
-        public virtual void UpdateGameObject()
-        {
-            EvaluateGameObjectPresence();
-
-            if (renderer == null) return;
-            var gameObject = renderer.gameObject;
-
-            var t = Transform;
-            if (t == null)
-            {
-                renderer.Geometry.gameObject.SetActive(false);
-                return;
-            }
-
-            renderer.Geometry.gameObject.SetActive(true);
-            var tProj = t; // Map.Instance.GetProjectedVehicleTransform(t);
-            gameObject.transform.localPosition = tProj.Position;
-            gameObject.transform.localRotation = Quaternion.LookRotation(tProj.Forward, tProj.Up);
         }
 
         public void ClearOutline()
         {
-            renderer?.Geometry.SetBaseLayer();
+            Renderer?.Geometry.SetBaseLayer();
         }
 
         public void ShowOutline(Constants.OutlineData outlineData)
         {
-            renderer?.Geometry.SetOutlineLayer();
-            renderer?.Geometry.SetOutlineParameters(outlineData);
+            Renderer?.Geometry.SetOutlineLayer();
+            Renderer?.Geometry.SetOutlineParameters(outlineData);
         }
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)

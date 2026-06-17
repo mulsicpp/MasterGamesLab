@@ -256,13 +256,57 @@ PrefabInstance:
       value: 563265020
       objectReference: {fileID: 0}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: PortPrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: portPrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: resolution
       value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: TruckPrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: 0485a3edd4750d643ab708244a98d11b, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: renderTrees
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: truckPrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: 0485a3edd4750d643ab708244a98d11b, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: GaragePrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: garagePrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: ConsumerPrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: ProducerPrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: consumerPrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: producerPrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: FreighterPrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: a977a9c6a29009f47bc5bd137c5e29eb, type: 3}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: TEST_CANAL_RANDOM_
       value: 0.01
@@ -1148,7 +1192,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b191a77e9ecf594b8bed66e5398a85f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinboardUi
-  truckTemplate: {fileID: 9197481963319205126, guid: 9a1ddb4d40110f84797b46dc87907635, type: 3}
 --- !u!1 &6935830449821173694
 GameObject:
   m_ObjectHideFlags: 0
