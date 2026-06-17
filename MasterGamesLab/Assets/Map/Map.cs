@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using InGameCamera;
+﻿using InGameCamera;
+using Map.Blueprint;
+using Map.Fleet;
 using Map.GeometryGeneration;
+using Map.Hoverables;
 using Map.Infrastructure;
+using Networking;
+using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Rendering;
-using Map.Fleet;
-using Map.Blueprint;
-using Networking;
-using Map.Hoverables;
 using UnityEngine.InputSystem;
-using static UnityEngine.GraphicsBuffer;
-using System.Linq;
+using UnityEngine.Rendering;
 
 namespace Map
 {
@@ -50,7 +48,7 @@ namespace Map
 
         public Timestamp Timestamp = new Timestamp(0);
 
-        [SerializeField] public bool Running = true;
+        public bool SimulationIsRunning => UIManager.Instance?.CurrentMenu == UI.Menu.MenuId.Ingame;
 
         public IReadOnlyList<Player.Player> Players => players;
 
@@ -112,65 +110,7 @@ namespace Map
         {
             Instance = this;
 
-            CurrentlyHovered = null;
-            HoverOutliner = GetComponent<OutlineCurrentlyHovered>();
-
-            var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
-            tiles = new List<Tile>(numPoints);
-            chunks = new List<MapChunk>(chunksPoints.Count);
-
-            players = new Player.Player[0];
-
-            edges = Array.Empty<Edge>();
-            infrastructure = new Infrastructure.Infrastructure(0);
-            fleet = new Fleet.Fleet(0);
-
-            ReliableSender = new ReliableSender(true);
-            UnreliableSender = new UnreliableSender();
-
-            Blueprint = new Blueprint.Blueprint();
-            storedBlueprintPackets = new BlueprintPacket[4];
-            for (int i = 0; i < storedBlueprintPackets.Length; i++)
-                storedBlueprintPackets[i] = new BlueprintPacket();
-
-            var currentId = 0;
-            foreach (var chunkPoints in chunksPoints)
-            {
-                var chunkGameObject = Instantiate(chunkPrefab, transform);
-                var chunk = chunkGameObject.GetComponent<MapChunk>();
-                var startId = currentId;
-
-                foreach (var point in chunkPoints)
-                {
-                    point.InitializeTile(new TileId(currentId++), radius, chunk);
-                    tiles.Add(point);
-                }
-
-                chunk.Init(this, startId, currentId);
-                chunks.Add(chunk);
-            }
-
-            //ProceduralMapGenerator.GenerateMap(this);
-
-            foreach (var chunk in chunks)
-            {
-                chunk.UpdateMesh();
-            }
-
-            Debug.Log($"Generated {tiles.Count} tiles");
-
-            activeTiles = new List<Tile>();
-            Shader.SetGlobalFloat(PlanetRadius, radius);
-
-            // Pre-allocate tracking arrays using the total tile capacity count
-            Pathfinding.InitBuffers(tiles.Count);
-            MovementProfileRegistry.Initialize();
-
-            //debug
-            if (UIManager.Instance == null)
-            {
-                GenerateTerrain(UnityEngine.Random.Range(int.MinValue, int.MaxValue));
-            }
+            Generate(GenerationSeed ?? 0);
         }
 
         private void OnEnable()
@@ -186,14 +126,11 @@ namespace Map
 
         private void UpdateEntireMesh()
         {
-            foreach (var chunk in chunks)
-            {
-                chunk.UpdateMesh();
-                chunk.UpdateTileData();
-            }
+            foreach (var chunk in chunks) chunk.UpdateMesh();
 
             foreach (var tile in tiles) tile.BuildGeometryData();
             foreach (var edge in edges) edge.ChangeVisualState();
+            foreach (var structure in infrastructure.Structures) structure.RebuildRenderer();
         }
 
         private void Update()
@@ -253,7 +190,7 @@ namespace Map
             }
 
             UpdateHovered();
-            MainCamera.Instance.PlanetControllerEnabled = Running;
+            // MainCamera.Instance.PlanetControllerEnabled = Simu;
 
             // Update the projection
             UpdateProjectionUniforms();
@@ -384,28 +321,50 @@ namespace Map
             return stats;
         }
 
-
-        public void GenerateEmpty()
+        public void Generate(int seed)
         {
-
-            Timestamp = new Timestamp(0);
-            foreach (var tile in tiles)
+            GameObject[] children = new GameObject[transform.childCount];
+            for (int i = 0; i < transform.childCount; i++)
             {
-                tile.Type = Tile.TileType.Water;
+                children[i] = transform.GetChild(i).gameObject;
             }
 
-            InitEdges();
+            transform.DetachChildren();
 
-            infrastructure = new Infrastructure.Infrastructure(0);
-            fleet = new Fleet.Fleet(0);
+            foreach (GameObject child in children)
+            {
+                Destroy(child);
+            }
 
-            UpdateEntireMesh();
+            CurrentlyHovered = null;
+            HoverOutliner = GetComponent<OutlineCurrentlyHovered>();
 
-            GenerationSeed = null;
-        }
+            var (chunksPoints, numPoints) = HexagonalSphere.GenerateIcoSphereChunks(radius, resolution);
+            tiles = new List<Tile>(numPoints);
+            chunks = new List<MapChunk>(chunksPoints.Count);
 
-        public void GenerateTerrain(int seed)
-        {
+            var currentId = 0;
+            foreach (var chunkPoints in chunksPoints)
+            {
+                var chunkGameObject = Instantiate(chunkPrefab, transform);
+                var chunk = chunkGameObject.GetComponent<MapChunk>();
+                var startId = currentId;
+
+                foreach (var point in chunkPoints)
+                {
+                    point.InitializeTile(new TileId(currentId++), radius, chunk);
+                    tiles.Add(point);
+                }
+
+                chunk.Init(this, startId, currentId);
+                chunks.Add(chunk);
+            }
+
+            // foreach (var chunk in chunks) chunk.UpdateMesh();
+
+            activeTiles = new List<Tile>();
+            Shader.SetGlobalFloat(PlanetRadius, radius);
+
             Timestamp = new Timestamp(0);
             Debug.Log("Generating world with seed " + seed + " ...");
 
@@ -414,63 +373,28 @@ namespace Map
 
             InitEdges();
 
+            players = new Player.Player[0];
             infrastructure = new Infrastructure.Infrastructure(0);
             fleet = new Fleet.Fleet(0);
 
-            foreach (var chunk in chunks)
-            {
-                chunk.UpdateMesh();
-            }
-            //SpawnPointGenerator.SpawnInitialStructures(this, 4);
+            Blueprint = new Blueprint.Blueprint();
+            storedBlueprintPackets = new BlueprintPacket[0];
+            for (int i = 0; i < storedBlueprintPackets.Length; i++)
+                storedBlueprintPackets[i] = new BlueprintPacket();
 
-            //UpdateEntireMesh();
+            UpdateEntireMesh();
 
-            //ITile[] playerSpawns = SpawnPointGenerator.GetFairSpawnPoints(this, 4);
+            Debug.Log($"Generated {tiles.Count} tiles");
 
-            //  for (int i = 0; i < playerSpawns.Length; i++)
-            //  {
-            //      Debug.Log(
-            //          $"Player {i + 1} Spawnpoint: ID {playerSpawns[i].Id} on Continent {playerSpawns[i].ContinentId}");
+            // Pre-allocate tracking arrays using the total tile capacity count
+            Pathfinding.InitBuffers(tiles.Count);
+            MovementProfileRegistry.Initialize();
 
-            //      // Infrastructure.SpawnLocal(new Producer.ProducerState
-            //      // { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
-            //  }
-
-            // debugSpawnPoints = SpawnPointGenerator.SpawnInitialStructures(this, 4);
-
-
-            //Infrastructure.SpawnLocal(new Producer.ProducerState
-            //    { Common = { TileId = edges[0].EndTile.Id }, Good = Good.Apple });
-
-            //debug: Spawn Manager Beispiel
-            //var spawnManager = new ProducerConsumerSpawnPoint(this);
-            // spawnPointManager = new ProducerConsumerSpawnPoint(this);
-            // 
-            // 
-            // //5 producer
-            // for (int i = 0; i < 5; i++)
-            // {
-            //     var prodTile = spawnPointManager.GetSpawnTileProducer();
-            //     if (prodTile != null)
-            //     {
-            //         spawnPointManager.RegisterProducerSpawned(prodTile);
-            //     }
-            // }
-            // 
-            // //5 consumer (groups)
-            // for (int i = 0; i < 5; i++)
-            // {
-            //     var consTiles = spawnPointManager.GetSpawnTileConsumer();
-            //     if (consTiles != null && consTiles.Count > 0)
-            //     {
-            //         spawnPointManager.RegisterConsumerSpawned(consTiles);
-            //     }
-            // }
-
-            GenerationSeed = seed;
+            ReliableSender = new ReliableSender(true);
+            UnreliableSender = new UnreliableSender();
         }
-
-        public void GenerateStructuresAndPlayers(int playerCount)
+        
+        public void GeneratePlayersAndStructures(int playerCount)
         {
             players = new Player.Player[playerCount];
             for (int i = 0; i < players.Length; i++)
@@ -481,9 +405,14 @@ namespace Map
             infrastructure = new Infrastructure.Infrastructure(playerCount);
             fleet = new Fleet.Fleet(playerCount);
 
-            var playerSpawnTiles = SpawnPointGenerator.GetFairSpawnPoints(this, playerCount);
+            Blueprint = new Blueprint.Blueprint();
+            storedBlueprintPackets = new BlueprintPacket[playerCount];
+            for (int i = 0; i < storedBlueprintPackets.Length; i++)
+                storedBlueprintPackets[i] = new BlueprintPacket();
 
-            for (int i = 0; i < playerSpawnTiles.Length; i++)
+            var playerSpawnTiles = SpawnPointGenerator.GetFairSpawnPoints(this, players.Length);
+        
+            for (int i = 0; i < players.Length; i++)
             {
                 Infrastructure.SpawnLocal(new Garage.GarageState { Common = { TileId = playerSpawnTiles[i].Id } });
                 Fleet.SpawnLocal(
@@ -494,9 +423,9 @@ namespace Map
                         Good = Good.None
                     }, players[i]);
             }
-
+        
             spawnPointManager = new ProducerConsumerSpawnPoint(this);
-
+        
             //5 producer
             for (int i = 0; i < 5; i++)
             {
@@ -511,7 +440,7 @@ namespace Map
                     spawnPointManager.RegisterProducerSpawned(prodTile);
                 }
             }
-
+        
             //5 consumer (groups)
             for (int i = 0; i < 5; i++)
             {
@@ -522,7 +451,7 @@ namespace Map
                     {
                         Infrastructure.SpawnLocal(new Consumer.ConsumerState { Common = { TileId = consTile.Id } });
                     }
-
+        
                     spawnPointManager.RegisterConsumerSpawned(consTiles);
                 }
             }
@@ -530,7 +459,7 @@ namespace Map
 
         private void ClientUpdate()
         {
-            if (IsClient)
+            if (SimulationIsRunning && IsClient)
             {
                 foreach (var vehicle in Fleet.Vehicles)
                 {
@@ -541,7 +470,7 @@ namespace Map
 
         public void FixedUpdate()
         {
-            if (!Running) return;
+            if (!SimulationIsRunning) return;
 
             if (IsServer)
             {
@@ -569,8 +498,6 @@ namespace Map
 
         public void Tick()
         {
-            if (!Running) return;
-
             UpdateUnreliableDataOnClient();
         }
 

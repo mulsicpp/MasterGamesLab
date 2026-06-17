@@ -53,7 +53,8 @@ namespace Map.OutlineEffect
 
         private void OnDestroyOutliner(TileOutliner outliner)
         {
-            Destroy(outliner.gameObject);
+            if ((bool)outliner.gameObject)
+                Destroy(outliner.gameObject);
         }
 
         public TileOutliner Get()

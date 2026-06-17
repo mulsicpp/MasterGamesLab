@@ -164,7 +164,7 @@ public class UIManager : MonoBehaviour
         SubscribeToLobby();
 
         int mapSeed = int.Parse(Lobby.Data["MapSeed"].Value);
-        Map.Map.Instance.GenerateTerrain(mapSeed);
+        // Map.Map.Instance.GenerateTerrain(mapSeed);
 
         CurrentMenu = MenuId.Lobby;
     }
@@ -207,7 +207,7 @@ public class UIManager : MonoBehaviour
         Lobby = await LobbyService.Instance.CreateLobbyAsync(PlayerName + "'s Lobby", 4, options);
         SubscribeToLobby();
 
-        Map.Map.Instance.GenerateTerrain(mapSeed);
+        // Map.Map.Instance.GenerateTerrain(mapSeed);
 
         CurrentMenu = MenuId.Lobby;
     }
@@ -232,8 +232,10 @@ public class UIManager : MonoBehaviour
 
             Lobby = updateTask.Result;
             PlayerManager.Instance.SetPlayersFromLobby(Lobby);
-            Map.Map.Instance.GenerateStructuresAndPlayers(Lobby.Players.Count);
 
+            int mapSeed = int.Parse(Lobby.Data?["MapSeed"]?.Value ?? "0");
+            Map.Map.Instance.Generate(mapSeed);
+            Map.Map.Instance.GeneratePlayersAndStructures(Lobby.Players.Count);
             StartCoroutine(LoadingScreen());
 
 
@@ -298,7 +300,6 @@ public class UIManager : MonoBehaviour
         CurrentMenu = MenuId.Loading;
         yield return new WaitUntil(() => PlayerManager.Instance.GameCanStart);
 
-        Map.Map.Instance.Running = true;
         CurrentMenu = MenuId.Ingame;
 
         yield break;
@@ -435,18 +436,10 @@ public class UIManager : MonoBehaviour
 
             if(lobbyWasLocked && !IsHost())
             {
-                Map.Map.Instance.GenerateStructuresAndPlayers(Lobby.Players.Count);
+                int mapSeed = int.Parse(Lobby.Data?["MapSeed"]?.Value ?? "0");
+                Map.Map.Instance.Generate(mapSeed);
+                Map.Map.Instance.GeneratePlayersAndStructures(Lobby.Players.Count);
                 StartCoroutine(LoadingScreen());
-            }
-
-            try
-            {
-                int mapSeed = int.Parse(Lobby.Data?["MapSeed"]?.Value);
-                if (Map.Map.Instance.GenerationSeed != mapSeed)
-                    Map.Map.Instance.GenerateTerrain(mapSeed);
-            } catch (Exception)
-            {
-                Map.Map.Instance.GenerateEmpty();
             }
 
             lobbyUI.UpdateUI(Lobby);
