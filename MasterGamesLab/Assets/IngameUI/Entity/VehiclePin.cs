@@ -7,6 +7,8 @@ namespace UI
 {
     public class VehiclePin : Pin
     {
+
+        [SerializeField] VectorImage icon;
         private VehicleRenderer vehicleRenderer;
         private Button pinButton;
 
@@ -46,7 +48,7 @@ namespace UI
 
         protected override void InitializeUiComponents()
         {
-
+            UiElement.Q<VisualElement>("Icon").style.backgroundImage = new StyleBackground(icon);
         }
 
         // override protected void OnMouseEnterElement(MouseEnterEvent evt)

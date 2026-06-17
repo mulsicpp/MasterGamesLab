@@ -62,6 +62,7 @@ MonoBehaviour:
   panelOffset: 10
   invisibleThreshold: -0.1
   PinTemplate: {fileID: 9197481963319205126, guid: 9a1ddb4d40110f84797b46dc87907635, type: 3}
+  icon: {fileID: 7388822144124034973, guid: 4f2d2d410d5a0b04a9d28c66af7fd964, type: 3}
 --- !u!1 &6933318389239052457
 GameObject:
   m_ObjectHideFlags: 0
