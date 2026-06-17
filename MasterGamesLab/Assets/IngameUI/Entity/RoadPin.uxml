@@ -1,0 +1,13 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
+    <ui:VisualElement name="root" class="unity-ui-document__root" style="flex-grow: 1; flex-direction: row; align-items: auto; justify-content: space-around; align-self: center; transform-origin: left;">
+        <ResponsiveButton height-percentage="0.7" name="Cost" class="element copy-button" style="width: 50%; height: 100%; -unity-text-align: middle-left; flex-direction: row; align-items: center; justify-content: flex-start; flex-grow: 0; flex-shrink: 0; text-overflow: ellipsis;">
+            <SquareHightElement picking-mode="Ignore" name="SquareHightElement" class="image-icon element" style="background-image: url(&quot;project://database/Assets/Lobby/Copy.svg?fileID=7388822144124034973&amp;guid=d84977c547bf41d428e01a80aa73b8ae&amp;type=3#Copy&quot;); -unity-background-scale-mode: scale-to-fit; height: 55%; margin-left: 8px; top: -3%;"/>
+            <ResponsiveLabel text="200" height-percentage="0.7" name="CostLabel" class="element text-label label" style="height: 100%; flex-shrink: 1; white-space: nowrap; text-overflow: ellipsis;"/>
+        </ResponsiveButton>
+        <ResponsiveButton height-percentage="0.7" name="Duration" class="element copy-button" style="width: 50%; height: 100%; -unity-text-align: middle-left; flex-direction: row; align-items: center; justify-content: flex-start; flex-grow: 0; flex-shrink: 0; text-overflow: ellipsis;">
+            <SquareHightElement picking-mode="Ignore" name="SquareHightElement" class="image-icon element" style="background-image: url(&quot;project://database/Assets/Lobby/Copy.svg?fileID=7388822144124034973&amp;guid=d84977c547bf41d428e01a80aa73b8ae&amp;type=3#Copy&quot;); -unity-background-scale-mode: scale-to-fit; height: 55%; margin-left: 8px; top: -3%;"/>
+            <ResponsiveLabel text="1:20" height-percentage="0.7" name="DurationLabel" class="element text-label label" style="height: 100%; flex-shrink: 1; white-space: nowrap; text-overflow: ellipsis;"/>
+        </ResponsiveButton>
+    </ui:VisualElement>
+</ui:UXML>
