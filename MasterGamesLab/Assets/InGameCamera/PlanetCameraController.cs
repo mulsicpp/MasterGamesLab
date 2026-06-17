@@ -48,7 +48,14 @@ namespace InGameCamera
         private float currentYaw = 0f;
         private float currentPitch = 0f;
 
-        public float ScalingFactor => Remap(CurrentDistance, minZoom, maxZoom, maxScalingFactor, minScalingFactor);
+        // public float ScalingFactor => Remap(CurrentDistance, minZoom, maxZoom, maxScalingFactor, minScalingFactor);
+        public float ScalingFactor
+        {
+            get
+            {
+                return (1.0f / (CurrentDistance - 1.0f)) * 0.3f + 0.7f;
+            }
+        }
 
         private void Awake()
         {
