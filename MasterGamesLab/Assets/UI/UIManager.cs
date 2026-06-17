@@ -184,7 +184,7 @@ public class UIManager : MonoBehaviour
         // Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
         // string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
-        int mapSeed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+        int mapSeed = new System.Random().Next();
 
         CreateLobbyOptions options = new CreateLobbyOptions
         {
@@ -306,7 +306,7 @@ public class UIManager : MonoBehaviour
 
     public IEnumerator FinishGame()
     {
-        int mapSeed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+        int mapSeed = new System.Random().Next();
 
         UpdateLobbyOptions options = new UpdateLobbyOptions
         {
@@ -406,7 +406,7 @@ public class UIManager : MonoBehaviour
             {
                 await LobbyService.Instance.SubscribeToLobbyEventsAsync(Lobby.Id, callbacks);
             }
-            catch (System.Exception e)
+            catch (Exception)
             {
             }
         }

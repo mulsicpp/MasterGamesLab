@@ -59,9 +59,8 @@ namespace UI
             {
                 await UIManager.Instance.CreateLobbyAsync();
             }
-            catch (System.Exception e)
-            {
-            }
+            catch (Exception) { }
+
             hostButton.SetEnabled(true);
             joinButton.SetEnabled(true);
         }

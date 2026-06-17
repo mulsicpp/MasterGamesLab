@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -53,8 +54,11 @@ namespace Map.OutlineEffect
 
         private void OnDestroyOutliner(TileOutliner outliner)
         {
-            if ((bool)outliner.gameObject)
+            try
+            {
                 Destroy(outliner.gameObject);
+            }
+            catch (Exception) { }
         }
 
         public TileOutliner Get()

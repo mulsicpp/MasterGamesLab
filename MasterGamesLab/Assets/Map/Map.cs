@@ -331,6 +331,8 @@ namespace Map
 
         public void Generate(int seed)
         {
+            Debug.Log("Generating world with seed: " + seed);
+
             GameObject[] children = new GameObject[transform.childCount];
             for (int i = 0; i < transform.childCount; i++)
             {
@@ -399,6 +401,8 @@ namespace Map
 
             ReliableSender = new ReliableSender(true);
             UnreliableSender = new UnreliableSender();
+
+            // GenerationSeed = seed;
         }
         
         public void GeneratePlayersAndStructures(int playerCount)
