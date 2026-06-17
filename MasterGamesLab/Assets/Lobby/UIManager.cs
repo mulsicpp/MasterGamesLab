@@ -283,7 +283,6 @@ public class UIManager : MonoBehaviour
                 if (heartbeatTask.IsFaulted)
                 {
                     System.Exception e = heartbeatTask.Exception?.InnerException ?? heartbeatTask.Exception;
-                    Debug.LogWarning($"[Lobby] Heartbeat failed. The lobby might have timed out or been deleted: {e?.Message}");
 
                     Lobby = null;
                 }
@@ -338,10 +337,8 @@ public class UIManager : MonoBehaviour
             yield return new WaitUntil(() => !suppressReconnect && (Lobby?.Data?.ContainsKey("JoinCode") ?? false) && (!NetworkManager.Singleton?.IsListening ?? false) && !IsHost());
             ConnectingToGame = true;
 
-            Debug.Log("Connecting to host...");
 
             string relayJoinCode = Lobby.Data["JoinCode"].Value;
-            Debug.Log("Relay code: " + relayJoinCode);
 
             var allocationTask = RelayService.Instance.JoinAllocationAsync(relayJoinCode);
             var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
@@ -350,7 +347,6 @@ public class UIManager : MonoBehaviour
 
             if (allocationTask.IsFaulted || allocationTask.IsCanceled)
             {
-                Debug.LogError($"Relay Allocation Failed: {allocationTask.Exception?.GetBaseException().Message}");
                 yield return retryDelay;
                 continue;
             }
@@ -361,7 +357,6 @@ public class UIManager : MonoBehaviour
 
             if (!NetworkManager.Singleton.StartClient())
             {
-                Debug.LogError("StartClient failed to initialize network driver.");
                 yield return retryDelay;
                 continue;
             }
@@ -390,12 +385,10 @@ public class UIManager : MonoBehaviour
 
             if (connectionVerified)
             {
-                Debug.Log("VERIFIED: Successfully connected to host!");
                 ConnectingToGame = false;
             }
             else
             {
-                Debug.LogError("Connection timed out or was rejected by the host.");
                 NetworkManager.Singleton.Shutdown(); // Clean up the failed socket
             }
         }
@@ -414,7 +407,6 @@ public class UIManager : MonoBehaviour
             }
             catch (System.Exception e)
             {
-                Debug.Log(e);
             }
         }
     }

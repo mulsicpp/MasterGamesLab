@@ -981,7 +981,6 @@ namespace Map.GeometryGeneration
             /*var dir = Vector3.Cross(left, right);
             if (Vector3.Dot(dir, nt.Tile.PositionOnSphere - center) < 0f)
             {
-                Debug.Log("Wrong direction");
                 (left, right) = (right, left);
             }*/
         }

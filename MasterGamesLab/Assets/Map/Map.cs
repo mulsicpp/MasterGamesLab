@@ -157,7 +157,6 @@ namespace Map
                 chunk.UpdateMesh();
             }
 
-            Debug.Log($"Generated {tiles.Count} tiles");
 
             activeTiles = new List<Tile>();
             Shader.SetGlobalFloat(PlanetRadius, radius);
@@ -407,7 +406,6 @@ namespace Map
         public void GenerateTerrain(int seed)
         {
             Timestamp = new Timestamp(0);
-            Debug.Log("Generating world with seed " + seed + " ...");
 
             UnityEngine.Random.InitState(seed);
             ProceduralMapGenerator.GenerateMap(this);
@@ -683,7 +681,6 @@ namespace Map
         {
             Timestamp = timestamp;
 
-            Debug.Log("Player count: " + Players.Count);
 
             ApplyStatesLocal(serverTime, this.players, players);
 

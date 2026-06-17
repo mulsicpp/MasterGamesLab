@@ -10,7 +10,7 @@ namespace UI
         [SerializeField] private float invisibleThreshold = -0.1f;
 
         [Header("Optimization")]
-        [SerializeField] private float positionEpsilon = 0.5f;
+        [SerializeField] private float positionEpsilon = 0f;
 
         protected Camera mainCamera;
         protected PlanetCameraController cameraController;
@@ -44,6 +44,9 @@ namespace UI
         {
             Vector3 worldPos = GetTargetWorldPosition(out Vector3 upVector);
             Vector3 screenPos = mainCamera.WorldToScreenPoint(worldPos);
+            Debug.Log(worldPos);
+            Debug.Log(screenPos);
+
             bool facingAway = Vector3.Dot((mainCamera.transform.position - worldPos).normalized, upVector) < invisibleThreshold;
 
             if (screenPos.z < 0 || facingAway)
@@ -57,6 +60,8 @@ namespace UI
                 worldPos,
                 mainCamera
             );
+            Debug.Log(panelPosition);
+
 
             float halfWidth = UiElement.layout.width / 2f;
             float halfHeight = UiElement.layout.height / 2f;

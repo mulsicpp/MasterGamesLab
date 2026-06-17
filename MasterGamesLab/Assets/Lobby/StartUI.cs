@@ -61,7 +61,6 @@ namespace UI
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"Failed to create lobby: {e}");
             }
             hostButton.SetEnabled(true);
             joinButton.SetEnabled(true);

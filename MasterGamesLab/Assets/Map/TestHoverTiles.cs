@@ -41,7 +41,6 @@ namespace Map
                     tileOutliner.SetOutlineParameters(Color.black, new Color(0, 0, 0, 0), 0);
                     break;
                 case Edge e:
-                    Debug.Log("Edge is hovered");
                     break;
                 default:
                     break;

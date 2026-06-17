@@ -409,7 +409,7 @@ namespace Map.Fleet
                 }
 
                 int lastIndex = Route.Length - 1;
-                
+
                 // int oldTileIndex = Mathf.Clamp((int)(RouteProgress + 0.5f), 0, lastIndex);
 
                 RouteProgress += tickDuration * SpeedTPS;
@@ -532,11 +532,11 @@ namespace Map.Fleet
             var t = Transform;
             if (t == null)
             {
-                gameObject.SetActive(false);
+                renderer.Geometry.gameObject.SetActive(false);
                 return;
             }
 
-            gameObject.SetActive(true);
+            renderer.Geometry.gameObject.SetActive(true);
             var tProj = t; // Map.Instance.GetProjectedVehicleTransform(t);
             gameObject.transform.localPosition = tProj.Position;
             gameObject.transform.localRotation = Quaternion.LookRotation(tProj.Forward, tProj.Up);

@@ -77,7 +77,6 @@ public class ProducerConsumerSpawnPoint
 
         if (candidates.Count == 0)
         {
-            Debug.LogWarning($"no spawnpoint for {type} on continent {continentId}");
             return null;
         }
 
