@@ -57,8 +57,6 @@ namespace UI
                 mainCamera
             );
 
-            // CLEAN: No more layout.width or layout.height checking! 
-            // Because of wrapper.style.translate, this positions the CENTER of the UI directly on the world point.
             Vector2 targetPosition = new Vector2(
                 panelPosition.x,
                 panelPosition.y - panelOffset
