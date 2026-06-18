@@ -64,8 +64,8 @@ namespace Map.Infrastructure
             if (!Exists) return;
             if (RequestedGood == Good.None && (requestCooldown -= tickDuration) <= 0)
             {
-                RequestedGood = (Good) Random.Range((int)Good.Apple, (int)Good.Banana + 1);
-                CurrentPayout = Constants.CONSUMER_REQUEST_BASE_PAYOUT;
+                RequestedGood = GoodUtils.Goods[Random.Range(0, GoodUtils.Goods.Length)];
+                CurrentPayout = GoodUtils.GoodBasePayout[RequestedGood];
                 payoutIncreaseCooldown = NextPayoutIncreaseCooldown();
                 nextPayout = (int)(CurrentPayout * NextPayoutIncreaseFactor());
                 return;

@@ -41,7 +41,11 @@ public static class Constants
 
     // ------------------- Producer & Consumer Logic -------------------
 
-    public const int CONSUMER_REQUEST_BASE_PAYOUT = 100;
+    public const int GOOD_COMMON_BASE_PAYOUT = 100;
+    public const int GOOD_UNCOMMON_BASE_PAYOUT = 150;
+    public const int GOOD_RARE_BASE_PAYOUT = 200;
+    public const int GOOD_EPIC_BASE_PAYOUT = 300;
+    public const int GOOD_LEGENDARY_BASE_PAYOUT = 500;
 
     public const float MIN_CONSUMER_REQUEST_COOLDOWN = 15f;
     public const float MAX_CONSUMER_REQUEST_COOLDOWN = 30f;

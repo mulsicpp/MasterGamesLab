@@ -985,12 +985,7 @@ namespace Map
 
                     if (producer.Good != Good.None)
                     {
-                        switch (producer.Good)
-                        {
-                            case Good.Apple: Gizmos.color = Color.red; break;
-                            case Good.Orange: Gizmos.color = orange; break;
-                            case Good.Banana: Gizmos.color = Color.yellow; break;
-                        }
+                        Gizmos.color = GoodUtils.GoodColors[producer.Good].linear;
 
                         Vector3 cargoPos = GetProjectedPosition(producer.Tile.PositionOnSphere, 1.03f);
                         Gizmos.DrawSphere(cargoPos, 0.007f);
@@ -1008,12 +1003,7 @@ namespace Map
 
                     if (consumer.RequestedGood != Good.None)
                     {
-                        switch (consumer.RequestedGood)
-                        {
-                            case Good.Apple: Gizmos.color = Color.red; break;
-                            case Good.Orange: Gizmos.color = orange; break;
-                            case Good.Banana: Gizmos.color = Color.yellow; break;
-                        }
+                        Gizmos.color = GoodUtils.GoodColors[consumer.RequestedGood].linear;
 
                         Vector3 cargoPos = GetProjectedPosition(consumer.Tile.PositionOnSphere, 1.03f);
                         Gizmos.DrawSphere(cargoPos, 0.007f);
@@ -1078,12 +1068,7 @@ namespace Map
 
                 if (vehicle is Truck truck && truck.Good != Good.None)
                 {
-                    switch (truck.Good)
-                    {
-                        case Good.Apple: Gizmos.color = Color.red; break;
-                        case Good.Orange: Gizmos.color = orange; break;
-                        case Good.Banana: Gizmos.color = Color.yellow; break;
-                    }
+                    Gizmos.color = GoodUtils.GoodColors[truck.Good].linear;
 
                     Vector3 cargoPos = GetProjectedPosition(basePos, 1.025f);
                     Gizmos.DrawSphere(cargoPos, 0.007f);

@@ -10,7 +10,7 @@ public class TestRoadCreation : NetworkBehaviour
 {
 
     [SerializeField]
-    private Good good = Good.Apple;
+    private Good good = Good.Common;
 
     // Update is called once per frame
     void Update()
