@@ -138,7 +138,7 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
                     if (t.BlueprintStructure != null)
                         Debug.Log("Structure cost: " + t.BlueprintStructure.BlueprintCost);
                     if (t.Structure is Consumer consumer)
-                        Debug.Log("Consumer { good = " + consumer.RequestedGood.ToString() + ", payout = " + consumer.CurrentPayout + " }");
+                        Debug.Log("Consumer { good = " + consumer.Request.Good.ToString() + ", payout = " + consumer.Request.Payout + " }");
                     break;
                 case Edge e:
                     if (e.BlueprintType != EdgeType.None)

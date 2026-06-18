@@ -11,7 +11,7 @@ public static class Constants
 
     public static readonly Color[] PLAYER_COLORS = { Color.red, Color.blue, Color.yellow, Color.green };
 
-    public const int PLAYER_INITIAL_CASH = 100;
+    public const int PLAYER_INITIAL_CASH = 1000;
 
     // ------------------- Vehicles -------------------
 
@@ -55,6 +55,13 @@ public static class Constants
 
     public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.05f;
     public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.2f;
+
+
+    public const float MIN_CONSUMER_SPAWN_COOLDOWN = 5f;
+    public const float MAX_CONSUMER_SPAWN_COOLDOWN = 30f;
+
+    public const float MIN_PRODUCER_SPAWN_COOLDOWN = 30f;
+    public const float MAX_PRODUCER_SPAWN_COOLDOWN = 60f;
 
 
     // ------------------- Build Costs -------------------

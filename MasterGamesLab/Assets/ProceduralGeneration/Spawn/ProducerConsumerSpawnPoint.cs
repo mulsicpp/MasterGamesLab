@@ -15,9 +15,9 @@ public class ProducerConsumerSpawnPoint
     public List<ITile> PlacedConsumers { get; private set; }
 
     //distance
-    public int MinDistProducerConsumer = 10;
-    public int MinDistProducerProducer = 8;
-    public int MinDistConsumerConsumer = 8;
+    public int MinDistProducerConsumer = 6;
+    public int MinDistProducerProducer = 4;
+    public int MinDistConsumerConsumer = 1;
 
     //public float ConsumerGroupProbability = 0.6f;
 
