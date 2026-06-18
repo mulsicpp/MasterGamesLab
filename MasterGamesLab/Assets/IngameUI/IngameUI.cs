@@ -78,7 +78,6 @@ namespace UI
 
             controls = new IControls[] { VehicleControls, ConstructionControls };
 
-            Map.Map.Instance.Blueprint.OnChanged += HandleBlueprintUpdate;
             Player.Player.OnPlayerChanged += ChangePlayerInfo;
 
             // 2. Query Visual Elements
@@ -150,7 +149,6 @@ namespace UI
 
         void OnDisable()
         {
-            Map.Map.Instance.Blueprint.OnChanged -= HandleBlueprintUpdate;
             if (ConstructionControls != null)
                 ConstructionControls.OnConstructionTypeChanged -= HandleStateUIUpdate;
 
@@ -178,6 +176,8 @@ namespace UI
             {
                 c.DisableControls();
             }
+
+            Map.Map.Instance.Blueprint.OnChanged += HandleBlueprintUpdate;
 
             // Map.Map.Instance.enabled = true;
             // TODO enable ingame actions
@@ -363,6 +363,7 @@ namespace UI
 
         private void HandleBlueprintUpdate(Blueprint blueprint)
         {
+            Debug.Log("HandleBlueprintUpdate was called");
             if (blueprint.IsEmpty)
             {
                 blueprintCountContainer.style.display = DisplayStyle.None;

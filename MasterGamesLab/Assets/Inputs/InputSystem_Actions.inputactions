@@ -600,6 +600,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Cancel",
+                    "type": "Button",
+                    "id": "11abec6a-cf85-4cb4-867f-d5f3309b7ddb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "BuildRoad",
                     "type": "Button",
                     "id": "38f068d2-3a55-49be-a881-17039038f211",
@@ -612,15 +621,6 @@
                     "name": "BuildCanal",
                     "type": "Button",
                     "id": "f4c916b0-a068-4a99-9332-4d4691eaba1b",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "BuildPort",
-                    "type": "Button",
-                    "id": "8d7370bb-5000-44c8-b905-da7a91e51b24",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -645,6 +645,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "BuildPort",
+                    "type": "Button",
+                    "id": "8d7370bb-5000-44c8-b905-da7a91e51b24",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "ConfirmBuildPlan",
                     "type": "Button",
                     "id": "bd10da1f-9611-4b3c-811c-b1c55514dc10",
@@ -657,15 +666,6 @@
                     "name": "HideBuild",
                     "type": "Button",
                     "id": "2e0a201c-0911-4376-b74d-4001f8db55ff",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Cancel",
-                    "type": "Button",
-                    "id": "11abec6a-cf85-4cb4-867f-d5f3309b7ddb",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -696,7 +696,7 @@
                 {
                     "name": "",
                     "id": "b187d659-9e7f-44c6-9c4e-29803c8cb088",
-                    "path": "<Keyboard>/q",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -707,7 +707,7 @@
                 {
                     "name": "",
                     "id": "538d381e-094f-4141-bab8-3ccbc60d774d",
-                    "path": "<Keyboard>/w",
+                    "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -729,7 +729,7 @@
                 {
                     "name": "",
                     "id": "370bfb21-58d3-4a33-adf3-f0deb1a039a7",
-                    "path": "<Keyboard>/r",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -740,7 +740,7 @@
                 {
                     "name": "",
                     "id": "34de9461-1664-4f44-95ad-7bee66b16711",
-                    "path": "<Keyboard>/t",
+                    "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
