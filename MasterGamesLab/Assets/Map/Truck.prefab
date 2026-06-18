@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3878134763162412230}
-  - component: {fileID: 5002977908544241556}
+  - component: {fileID: 8294785909044339647}
   m_Layer: 0
   m_Name: Truck
   m_TagString: Untagged
@@ -34,7 +34,7 @@ Transform:
   - {fileID: 6553413745524307589}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5002977908544241556
+--- !u!114 &8294785909044339647
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -43,9 +43,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 4004374116097416254}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3593333dff58ca45af48a52fd4cd0a0, type: 3}
+  m_Script: {fileID: 11500000, guid: 6fbfa12778a2c5d42b5c362b43d1e679, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Map.Fleet.VehicleRenderer
+  m_EditorClassIdentifier: Assembly-CSharp::Map.Fleet.TruckRenderer
   CargoTransform: {fileID: 1193400825577356308}
 --- !u!1 &4218635562262368961
 GameObject:
@@ -95,19 +95,6 @@ MonoBehaviour:
   invisibleThreshold: -0.1
   PinTemplate: {fileID: 9197481963319205126, guid: 9a1ddb4d40110f84797b46dc87907635, type: 3}
   icon: {fileID: 7388822144124034973, guid: bee6275bf0ec2d2498c79c7cb139def1, type: 3}
---- !u!114 &8294785909044339647
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4004374116097416254}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6fbfa12778a2c5d42b5c362b43d1e679, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Map.Fleet.TruckRenderer
-  CargoTransform: {fileID: 1193400825577356308}
 --- !u!1 &6933318389239052457
 GameObject:
   m_ObjectHideFlags: 0
