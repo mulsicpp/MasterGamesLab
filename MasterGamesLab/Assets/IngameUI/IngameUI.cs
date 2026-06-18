@@ -185,6 +185,8 @@ namespace UI
 
         private void BecameHidden()
         {
+            if (Map.Map.Instance.Blueprint != null)
+                Map.Map.Instance.Blueprint.OnChanged -= HandleBlueprintUpdate;
             // Map.Map.Instance.enabled = false;
             // TODO disable ingame actions
         }

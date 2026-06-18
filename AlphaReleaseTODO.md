@@ -9,7 +9,7 @@
 - correct material/outline for blueprints/previews
 - correct driving across splines
 
-- Better keyboard shortcuts !
+- Better keyboard shortcuts ! [done]
 - Vehicle controls !!!
     - Select fastest/cheapest route to valid structures
     - Load/Unload trucks [done]

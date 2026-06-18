@@ -37,6 +37,9 @@ namespace Map
 
         // Tile data
         public TileId Id { get; private set; }
+
+        public EntityId EntityId => new (Map.Instance.EntityIdManager.TileRange.Start.Value + Id);
+
         public MapChunk Chunk;
         public IReadOnlyList<ITile> Neighbors => neighbors;
         public Vector3 PositionOnSphere { get; private set; }
@@ -432,7 +435,7 @@ namespace Map
         public Vector4 GetTileData()
         {
             //return new Vector4(Id + Map.ID_OFFSET, randomValue, active ? 1 : 0, 0);
-            return new Vector4(Id + Map.ID_OFFSET, (float)Type, active ? 1 : 0, RandomValue);
+            return new Vector4(EntityId.Value + Map.ID_OFFSET, (float)Type, active ? 1 : 0, RandomValue);
         }
 
         private void SortList<T>(List<T> listToSort, Func<T, Vector3> toVector3)

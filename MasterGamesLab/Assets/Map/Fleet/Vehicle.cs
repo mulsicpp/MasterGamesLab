@@ -97,6 +97,8 @@ namespace Map.Fleet
         public VehicleId Id => new VehicleId(Type, Index);
         public int IndexInVehicles => Map.Instance.Fleet.VehicleRanges[Type].Start.Value + Index;
 
+        public EntityId EntityId => new(Map.Instance.EntityIdManager.VehicleRange.Start.Value + IndexInVehicles);
+
         public abstract Player.Player Owner { get; }
 
         public VehicleRenderer Renderer { get; private set; }
@@ -363,6 +365,8 @@ namespace Map.Fleet
             routeProgress = 0;
             parkedTile = null;
             lastServerTime = 0;
+
+            Renderer = null;
 
             smoothDriving = new SmoothDrivingLinearSimulationInterpolation(this);
             Touch();

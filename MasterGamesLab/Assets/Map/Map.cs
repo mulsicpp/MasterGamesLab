@@ -56,6 +56,8 @@ namespace Map
         public IReadOnlyInfrastructure Infrastructure => infrastructure;
         public IReadOnlyFleet Fleet => fleet;
 
+        public EntityIdManager EntityIdManager { get; private set; }
+
         public int? GenerationSeed { get; private set; } = null;
 
         public Blueprint.Blueprint Blueprint;
@@ -270,18 +272,20 @@ namespace Map
                 return;
             }
 
-            if (currentlyHoveredId < tiles.Count)
-            {
-                CurrentlyHovered = tiles[currentlyHoveredId];
-            }
-            else if (currentlyHoveredId < GetTileAndEdgeCount())
-            {
-                CurrentlyHovered = edges[currentlyHoveredId - tiles.Count];
-            }
-            else if (currentlyHoveredId < GetTileAndEdgeCount() + 100)
-            {
-                CurrentlyHovered = Fleet.Vehicles[currentlyHoveredId - GetTileAndEdgeCount()];
-            }
+            CurrentlyHovered = EntityIdManager[new(currentlyHoveredId)] as IHoverable;
+
+            // if (currentlyHoveredId < tiles.Count)
+            // {
+            //     CurrentlyHovered = tiles[currentlyHoveredId];
+            // }
+            // else if (currentlyHoveredId < GetTileAndEdgeCount())
+            // {
+            //     CurrentlyHovered = edges[currentlyHoveredId - tiles.Count];
+            // }
+            // else if (currentlyHoveredId < GetTileAndEdgeCount() + 100)
+            // {
+            //     CurrentlyHovered = Fleet.Vehicles[currentlyHoveredId - GetTileAndEdgeCount()];
+            // }
         }
 
         public int GetTileAndEdgeCount() => tiles.Count + edges.Length;
@@ -386,6 +390,8 @@ namespace Map
             infrastructure = new Infrastructure.Infrastructure(0);
             fleet = new Fleet.Fleet(0);
 
+            EntityIdManager = new();
+
             Blueprint = new Blueprint.Blueprint();
             storedBlueprintPackets = new BlueprintPacket[0];
             for (int i = 0; i < storedBlueprintPackets.Length; i++)
@@ -402,7 +408,7 @@ namespace Map
             ReliableSender = new ReliableSender(true);
             UnreliableSender = new UnreliableSender();
 
-            // GenerationSeed = seed;
+            GenerationSeed = seed;
         }
         
         public void GeneratePlayersAndStructures(int playerCount)
@@ -415,6 +421,8 @@ namespace Map
 
             infrastructure = new Infrastructure.Infrastructure(playerCount);
             fleet = new Fleet.Fleet(playerCount);
+
+            EntityIdManager = new();
 
             Blueprint = new Blueprint.Blueprint();
             storedBlueprintPackets = new BlueprintPacket[playerCount];
