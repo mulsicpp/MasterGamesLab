@@ -20,17 +20,22 @@ namespace UI
             root = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>("root");
         }
 
-        public VisualElement CreatePinElement(VisualTreeAsset template)
+        public VisualElement CreatePinElement(VisualTreeAsset template, float heightPercent, float aspectRatio)
         {
             VisualElement wrapper = new VisualElement();
-            wrapper.style.height = Length.Percent(5f);
-            wrapper.style.aspectRatio = 0.7f;
+
+            wrapper.style.height = Length.Percent(heightPercent);
+            wrapper.style.aspectRatio = aspectRatio;
+
             wrapper.AddToClassList("element");
             wrapper.style.position = Position.Absolute;
 
-            wrapper.style.transformOrigin = new TransformOrigin(Length.Percent(50f), Length.Percent(50f));
+            wrapper.style.left = 0;
+            wrapper.style.top = 0;
+            wrapper.style.marginLeft = StyleKeyword.Null;
+            wrapper.style.marginTop = StyleKeyword.Null;
 
-            wrapper.style.translate = new StyleTranslate(new Translate(Length.Percent(-50f), Length.Percent(-50f)));
+            wrapper.style.transformOrigin = new TransformOrigin(Length.Percent(50f), Length.Percent(100f));
 
             VisualElement visualContent = template.Instantiate();
             wrapper.Add(visualContent);

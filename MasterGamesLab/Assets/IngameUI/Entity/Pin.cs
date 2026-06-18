@@ -9,6 +9,10 @@ namespace UI
         [SerializeField] private float panelOffset = 10f;
         [SerializeField] private float invisibleThreshold = -0.1f;
 
+        protected abstract float pinHeightPercent { get; }
+        protected abstract float pinAspectRatio { get; }
+
+
         protected Camera mainCamera;
         protected PlanetCameraController cameraController;
         protected PinboardUi pinboard;
@@ -30,7 +34,7 @@ namespace UI
             cameraController = MainCamera.Instance.GetComponentInChildren<PlanetCameraController>();
             pinboard = FindAnyObjectByType<PinboardUi>();
 
-            UiElement = pinboard.CreatePinElement(PinTemplate);
+            UiElement = pinboard.CreatePinElement(PinTemplate, pinHeightPercent, pinAspectRatio);
 
             UiElement.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
             UiElement.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
@@ -57,17 +61,23 @@ namespace UI
                 mainCamera
             );
 
-            Vector2 targetPosition = new Vector2(
-                panelPosition.x,
-                panelPosition.y - panelOffset
-            );
+            float scaleFactor = cameraController.ScalingFactor;
 
-            UiElement.style.scale = new StyleScale(new Scale(new Vector3(cameraController.ScalingFactor, cameraController.ScalingFactor, 1f)));
-            UiElement.style.left = targetPosition.x;
-            UiElement.style.top = targetPosition.y;
+            float elementWidth = UiElement.layout.width;
+            float elementHeight = UiElement.layout.height;
+
+            float finalXPixels = panelPosition.x - (elementWidth * 0.5f);
+            float finalYPixels = panelPosition.y - elementHeight - panelOffset;
+
+            UiElement.style.translate = new StyleTranslate(new Translate(
+                new Length(finalXPixels, LengthUnit.Pixel),
+                new Length(finalYPixels, LengthUnit.Pixel)
+            ));
+
+            UiElement.style.scale = new StyleScale(new Scale(new Vector3(scaleFactor, scaleFactor, 1f)));
             UiElement.style.display = DisplayStyle.Flex;
 
-            lastAppliedPosition = targetPosition;
+            lastAppliedPosition = panelPosition;
         }
 
         protected virtual void OnMouseEnterElement(MouseEnterEvent evt)
