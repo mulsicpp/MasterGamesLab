@@ -103,7 +103,6 @@ namespace Map
         private float oldProjectionFactor;
         private Vector3 oldProjectionCenter;
 
-        public bool isOverUI = false;
         public IHoverable CurrentlyHovered;
         public OutlineCurrentlyHovered HoverOutliner;
 
@@ -236,10 +235,6 @@ namespace Map
 
         private void UpdateHovered()
         {
-            if (isOverUI)
-            {
-                return;
-            }
             var mousePos = Mouse.current.position.ReadValue();
             var mX = (int)mousePos.x;
             var mY = (int)mousePos.y;
@@ -253,10 +248,11 @@ namespace Map
 
         private void OnReadbackComplete(AsyncGPUReadbackRequest request)
         {
-            if (isOverUI)
+            if(HoverablePicker.Instance.DenyPick)
             {
                 return;
             }
+
             if (request.hasError)
             {
                 CurrentlyHovered = null;

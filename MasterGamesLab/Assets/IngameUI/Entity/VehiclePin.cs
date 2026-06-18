@@ -22,11 +22,8 @@ namespace UI
         {
             if (IsHovered && Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Vehicles))
             {
-                Map.Map.Instance.isOverUI = true;
                 Map.Map.Instance.CurrentlyHovered = vehicleRenderer.Vehicle;
-            } else
-            {
-                Map.Map.Instance.isOverUI = false;
+                HoverablePicker.Instance.DenyPick = true;
             }
         }
 

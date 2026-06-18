@@ -18,6 +18,7 @@ namespace UI
     {
         public static IngameUI Instance { get; private set; }
         public override MenuId Id => MenuId.Ingame;
+        public bool IsHovered = false;
 
         // --- Configuration Constants ---
         public const string activeClass = "ingame-build-button--active";
@@ -193,6 +194,12 @@ namespace UI
 
         private void Update()
         {
+            if (IsHovered)
+            {
+                Map.Map.Instance.CurrentlyHovered = null;
+                HoverablePicker.Instance.DenyPick = true;
+            }
+
             Map.Map.Instance.HoverLayers = controls.FirstOrDefault(c => c.ControlsAreActive)?.SelectHoverableLayers() ?? DEFAULT_HOVERABLE_LAYERS;
 
             Map.Map.Instance.HoverOutliner.HoverState = HoverState.Valid;
@@ -508,13 +515,14 @@ namespace UI
 
         private void OnMouseEnterElement(MouseEnterEvent evt)
         {
+            IsHovered = true;
             Map.Map.Instance.CurrentlyHovered = null;
-            Map.Map.Instance.isOverUI = true;
+            HoverablePicker.Instance.DenyPick = true;
         }
 
         private void OnMouseLeaveElement(MouseLeaveEvent evt)
         {
-            Map.Map.Instance.isOverUI = false;
+            IsHovered = false;
         }
 
         #endregion
