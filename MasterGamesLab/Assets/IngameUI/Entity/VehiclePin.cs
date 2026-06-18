@@ -10,11 +10,15 @@ namespace UI
 
         [SerializeField] VectorImage icon;
         private VehicleRenderer vehicleRenderer;
-        private Button pinButton;
+
+        private Label time;
+
+        protected override float pinHeightPercent => 6f;
+        protected override float pinAspectRatio => 0.5f;
 
         public void OnEnable()
         {
-            vehicleRenderer = GetComponent<VehicleRenderer>();
+            vehicleRenderer = GetComponentInParent<VehicleRenderer>();
         }
 
         private void Update()
@@ -23,7 +27,8 @@ namespace UI
             {
                 Map.Map.Instance.isOverUI = true;
                 Map.Map.Instance.CurrentlyHovered = vehicleRenderer.Vehicle;
-            } else
+            }
+            else
             {
                 Map.Map.Instance.isOverUI = false;
             }
@@ -41,14 +46,16 @@ namespace UI
 
         protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)
         {
-            var projectedTransform = Map.Map.Instance.GetProjectedVehicleTransform(vehicleRenderer.Vehicle.Transform);
-            upVector = projectedTransform.Up;
-            return projectedTransform.Position;
+            Vector3 rawPosition = gameObject.transform.position;
+            Vector3 projectedPosition = Map.Map.Instance.GetProjectedPosition(rawPosition);
+            upVector = gameObject.transform.up;
+            return projectedPosition;
         }
 
         protected override void InitializeUiComponents()
         {
             UiElement.Q<VisualElement>("Icon").style.backgroundImage = new StyleBackground(icon);
+            time = UiElement.Q<Label>("TimeLabel");
         }
 
         // override protected void OnMouseEnterElement(MouseEnterEvent evt)

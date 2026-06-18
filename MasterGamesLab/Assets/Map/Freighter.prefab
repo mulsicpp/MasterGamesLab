@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3878134763162412230}
   - component: {fileID: 5002977908544241556}
-  - component: {fileID: 3851916174479515196}
   m_Layer: 0
   m_Name: Freighter
   m_TagString: Untagged
@@ -31,6 +30,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 5121049943041879703}
   - {fileID: 1193400825577356308}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -47,19 +47,51 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map.Fleet.VehicleRenderer
   CargoTransform: {fileID: 1193400825577356308}
---- !u!114 &3851916174479515196
+--- !u!1 &5964703610952924499
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5121049943041879703}
+  - component: {fileID: 2505298085198460080}
+  m_Layer: 0
+  m_Name: Pin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5121049943041879703
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5964703610952924499}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 3.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3878134763162412230}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2505298085198460080
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4004374116097416254}
+  m_GameObject: {fileID: 5964703610952924499}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c9e0c99473b6bd4da22f1112f0d000a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI.VehiclePin
-  panelOffset: 10
+  panelOffset: 0
   invisibleThreshold: -0.1
   PinTemplate: {fileID: 9197481963319205126, guid: 9a1ddb4d40110f84797b46dc87907635, type: 3}
   icon: {fileID: 7388822144124034973, guid: 4f2d2d410d5a0b04a9d28c66af7fd964, type: 3}

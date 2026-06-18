@@ -4,6 +4,12 @@ using UnityEngine.UIElements;
 
 public class RoadPin : Pin
 {
+    Label cost, duration;
+
+    protected override float pinHeightPercent => 0.3f;
+
+    protected override float pinAspectRatio => 4;
+
     protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)
     {
         throw new System.NotImplementedException();
@@ -11,6 +17,7 @@ public class RoadPin : Pin
 
     protected override void InitializeUiComponents()
     {
-        throw new System.NotImplementedException();
+        cost = UiElement.Q<Label>("CostLabel");
+        duration = UiElement.Q<Label>("DurationLabel");
     }
 }
