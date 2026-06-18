@@ -1,7 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Template name="BlueprintCount" src="project://database/Assets/IngameUI/BlueprintCount.uxml?fileID=9197481963319205126&amp;guid=8815f6fe27465df4bb0661e06bed9c0f&amp;type=3#BlueprintCount"/>
     <ui:Template name="TabMenu" src="project://database/Assets/IngameUI/TabMenu.uxml?fileID=9197481963319205126&amp;guid=1226372f1629f6c45a297bd9a0f823c2&amp;type=3#TabMenu"/>
-    <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
+    <Style src="project://database/Assets/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
     <ui:VisualElement name="Root" picking-mode="Ignore" class="unity-ui-document__root">
         <ResponsiveLabel name="MONEY" text="Money: 100" class="element label money-display"/>
         <ui:GroupBox name="Row1" class="element ingam-build-menu-row"/>
@@ -28,20 +28,14 @@
             </ui:GroupBox>
             <ShrinkWrapContainer name="Container" class="element container" style="right: 0; bottom: 0;">
                 <ui:GroupBox name="BuildButtons" class="element group-box-top" style="align-items: flex-end; flex-direction: row; align-self: flex-end; flex-grow: 0; justify-content: space-between; padding-left: 5%; padding-right: 5%; padding-top: 5%; padding-bottom: 0%;">
-                    <ui:VisualElement name="Placeholder1" class="element ingame-construct-button-square"/>
-                    <ui:VisualElement class="element ingame-construct-button-square">
-                        <ui:Button text="" name="BuyFreighterButton" class="button element ingame-build-button">
-                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element test freighter"/>
-                        </ui:Button>
-                    </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuyTruckButton" class="button element ingame-build-button">
                             <ui:VisualElement name="Icon" class="ingame-build-button-icon element truck"/>
                         </ui:Button>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
-                        <ui:Button text="" name="BuildRoadButton" class="button element ingame-build-button">
-                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element road"/>
+                        <ui:Button text="" name="BuyFreighterButton" class="button element ingame-build-button">
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element test freighter"/>
                         </ui:Button>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
@@ -50,10 +44,16 @@
                         </ui:Button>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-construct-button-square">
+                        <ui:Button text="" name="BuildRoadButton" class="button element ingame-build-button">
+                            <ui:VisualElement name="Icon" class="ingame-build-button-icon element road"/>
+                        </ui:Button>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuildCanalButton" class="button element ingame-build-button">
                             <ui:VisualElement name="Icon" class="ingame-build-button-icon element canal"/>
                         </ui:Button>
                     </ui:VisualElement>
+                    <ui:VisualElement name="Placeholder1" class="element ingame-construct-button-square"/>
                 </ui:GroupBox>
                 <ui:GroupBox name="Devider" class="element group-box-divider">
                     <ui:VisualElement name="VisualElement" class="element div build-menu-divider-line"/>

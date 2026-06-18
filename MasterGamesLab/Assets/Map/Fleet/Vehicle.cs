@@ -10,6 +10,7 @@ using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Map.GeometryGeneration;
 using System.Collections.Generic;
+using static Unity.VectorGraphics.VectorUtils;
 
 namespace Map.Fleet
 {
@@ -97,10 +98,13 @@ namespace Map.Fleet
         public VehicleId Id => new VehicleId(Type, Index);
         public int IndexInVehicles => Map.Instance.Fleet.VehicleRanges[Type].Start.Value + Index;
 
+        public EntityId EntityId => new(Map.Instance.EntityIdManager.VehicleRange.Start.Value + IndexInVehicles);
+
         public abstract Player.Player Owner { get; }
 
         public VehicleRenderer Renderer { get; private set; }
         public abstract GameObject VehiclePrefab { get; }
+        public Constants.OutlineData? Outline { get; private set; }
 
         private bool exists;
 
@@ -364,6 +368,8 @@ namespace Map.Fleet
             parkedTile = null;
             lastServerTime = 0;
 
+            Renderer = null;
+
             smoothDriving = new SmoothDrivingLinearSimulationInterpolation(this);
             Touch();
         }
@@ -511,6 +517,7 @@ namespace Map.Fleet
                 {
                     var gameObject = Object.Instantiate(VehiclePrefab, Map.Instance.gameObject.transform);
                     Renderer = gameObject.GetComponent<VehicleRenderer>();
+                    Debug.Log(Renderer);
                     Renderer.Init(this);
                 }
             }
@@ -523,13 +530,15 @@ namespace Map.Fleet
 
         public void ClearOutline()
         {
-            Renderer?.Geometry.SetBaseLayer();
+            Outline = null;
+            //Renderer?.Geometry.SetBaseLayer();
         }
 
         public void ShowOutline(Constants.OutlineData outlineData)
         {
-            Renderer?.Geometry.SetOutlineLayer();
-            Renderer?.Geometry.SetOutlineParameters(outlineData);
+            Outline = outlineData;
+            //Renderer?.Geometry.SetOutlineLayer();
+            //Renderer?.Geometry.SetOutlineParameters(outlineData);
         }
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)

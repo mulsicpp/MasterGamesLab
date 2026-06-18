@@ -118,8 +118,8 @@ namespace Map.Fleet
 
         public override ObjectWithFixedGeometry AttachVehicleGeometry(Transform parent)
         {
-            var id = Map.Instance.GetTileAndEdgeCount() + IndexInVehicles;
-            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Truck, id, parent);
+            // var id = Map.Instance.GetTileAndEdgeCount() + IndexInVehicles;
+            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Truck, EntityId.Value, parent);
         }
 
         protected override void OnParked()

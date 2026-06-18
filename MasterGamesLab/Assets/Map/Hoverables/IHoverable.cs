@@ -2,7 +2,7 @@
 
 namespace Map.Hoverables
 {
-    public interface IHoverable : IOutlinable
+    public interface IHoverable : IMapEntity
     {
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid);
     }

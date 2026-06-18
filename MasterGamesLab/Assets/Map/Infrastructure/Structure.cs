@@ -5,10 +5,11 @@ using Map.Blueprint;
 using Map.Fleet;
 using UnityEngine;
 using Map.GeometryGeneration;
+using Map.Hoverables;
 
 namespace Map.Infrastructure
 {
-    public abstract class Structure : Timestamped
+    public abstract class Structure : Timestamped, IMapEntity
     {
         [System.Serializable]
         public enum StructureType : byte
@@ -40,6 +41,8 @@ namespace Map.Infrastructure
         public StructureId Id => new StructureId(Type, Index);
         public int IndexInStructures => Map.Instance.Infrastructure.StructureRanges[Type].Start.Value + Index;
 
+        public EntityId EntityId => new(Map.Instance.EntityIdManager.StructureRange.Start.Value + IndexInStructures);
+
         public new Timestamp Timestamp => base.Timestamp;
 
         public virtual Player.Player Owner => null;
@@ -47,7 +50,7 @@ namespace Map.Infrastructure
         public bool RendererUpdateTriggered;
         public bool RendererRebuildTriggered;
 
-        private StructureRenderer renderer;
+        public StructureRenderer Renderer { get; private set; }
 
         private Tile tile;
         public Tile Tile
@@ -161,7 +164,7 @@ namespace Map.Infrastructure
         {
             Index = index;
             Tile = null;
-            renderer = null;
+            Renderer = null;
             RendererRebuildTriggered = false;
             RendererUpdateTriggered = false;
             Touch();
@@ -192,19 +195,40 @@ namespace Map.Infrastructure
 
         public void RebuildRenderer()
         {
-            if (renderer != null)
+            if (Renderer != null)
             {
-                Object.Destroy(renderer.gameObject);
-                renderer = null;
+                Object.Destroy(Renderer.gameObject);
+                Renderer = null;
             }
             if (Exists || BlueprintTile != null)
             {
                 var gameObject = new GameObject("Structure");
                 gameObject.transform.parent = Map.Instance.gameObject.transform;
-                renderer = gameObject.AddComponent<StructureRenderer>();
-                renderer.Init(this);
+                Renderer = gameObject.AddComponent<StructureRenderer>();
+                Renderer.Init(this);
             }
             RendererRebuildTriggered = false;
+        }
+
+        public void ClearOutline()
+        {
+            Renderer?.Geometry.SetBaseLayer();
+        }
+
+        public void ShowOutline(Constants.OutlineData outlineData)
+        {
+            Renderer?.Geometry.SetOutlineLayer();
+            Renderer?.Geometry.SetOutlineParameters(outlineData);
+        }
+
+        public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
+        {
+            var outlineData = hoverState switch
+            {
+                HoverState.Invalid => Constants.ROAD_BLUEPRINT_INVALID_OUTLINE,
+                _ => Constants.HOVER_OUTLINE,
+            };
+            ShowOutline(outlineData);
         }
     }
 }

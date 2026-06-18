@@ -18,6 +18,7 @@ namespace UI
     {
         public static IngameUI Instance { get; private set; }
         public override MenuId Id => MenuId.Ingame;
+        public bool IsHovered = false;
 
         // --- Configuration Constants ---
         public const string activeClass = "ingame-build-button--active";
@@ -78,7 +79,6 @@ namespace UI
 
             controls = new IControls[] { VehicleControls, ConstructionControls };
 
-            Map.Map.Instance.Blueprint.OnChanged += HandleBlueprintUpdate;
             Player.Player.OnPlayerChanged += ChangePlayerInfo;
 
             // 2. Query Visual Elements
@@ -150,7 +150,6 @@ namespace UI
 
         void OnDisable()
         {
-            Map.Map.Instance.Blueprint.OnChanged -= HandleBlueprintUpdate;
             if (ConstructionControls != null)
                 ConstructionControls.OnConstructionTypeChanged -= HandleStateUIUpdate;
 
@@ -179,18 +178,28 @@ namespace UI
                 c.DisableControls();
             }
 
+            Map.Map.Instance.Blueprint.OnChanged += HandleBlueprintUpdate;
+
             // Map.Map.Instance.enabled = true;
             // TODO enable ingame actions
         }
 
         private void BecameHidden()
         {
+            if (Map.Map.Instance.Blueprint != null)
+                Map.Map.Instance.Blueprint.OnChanged -= HandleBlueprintUpdate;
             // Map.Map.Instance.enabled = false;
             // TODO disable ingame actions
         }
 
         private void Update()
         {
+            if (IsHovered)
+            {
+                Map.Map.Instance.CurrentlyHovered = null;
+                HoverablePicker.Instance.DenyPick = true;
+            }
+
             Map.Map.Instance.HoverLayers = controls.FirstOrDefault(c => c.ControlsAreActive)?.SelectHoverableLayers() ?? DEFAULT_HOVERABLE_LAYERS;
 
             Map.Map.Instance.HoverOutliner.HoverState = HoverState.Valid;
@@ -363,6 +372,7 @@ namespace UI
 
         private void HandleBlueprintUpdate(Blueprint blueprint)
         {
+            Debug.Log("HandleBlueprintUpdate was called");
             if (blueprint.IsEmpty)
             {
                 blueprintCountContainer.style.display = DisplayStyle.None;
@@ -505,13 +515,14 @@ namespace UI
 
         private void OnMouseEnterElement(MouseEnterEvent evt)
         {
+            IsHovered = true;
             Map.Map.Instance.CurrentlyHovered = null;
-            Map.Map.Instance.isOverUI = true;
+            HoverablePicker.Instance.DenyPick = true;
         }
 
         private void OnMouseLeaveElement(MouseLeaveEvent evt)
         {
-            Map.Map.Instance.isOverUI = false;
+            IsHovered = false;
         }
 
         #endregion

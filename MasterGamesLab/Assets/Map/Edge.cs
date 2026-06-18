@@ -11,7 +11,7 @@ using Map.OutlineEffect;
 
 namespace Map
 {
-    public class Edge : Timestamped, ISynchableObject<Edge.EdgeState>, IHoverable, IOutlinable
+    public class Edge : Timestamped, ISynchableObject<Edge.EdgeState>, IHoverable
     {
         [System.Serializable]
         public enum EdgeType : byte
@@ -56,6 +56,8 @@ namespace Map
         }
 
         public readonly EdgeId Id;
+
+        public EntityId EntityId => new(Map.Instance.EntityIdManager.EdgeRange.Start.Value + Id);
 
         public readonly Tile StartTile;
         public readonly Tile EndTile;
@@ -419,7 +421,7 @@ namespace Map
         public Vector4 GetEdgeData()
         {
             //return new Vector4(Id + Map.ID_OFFSET, randomValue, active ? 1 : 0, 0);
-            return new Vector4(Id + Map.ID_OFFSET + Map.Instance.Tiles.Count, 0, 0, 0);
+            return new Vector4(EntityId.Value + Map.ID_OFFSET, 0, 0, 0);
         }
 
 
