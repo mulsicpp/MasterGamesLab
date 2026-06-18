@@ -15,6 +15,7 @@ namespace UI
         public void OnEnable()
         {
             vehicleRenderer = GetComponent<VehicleRenderer>();
+            Debug.Log(vehicleRenderer);
         }
 
         private void Update()

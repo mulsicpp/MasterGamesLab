@@ -146,6 +146,7 @@ namespace UI
                     selectedVehicle?.ClearOutline();
                 selectedVehicle = value;
 
+
                 if (ControlsAreActive)
                 {
                     IngameUI.Instance.ConstructionControls.DisableControls();
@@ -173,9 +174,10 @@ namespace UI
 
                 }
             }
-            else if(SelectedVehicle != null)
+            else if (SelectedVehicle != null)
             {
                 SelectedVehicle.ShowOutline(Constants.SELECTED_OUTLINE);
+
                 switch (Map.Map.Instance.CurrentlyHovered)
                 {
                     case Tile t:
@@ -190,7 +192,7 @@ namespace UI
                 }
             }
 
-            if(ControlsAreActive)
+            if (ControlsAreActive)
                 Map.Map.Instance.HoverOutliner.HoverState = hoveredAction?.IsValid ?? true ? HoverState.Valid : HoverState.Invalid;
         }
 

@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3878134763162412230}
-  - component: {fileID: 5002977908544241556}
   - component: {fileID: 3851916174479515196}
+  - component: {fileID: 3363810835017889793}
   m_Layer: 0
   m_Name: Freighter
   m_TagString: Untagged
@@ -34,19 +34,6 @@ Transform:
   - {fileID: 1193400825577356308}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5002977908544241556
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4004374116097416254}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3593333dff58ca45af48a52fd4cd0a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Map.Fleet.VehicleRenderer
-  CargoTransform: {fileID: 1193400825577356308}
 --- !u!114 &3851916174479515196
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63,6 +50,19 @@ MonoBehaviour:
   invisibleThreshold: -0.1
   PinTemplate: {fileID: 9197481963319205126, guid: 9a1ddb4d40110f84797b46dc87907635, type: 3}
   icon: {fileID: 7388822144124034973, guid: 4f2d2d410d5a0b04a9d28c66af7fd964, type: 3}
+--- !u!114 &3363810835017889793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4004374116097416254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a08c4de6f8cba434f8744f0f31bbcc9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Map.Fleet.FreighterRenderer
+  CargoTransform: {fileID: 1193400825577356308}
 --- !u!1 &6933318389239052457
 GameObject:
   m_ObjectHideFlags: 0
