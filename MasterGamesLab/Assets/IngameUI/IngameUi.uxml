@@ -71,7 +71,7 @@
                 </ui:GroupBox>
             </ShrinkWrapContainer>
         </ui:GroupBox>
-        <ui:VisualElement name="TabMenu" class="container tab-menu">
+        <ui:VisualElement name="TabMenu" class="container tab-menu" style="visibility: hidden;">
             <ui:Instance template="TabMenu" style="width: 100%; height: 100%;"/>
         </ui:VisualElement>
     </ui:VisualElement>
