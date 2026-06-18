@@ -4,6 +4,7 @@ using Networking;
 using UnityEngine;
 using Map.GeometryGeneration;
 using System.Security.Policy;
+using Map.Fleet;
 
 namespace Map.Infrastructure
 {
@@ -85,6 +86,13 @@ namespace Map.Infrastructure
                 payoutIncreaseCooldown = NextPayoutIncreaseCooldown();
                 nextPayout = (int)(Request.Payout * NextPayoutIncreaseFactor());
             }
+        }
+
+        public void FulfillRequest(Truck truck)
+        {
+            truck.Owner.Earn(Request.Payout);
+            truck.Good = Good.None;
+            ClearRequest();
         }
 
         public void ClearRequest()

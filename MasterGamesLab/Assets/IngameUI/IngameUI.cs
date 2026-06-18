@@ -372,7 +372,6 @@ namespace UI
 
         private void HandleBlueprintUpdate(Blueprint blueprint)
         {
-            Debug.Log("HandleBlueprintUpdate was called");
             if (blueprint.IsEmpty)
             {
                 blueprintCountContainer.style.display = DisplayStyle.None;

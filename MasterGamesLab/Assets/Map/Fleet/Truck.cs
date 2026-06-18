@@ -138,9 +138,7 @@ namespace Map.Fleet
             {
                 if (c.Request.Good != Good.None && c.Request.Good == Good)
                 {
-                    Owner.Earn(c.Request.Payout);
-                    Good = Good.None;
-                    c.ClearRequest();
+                    c.FulfillRequest(this);
                 }
             }
         }

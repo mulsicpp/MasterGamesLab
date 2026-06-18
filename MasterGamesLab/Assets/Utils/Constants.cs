@@ -1,3 +1,4 @@
+using Map.Infrastructure;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -46,6 +47,14 @@ public static class Constants
     public const int GOOD_RARE_BASE_PAYOUT = 200;
     public const int GOOD_EPIC_BASE_PAYOUT = 300;
     public const int GOOD_LEGENDARY_BASE_PAYOUT = 500;
+
+    public static readonly float[,] GOOD_SPAWN_CHANCE_PER_CONTINENT = new float[4, 5]
+    {
+        { 0.0f, 0.7f, 0.3f, 0.0f, 0.0f },
+        { 0.0f, 0.3f, 0.5f, 0.2f, 0.0f },
+        { 0.0f, 0.0f, 0.2f, 0.5f, 0.3f },
+        { 0.0f, 0.0f, 0.0f, 0.2f, 0.8f },
+    };
 
     public const float MIN_CONSUMER_REQUEST_COOLDOWN = 15f;
     public const float MAX_CONSUMER_REQUEST_COOLDOWN = 30f;

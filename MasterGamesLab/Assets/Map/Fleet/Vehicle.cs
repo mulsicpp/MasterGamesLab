@@ -517,7 +517,6 @@ namespace Map.Fleet
                 {
                     var gameObject = Object.Instantiate(VehiclePrefab, Map.Instance.gameObject.transform);
                     Renderer = gameObject.GetComponent<VehicleRenderer>();
-                    Debug.Log(Renderer);
                     Renderer.Init(this);
                 }
             }
