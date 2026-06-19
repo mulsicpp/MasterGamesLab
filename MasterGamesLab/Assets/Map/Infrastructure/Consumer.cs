@@ -66,45 +66,31 @@ namespace Map.Infrastructure
 
         public override void OnStructureSpawned()
         {
-            ClearRequest();
+            Request = new(Good.None, 0);
         }
 
         public override void Tick(float tickDuration)
         {
-            if (!Exists) return;
-            if (Request.Good == Good.None && (requestCooldown -= tickDuration) <= 0)
-            {
-                Request = Map.Instance.SpawnLogic.GenerateConsumerRequest();
-                payoutIncreaseCooldown = NextPayoutIncreaseCooldown();
-                nextPayout = (int)(Request.Payout * NextPayoutIncreaseFactor());
-                return;
-            }
+            if (!Exists || Request.Good == Good.None) return;
 
             if ((payoutIncreaseCooldown -= tickDuration) <= 0)
             {
                 request = new(Request.Good, nextPayout);
-                payoutIncreaseCooldown = NextPayoutIncreaseCooldown();
-                nextPayout = (int)(Request.Payout * NextPayoutIncreaseFactor());
+                SetupPayoutIncrease();
             }
+        }
+
+        public void SetupPayoutIncrease()
+        {
+            payoutIncreaseCooldown = NextPayoutIncreaseCooldown();
+            nextPayout = (int)(Request.Payout * NextPayoutIncreaseFactor());
         }
 
         public void FulfillRequest(Truck truck)
         {
             truck.Owner.Earn(Request.Payout);
             truck.Good = Good.None;
-            ClearRequest();
-        }
-
-        public void ClearRequest()
-        {
-            Request = new(Good.None, 0);
-
-            requestCooldown = NextRequestCooldown();
-        }
-
-        private float NextRequestCooldown()
-        {
-            return Random.Range(Constants.MIN_CONSUMER_REQUEST_COOLDOWN, Constants.MAX_CONSUMER_REQUEST_COOLDOWN);
+            Map.Instance.SpawnLogic.ClearConsumerRequest(this);
         }
 
         private float NextPayoutIncreaseCooldown()

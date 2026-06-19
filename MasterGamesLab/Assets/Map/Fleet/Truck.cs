@@ -133,7 +133,7 @@ namespace Map.Fleet
 
             if (ParkedTile == null || ParkedTile.Structure == null) return;
 
-            if (ParkedTile.Structure is Producer p) Good = p.Good;
+            if (ParkedTile.Structure is Producer p && p.Good != Good.None) Good = p.Good;
             else if (ParkedTile.Structure is Consumer c)
             {
                 if (c.Request.Good != Good.None && c.Request.Good == Good)

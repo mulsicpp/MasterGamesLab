@@ -15,8 +15,8 @@ public class ProducerConsumerSpawnPoint
     public List<ITile> PlacedConsumers { get; private set; }
 
     //distance
-    public int MinDistProducerConsumer = 6;
-    public int MinDistProducerProducer = 4;
+    public int MinDistProducerConsumer = 1;
+    public int MinDistProducerProducer = 6;
     public int MinDistConsumerConsumer = 1;
 
     //public float ConsumerGroupProbability = 0.6f;
@@ -61,7 +61,7 @@ public class ProducerConsumerSpawnPoint
         ValidConsumerTiles = new List<ITile>(validInlandTiles);
     }
 
-    public ITile GetSpawnableTile(Structure.StructureType type, int continentId, Good resource)
+    public ITile GetSpawnableTile(Structure.StructureType type, int continentId = 0, Good resource = Good.None)
     {
         var candidates = new List<ITile>();
 
@@ -69,7 +69,7 @@ public class ProducerConsumerSpawnPoint
 
         foreach (var tile in sourceList)
         {
-            if (tile.ContinentId == continentId)
+            if (continentId == 0 || tile.ContinentId == continentId)
             {
                 candidates.Add(tile);
             }

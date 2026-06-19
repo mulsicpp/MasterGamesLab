@@ -18,7 +18,7 @@ namespace Map.Fleet
 
         public Vehicle GetFirstWith(Vehicle.VehicleType type, Predicate<Vehicle> condition = null);
 
-        public bool SpawnLocal<T>(T state, Player.Player owner) where T : struct, Vehicle.IVehicleState;
-        public bool SpawnGlobal<T>(T state, Player.Player owner) where T : struct, Vehicle.IVehicleState;
+        public Vehicle SpawnLocal<T>(T state, Player.Player owner) where T : struct, Vehicle.IVehicleState;
+        public Vehicle SpawnGlobal<T>(T state, Player.Player owner) where T : struct, Vehicle.IVehicleState;
     }
 }

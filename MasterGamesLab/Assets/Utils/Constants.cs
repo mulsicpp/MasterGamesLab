@@ -56,8 +56,8 @@ public static class Constants
         { 0.0f, 0.0f, 0.0f, 0.2f, 0.8f },
     };
 
-    public const float MIN_CONSUMER_REQUEST_COOLDOWN = 15f;
-    public const float MAX_CONSUMER_REQUEST_COOLDOWN = 30f;
+    public const float MIN_CONSUMER_REQUEST_COOLDOWN = 5f;
+    public const float MAX_CONSUMER_REQUEST_COOLDOWN = 6f;
 
     public const float MIN_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 20f;
     public const float MAX_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 50f;
