@@ -54,7 +54,12 @@ namespace UI
 
                 if (requestedGood != Good.None && goodsImages.TryGetValue(requestedGood, out VectorImage img))
                 {
+                    setActive(true);
                     goodIcon.style.backgroundImage = new StyleBackground(img);
+                }
+                else
+                {
+                    setActive(false);
                 }
             }
             
