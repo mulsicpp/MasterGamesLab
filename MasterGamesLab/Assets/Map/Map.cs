@@ -80,6 +80,9 @@ namespace Map
         public GameObject GaragePrefab;
         public GameObject PortPrefab;
 
+        public GameObject RoutePrefab;
+
+
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
 

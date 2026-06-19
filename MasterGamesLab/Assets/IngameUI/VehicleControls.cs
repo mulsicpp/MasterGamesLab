@@ -55,26 +55,42 @@ namespace UI
 
         public class HoveredSelectRoute : HoveredAction
         {
-            public override bool IsValid => route != null;
+            public override bool IsValid => destination != null;
 
-            private TileId[] route = null;
+            private TileId[] fastestRoute = null;
+            private TileId[] cheapestRoute = null;
+            private Tile destination = null;
 
             public HoveredSelectRoute(VehicleControls controls, Tile destination) : base(controls)
             {
                 var vehicle = controls.SelectedVehicle;
                 if (vehicle == null) return;
-                var movementProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckFastestRoute : MovementProfileRegistry.FreighterFastestRoute;
-                var route = Pathfinding.FindPath(vehicle.ParkedTile, destination, movementProfile);
+                var fastestProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckFastestRoute : MovementProfileRegistry.FreighterFastestRoute;
+                var cheapestProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckCheapestRoute : MovementProfileRegistry.FreighterCheapestRoute;
+                
+                var fastestRoute = Pathfinding.FindPath(vehicle.ParkedTile, destination, fastestProfile);
+                var cheapestRoute = Pathfinding.FindPath(vehicle.ParkedTile, destination, cheapestProfile);
 
-                if (vehicle.CanDriveRoute(Player.Player.Self, route, out _, out _))
+
+                if (vehicle.CanDriveRoute(Player.Player.Self, fastestRoute, out _, out _))
                 {
-                    this.route = route;
+                    this.fastestRoute = fastestRoute;
+                    this.destination = destination;
+                }
+
+                if (!Route.AreSame(this.fastestRoute, cheapestRoute) && vehicle.CanDriveRoute(Player.Player.Self, cheapestRoute, out _, out _))
+                {
+                    this.cheapestRoute = cheapestRoute;
+                    this.destination = destination;
                 }
             }
 
             public override bool Commit()
             {
-                Map.Map.Instance.RequestVehicleRouteServerRpc(controls.SelectedVehicle.IndexInVehicles, route);
+                // Map.Map.Instance.RequestVehicleRouteServerRpc(controls.SelectedVehicle.IndexInVehicles, route);
+                controls.SelectedDestination = destination;
+                controls.routes[0].SetRoute(fastestRoute);
+                controls.routes[1].SetRoute(cheapestRoute);
                 return true;
             }
         }
@@ -100,7 +116,7 @@ namespace UI
             public override bool Commit()
             {
                 Map.Map.Instance.LoadTruckOnFreighterServerRpc(truck.Index, freighter.Index);
-                controls.SelectedVehicle = null;
+                controls.SelectedVehicle = freighter;
                 return true;
             }
         }
@@ -125,8 +141,9 @@ namespace UI
 
             public override bool Commit()
             {
+                var truck = freighter.Truck;
                 Map.Map.Instance.UnoadTruckOnPortServerRpc(freighter.Index, portTile.Id);
-                controls.SelectedVehicle = null;
+                controls.SelectedVehicle = truck;
                 return true;
             }
         }
@@ -141,9 +158,12 @@ namespace UI
             get { return selectedVehicle; }
             set
             {
+                if (selectedVehicle == value) return;
                 if (selectedVehicle != null)
                     selectedVehicle?.ClearOutline();
                 selectedVehicle = value;
+                ClearDestination();
+
 
 
                 if (ControlsAreActive)
@@ -153,10 +173,38 @@ namespace UI
             }
         }
 
+        private Tile selectedDestination = null;
+        public Tile SelectedDestination
+        {
+            get { return selectedDestination; }
+            set
+            {
+                if (selectedDestination != null)
+                {
+                    selectedDestination?.ClearOutline();
+                }
+                selectedDestination = value;
+
+
+                if (ControlsAreActive)
+                {
+                    IngameUI.Instance.ConstructionControls.DisableControls();
+                }
+            }
+        }
+
+        private Route[] routes;
+
+        public void Awake()
+        {
+             routes = new Route[] { new Route(null, Color.red), new Route(null, Color.green) };
+        }
+
         public void DisableControls()
         {
             hoveredAction = null;
             SelectedVehicle = null;
+            ClearDestination();
         }
 
         public HoverablePicker.HoverableLayer SelectHoverableLayers() => HoverablePicker.HoverableLayer.All;
@@ -173,21 +221,49 @@ namespace UI
 
                 }
             }
-            else if (SelectedVehicle != null)
+            else
             {
                 SelectedVehicle.ShowOutline(Constants.SELECTED_OUTLINE);
 
-                switch (Map.Map.Instance.CurrentlyHovered)
+                if (SelectedDestination == null)
                 {
-                    case Tile t:
-                        hoveredAction = new HoveredSelectRoute(this, t);
-                        if (hoveredAction.IsValid) break;
-                        hoveredAction = new HoveredUnloadTruck(this, t);
-                        break;
-                    case Vehicle v:
-                        if (SelectedVehicle != v)
-                            hoveredAction = new HoveredLoadTruck(this, v);
-                        break;
+
+                    switch (Map.Map.Instance.CurrentlyHovered)
+                    {
+                        case Tile t:
+                            hoveredAction = new HoveredSelectRoute(this, t);
+                            if (hoveredAction.IsValid) break;
+                            hoveredAction = new HoveredUnloadTruck(this, t);
+                            break;
+                        case Vehicle v:
+                            if (SelectedVehicle != v)
+                            {
+                                hoveredAction = new HoveredLoadTruck(this, v);
+                                if (hoveredAction.IsValid) break;
+                                hoveredAction = new HoveredSelectVehicle(this, v);
+                            }
+                            break;
+                    }
+                } else
+                {
+                    SelectedDestination.ShowOutline(Constants.SELECTED_OUTLINE);
+
+                    switch (Map.Map.Instance.CurrentlyHovered)
+                    {
+                        case Tile t:
+                            hoveredAction = new HoveredSelectRoute(this, t);
+                            if (hoveredAction.IsValid) break;
+                            hoveredAction = new HoveredUnloadTruck(this, t);
+                            break;
+                        case Vehicle v:
+                            if (SelectedVehicle != v)
+                            {
+                                hoveredAction = new HoveredLoadTruck(this, v);
+                                if (hoveredAction.IsValid) break;
+                                hoveredAction = new HoveredSelectVehicle(this, v);
+                            }
+                            break;
+                    }
                 }
             }
 
@@ -210,6 +286,39 @@ namespace UI
                     return true;
             }
             return false;
+        }
+
+        public void ClearDestination()
+        {
+            SelectedDestination = null;
+            routes[0].SetRoute(null);
+            routes[1].SetRoute(null);
+        }
+
+        public void ChooseFastestRoute()
+        {
+            if(SelectedVehicle != null && SelectedDestination != null)
+            {
+                TileId[] routeIds = routes[0].Tiles ?? routes[1].Tiles;
+                if (routeIds != null)
+                {
+                    Map.Map.Instance.RequestVehicleRouteServerRpc(SelectedVehicle.IndexInVehicles, routeIds);
+                    ClearDestination();
+                }
+            }
+        }
+
+        public void ChooseCheapestRoute()
+        {
+            if (SelectedVehicle != null && SelectedDestination != null)
+            {
+                TileId[] routeIds = routes[1].Tiles ?? routes[0].Tiles;
+                if (routeIds != null)
+                {
+                    Map.Map.Instance.RequestVehicleRouteServerRpc(SelectedVehicle.IndexInVehicles, routeIds);
+                    ClearDestination();
+                }
+            }
         }
     }
 }

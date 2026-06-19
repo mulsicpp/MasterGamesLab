@@ -19,6 +19,8 @@ public class IngameInputs : MonoBehaviour
     public static InputAction cancelClickAction;
     public static InputAction openTabMenuAction;
     public static InputAction changeTruckAction;
+    public static InputAction chooseFastestRoute;
+    public static InputAction chooseCheapestRoute;
 
 
     [SerializeField] private ConstructionControls constructionControls;
@@ -38,6 +40,9 @@ public class IngameInputs : MonoBehaviour
         cancelClickAction = controlsActionMap.FindAction("Cancel");
         openTabMenuAction = controlsActionMap.FindAction("OpenTabMenu");
         changeTruckAction = controlsActionMap.FindAction("ChangeVehicle");
+
+        chooseFastestRoute = controlsActionMap.FindAction("ChooseFastestRoute");
+        chooseCheapestRoute = controlsActionMap.FindAction("ChooseCheapestRoute");
     }
 
     void OnEnable()
@@ -53,6 +58,9 @@ public class IngameInputs : MonoBehaviour
         openTabMenuAction.started += OnTabPressed;
         openTabMenuAction.canceled += OnTabReleased;
         changeTruckAction.started += OnChangeVehicle;
+
+        chooseFastestRoute.started += OnChooseFastestRoute;
+        chooseCheapestRoute.started += OnChooseCheapestRoute;
     }
 
     void OnDisable()
@@ -69,6 +77,8 @@ public class IngameInputs : MonoBehaviour
         openTabMenuAction.canceled -= OnTabReleased;
         changeTruckAction.started -= OnChangeVehicle;
 
+        chooseFastestRoute.started -= OnChooseFastestRoute;
+        chooseCheapestRoute.started -= OnChooseCheapestRoute;
     }
 
     private void OnBuildRoad(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Road;
@@ -83,5 +93,6 @@ public class IngameInputs : MonoBehaviour
     private void OnTabReleased(InputAction.CallbackContext ctx) => IngameUI.Instance.ShowTabMenu(false);
     private void OnChangeVehicle(InputAction.CallbackContext ctx) => IngameUI.Instance.SelectNextVehicle();
 
-
+    private void OnChooseFastestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseFastestRoute();
+    private void OnChooseCheapestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseCheapestRoute();
 }

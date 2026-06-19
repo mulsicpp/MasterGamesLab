@@ -688,6 +688,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ChooseFastestRoute",
+                    "type": "Button",
+                    "id": "77ac748f-0970-4407-b16f-e099c21f0302",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ChooseCheapestRoute",
+                    "type": "Button",
+                    "id": "773a159d-c371-4cff-83a5-c9c2b0e6661d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -760,7 +778,7 @@
                 {
                     "name": "",
                     "id": "95e58c3c-6b46-453b-8fee-6a7f8589c374",
-                    "path": "<Keyboard>/f",
+                    "path": "<Keyboard>/r",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -809,6 +827,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ChangeVehicle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "48e124be-96de-480c-b6cd-851d3844c4a9",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChooseFastestRoute",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "84418579-13cb-4918-86a8-bec6aaddac12",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChooseCheapestRoute",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
