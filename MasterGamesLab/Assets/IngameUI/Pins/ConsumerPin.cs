@@ -60,6 +60,7 @@ namespace UI
                 else
                 {
                     setActive(false);
+                    return;
                 }
             }
             
