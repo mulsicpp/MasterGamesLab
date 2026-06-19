@@ -45,3 +45,4 @@
 - Better pathfinding for roads/canals
 - Show canal owner 
 - Compass
+- Fix bug where spawning structures replace existsing ones !

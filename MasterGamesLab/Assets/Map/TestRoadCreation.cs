@@ -48,42 +48,6 @@ public class TestRoadCreation : NetworkBehaviour
         // {
         //     Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
         // }
-
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            var truck = Map.Map.Instance.Fleet.Trucks.FirstOrDefault(truck => truck.Owner.IsSelf && truck.IsParked);
-
-            if (truck == null) return;
-
-            TileId[] tileIds = null;
-
-            if (Input.GetKey(KeyCode.LeftShift))
-                tileIds = Pathfinding.FindPath(truck.ParkedTile, tile, MovementProfileRegistry.TruckCheapestRoute);
-            else
-                tileIds = Pathfinding.FindPath(truck.ParkedTile, tile, MovementProfileRegistry.TruckFastestRoute);
-
-            if (tileIds == null) return;
-
-            Map.Map.Instance.RequestVehicleRouteServerRpc(truck.IndexInVehicles, tileIds);
-        }
-
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            var freighter = Map.Map.Instance.Fleet.Freighters.FirstOrDefault(freighter => freighter.Owner.IsSelf && freighter.IsParked);
-
-            if (freighter == null) return;
-
-            TileId[] tileIds = null;
-
-            if (Input.GetKey(KeyCode.LeftShift))
-                tileIds = Pathfinding.FindPath(freighter.ParkedTile, tile, MovementProfileRegistry.FreighterCheapestRoute);
-            else
-                tileIds = Pathfinding.FindPath(freighter.ParkedTile, tile, MovementProfileRegistry.FreighterFastestRoute);
-
-            if (tileIds == null) return;
-
-            Map.Map.Instance.RequestVehicleRouteServerRpc(freighter.IndexInVehicles, tileIds);
-        }
         
         // if(Input.GetKeyDown(KeyCode.A)) 
         // {
@@ -101,7 +65,7 @@ public class TestRoadCreation : NetworkBehaviour
             var details = Map.Map.Instance.Blueprint.GetDetails();
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && IsServer) {
+        if (Input.GetKeyDown(KeyCode.M) && IsServer) {
             foreach (var player in Map.Map.Instance.Players)
             {
                 player.Earn(1000);

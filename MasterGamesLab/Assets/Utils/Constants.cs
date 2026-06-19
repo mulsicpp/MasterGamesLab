@@ -12,7 +12,7 @@ public static class Constants
 
     public static readonly Color[] PLAYER_COLORS = { Color.red, Color.blue, Color.yellow, Color.green };
 
-    public const int PLAYER_INITIAL_CASH = 1000;
+    public const int PLAYER_INITIAL_CASH = 300;
 
     // ------------------- Vehicles -------------------
 
@@ -56,14 +56,20 @@ public static class Constants
         { 0.0f, 0.0f, 0.0f, 0.2f, 0.8f },
     };
 
-    public const float MIN_CONSUMER_REQUEST_COOLDOWN = 5f;
-    public const float MAX_CONSUMER_REQUEST_COOLDOWN = 6f;
+    public const int BASE_CONSUMER_COUNT = 10;
+    public const int CONSUMER_COUNT_PER_PLAYER = 10;
+
+    public static int TotalConsumerCount => BASE_CONSUMER_COUNT + (Map.Map.Instance?.Players?.Count ?? 0) * CONSUMER_COUNT_PER_PLAYER;
+    public static int StartConsumerCount => TotalConsumerCount / 6;
+
+    public const float MIN_CONSUMER_REQUEST_COOLDOWN = 15f;
+    public const float MAX_CONSUMER_REQUEST_COOLDOWN = 40f;
 
     public const float MIN_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 20f;
     public const float MAX_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 50f;
 
-    public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.05f;
-    public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.2f;
+    public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.1f;
+    public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.3f;
 
 
     public const float MIN_CONSUMER_SPAWN_COOLDOWN = 5f;
@@ -78,10 +84,10 @@ public static class Constants
     public const float PLAIN_BUILD_COST_FACTOR = 1f;
     public const float FOREST_BUILD_COST_FACTOR = 2f;
 
-    public const int ROAD_BUILD_COST = 20;
-    public const int BASE_CANAL_BUILD_COST = 50;
+    public const int ROAD_BUILD_COST = 10;
+    public const int BASE_CANAL_BUILD_COST = 20;
 
-    public const int PORT_BUILD_COST = 300;
+    public const int PORT_BUILD_COST = 500;
 
     public const int TRUCK_BUILD_COST = 150;
     public const int FREIGHTER_BUILD_COST = 300;
@@ -102,15 +108,15 @@ public static class Constants
 
     public const int MAX_PRIORITYS_FOR_PATHFINDING = 4;
 
-    public const int ROAD_TRAVERSAL_COST_PUBLIC = 1;
+    public const int ROAD_TRAVERSAL_COST_PUBLIC = 0;
     public const int ROAD_TRAVERSAL_COST_OWN = 0;
-    public const int ROAD_TRAVERSAL_COST_ENEMY = 5;
+    public const int ROAD_TRAVERSAL_COST_ENEMY = 1;
 
     public const float ROAD_SPEED_MULTIPLIER = 1.0f;
 
-    public const int CANAL_TRAVERSAL_COST_PUBLIC = 1;
+    public const int CANAL_TRAVERSAL_COST_PUBLIC = 0;
     public const int CANAL_TRAVERSAL_COST_OWN = 0;
-    public const int CANAL_TRAVERSAL_COST_ENEMY = 5;
+    public const int CANAL_TRAVERSAL_COST_ENEMY = 1;
 
     public const float CANAL_SPEED_MULTIPLIER = 1.0f;
 
