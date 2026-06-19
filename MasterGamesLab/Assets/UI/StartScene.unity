@@ -258,7 +258,7 @@ PrefabInstance:
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: PortPrefab
       value: 
-      objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
+      objectReference: {fileID: 4004374116097416254, guid: 9b50e39a356221749adc9de02e3fa27c, type: 3}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: portPrefab
       value: 
@@ -282,7 +282,7 @@ PrefabInstance:
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: GaragePrefab
       value: 
-      objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
+      objectReference: {fileID: 4004374116097416254, guid: 053638a9fd74a2f419693a7482418449, type: 3}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: garagePrefab
       value: 
@@ -294,7 +294,7 @@ PrefabInstance:
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: ProducerPrefab
       value: 
-      objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
+      objectReference: {fileID: 4004374116097416254, guid: 78eb9600d4ce83f41b2f4f6f739f8d66, type: 3}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: consumerPrefab
       value: 
@@ -563,6 +563,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d05f6d0cbd81587488dad771356b471f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI.IngameUI
+  IsHovered: 0
 --- !u!114 &985979806
 MonoBehaviour:
   m_ObjectHideFlags: 0

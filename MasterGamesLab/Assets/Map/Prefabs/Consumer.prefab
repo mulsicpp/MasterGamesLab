@@ -1,5 +1,63 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2874864645871901532
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5608323871547307053}
+  - component: {fileID: 4233166201543548736}
+  m_Layer: 0
+  m_Name: Pin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5608323871547307053
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2874864645871901532}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3878134763162412230}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4233166201543548736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2874864645871901532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0aa29e4bf2bb1b448e9bbfb20faeabb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI.ConsumerPin
+  panelOffset: 0
+  invisibleThreshold: -0.1
+  PinTemplate: {fileID: 9197481963319205126, guid: 89d45d9520cc5da4d90aec338f36414c, type: 3}
+  goodsConfiguration:
+  - GoodType: 1
+    ImageAsset: {fileID: 7388822144124034973, guid: d84977c547bf41d428e01a80aa73b8ae, type: 3}
+  - GoodType: 2
+    ImageAsset: {fileID: 7388822144124034973, guid: 5771e13031fb0b546824e0b0c877c56e, type: 3}
+  - GoodType: 3
+    ImageAsset: {fileID: 7388822144124034973, guid: d84977c547bf41d428e01a80aa73b8ae, type: 3}
+  - GoodType: 4
+    ImageAsset: {fileID: 7388822144124034973, guid: 5771e13031fb0b546824e0b0c877c56e, type: 3}
+  - GoodType: 5
+    ImageAsset: {fileID: 7388822144124034973, guid: d84977c547bf41d428e01a80aa73b8ae, type: 3}
 --- !u!1 &4004374116097416254
 GameObject:
   m_ObjectHideFlags: 0
@@ -29,7 +87,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5608323871547307053}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5823246843871546993

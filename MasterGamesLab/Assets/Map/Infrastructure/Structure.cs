@@ -51,6 +51,7 @@ namespace Map.Infrastructure
         public bool RendererRebuildTriggered;
 
         public StructureRenderer Renderer { get; private set; }
+        public abstract GameObject StructurePrefab { get; }
 
         private Tile tile;
         public Tile Tile
@@ -202,9 +203,8 @@ namespace Map.Infrastructure
             }
             if (Exists || BlueprintTile != null)
             {
-                var gameObject = new GameObject("Structure");
-                gameObject.transform.parent = Map.Instance.gameObject.transform;
-                Renderer = gameObject.AddComponent<StructureRenderer>();
+                var gameObject = Object.Instantiate(StructurePrefab, Map.Instance.gameObject.transform);
+                Renderer = gameObject.GetComponent<StructureRenderer>();
                 Renderer.Init(this);
             }
             RendererRebuildTriggered = false;

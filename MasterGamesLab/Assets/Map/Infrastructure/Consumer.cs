@@ -35,6 +35,8 @@ namespace Map.Infrastructure
 
         public override StructureType Type => StructureType.Consumer;
 
+        public override GameObject StructurePrefab => Map.Instance.ConsumerPrefab;
+
         private ConsumerRequest request;
         public ConsumerRequest Request { get { return request; } set { request = value; Touch(); TriggerRendererUpdate(); } }
 
