@@ -181,6 +181,7 @@ public struct VehicleId : INetworkSerializeByMemcpy, IEquatable<VehicleId>, ICom
     public static bool operator ==(VehicleId left, VehicleId right) => left.Equals(right);
     public static bool operator !=(VehicleId left, VehicleId right) => !left.Equals(right);
 
+
     public override bool Equals(object obj) => obj is VehicleId id && this.Equals(id);
     public override int GetHashCode() => HashCode.Combine(Type, Index);
 

@@ -29,6 +29,14 @@ namespace UI
                 Map.Map.Instance.CurrentlyHovered = vehicleRenderer.Vehicle;
                 HoverablePicker.Instance.DenyPick = true;
             }
+            if (vehicleRenderer.Vehicle.IsParked)
+            {
+                time.style.visibility = Visibility.Hidden;
+            }
+            else
+            {
+                time.style.visibility = Visibility.Visible;
+            }
         }
 
         protected override void LateUpdate()

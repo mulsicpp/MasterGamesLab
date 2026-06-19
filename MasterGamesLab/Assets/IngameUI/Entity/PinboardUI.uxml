@@ -1,9 +1,0 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:Template name="IngameEntity" src="project://database/Assets/IngameUI/Entity/IngameEntity.uxml?fileID=9197481963319205126&amp;guid=9a1ddb4d40110f84797b46dc87907635&amp;type=3#IngameEntity"/>
-    <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
-    <ui:VisualElement name="root" class="unity-ui-document__root">
-        <ui:VisualElement class="element" style="width: auto; aspect-ratio: 0.7184175; left: 49%; height: 3%;">
-            <ui:Instance template="IngameEntity"/>
-        </ui:VisualElement>
-    </ui:VisualElement>
-</ui:UXML>
