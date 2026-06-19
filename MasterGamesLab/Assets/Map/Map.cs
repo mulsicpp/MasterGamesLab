@@ -48,6 +48,8 @@ namespace Map
 
         public Timestamp Timestamp = new Timestamp(0);
 
+        public Dictionary<int, ContinentInfo> ContinentInfos = new();
+
         public bool SimulationIsRunning => UIManager.Instance?.CurrentMenu == UI.Menu.MenuId.Ingame;
 
         public IReadOnlyList<Player.Player> Players => players;
@@ -61,8 +63,9 @@ namespace Map
         public int? GenerationSeed { get; private set; } = null;
 
         public Blueprint.Blueprint Blueprint;
-
         private BlueprintPacket[] storedBlueprintPackets;
+
+        public SpawnLogic SpawnLogic => spawnLogic;
 
         [SerializeField] private float radius = 1;
         [SerializeField] private int resolution = 20;
@@ -84,8 +87,9 @@ namespace Map
 
         //debug
         private ITile[] debugSpawnPoints;
+        private SpawnLogic spawnLogic;
+
         [SerializeField] private bool renderTrees = true;
-        private ProducerConsumerSpawnPoint spawnPointManager;
 
         public struct TreeData
         {
@@ -425,51 +429,10 @@ namespace Map
             for (int i = 0; i < storedBlueprintPackets.Length; i++)
                 storedBlueprintPackets[i] = new BlueprintPacket();
 
-            var playerSpawnTiles = SpawnPointGenerator.GetFairSpawnPoints(this, players.Length);
+            
         
-            for (int i = 0; i < players.Length; i++)
-            {
-                Infrastructure.SpawnLocal(new Garage.GarageState { Common = { TileId = playerSpawnTiles[i].Id } });
-                Fleet.SpawnLocal(
-                    new Truck.TruckState
-                    {
-                        Common = { Exists = true, ParkedTileId = playerSpawnTiles[i].Id },
-                        FreighterIndex = VehicleIndex.NONE,
-                        Good = Good.None
-                    }, players[i]);
-            }
-        
-            spawnPointManager = new ProducerConsumerSpawnPoint(this);
-
-            ////5 producer
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    var prodTile = spawnPointManager.GetSpawnTileProducer();
-            //    if (prodTile != null)
-            //    {
-            //        Infrastructure.SpawnLocal(new Producer.ProducerState
-            //        {
-            //            Common = { TileId = prodTile.Id },
-            //            Good = (Good)UnityEngine.Random.Range((int)Good.Apple, (int)Good.Banana + 1)
-            //        });
-            //        spawnPointManager.RegisterProducerSpawned(prodTile);
-            //    }
-            //}
-
-            ////5 consumer (groups)
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    var consTiles = spawnPointManager.GetSpawnTileConsumer();
-            //    if (consTiles != null && consTiles.Count > 0)
-            //    {
-            //        foreach (var consTile in consTiles)
-            //        {
-            //            Infrastructure.SpawnLocal(new Consumer.ConsumerState { Common = { TileId = consTile.Id } });
-            //        }
-
-            //        spawnPointManager.RegisterConsumerSpawned(consTiles);
-            //    }
-            //}
+            spawnLogic = new SpawnLogic(this);
+            spawnLogic.GenerateInitalState();
         }
 
         private void ClientUpdate()
@@ -489,6 +452,8 @@ namespace Map
 
             if (IsServer)
             {
+                spawnLogic.Tick(Time.fixedDeltaTime);
+
                 foreach (var consumer in Infrastructure.Consumers)
                 {
                     consumer.Tick(Time.fixedDeltaTime);
@@ -985,12 +950,7 @@ namespace Map
 
                     if (producer.Good != Good.None)
                     {
-                        switch (producer.Good)
-                        {
-                            case Good.Apple: Gizmos.color = Color.red; break;
-                            case Good.Orange: Gizmos.color = orange; break;
-                            case Good.Banana: Gizmos.color = Color.yellow; break;
-                        }
+                        Gizmos.color = GoodUtils.GoodColors[producer.Good].linear;
 
                         Vector3 cargoPos = GetProjectedPosition(producer.Tile.PositionOnSphere, 1.03f);
                         Gizmos.DrawSphere(cargoPos, 0.007f);
@@ -1006,14 +966,9 @@ namespace Map
                     Gizmos.color = Color.black;
                     Gizmos.DrawSphere(basePos, 0.025f);
 
-                    if (consumer.RequestedGood != Good.None)
+                    if (consumer.Request.Good != Good.None)
                     {
-                        switch (consumer.RequestedGood)
-                        {
-                            case Good.Apple: Gizmos.color = Color.red; break;
-                            case Good.Orange: Gizmos.color = orange; break;
-                            case Good.Banana: Gizmos.color = Color.yellow; break;
-                        }
+                        Gizmos.color = GoodUtils.GoodColors[consumer.Request.Good].linear;
 
                         Vector3 cargoPos = GetProjectedPosition(consumer.Tile.PositionOnSphere, 1.03f);
                         Gizmos.DrawSphere(cargoPos, 0.007f);
@@ -1078,12 +1033,7 @@ namespace Map
 
                 if (vehicle is Truck truck && truck.Good != Good.None)
                 {
-                    switch (truck.Good)
-                    {
-                        case Good.Apple: Gizmos.color = Color.red; break;
-                        case Good.Orange: Gizmos.color = orange; break;
-                        case Good.Banana: Gizmos.color = Color.yellow; break;
-                    }
+                    Gizmos.color = GoodUtils.GoodColors[truck.Good].linear;
 
                     Vector3 cargoPos = GetProjectedPosition(basePos, 1.025f);
                     Gizmos.DrawSphere(cargoPos, 0.007f);

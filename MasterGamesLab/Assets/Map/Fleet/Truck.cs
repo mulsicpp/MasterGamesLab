@@ -124,16 +124,21 @@ namespace Map.Fleet
 
         protected override void OnParked()
         {
-            if (ParkedTile.Structure == null) return;
 
-            if (ParkedTile.Structure is Producer p) Good = p.Good;
+        }
+
+        public override void Tick(float tickDuration)
+        {
+            base.Tick(tickDuration);
+
+            if (ParkedTile == null || ParkedTile.Structure == null) return;
+
+            if (ParkedTile.Structure is Producer p && p.Good != Good.None) Good = p.Good;
             else if (ParkedTile.Structure is Consumer c)
             {
-                if (c.RequestedGood != Good.None && c.RequestedGood == Good)
+                if (c.Request.Good != Good.None && c.Request.Good == Good)
                 {
-                    Owner.Earn(c.CurrentPayout);
-                    Good = Good.None;
-                    c.ClearRequest();
+                    c.FulfillRequest(this);
                 }
             }
         }

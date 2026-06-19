@@ -74,20 +74,20 @@ namespace Map.Fleet
         }
 
 
-        public bool SpawnLocal<T>(T state, Player.Player owner = null) where T : struct, Vehicle.IVehicleState
+        public Vehicle SpawnLocal<T>(T state, Player.Player owner = null) where T : struct, Vehicle.IVehicleState
         {
             var vehicle = GetFirstWith(state.Type, v => !v.Exists && v.Owner == owner);
             if (vehicle != null)
             {
                 state.ArrayIndex = vehicle.Index;
                 UpdateVehicle(state);
-                return true;
+                return vehicle;
             }
 
-            return false;
+            return null;
         }
 
-        public bool SpawnGlobal<T>(T state, Player.Player owner) where T : struct, Vehicle.IVehicleState
+        public Vehicle SpawnGlobal<T>(T state, Player.Player owner) where T : struct, Vehicle.IVehicleState
         {
             var vehicle = GetFirstWith(state.Type, v => !v.Exists && v.Owner == owner);
             if (vehicle != null)
@@ -97,10 +97,10 @@ namespace Map.Fleet
                 Map.Instance.ReliableSender.Add(state);
                 Map.Instance.ReliableSender.Send();
 
-                return true;
+                return vehicle;
             }
 
-            return false;
+            return null;
         }
     }
 }

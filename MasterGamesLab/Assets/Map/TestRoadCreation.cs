@@ -10,7 +10,7 @@ public class TestRoadCreation : NetworkBehaviour
 {
 
     [SerializeField]
-    private Good good = Good.Apple;
+    private Good good = Good.Common;
 
     // Update is called once per frame
     void Update()
@@ -30,7 +30,7 @@ public class TestRoadCreation : NetworkBehaviour
         {
             if (tile.CanSpawnStructure(Structure.StructureType.Consumer))
             {
-                Map.Map.Instance.Infrastructure.SpawnGlobal(new Consumer.ConsumerState { Common = { TileId = tile.Id }, RequestedGood = Good.None });
+                Map.Map.Instance.Infrastructure.SpawnGlobal(new Consumer.ConsumerState { Common = { TileId = tile.Id }, Request = new(Good.None, 0) });
             }
         }
 

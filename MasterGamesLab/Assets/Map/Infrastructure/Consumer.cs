@@ -3,6 +3,8 @@ using Unity.Netcode;
 using Networking;
 using UnityEngine;
 using Map.GeometryGeneration;
+using System.Security.Policy;
+using Map.Fleet;
 
 namespace Map.Infrastructure
 {
@@ -11,8 +13,7 @@ namespace Map.Infrastructure
         public struct ConsumerState : IState, IStructureState, INetworkSerializeByMemcpy
         {
             public CommonStructureState Common;
-            public Good RequestedGood;
-            public int CurrentPayout;
+            public ConsumerRequest Request;
 
             public StructureType Type => StructureType.Consumer;
 
@@ -20,13 +21,22 @@ namespace Map.Infrastructure
             public int SerializedSize => FastBufferWriter.GetWriteSize(this);
         }
 
+        public struct ConsumerRequest : INetworkSerializeByMemcpy
+        {
+            public Good Good;
+            public int Payout;
+
+            public ConsumerRequest(Good good, int payout)
+            {
+                Good = good;
+                Payout = payout;
+            }
+        }
+
         public override StructureType Type => StructureType.Consumer;
 
-        private Good requestedGood;
-        public Good RequestedGood { get { return requestedGood; } set { requestedGood = value; Touch(); TriggerRendererUpdate(); } }
-
-        private int currentPayout;
-        public int CurrentPayout { get { return currentPayout; } set { currentPayout = value; Touch(); TriggerRendererUpdate(); } }
+        private ConsumerRequest request;
+        public ConsumerRequest Request { get { return request; } set { request = value; Touch(); TriggerRendererUpdate(); } }
 
         private float requestCooldown;
 
@@ -35,13 +45,13 @@ namespace Map.Infrastructure
 
         public ConsumerState State
         {
-            get => new ConsumerState { Common = CommonState, RequestedGood = RequestedGood, CurrentPayout = CurrentPayout };
-            set { CommonState = value.Common; RequestedGood = value.RequestedGood; CurrentPayout = value.CurrentPayout; }
+            get => new ConsumerState { Common = CommonState, Request = Request };
+            set { CommonState = value.Common; Request = value.Request; }
         }
 
         public Consumer(StructureIndex index) : base(index)
         {
-            requestedGood = Good.None;
+            request = new(Good.None, 0);
         }
 
         public void ApplyServerState(ConsumerState state, double _) { State = state; ResetDirty(); }
@@ -56,39 +66,31 @@ namespace Map.Infrastructure
 
         public override void OnStructureSpawned()
         {
-            ClearRequest();
+            Request = new(Good.None, 0);
         }
 
         public override void Tick(float tickDuration)
         {
-            if (!Exists) return;
-            if (RequestedGood == Good.None && (requestCooldown -= tickDuration) <= 0)
-            {
-                RequestedGood = (Good) Random.Range((int)Good.Apple, (int)Good.Banana + 1);
-                CurrentPayout = Constants.CONSUMER_REQUEST_BASE_PAYOUT;
-                payoutIncreaseCooldown = NextPayoutIncreaseCooldown();
-                nextPayout = (int)(CurrentPayout * NextPayoutIncreaseFactor());
-                return;
-            }
+            if (!Exists || Request.Good == Good.None) return;
 
             if ((payoutIncreaseCooldown -= tickDuration) <= 0)
             {
-                CurrentPayout = nextPayout;
-                payoutIncreaseCooldown = NextPayoutIncreaseCooldown();
-                nextPayout = (int)(CurrentPayout * NextPayoutIncreaseFactor());
+                request = new(Request.Good, nextPayout);
+                SetupPayoutIncrease();
             }
         }
 
-        public void ClearRequest()
+        public void SetupPayoutIncrease()
         {
-            RequestedGood = Good.None;
-
-            requestCooldown = NextRequestCooldown();
+            payoutIncreaseCooldown = NextPayoutIncreaseCooldown();
+            nextPayout = (int)(Request.Payout * NextPayoutIncreaseFactor());
         }
 
-        private float NextRequestCooldown()
+        public void FulfillRequest(Truck truck)
         {
-            return Random.Range(Constants.MIN_CONSUMER_REQUEST_COOLDOWN, Constants.MAX_CONSUMER_REQUEST_COOLDOWN);
+            truck.Owner.Earn(Request.Payout);
+            truck.Good = Good.None;
+            Map.Instance.SpawnLogic.ClearConsumerRequest(this);
         }
 
         private float NextPayoutIncreaseCooldown()

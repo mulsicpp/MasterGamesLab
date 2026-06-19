@@ -20,8 +20,8 @@ namespace Map.Infrastructure
 
         public Structure GetFirstWith(Structure.StructureType type, Predicate<Structure> condition = null);
 
-        public bool SpawnLocal<T>(T state, Player.Player owner = null) where T : struct, Structure.IStructureState;
+        public Structure SpawnLocal<T>(T state, Player.Player owner = null) where T : struct, Structure.IStructureState;
 
-        public bool SpawnGlobal<T>(T state, Player.Player owner = null) where T : struct, Structure.IStructureState;
+        public Structure SpawnGlobal<T>(T state, Player.Player owner = null) where T : struct, Structure.IStructureState;
     }
 }

@@ -1,3 +1,4 @@
+using Map.Infrastructure;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +12,7 @@ public static class Constants
 
     public static readonly Color[] PLAYER_COLORS = { Color.red, Color.blue, Color.yellow, Color.green };
 
-    public const int PLAYER_INITIAL_CASH = 100;
+    public const int PLAYER_INITIAL_CASH = 1000;
 
     // ------------------- Vehicles -------------------
 
@@ -41,16 +42,35 @@ public static class Constants
 
     // ------------------- Producer & Consumer Logic -------------------
 
-    public const int CONSUMER_REQUEST_BASE_PAYOUT = 100;
+    public const int GOOD_COMMON_BASE_PAYOUT = 100;
+    public const int GOOD_UNCOMMON_BASE_PAYOUT = 150;
+    public const int GOOD_RARE_BASE_PAYOUT = 200;
+    public const int GOOD_EPIC_BASE_PAYOUT = 300;
+    public const int GOOD_LEGENDARY_BASE_PAYOUT = 500;
 
-    public const float MIN_CONSUMER_REQUEST_COOLDOWN = 15f;
-    public const float MAX_CONSUMER_REQUEST_COOLDOWN = 30f;
+    public static readonly float[,] GOOD_SPAWN_CHANCE_PER_CONTINENT = new float[4, 5]
+    {
+        { 0.0f, 0.7f, 0.3f, 0.0f, 0.0f },
+        { 0.0f, 0.3f, 0.5f, 0.2f, 0.0f },
+        { 0.0f, 0.0f, 0.2f, 0.5f, 0.3f },
+        { 0.0f, 0.0f, 0.0f, 0.2f, 0.8f },
+    };
+
+    public const float MIN_CONSUMER_REQUEST_COOLDOWN = 5f;
+    public const float MAX_CONSUMER_REQUEST_COOLDOWN = 6f;
 
     public const float MIN_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 20f;
     public const float MAX_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 50f;
 
     public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.05f;
     public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.2f;
+
+
+    public const float MIN_CONSUMER_SPAWN_COOLDOWN = 5f;
+    public const float MAX_CONSUMER_SPAWN_COOLDOWN = 30f;
+
+    public const float MIN_PRODUCER_SPAWN_COOLDOWN = 30f;
+    public const float MAX_PRODUCER_SPAWN_COOLDOWN = 60f;
 
 
     // ------------------- Build Costs -------------------
