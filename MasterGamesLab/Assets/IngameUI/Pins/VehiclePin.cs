@@ -46,6 +46,7 @@ namespace UI
                 setActive(false);
                 return;
             }
+            time.text = vehicleRenderer.Vehicle.RemainingDriveTime is float t ? ((int)Mathf.Ceil(t)).ToString() + "s" : "";
             base.LateUpdate();
         }
 
@@ -53,7 +54,7 @@ namespace UI
         {
             Vector3 rawPosition = gameObject.transform.position;
             Vector3 projectedPosition = Map.Map.Instance.GetProjectedPosition(rawPosition);
-            upVector = gameObject.transform.up;
+            upVector = Map.Map.Instance.GetProjectedVehicleTransform(vehicleRenderer.Vehicle.Transform).Up;
             return projectedPosition;
         }
 

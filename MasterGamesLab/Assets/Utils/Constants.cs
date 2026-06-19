@@ -22,7 +22,7 @@ public static class Constants
 
     public const byte MAX_FREIGHTERS_PER_PLAYER = 8;
     public const byte MAX_FREIGHTER_COUNT = MAX_FREIGHTERS_PER_PLAYER * MAX_PLAYER_COUNT;
-    public const float FREIGHTER_BASE_SPEED_TPS = 1.0f;
+    public const float FREIGHTER_BASE_SPEED_TPS = 0.4f;
 
     public const int TRUCK_LOADING_COST_ENEMY = 40;
     public const int TRUCK_UNLOADING_COST_ENEMY = 80;
