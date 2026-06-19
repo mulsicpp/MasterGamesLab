@@ -21,6 +21,8 @@ namespace Map.Infrastructure
 
         public override StructureType Type => StructureType.Producer;
 
+        public override GameObject StructurePrefab => Map.Instance.ProducerPrefab;
+
         private Good good;
         public Good Good { get { return good; } set { good = value; Touch(); TriggerRendererRebuild(); } }
 

@@ -20,6 +20,8 @@ namespace Map.Infrastructure
 
         public override StructureType Type => StructureType.Garage;
 
+        public override GameObject StructurePrefab => Map.Instance.GaragePrefab;
+
         public GarageState State
         {
             get => new GarageState { Common = CommonState };

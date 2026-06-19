@@ -19,6 +19,8 @@ namespace Map.Infrastructure
         }
 
         public override StructureType Type => StructureType.Port;
+
+        public override GameObject StructurePrefab => Map.Instance.PortPrefab;
         public override Player.Player Owner => Map.Instance.Players[(byte)(Index / Constants.MAX_PORTS_PER_PLAYER)];
 
         public PortState State
