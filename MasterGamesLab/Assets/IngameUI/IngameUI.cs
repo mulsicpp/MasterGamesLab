@@ -379,14 +379,23 @@ namespace UI
 
         private void HandleBlueprintUpdate(Blueprint blueprint)
         {
+
             if (blueprint.IsEmpty)
             {
+                confirmButton.style.display = DisplayStyle.None;
+                cancelButton.style.display = DisplayStyle.None;
                 blueprintCountContainer.style.display = DisplayStyle.None;
                 return;
             }
+
             blueprintCountContainer.style.display = DisplayStyle.Flex;
             var details = blueprint.GetDetails();
             var objectInfos = details.ObjectInfos;
+            cancelButton.style.display = DisplayStyle.Flex;
+
+            confirmButton.style.display = Player.Player.Self.Cash >= details.TotalCost ? DisplayStyle.Flex : DisplayStyle.None;
+
+
 
             foreach (ConstructibleType type in System.Enum.GetValues(typeof(ConstructibleType)))
             {
