@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using InGameCamera;
 using Map.Blueprint;
+using Map.Fleet;
 using Map.Hoverables;
 using Player;
 using UnityEngine;
@@ -51,6 +53,9 @@ namespace UI
         private Button confirmButton, cancelButton, hideButton;
         private Button currentActiveButton;
         private GroupBox buildCount;
+
+
+        protected PlanetCameraController mainCamera;
 
 
         private IControls[] controls;
@@ -146,6 +151,8 @@ namespace UI
             tabMenu.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
             tabMenu.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
 
+
+            mainCamera = MainCamera.Instance.GetComponentInChildren<PlanetCameraController>();
         }
 
         void OnDisable()
@@ -440,6 +447,25 @@ namespace UI
         public void OnConfirmPressed() => ConstructionControls.ConfirmConstruction();
         public void OnCancelPressed() => ConstructionControls.CancelConstruction();
         public void OnHidePressed() => ConstructionControls.ToggleHide();
+
+        public void SelectNextVehicle()
+        {
+            var current = VehicleControls.SelectedVehicle;
+            Vehicle nextVehicle = null;
+
+            Func<Vehicle, bool> condition = v => v.Exists && v.Owner.IsSelf && (v as Truck)?.Freighter == null;
+
+            if (current != null)
+            {
+                nextVehicle = Map.Map.Instance.Fleet.Vehicles.FirstOrDefault(v => condition(v) && v.IndexInVehicles > current.IndexInVehicles);
+            }
+
+            if (nextVehicle == null)
+                nextVehicle = Map.Map.Instance.Fleet.Vehicles.FirstOrDefault(condition);
+
+            mainCamera.CenterOnPosition(nextVehicle.Transform.Position);
+            VehicleControls.SelectedVehicle = nextVehicle;
+        }
 
         #endregion
 

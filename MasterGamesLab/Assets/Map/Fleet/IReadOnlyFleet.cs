@@ -17,6 +17,7 @@ namespace Map.Fleet
         public IReadOnlyList<Vehicle> this[Vehicle.VehicleType type] { get; }
 
         public Vehicle GetFirstWith(Vehicle.VehicleType type, Predicate<Vehicle> condition = null);
+        
 
         public bool SpawnLocal<T>(T state, Player.Player owner) where T : struct, Vehicle.IVehicleState;
         public bool SpawnGlobal<T>(T state, Player.Player owner) where T : struct, Vehicle.IVehicleState;

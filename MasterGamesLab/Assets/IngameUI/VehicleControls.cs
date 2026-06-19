@@ -75,7 +75,6 @@ namespace UI
             public override bool Commit()
             {
                 Map.Map.Instance.RequestVehicleRouteServerRpc(controls.SelectedVehicle.IndexInVehicles, route);
-                controls.SelectedVehicle = null;
                 return true;
             }
         }

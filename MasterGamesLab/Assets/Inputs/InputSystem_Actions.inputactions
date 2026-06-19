@@ -679,6 +679,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ChangeVehicle",
+                    "type": "Button",
+                    "id": "7826f3c3-4fb9-4b87-89b2-fd16acbb843c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -789,6 +798,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "OpenTabMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a26022d2-21b9-4ea1-ad24-ba7de5ec7a37",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChangeVehicle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

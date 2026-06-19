@@ -18,6 +18,8 @@ public class IngameInputs : MonoBehaviour
     public static InputAction hideBuildPlanAction;
     public static InputAction cancelClickAction;
     public static InputAction openTabMenuAction;
+    public static InputAction changeTruckAction;
+
 
     [SerializeField] private ConstructionControls constructionControls;
 
@@ -35,6 +37,7 @@ public class IngameInputs : MonoBehaviour
         hideBuildPlanAction = controlsActionMap.FindAction("HideBuild");
         cancelClickAction = controlsActionMap.FindAction("Cancel");
         openTabMenuAction = controlsActionMap.FindAction("OpenTabMenu");
+        changeTruckAction = controlsActionMap.FindAction("ChangeVehicle");
     }
 
     void OnEnable()
@@ -49,7 +52,7 @@ public class IngameInputs : MonoBehaviour
         // cancelAction.started += OnCancel;
         openTabMenuAction.started += OnTabPressed;
         openTabMenuAction.canceled += OnTabReleased;
-
+        changeTruckAction.started += OnChangeVehicle;
     }
 
     void OnDisable()
@@ -64,6 +67,8 @@ public class IngameInputs : MonoBehaviour
         // cancelAction.started -= OnCancel;
         openTabMenuAction.started -= OnTabPressed;
         openTabMenuAction.canceled -= OnTabReleased;
+        changeTruckAction.started -= OnChangeVehicle;
+
     }
 
     private void OnBuildRoad(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Road;
@@ -76,6 +81,7 @@ public class IngameInputs : MonoBehaviour
     private void OnHide(InputAction.CallbackContext ctx) => constructionControls.ToggleHide();
     private void OnTabPressed(InputAction.CallbackContext ctx) => IngameUI.Instance.ShowTabMenu(true);
     private void OnTabReleased(InputAction.CallbackContext ctx) => IngameUI.Instance.ShowTabMenu(false);
+    private void OnChangeVehicle(InputAction.CallbackContext ctx) => IngameUI.Instance.SelectNextVehicle();
 
 
 }
