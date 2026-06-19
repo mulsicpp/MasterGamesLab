@@ -54,7 +54,7 @@ namespace UI
         {
             Vector3 rawPosition = gameObject.transform.position;
             Vector3 projectedPosition = Map.Map.Instance.GetProjectedPosition(rawPosition);
-            upVector = gameObject.transform.up;
+            upVector = Map.Map.Instance.GetProjectedVehicleTransform(vehicleRenderer.Vehicle.Transform).Up;
             return projectedPosition;
         }
 

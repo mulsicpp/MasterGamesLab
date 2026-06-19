@@ -92,7 +92,6 @@ namespace UI
         protected virtual void setActive(bool active)
         {
             UiElement.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
-            LateUpdate();
         }
 
         protected virtual void OnDestroy()
