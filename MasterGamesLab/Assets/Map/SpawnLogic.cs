@@ -17,19 +17,17 @@ namespace Map
         private ProducerConsumerSpawnPoint spawnPointGenerator;
 
         private List<Good> availableGoods;
-        private List<int> availableContinents;
 
-        public float Progress => (Time.time - startTime) / 300f;
+        public float Progress => Math.Clamp((Time.time - startTime) / 60f, 0.0f, 1.0f);
 
         private readonly float startTime;
 
         private Dictionary<int, SortedSet<Good>> goodsPerContinent;
 
-        private Dictionary<Good, List<Producer>> producersPerGood;
-        private Dictionary<int, List<Consumer>> consumerPerContinent;
-
         private List<Consumer> readyConsumers;
         private List<Consumer> busyConsumers;
+
+        private Distribution<int> consumerContinentDistribution;
 
         private float consumerRequestCooldown;
 
@@ -41,7 +39,6 @@ namespace Map
             spawnPointGenerator = new ProducerConsumerSpawnPoint(map);
 
             availableGoods = new();
-            availableContinents = new();
 
             startTime = Time.time;
 
@@ -65,7 +62,7 @@ namespace Map
                     continentProbs.Add((GoodUtils.Goods[j], spawnChances[i, j]));
                 }
 
-                goodsPerContinent[1 + i].Add(new Distribution<Good>(continentProbs).Get());
+                goodsPerContinent[1 + i].Add(new Distribution<Good>(continentProbs).GetRandom());
                 //continentDistributions.Add(1 + i, new(continentProbs));
             }
 
@@ -79,7 +76,7 @@ namespace Map
                 {
                     goodProbs.Add((1 + j, spawnChances[j, i]));
                 }
-                goodsPerContinent[new Distribution<int>(goodProbs).Get()].Add(GoodUtils.Goods[i]);
+                goodsPerContinent[new Distribution<int>(goodProbs).GetRandom()].Add(GoodUtils.Goods[i]);
                 //goodDistributions.Add(GoodUtils.Goods[i], new(goodProbs));
             }
 
@@ -87,20 +84,6 @@ namespace Map
             {
                 string goodString = goods.AsEnumerable().Select(g => g.ToString()).Aggregate((s1, s2) => s1 + ", " + s2);
                 Debug.Log("Continent " + cId + ": { " + goodString + " }");
-            }
-
-            producersPerGood = new();
-
-            foreach (var good in GoodUtils.Goods)
-            {
-                producersPerGood.Add(good, new());
-            }
-
-            consumerPerContinent = new();
-
-            foreach (var continentId in map.ContinentInfos.Keys)
-            {
-                consumerPerContinent.Add(continentId, new());
             }
 
             readyConsumers = new();
@@ -114,17 +97,23 @@ namespace Map
                 (0.2f, () => Debug.Log("Progress reached 20%")),
             };
 
-            for (int i = 0; i < GoodUtils.Goods.Length; i++)
+            List<(int, float)> continentProbabilities = map.ContinentInfos.Select(info => (info.Key, (float)info.Value.Size)).ToList();
+            consumerContinentDistribution = new(continentProbabilities);
+
+            for (int i = 1; i < GoodUtils.Goods.Length; i++)
             {
                 var iCopy = i;
                 progressEvents.Add(((float)i / GoodUtils.Goods.Length, () => EnableGood(GoodUtils.Goods[iCopy])));
             }
 
-            for (int i = 0; i < map.ContinentInfos.Count; i++)
+            int dynamicConsumerCount = Constants.TotalConsumerCount - Constants.StartConsumerCount;
+
+            for (int i = 0; i < dynamicConsumerCount; i++)
             {
                 var iCopy = i;
-                progressEvents.Add(((float)i / map.ContinentInfos.Count, () => EnableContinent(iCopy + 1)));
+                progressEvents.Add(((float)(i + 1) / (dynamicConsumerCount + 1), () => SpawnConsumer((float)(iCopy + Constants.StartConsumerCount) / Constants.TotalConsumerCount)));
             }
+
         }
 
         public void GenerateInitalState()
@@ -143,36 +132,14 @@ namespace Map
                     }, map.Players[i]);
             }
 
-            foreach (var (continentId, goods) in goodsPerContinent)
-            {
-                foreach (var good in goods)
-                {
-                    var prodTile = spawnPointGenerator.GetSpawnableTile(Structure.StructureType.Producer, continentId, good);
-                    if (prodTile != null)
-                    {
-                        var producer = map.Infrastructure.SpawnLocal(new Producer.ProducerState
-                        {
-                            Common = { TileId = prodTile.Id },
-                            Good = Good.None
-                        });
-                        spawnPointGenerator.RegisterSpawnedTile(Structure.StructureType.Producer, prodTile);
-                        producersPerGood[good].Add(producer as Producer);
-                    }
-                }
-            }
+            EnableGood(Good.Common);
+            for (int i = 0; i < Constants.StartConsumerCount; i++)
+                SpawnConsumer((float)i / Constants.TotalConsumerCount);
 
-            for (int i = 0; i < 10 + map.Players.Count * 6; i++)
+            for (int i = 0; i < map.Players.Count; i++)
             {
-                var consTile = spawnPointGenerator.GetSpawnableTile(Structure.StructureType.Consumer);
-                if (consTile != null)
-                {
-                    var consumer = map.Infrastructure.SpawnLocal(new Consumer.ConsumerState
-                    {
-                        Common = { TileId = consTile.Id }
-                    });
-                    spawnPointGenerator.RegisterSpawnedTile(Structure.StructureType.Consumer, consTile);
-                    consumerPerContinent[consTile.ContinentId].Add(consumer as Consumer);
-                }
+                var consumer = readyConsumers[UnityEngine.Random.Range(0, readyConsumers.Count)];
+                GenerateConsumerRequest(consumer);
             }
         }
 
@@ -228,22 +195,47 @@ namespace Map
 
         private float NextConsumerRequestCooldown()
         {
-            return UnityEngine.Random.Range(Constants.MIN_CONSUMER_REQUEST_COOLDOWN, Constants.MAX_CONSUMER_REQUEST_COOLDOWN);
+            return UnityEngine.Random.Range(Constants.MIN_CONSUMER_REQUEST_COOLDOWN, Constants.MAX_CONSUMER_REQUEST_COOLDOWN) / map.Players.Count;
         }
 
         private void EnableGood(Good good)
         {
             availableGoods.Add(good);
-            foreach (var producer in producersPerGood[good])
+
+            foreach (var (continentId, goods) in goodsPerContinent)
             {
-                producer.Good = good;
+                if (goods.Contains(good))
+                {
+                    var prodTile = spawnPointGenerator.GetSpawnableTile(Structure.StructureType.Producer, continentId, good);
+                    if (prodTile != null)
+                    {
+                        map.Infrastructure.SpawnLocal(new Producer.ProducerState
+                        {
+                            Common = { TileId = prodTile.Id },
+                            Good = good
+                        });
+                        spawnPointGenerator.RegisterSpawnedTile(Structure.StructureType.Producer, prodTile);
+                        // producersPerGood[good].Add(producer as Producer);
+                    }
+                }
             }
         }
 
-        private void EnableContinent(int continentId)
+        private void SpawnConsumer(float value)
         {
-            availableContinents.Add(continentId);
-            readyConsumers.AddRange(consumerPerContinent[continentId]);
+            int cont = consumerContinentDistribution.GetFromValue(value);
+
+            Debug.Log("Spawning consumer on " + cont);
+            var consTile = spawnPointGenerator.GetSpawnableTile(Structure.StructureType.Consumer, cont);
+            if (consTile != null)
+            {
+                var consumer = map.Infrastructure.SpawnLocal(new Consumer.ConsumerState
+                {
+                    Common = { TileId = consTile.Id }
+                });
+                spawnPointGenerator.RegisterSpawnedTile(Structure.StructureType.Consumer, consTile);
+                readyConsumers.Add(consumer as Consumer);
+            }
         }
 
         private float[,] GetGoodSpawnChancePerContinent()

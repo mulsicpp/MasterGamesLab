@@ -7,7 +7,7 @@ namespace Utils
 {
     public class Distribution<T>
     {
-        (T, float)[] cutoffs;
+        public (T, float)[] cutoffs;
         public Distribution(IReadOnlyList<(T, float)> probabilities)
         {
             cutoffs = new (T, float)[probabilities.Count];
@@ -22,16 +22,16 @@ namespace Utils
 
             for (int i = 0; i < cutoffs.Length; i++)
             {
-                cutoffs[i].Item2 *= accum;
+                cutoffs[i].Item2 /= accum;
             }
 
         }
 
-        public T Get()
-        {
-            var value = Random.value;
+        public T GetRandom() => GetFromValue(Random.value);
 
-            foreach(var (val, cutoff) in cutoffs)
+        public T GetFromValue(float value)
+        {
+            foreach (var (val, cutoff) in cutoffs)
             {
                 if (value < cutoff) return val;
             }
