@@ -12,6 +12,7 @@ namespace UI
         private VehicleRenderer vehicleRenderer;
 
         private Label time;
+        private VisualElement playerColor;
 
         protected override float pinHeightPercent => 6f;
         protected override float pinAspectRatio => 0.5f;
@@ -19,7 +20,6 @@ namespace UI
         public void OnEnable()
         {
             vehicleRenderer = GetComponentInParent<VehicleRenderer>();
-
         }
 
         private void Update()
@@ -61,6 +61,8 @@ namespace UI
         {
             UiElement.Q<VisualElement>("Icon").style.backgroundImage = new StyleBackground(icon);
             time = UiElement.Q<Label>("TimeLabel");
+            playerColor = UiElement.Q<VisualElement>("PlayerColor");
+            playerColor.style.backgroundColor = vehicleRenderer.Vehicle.Owner.Color;
         }
 
         // override protected void OnMouseEnterElement(MouseEnterEvent evt)
