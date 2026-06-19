@@ -38,6 +38,7 @@ namespace UI
                 setActive(false);
                 return;
             }
+            time.text = vehicleRenderer.Vehicle.RemainingDriveTime is float t ? ((int)Mathf.Ceil(t)).ToString() + "s" : "";
             base.LateUpdate();
         }
 

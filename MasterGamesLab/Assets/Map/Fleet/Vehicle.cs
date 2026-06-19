@@ -449,6 +449,28 @@ namespace Map.Fleet
             return BaseSpeedTPS * (Route[index].FindEdgeTo(Route[index + 1])?.GetSpeedMultiplier() ?? 1.0f);
         }
 
+        public virtual float? RemainingDriveTime
+        {
+            get
+            {
+                if (!IsDriving) return null;
+
+                int lastIndex = Route.Length - 1;
+                int previousTileIndex = Mathf.Clamp((int)RouteProgress, 0, lastIndex);
+
+                if (previousTileIndex >= lastIndex) return 0;
+                int nextTileIndex = previousTileIndex + 1;
+
+                float remainingTime = (nextTileIndex - RouteProgress) / (BaseSpeedTPS * (Route[previousTileIndex].FindEdgeTo(Route[nextTileIndex])?.GetSpeedMultiplier() ?? 1.0f));
+                for (int i = nextTileIndex; i < lastIndex; i++)
+                {
+                    remainingTime += 1.0f / (BaseSpeedTPS * (Route[i].FindEdgeTo(Route[i + 1])?.GetSpeedMultiplier() ?? 1.0f));
+                }
+
+                return remainingTime;
+            }
+        }
+
         public virtual VehicleTransform Transform
         {
             get
