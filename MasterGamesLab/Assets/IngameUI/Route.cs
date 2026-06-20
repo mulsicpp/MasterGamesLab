@@ -1,8 +1,5 @@
-using Map;
-using System.Collections.Generic;
 using Map.GeometryGeneration.Edges;
 using UnityEngine;
-using static Unity.VectorGraphics.VectorUtils;
 
 namespace UI
 {

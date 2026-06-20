@@ -28,12 +28,9 @@ namespace Map.OutlineEffect
 
         protected void Init()
         {
-            if (defaultLayer == -1)
-            {
-                defaultLayer = LayerMask.NameToLayer(DefaultLayerName());
-                outlineLayer = LayerMask.NameToLayer(OutlineLayerName());
-                outlineTransparentLayer = LayerMask.NameToLayer(OutlineTransparentLayerName());
-            }
+            defaultLayer = LayerMask.NameToLayer(DefaultLayerName());
+            outlineLayer = LayerMask.NameToLayer(OutlineLayerName());
+            outlineTransparentLayer = LayerMask.NameToLayer(OutlineTransparentLayerName());
 
             objRenderer = GetComponent<Renderer>();
 
