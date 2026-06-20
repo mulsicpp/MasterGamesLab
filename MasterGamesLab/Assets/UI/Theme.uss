@@ -29,7 +29,7 @@
     --icon-road: url("project://database/Assets/Icons/svg/road.svg?fileID=7388822144124034973&guid=00c99cde3fa3ed643ba78a33749b0611&type=3#road");
     --icon-port: url("project://database/Assets/Icons/svg/port.svg?fileID=7388822144124034973&guid=0df0792016bfb164bb2bb24561548882&type=3#port");
     --icon-canal: url("project://database/Assets/Icons/svg/canal.svg?fileID=7388822144124034973&guid=352d2c7705f71cc478c1138c90a7ae84&type=3#canal");
-    --icon-truck: url("project://database/Assets/IngameUI/LKW_Icon.svg?fileID=7388822144124034973&guid=bee6275bf0ec2d2498c79c7cb139def1&type=3#LKW_Icon");
+    --icon-truck: url("project://database/Assets/Icons/svg/Truck.svg?fileID=7388822144124034973&guid=09c0b4e325424674190f0d80c64720c2&type=3#Truck");
 }
 
 .element {
