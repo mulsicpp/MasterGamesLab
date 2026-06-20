@@ -1,5 +1,6 @@
 using InGameCamera;
 using Map;
+using Map.GeometryGeneration.Edges;
 using UnityEngine;
 
 namespace UI
@@ -12,17 +13,16 @@ namespace UI
 
         public RouteOptions()
         {
-            FastestRoute = new(null, Color.orange);
-            CheapestRoute = new(null, Color.green);
+            FastestRoute = new(null, FullRoadGeometry.FullRoadType.Fastest);
+            CheapestRoute = new(null, FullRoadGeometry.FullRoadType.Cheapest);
         }
 
         public void Set(Tile destination, TileId[] fastestRoute, TileId[] cheapestRoute = null)
         {
             if (fastestRoute == null)
             {
-                var temp = fastestRoute;
                 fastestRoute = cheapestRoute;
-                cheapestRoute = temp;
+                cheapestRoute = null;
             }
 
             if(fastestRoute == null)
@@ -38,6 +38,10 @@ namespace UI
 
                 FastestRoute.SetRoute(fastestRoute);
                 CheapestRoute.SetRoute(null);
+
+                UpdateFacingDirections();
+
+                return;
             }
 
             int divergenceIndex = 0;
@@ -75,15 +79,14 @@ namespace UI
             var cheapestPinPosition = Route.GetRouteMidpoint(cheapestRoute, divergenceIndex, cheapestConvergenceIndex);
             var fastestPinPosition = Route.GetRouteMidpoint(fastestRoute, divergenceIndex, fastestConvergenceIndex);
 
-            var camera = MainCamera.Instance.GetComponentInChildren<Camera>();
-            bool cheapestFacingLeft = camera.WorldToScreenPoint(cheapestPinPosition).x < camera.WorldToScreenPoint(fastestPinPosition).x;
-
 
             Destination?.ClearOutline();
             Destination = destination;
 
-            FastestRoute.SetRoute(fastestRoute, fastestPinPosition, !cheapestFacingLeft);
-            CheapestRoute.SetRoute(cheapestRoute, cheapestPinPosition, cheapestFacingLeft);
+            FastestRoute.SetRoute(fastestRoute, fastestPinPosition);
+            CheapestRoute.SetRoute(cheapestRoute, cheapestPinPosition);
+
+            UpdateFacingDirections();
         }
 
         public void Clear()
@@ -92,6 +95,27 @@ namespace UI
             Destination = null;
             FastestRoute.SetRoute(null);
             CheapestRoute.SetRoute(null);
+        }
+
+        public void UpdateFacingDirections()
+        {
+            if (FastestRoute.Tiles == null) return;
+
+            if(CheapestRoute.Tiles == null)
+            {
+                FastestRoute.Renderer.Pin.FacingLeft = false;
+                return;
+            }
+
+            var camera = MainCamera.Instance.GetComponentInChildren<Camera>();
+
+            var fastestPosition = FastestRoute.Renderer.Pin.transform.position;
+            var cheapestPosition = CheapestRoute.Renderer.Pin.transform.position;
+
+            bool cheapestFacingLeft = camera.WorldToScreenPoint(cheapestPosition).x < camera.WorldToScreenPoint(fastestPosition).x;
+
+            FastestRoute.Renderer.Pin.FacingLeft = !cheapestFacingLeft;
+            CheapestRoute.Renderer.Pin.FacingLeft = cheapestFacingLeft;
         }
     }
 }

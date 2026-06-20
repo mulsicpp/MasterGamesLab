@@ -1,5 +1,7 @@
 ﻿using Player;
 using System;
+using Map.GeometryGeneration.Edges;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace Map.GeometryGeneration
@@ -20,28 +22,28 @@ namespace Map.GeometryGeneration
         public static Vector3 Scale => new Vector3(SCALE_VALUE, SCALE_VALUE, SCALE_VALUE);
         public static GeometriesManager Instance { get; private set; }
 
-        public Mesh truckMesh;
-        public Mesh freighterMesh;
-        public Mesh producerMesh;
-        public Mesh consumerMesh;
-        public Mesh portMesh;
-
-        public GameObject geometryPrefab;
+        [SerializeField] private Mesh truckMesh;
+        [SerializeField] private Mesh freighterMesh;
+        [SerializeField] private Mesh producerMesh;
+        [SerializeField] private Mesh consumerMesh;
+        [SerializeField] private Mesh portMesh;
+        [SerializeField] private GameObject geometryPrefab;
+        [SerializeField] private GameObject fullRoadPrefab;
 
         private void Awake()
         {
             Instance = this;
         }
 
-        public ObjectWithFixedGeometry GetGameObjectGeometry(GeometryType type, int id, Transform parent, Player.Player owner = null)
+        public ObjectWithFixedGeometry GetGameObjectGeometry(GeometryType type, int id, Transform parent,
+            Player.Player owner = null)
         {
             Mesh mesh;
             var defaultLayerName = "Default";
             string outlineLayerName;
             string outlineTransparentLayerName;
-            Quaternion localRotation = Quaternion.identity;
-            Vector3 localPosition = Vector3.zero;
-
+            Quaternion localRotation;
+            var localPosition = Vector3.zero;
 
             switch (type)
             {
@@ -89,5 +91,7 @@ namespace Map.GeometryGeneration
             fixedGeometry.Init(mesh, defaultLayerName, outlineLayerName, outlineTransparentLayerName, id);
             return fixedGeometry;
         }
+
+        public GameObject GetFullRoadGameObject() => Instantiate(fullRoadPrefab, transform);
     }
 }

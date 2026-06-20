@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Map.GeometryGeneration.Edges;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -8,6 +9,7 @@ namespace Map.GeometryGeneration
     public class MapChunk : AObjectWithProcedualGeometry
     {
         private static readonly int TreeBuffer = Shader.PropertyToID("_TreeBuffer");
+        protected override string DefaultLayerName() => "";
         protected override string OutlineLayerName() => "";
         protected override string OutlineTransparentLayerName() => "";
 
@@ -126,7 +128,8 @@ namespace Map.GeometryGeneration
         public EdgeGeometry RequestNewEdgeGeometry()
         {
             var edgesGameObject = Instantiate(Map.Instance.GetEdgeGeometryPrefab(), transform);
-            return edgesGameObject.GetComponent<EdgeGeometry>();
+            var component = edgesGameObject.GetComponent<EdgeGeometry>();
+            return component;
         }
 
         private void SetTreeBuffer()

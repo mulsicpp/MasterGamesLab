@@ -246,6 +246,8 @@ namespace UI
 
             if (ControlsAreActive)
                 Map.Map.Instance.HoverOutliner.HoverState = hoveredAction?.IsValid ?? true ? HoverState.Valid : HoverState.Invalid;
+
+            RouteOptions.UpdateFacingDirections();
         }
 
 

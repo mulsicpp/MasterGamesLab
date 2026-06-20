@@ -1,16 +1,28 @@
-using Map.OutlineEffect;
-
 namespace Map.GeometryGeneration.Edges
 {
     public class EdgeGeometry : AObjectWithProcedualGeometry
     {
-        protected override string OutlineLayerName() => "Edge Outline";
-        protected override string OutlineTransparentLayerName() => "Edge Outline Transparent";
+        protected override string DefaultLayerName() => defaultLayerName;
+        protected override string OutlineLayerName() => outlineLayerName;
+        protected override string OutlineTransparentLayerName() => outlineTransparentLayerName;
 
         private Edge.PartialEdgeGeometry? startGeometry;
         private Edge.PartialEdgeGeometry? endGeometry;
 
+        private string defaultLayerName = "Edge";
+        private string outlineLayerName = "Edge Outline";
+        private string outlineTransparentLayerName = "Edge Outline Transparent";
+
         private void Awake() => Init();
+
+        public void SetLayerNames(string newDefaultLayerName, string newOutlineLayerName,
+            string newOutlineTransparentLayerName)
+        {
+            defaultLayerName = newDefaultLayerName;
+            outlineLayerName = newOutlineLayerName;
+            outlineTransparentLayerName = newOutlineTransparentLayerName;
+            Init();
+        }
 
         public void SetStartMesh(Edge.PartialEdgeGeometry newStartGeometry)
         {

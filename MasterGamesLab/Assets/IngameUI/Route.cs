@@ -1,5 +1,4 @@
-using Map;
-using System.Collections.Generic;
+using Map.GeometryGeneration.Edges;
 using UnityEngine;
 
 namespace UI
@@ -9,14 +8,14 @@ namespace UI
         private TileId[] tiles;
         public TileId[] Tiles => tiles;
 
-        public readonly Color Color;
+        public readonly FullRoadGeometry.FullRoadType Type;
 
         public RouteRenderer Renderer { get; private set; }
 
-        public Route(TileId[] tiles, Color color)
+        public Route(TileId[] tiles, FullRoadGeometry.FullRoadType type)
         {
             this.tiles = tiles;
-            Color = color;
+            Type = type;
 
             var gameObject = Object.Instantiate(Map.Map.Instance.RoutePrefab);
             Renderer = gameObject.GetComponent<RouteRenderer>();
@@ -26,26 +25,36 @@ namespace UI
         public void SetRoute(TileId[] tiles)
         {
             if (tiles != null)
-                SetRoute(tiles, GetRouteMidpoint(tiles, 0, tiles.Length - 1), false);
+                SetRoute(tiles, GetRouteMidpoint(tiles, 0, tiles.Length - 1));
             else
-                SetRoute(null, Vector3.zero, false);
+                SetRoute(null, Vector3.zero);
         }
 
-        public void SetRoute(TileId[] tiles, Vector3 pinPosition, bool facingLeft)
+        public void SetRoute(TileId[] tiles, Vector3 pinPosition)
         {
             this.tiles = tiles;
             Renderer.Pin.transform.position = pinPosition;
-            Renderer.Pin.FacingLeft = facingLeft;
+            if (Renderer.Geometry != null)
+            {
+                Object.Destroy(Renderer.Geometry.gameObject);
+                Renderer.Geometry = null;
+            }
+
+            if (tiles != null)
+            {
+                Renderer.Geometry = EdgeGeometryFactory.GenerateFullRoad(tiles, Type);
+            }
         }
 
         public static bool AreSame(TileId[] r1, TileId[] r2)
         {
-            if(r1?.Length != r2?.Length) return false;
+            if (r1?.Length != r2?.Length) return false;
 
             for (int i = 0; i < r1?.Length; i++)
             {
                 if (r1[i] != r2[i]) return false;
             }
+
             return true;
         }
 
@@ -65,7 +74,8 @@ namespace UI
                 int midIndex1 = Mathf.Clamp(startIndex + (endIndex - startIndex) / 2, 0, route.Length - 1);
                 int midIndex2 = Mathf.Clamp(midIndex1 + 1, 0, route.Length - 1);
 
-                return (Map.Map.Instance.Tiles[route[midIndex1]].PositionOnSphere + Map.Map.Instance.Tiles[route[midIndex2]].PositionOnSphere) * 0.5f;
+                return (Map.Map.Instance.Tiles[route[midIndex1]].PositionOnSphere +
+                        Map.Map.Instance.Tiles[route[midIndex2]].PositionOnSphere) * 0.5f;
             }
         }
     }

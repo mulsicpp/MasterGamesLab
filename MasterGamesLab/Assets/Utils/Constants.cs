@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 public static class Constants
 {
-
     // ------------------- Player -------------------
 
     public const byte MIN_PLAYER_COUNT = 2;
@@ -59,7 +58,9 @@ public static class Constants
     public const int BASE_CONSUMER_COUNT = 10;
     public const int CONSUMER_COUNT_PER_PLAYER = 10;
 
-    public static int TotalConsumerCount => BASE_CONSUMER_COUNT + (Map.Map.Instance?.Players?.Count ?? 0) * CONSUMER_COUNT_PER_PLAYER;
+    public static int TotalConsumerCount =>
+        BASE_CONSUMER_COUNT + (Map.Map.Instance?.Players?.Count ?? 0) * CONSUMER_COUNT_PER_PLAYER;
+
     public static int StartConsumerCount => TotalConsumerCount / 6;
 
     public const float MIN_CONSUMER_REQUEST_COOLDOWN = 15f;
@@ -144,7 +145,7 @@ public static class Constants
         InnerColor = new Color(0, 0, 0, 0),
         TextureId = 0,
     };
-    
+
     public static OutlineData HOVER_OUTLINE = new OutlineData()
     {
         OutlineColor = new Color(1f, 0.92f, 0.016f, 0.6f),
@@ -207,6 +208,20 @@ public static class Constants
     {
         OutlineColor = Color.red,
         InnerColor = new Color(255, 0, 0, 0.5f),
+        TextureId = 1,
+    };
+
+    public static OutlineData FASTEST_ROAD_OUTLINE = new OutlineData()
+    {
+        OutlineColor = Color.orange,
+        InnerColor = new Color(255, 164, 0, 1),
+        TextureId = 1,
+    };
+
+    public static OutlineData CHEAPEST_ROAD_OUTLINE = new OutlineData()
+    {
+        OutlineColor = Color.green,
+        InnerColor = new Color(0, 128, 0, 1),
         TextureId = 1,
     };
 }

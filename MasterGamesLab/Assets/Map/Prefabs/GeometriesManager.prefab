@@ -50,3 +50,4 @@ MonoBehaviour:
   consumerMesh: {fileID: -2432090755550338912, guid: d7f83939c766c3247ab64c71a7bfe6e1, type: 3}
   portMesh: {fileID: -2432090755550338912, guid: a2132b342f6b8154aa5c0dc8d9590a11, type: 3}
   geometryPrefab: {fileID: 1656574153691020000, guid: 3f431ad8f77587748abe2332aecce29e, type: 3}
+  fullRoadPrefab: {fileID: 1656574153691020000, guid: a0c329c131d7c8c4cae9f255306af9bb, type: 3}

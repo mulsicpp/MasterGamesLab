@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace Map.OutlineEffect
 {
@@ -9,6 +10,7 @@ namespace Map.OutlineEffect
         private static readonly int TextureId = Shader.PropertyToID("_TextureId");
         private static readonly int PlayerColor = Shader.PropertyToID("_PlayerColor");
 
+        protected abstract string DefaultLayerName();
         protected abstract string OutlineLayerName();
         protected abstract string OutlineTransparentLayerName();
 
@@ -24,24 +26,17 @@ namespace Map.OutlineEffect
         private int textureId;
         private Color playerColor;
 
-        protected void Init(string defaultLayerName = "")
+        protected void Init()
         {
-            if (defaultLayer == -1)
-            {
-                if (defaultLayerName != "")
-                {
-                    gameObject.layer = LayerMask.NameToLayer(defaultLayerName);
-                }
-
-                defaultLayer = gameObject.layer;
-                outlineLayer = LayerMask.NameToLayer(OutlineLayerName());
-                outlineTransparentLayer = LayerMask.NameToLayer(OutlineTransparentLayerName());
-            }
+            defaultLayer = LayerMask.NameToLayer(DefaultLayerName());
+            outlineLayer = LayerMask.NameToLayer(OutlineLayerName());
+            outlineTransparentLayer = LayerMask.NameToLayer(OutlineTransparentLayerName());
 
             objRenderer = GetComponent<Renderer>();
 
             // Apply initial material properties
             SetMaterialPropertyBlock();
+            SetBaseLayer();
         }
 
         public void SetPlayerColor(Color color)

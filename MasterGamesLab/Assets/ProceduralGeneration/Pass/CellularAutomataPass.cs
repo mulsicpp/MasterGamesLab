@@ -17,12 +17,29 @@ public class CellularAutomataPass : IGenerationPass
         for (var i = 0; i < iterations; i++)
         {
             var nextState = new Dictionary<ITile, Tile.TileType>();
+            
+            var nextContinentState = new Dictionary<ITile, int>();
 
             foreach (var tile in map.Tiles)
             {
                 if (tile.Type == Tile.TileType.Water) continue;
 
                 var currentType = tile.Type;
+                
+                //single tiles in water
+                int waterNeighbors = 0;
+                foreach (var neighbor in tile.Neighbors)
+                {
+                    if (neighbor.Type == Tile.TileType.Water) waterNeighbors++;
+                }
+
+                if (waterNeighbors >= 5)
+                {
+                    nextState[tile] = Tile.TileType.Water;
+                    nextContinentState[tile] = -1;
+
+                    continue; 
+                }
 
                 //surviving tiles 
                 if (currentType == Tile.TileType.Forest)
@@ -68,6 +85,11 @@ public class CellularAutomataPass : IGenerationPass
             foreach (var kvp in nextState)
             {
                 kvp.Key.Type = kvp.Value;
+
+                if (nextContinentState.ContainsKey(kvp.Key))
+                {
+                    kvp.Key.ContinentId = nextContinentState[kvp.Key];
+                }
             }
         }
     }
