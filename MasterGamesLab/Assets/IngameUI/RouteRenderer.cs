@@ -12,20 +12,20 @@ namespace UI
 
         public RoadPin Pin;
 
-        public FullRoadGeometry geometry;
+        public FullRoadGeometry Geometry;
 
         public void Init(Route route)
         {
             Route = route;
             Pin = GetComponentInChildren<RoadPin>();
-            geometry = EdgeGeometryFactory.GenerateFullRoad(route.Tiles, FullRoadGeometry.FullRoadType.Cheapest);
+            Geometry = null;
         }
 
         public void OnDrawGizmos()
         {
             if (Route.Tiles != null)
             {
-                Gizmos.color = Route.Color.linear;
+                Gizmos.color = Route.Type == FullRoadGeometry.FullRoadType.Fastest ? Color.orange.linear : Color.purple.linear;
                 for (int i = 0; i < Route.Tiles.Length; i++)
                 {
                     Vector3 pos =

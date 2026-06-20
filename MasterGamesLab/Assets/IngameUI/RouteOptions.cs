@@ -1,5 +1,6 @@
 using InGameCamera;
 using Map;
+using Map.GeometryGeneration.Edges;
 using UnityEngine;
 
 namespace UI
@@ -12,8 +13,8 @@ namespace UI
 
         public RouteOptions()
         {
-            FastestRoute = new(null, Color.orange);
-            CheapestRoute = new(null, Color.green);
+            FastestRoute = new(null, FullRoadGeometry.FullRoadType.Fastest);
+            CheapestRoute = new(null, FullRoadGeometry.FullRoadType.Cheapest);
         }
 
         public void Set(Tile destination, TileId[] fastestRoute, TileId[] cheapestRoute = null)

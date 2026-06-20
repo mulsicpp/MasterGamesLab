@@ -2,6 +2,7 @@ using Map;
 using System.Collections.Generic;
 using Map.GeometryGeneration.Edges;
 using UnityEngine;
+using static Unity.VectorGraphics.VectorUtils;
 
 namespace UI
 {
@@ -10,14 +11,14 @@ namespace UI
         private TileId[] tiles;
         public TileId[] Tiles => tiles;
 
-        public readonly Color Color;
+        public readonly FullRoadGeometry.FullRoadType Type;
 
         public RouteRenderer Renderer { get; private set; }
 
-        public Route(TileId[] tiles, Color color)
+        public Route(TileId[] tiles, FullRoadGeometry.FullRoadType type)
         {
             this.tiles = tiles;
-            Color = color;
+            Type = type;
 
             var gameObject = Object.Instantiate(Map.Map.Instance.RoutePrefab);
             Renderer = gameObject.GetComponent<RouteRenderer>();
@@ -36,6 +37,16 @@ namespace UI
         {
             this.tiles = tiles;
             Renderer.Pin.transform.position = pinPosition;
+            if (Renderer.Geometry != null)
+            {
+                Object.Destroy(Renderer.Geometry.gameObject);
+                Renderer.Geometry = null;
+            }
+
+            if (tiles != null)
+            {
+                Renderer.Geometry = EdgeGeometryFactory.GenerateFullRoad(tiles, FullRoadGeometry.FullRoadType.Cheapest);
+            }
         }
 
         public static bool AreSame(TileId[] r1, TileId[] r2)

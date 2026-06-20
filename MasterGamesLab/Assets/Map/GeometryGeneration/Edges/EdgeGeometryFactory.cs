@@ -523,15 +523,15 @@ namespace Map.GeometryGeneration.Edges
             for (var i = 1; i < tiles.Length - 1; i++)
             {
                 var curve = ParametricCurve.FromTileToTileOverTile(Map.Instance.Tiles[tiles[i - 1]] as Tile,
-                    Map.Instance.Tiles[tiles[i]] as Tile, Map.Instance.Tiles[tiles[i + 1]] as Tile);
+                    Map.Instance.Tiles[tiles[i + 1]] as Tile, Map.Instance.Tiles[tiles[i]] as Tile);
                 AddCurveData(curve, fullRoadGeometry, uv1);
             }
 
-            if (tiles.Length <= 2)
-            {
-                fullRoadGeometry.StoreMeshData();
-                return fullRoadGeometry;
-            }
+            // if (tiles.Length <= 2)
+            // {
+            //     fullRoadGeometry.StoreMeshData();
+            //     return fullRoadGeometry;
+            // }
 
             var endCurve = ParametricCurve.FromTileToTileCenter(Map.Instance.Tiles[tiles[^2]] as Tile,
                 Map.Instance.Tiles[tiles[^1]] as Tile);
