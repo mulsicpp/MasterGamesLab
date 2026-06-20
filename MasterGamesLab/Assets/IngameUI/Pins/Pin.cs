@@ -6,12 +6,26 @@ namespace UI
 {
     public abstract class Pin : MonoBehaviour
     {
+        public enum PinDirection
+        {
+            Center,
+            Bottom,      // Exact same math as your original script
+            Top,         
+            Left,        
+            Right,       
+            BottomLeft,
+            BottomRight,
+            TopLeft,
+            TopRight
+        }
+
         [SerializeField] private float panelOffset = 10f;
         [SerializeField] private float invisibleThreshold = -0.1f;
+        
+        [SerializeField] protected PinDirection pivotDirection = PinDirection.Bottom;
 
         protected abstract float pinHeightPercent { get; }
         protected abstract float pinAspectRatio { get; }
-
 
         protected Camera mainCamera;
         protected PlanetCameraController cameraController;
@@ -22,7 +36,6 @@ namespace UI
 
         public bool IsHovered { get; private set; }
 
-        // Abstract definitions children MUST provide
         [SerializeField] protected VisualTreeAsset PinTemplate;
 
         protected abstract Vector3 GetTargetWorldPosition(out Vector3 upVector);
@@ -38,6 +51,8 @@ namespace UI
 
             UiElement.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
             UiElement.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+
+            ApplyLayoutPivots();
 
             InitializeUiComponents();
         }
@@ -63,11 +78,12 @@ namespace UI
 
             float scaleFactor = cameraController.ScalingFactor;
 
-            float elementWidth = UiElement.layout.width;
-            float elementHeight = UiElement.layout.height;
+            // 1. Get the unscaled layout displacement offset
+            Vector2 offset = GetPivotOffset();
 
-            float finalXPixels = panelPosition.x - (elementWidth * 0.5f);
-            float finalYPixels = panelPosition.y - elementHeight - panelOffset;
+            // 2. Combine panelPosition with the exact pixel displacements
+            float finalXPixels = panelPosition.x + offset.x;
+            float finalYPixels = panelPosition.y + offset.y;
 
             UiElement.style.translate = new StyleTranslate(new Translate(
                 new Length(finalXPixels, LengthUnit.Pixel),
@@ -80,24 +96,64 @@ namespace UI
             lastAppliedPosition = panelPosition;
         }
 
-        protected virtual void OnMouseEnterElement(MouseEnterEvent evt)
+        /// <summary>
+        /// Calculates matching layout displacement shifts. 
+        /// PinDirection.Bottom matches your original formula perfectly.
+        /// </summary>
+        private Vector2 GetPivotOffset()
         {
-            IsHovered = true;
+            float width = UiElement.layout.width;
+            float height = UiElement.layout.height;
+
+            // Fallback rules if UI Toolkit layout properties haven't resolved yet
+            if (float.IsNaN(width) || width <= 0) width = 100f; 
+            if (float.IsNaN(height) || height <= 0) height = 100f;
+
+            return pivotDirection switch
+            {
+                // YOUR ORIGINAL FORMULA: x - (width * 0.5f), y - height - panelOffset
+                PinDirection.Bottom      => new Vector2(-(width * 0.5f), -height - panelOffset),
+                
+                PinDirection.Center      => new Vector2(-(width * 0.5f), -(height * 0.5f)),
+                PinDirection.Top         => new Vector2(-(width * 0.5f), panelOffset),
+                PinDirection.Left        => new Vector2(panelOffset,     -(height * 0.5f)),
+                PinDirection.Right       => new Vector2(-width - panelOffset, -(height * 0.5f)),
+                PinDirection.BottomLeft  => new Vector2(panelOffset,     -height - panelOffset),
+                PinDirection.BottomRight => new Vector2(-width - panelOffset, -height - panelOffset),
+                PinDirection.TopLeft     => new Vector2(panelOffset,     panelOffset),
+                PinDirection.TopRight    => new Vector2(-width - panelOffset, panelOffset),
+                _                        => Vector2.zero
+            };
         }
 
-        protected virtual void OnMouseLeaveElement(MouseLeaveEvent evt)
+        private void ApplyLayoutPivots()
         {
-            IsHovered = false;
-        }
-        protected virtual void setActive(bool active)
-        {
-            UiElement.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
+            Length left = new Length(0, LengthUnit.Percent);
+            Length center = new Length(50, LengthUnit.Percent);
+            Length right = new Length(100, LengthUnit.Percent);
+            Length top = new Length(0, LengthUnit.Percent);
+            Length bottom = new Length(100, LengthUnit.Percent);
+
+            var (x, y) = pivotDirection switch
+            {
+                PinDirection.Center      => (center, center),
+                PinDirection.Bottom      => (center, bottom),
+                PinDirection.Top         => (center, top),
+                PinDirection.Left        => (left,   center),
+                PinDirection.Right       => (right,  center),
+                PinDirection.BottomLeft  => (left,   bottom),
+                PinDirection.BottomRight => (right,  bottom),
+                PinDirection.TopLeft     => (left,   top),
+                PinDirection.TopRight    => (right,  top),
+                _                        => (center, center)
+            };
+
+            UiElement.style.transformOrigin = new StyleTransformOrigin(new TransformOrigin(x, y));
         }
 
-        protected virtual void OnDestroy()
-        {
-            UiElement?.RemoveFromHierarchy();
-        }
-
+        protected virtual void OnMouseEnterElement(MouseEnterEvent evt) => IsHovered = true;
+        protected virtual void OnMouseLeaveElement(MouseLeaveEvent evt) => IsHovered = false;
+        protected virtual void setActive(bool active) => UiElement.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
+        protected virtual void OnDestroy() => UiElement?.RemoveFromHierarchy();
     }
 }
