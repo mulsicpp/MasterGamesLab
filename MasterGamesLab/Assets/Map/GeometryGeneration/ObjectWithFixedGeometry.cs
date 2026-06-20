@@ -43,5 +43,16 @@ namespace Map.GeometryGeneration
 
             mesh.SetUVs(1, uv1);
         }
+
+        public void UpdateId(int id)
+        {
+            var uvValue = new Vector4(id + Map.ID_OFFSET, 0, 0, 0);
+
+            for (var i = 0; i < uv1.Count; i++)
+            {
+                uv1[i] = uvValue;
+            }
+            meshFilter.mesh.SetUVs(1, uv1);
+        }
     }
 }

@@ -33,8 +33,17 @@ namespace Map.Hoverables
         public Action<AsyncGPUReadbackRequest> Callback { get; private set; }
         public RTHandle Persistent1X1RT { get; private set; }
 
+        public bool DenyPick = false;
+
         public void RequestPick(Vector2Int screenPos, Action<AsyncGPUReadbackRequest> callback)
         {
+            if (DenyPick)
+            {
+                ConsumeRequest();
+                DenyPick = false;
+                return;
+            }
+
             MousePosition = screenPos;
             SetLayerMask();
             Callback = callback;

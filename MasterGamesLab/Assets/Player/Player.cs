@@ -95,7 +95,7 @@ namespace Player
 
         public void TransferMoneyTo(Player player, int amount)
         {
-            if(amount > 0)
+            if(amount > 0 && this != player)
             {
                 Pay(amount);
                 player?.Earn(amount);

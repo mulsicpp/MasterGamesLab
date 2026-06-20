@@ -1,0 +1,522 @@
+.unity-ui-document__root {
+    --text-font: url("project://database/Assets/Fonts/Bahnschrift-Condensed.ttf?fileID=12800000&guid=5ecfafd68e5d69944bac0bbd8593c196&type=3#Bahnschrift-Condensed");
+    --text-color: rgb(255, 255, 255);
+    --background-button-color: rgba(255, 255, 255, 0.05);
+    --hover-background-button-color: rgb(255, 255, 255);
+    --border-radius: 0;
+    --outline-color: rgb(255, 255, 255);
+    --outline-width: 1px;
+    --text-outline-color: rgb(0, 0, 0);
+    --text-outline-width: 1px;
+    --border-color: var(--outline-color);
+    --border-width: var(--outline-width);
+    --disabled-border-color: rgba(255, 254, 254, 0.2);
+    --disabled-background-color: rgba(0, 0, 0, 0);
+    --white-space: nowrap;
+    --overflow: hidden;
+    --text-overflow: ellipsis;
+    --copy-hovered: rgba(255, 255, 255, 0.16);
+    --error-color: rgb(255, 73, 73);
+    background-color: rgba(0, 0, 0, 0);
+    color: rgb(32, 32, 32);
+    align-items: flex-start;
+    width: 100%;
+    height: 100%;
+    --tab-menu-header-border: rgba(255, 255, 255, 0.22);
+    --tab-menu-hover-column: rgb(255, 238, 123);
+    --tab-menu-active-column: rgb(175, 152, 0);
+    --icon-freighter: url("project://database/Assets/IngameUI/Freighter_Icon.svg?fileID=7388822144124034973&guid=4f2d2d410d5a0b04a9d28c66af7fd964&type=3#Freighter_Icon");
+    --icon-road: url("project://database/Assets/IngameUI/Road_Icon.svg?fileID=7388822144124034973&guid=6e6eff8ac554ae540bd44a3bd553b5df&type=3#Road_Icon");
+    --icon-port: url("project://database/Assets/IngameUI/Port_Icon.svg?fileID=7388822144124034973&guid=bb3dece4b5ab3434f9c6882fa7796f86&type=3#Port_Icon");
+    --icon-canal: url("project://database/Assets/IngameUI/Canal_icon.svg?fileID=7388822144124034973&guid=200d087653a6f0a4bb33f8d4b4a8cb9f&type=3#Canal_icon");
+    --icon-truck: url("project://database/Assets/IngameUI/LKW_Icon.svg?fileID=7388822144124034973&guid=bee6275bf0ec2d2498c79c7cb139def1&type=3#LKW_Icon");
+}
+
+.element {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    border-radius: 0;
+}
+
+.devider {
+    background-color: var(--hover-background-button-color);
+}
+
+.label {
+    color: var(--text-color);
+    -unity-font-definition: var(--text-font);
+    -unity-text-align: middle-left;
+    white-space: var(--white-space);
+    overflow: var(--overflow);
+    text-overflow: var(--text-overflow);
+}
+
+.money-display {
+    height: 7%;
+    -unity-text-align: upper-right;
+    position: absolute;
+    right: 0;
+    margin-top: 2%;
+    margin-right: 2%;
+}
+
+.button {
+    color: var(--text-color);
+    -unity-font-definition: var(--text-font);
+    background-color: var(--background-button-color);
+    border-color: var(--border-color);
+    border-width: var(--border-width);
+    border-radius: var(--border-radius);
+    -unity-text-align: middle-center;
+    white-space: var(--white-space);
+    overflow: var(--overflow);
+    text-overflow: var(--text-overflow);
+}
+
+.button:hover {
+    background-color: var(--hover-background-button-color);
+    color: var(--text-color);
+    -unity-text-outline-width: var(--text-outline-width);
+    -unity-text-outline-color: var(--text-outline-color);
+}
+
+.button:disabled {
+    color: var(--disabled-border-color);
+    background-color: var(--disabled-background-color);
+    border-color: var(--disabled-border-color);
+    -unity-text-outline-width: 0;
+}
+
+.build-menu-sidebar {
+    width: 15%;
+    height: 35%;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    flex-direction: column;
+}
+
+.group-box-top {
+    flex-grow: 2;
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+}
+
+.group-box-divider {
+    height: 5%;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.group-box-bottom {
+    flex-grow: 1;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.ingame-construct-button-square {
+    width: 30%;
+    aspect-ratio: 1;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5%;
+}
+
+.ingame-build-button-square {
+    width: 30%;
+    aspect-ratio: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.ingame-build-button {
+    width: 100%;
+    height: 100%;
+    border-left-color: rgba(0, 0, 0, 0);
+    border-right-color: rgba(0, 0, 0, 0);
+    border-top-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgba(0, 0, 0, 0);
+    background-color: rgba(255, 255, 255, 0.2);
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+}
+
+.ingame-build-button:hover {
+    background-color: rgb(0, 0, 0);
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+}
+
+.ingame-build-button--active {
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+}
+
+.ingame-build-button-icon {
+    flex-grow: 1;
+    width: 100%;
+    -unity-background-scale-mode: scale-to-fit;
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+}
+
+.confirm-btn {
+    background-image: url("project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=7433338533053954386&guid=422dbfc4599da0e48800bd75080c7a52&type=3#check@2x");
+    -unity-background-image-tint-color: rgb(0, 255, 0);
+}
+
+.confirm-btn:hover {
+    border-left-color: rgb(0, 255, 0);
+    border-right-color: rgb(0, 255, 0);
+    border-top-color: rgb(0, 255, 0);
+    border-bottom-color: rgb(0, 255, 0);
+}
+
+.cancel-btn {
+    background-image: url("project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=-7384953405098038083&guid=422dbfc4599da0e48800bd75080c7a52&type=3#Remove");
+    -unity-background-image-tint-color: rgb(255, 0, 0);
+}
+
+.cancel-btn:hover {
+    border-left-color: rgb(255, 0, 0);
+    border-right-color: rgb(255, 0, 0);
+    border-top-color: rgb(255, 0, 0);
+    border-bottom-color: rgb(255, 0, 0);
+}
+
+.build-menu-divider-line {
+    width: 90%;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-color: var(--outline-color);
+}
+
+.text-field {
+    color: var(--text-color);
+    background-color: var(--background-button-color);
+    border-color: var(--border-color);
+    border-width: var(--border-width);
+    border-radius: var(--border-radius);
+    -unity-font-definition: var(--text-font);
+    -unity-text-align: middle-left;
+    white-space: var(--white-space);
+    overflow: var(--overflow);
+    text-overflow: var(--text-overflow);
+}
+
+.text-field #unity-text-input {
+    --unity-cursor-color: var(--text-color);
+}
+
+#ListView .unity-list-view__item {
+    height: 50%;
+}
+
+.unity-list-view__item:hover {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.unity-slider {
+    margin: 0;
+    min-width: 0;
+    width: 100%;
+    translate: 200%, 0;
+}
+
+.unity-scroller {
+    width: 1%;
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 1px;
+    border-color: rgba(0, 0, 0, 0);
+}
+
+.unity-scroller__low-button,
+.unity-scroller__high-button {
+    display: none;
+}
+
+#unity-tracker,
+#unity-tracker:hover,
+#unity-tracker:active {
+    border-radius: 6px;
+    border-width: 0;
+    background-color: var(--background-button-color);
+}
+
+#unity-dragger {
+    background-color: rgba(255, 255, 255, 0.36);
+    border-radius: 6px;
+    border-width: 0;
+    min-height: 20px;
+    left: 0;
+    width: 100%;
+}
+
+#unity-dragger:hover,
+#unity-dragger:active,
+#unity-dragger:focus,
+.unity-base-slider__input:active #unity-dragger,
+.unity-slider__input:active #unity-dragger,
+#unity-drag-container:active #unity-dragger {
+    background-color: var(--hover-background-button-color);
+}
+
+.lobby-player-div {
+    height: 4.4%;
+    width: 100%;
+}
+
+.lobby-player-label {
+    height: 20.56%;
+    width: 100%;
+    background-color: var(--background-button-color);
+    border-color: var(--border-color);
+    border-width: var(--border-width);
+    border-radius: var(--border-radius);
+    -unity-font-definition: var(--text-font);
+    padding-right: 0;
+    padding-left: 2%;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.lobby-player-label-empty {
+    height: 20.56%;
+    width: 100%;
+    background-color: var(--disabled-background-color);
+    border-color: var(--disabled-border-color);
+    border-width: var(--border-width);
+    border-radius: var(--border-radius);
+    -unity-font-definition: var(--text-font);
+    padding-right: 0;
+    padding-left: 2%;
+    align-items: flex-end;
+}
+
+.host-crown {
+    height: 100%;
+    background-image: url("project://database/Assets/Lobby/Crown.svg?fileID=7388822144124034973&guid=5771e13031fb0b546824e0b0c877c56e&type=3#Crown");
+    -unity-background-image-tint-color: var(--background-button-color);
+    margin-right: 2%;
+}
+
+.copy-button {
+    color: var(--text-color);
+    -unity-font-definition: var(--text-font);
+    background-color: rgba(0, 0, 0, 0);
+    border-color: var(--border-color);
+    border-radius: var(--border-radius);
+    -unity-text-align: middle-left;
+}
+
+.copy-button:hover {
+    color: var(--background-button-color);
+}
+
+.copy-button:disabled {
+    color: var(--disabled-border-color);
+    background-color: var(--disabled-background-color);
+    border-color: var(--disabled-border-color);
+    -unity-text-outline-width: 0;
+}
+
+.copy-button:hover > .image-icon {
+    -unity-background-image-tint-color: var(--copy-hovered);
+}
+
+.copy-button:hover > .text-label {
+    color: var(--copy-hovered);
+}
+
+.name-text-field {
+    width: 100%;
+    height: 29.8%;
+    background-color: var(--background-button-color);
+    box-shadow-color: rgba(255, 218, 0, 0);
+    box-shadow-blur: 0;
+    box-shadow-offset: 0 0;
+    transition-property: border-color, border-width, box-shadow-color, box-shadow-blur, scale, background-color;
+    transition-duration: 0.3s;
+    transition-timing-function: ease-out;
+}
+
+.highlighted-text-field {
+    border-color: var(--error-color);
+    border-width: 2px;
+    color: var(--error-color);
+    background-color: rgba(0, 0, 0, 0.4);
+    scale: 1.02 1.02;
+}
+
+.show {
+    border-width: 0;
+}
+
+.container {
+    background-color: rgba(0, 0, 0, 0.98);
+    border-color: rgba(255, 255, 255, 0.15);
+    border-width: 1px;
+    border-radius: 8px;
+}
+
+.container-hidden {
+    background-color: rgba(0, 0, 0, 0);
+    border-color: rgba(0, 0, 0, 0);
+}
+
+.countlabel {
+    width: 49.9%;
+    flex-shrink: 0;
+    aspect-ratio: 2.5;
+}
+
+.x {
+    box-sizing: border-box;
+}
+
+.tab-menu-header-icon {
+    aspect-ratio: 1;
+    max-width: 100%;
+    max-height: 100%;
+    background-color: rgba(255, 0, 0, 0);
+    width: auto;
+    background-image: url("project://database/Assets/IngameUI/LKW_Icon.svg?fileID=7388822144124034973&guid=bee6275bf0ec2d2498c79c7cb139def1&type=3#LKW_Icon");
+    height: 100%;
+}
+
+.tab-menu-header {
+    width: 9%;
+    height: 100%;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0);
+    padding-top: 0%;
+    padding-right: 1%;
+    padding-bottom: 0%;
+    padding-left: 1%;
+    flex-direction: row;
+    justify-content: center;
+    border-right-width: 0;
+    border-left-width: 0;
+    border-color: var(--tab-menu-header-border);
+}
+
+.tab-menu-column {
+    height: 100%;
+    width: 9%;
+}
+
+.tab-menu {
+    position: absolute;
+    top: 27.5%;
+    width: 45%;
+    height: 45%;
+    left: 27.5%;
+    padding-top: 0.5%;
+    padding-right: 0.5%;
+    padding-bottom: 0.5%;
+    padding-left: 0.5%;
+    display: flex;
+    visibility: visible;
+}
+
+.tab-menu-header:hover .tab-menu-header-icon {
+    -unity-background-image-tint-color: var(--tab-menu-hover-column);
+}
+
+.tab-menu-player-row {
+    width: 100%;
+    height: 25%;
+}
+
+.tab-menu-header-row {
+    width: 100%;
+    height: 20%;
+    flex-direction: row;
+    border-top-width: 1.5px;
+    border-right-width: 1.5px;
+    border-bottom-width: 1.5px;
+    border-left-width: 1.5px;
+    border-color: var(--tab-menu-header-border);
+}
+
+.tab-menu-player-row-uneven {
+    background-color: rgba(130, 130, 130, 0.04);
+}
+
+.tab-menu-hovered-row {
+    color: var(--tab-menu-hover-column);
+}
+
+.tab-menu-active-column {
+    color: var(--tab-menu-active-column);
+    -unity-background-image-tint-color: var(--tab-menu-active-column);
+}
+
+.tab-menu-header:hover .tab-menu-active-column {
+    -unity-background-image-tint-color: var(--tab-menu-active-column);
+    color: var(--tab-menu-active-column);
+}
+
+.freighter {
+    background-image: var(--icon-freighter);
+}
+
+.road {
+    background-image: var(--icon-road);
+}
+
+.port {
+    background-image: var(--icon-port);
+}
+
+.canal {
+    background-image: var(--icon-canal);
+}
+
+.truck {
+    background-image: var(--icon-truck);
+}
+
+#RoadCount .template-icon-node {
+    background-image: var(--icon-road);
+}
+
+#CanalCount .template-icon-node {
+    background-image: var(--icon-canal);
+}
+
+#PortCount .template-icon-node {
+    background-image: var(--icon-port);
+}
+
+#TruckCount .template-icon-node {
+    background-image: var(--icon-truck);
+}
+
+#FreighterCount .template-icon-node {
+    background-image: var(--icon-freighter);
+}

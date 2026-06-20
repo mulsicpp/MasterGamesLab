@@ -1,5 +1,7 @@
+using Map.GeometryGeneration;
 using Networking;
 using Unity.Netcode;
+using UnityEngine;
 using static Map.Infrastructure.Producer;
 
 namespace Map.Infrastructure
@@ -18,6 +20,8 @@ namespace Map.Infrastructure
 
         public override StructureType Type => StructureType.Garage;
 
+        public override GameObject StructurePrefab => Map.Instance.GaragePrefab;
+
         public GarageState State
         {
             get => new GarageState { Common = CommonState };
@@ -28,5 +32,11 @@ namespace Map.Infrastructure
         { }
 
         public void ApplyServerState(GarageState state, double _) { State = state; ResetDirty(); }
+
+        public override ObjectWithFixedGeometry AttachStructureGeometry(Transform parent)
+        {
+            var id = Tile?.Id ?? BlueprintTile.Id;
+            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Consumer, id, parent);
+        }
     }
 }

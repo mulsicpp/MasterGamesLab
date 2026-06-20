@@ -13,6 +13,29 @@ using ClientIdPrimitive = System.UInt64;
 using Map.Fleet;
 
 [System.Serializable]
+public struct EntityId : INetworkSerializeByMemcpy, IEquatable<EntityId>, IComparable<EntityId>
+{
+    [UnityEngine.SerializeField]
+    private int value;
+    public int Value => value;
+
+    public static readonly EntityId NONE = new EntityId { value = -1 };
+
+    public static bool operator ==(EntityId left, EntityId right) => left.value == right.value;
+    public static bool operator !=(EntityId left, EntityId right) => left.value != right.value;
+
+    public override bool Equals(object obj) => obj is EntityId id && value == id.value;
+    public override int GetHashCode() => HashCode.Combine(value);
+
+    public bool Equals(EntityId other) => this == other;
+    public int CompareTo(EntityId other) => value.CompareTo(other.value);
+
+    public static implicit operator int(EntityId value) => value.value;
+
+    public EntityId(int value) => this.value = value;
+}
+
+[System.Serializable]
 public struct TileId : INetworkSerializeByMemcpy, IEquatable<TileId>, IComparable<TileId>
 {
     [UnityEngine.SerializeField]
@@ -157,6 +180,7 @@ public struct VehicleId : INetworkSerializeByMemcpy, IEquatable<VehicleId>, ICom
 
     public static bool operator ==(VehicleId left, VehicleId right) => left.Equals(right);
     public static bool operator !=(VehicleId left, VehicleId right) => !left.Equals(right);
+
 
     public override bool Equals(object obj) => obj is VehicleId id && this.Equals(id);
     public override int GetHashCode() => HashCode.Combine(Type, Index);

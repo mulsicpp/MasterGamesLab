@@ -2,10 +2,14 @@
 using Unity.Netcode;
 using Networking;
 using Map.Blueprint;
+using Map.Fleet;
+using UnityEngine;
+using Map.GeometryGeneration;
+using Map.Hoverables;
 
 namespace Map.Infrastructure
 {
-    public abstract class Structure : Timestamped
+    public abstract class Structure : Timestamped, IMapEntity
     {
         [System.Serializable]
         public enum StructureType : byte
@@ -35,10 +39,19 @@ namespace Map.Infrastructure
         public readonly StructureIndex Index;
 
         public StructureId Id => new StructureId(Type, Index);
+        public int IndexInStructures => Map.Instance.Infrastructure.StructureRanges[Type].Start.Value + Index;
+
+        public EntityId EntityId => new(Map.Instance.EntityIdManager.StructureRange.Start.Value + IndexInStructures);
 
         public new Timestamp Timestamp => base.Timestamp;
 
         public virtual Player.Player Owner => null;
+
+        public bool RendererUpdateTriggered;
+        public bool RendererRebuildTriggered;
+
+        public StructureRenderer Renderer { get; private set; }
+        public abstract GameObject StructurePrefab { get; }
 
         private Tile tile;
         public Tile Tile
@@ -47,6 +60,7 @@ namespace Map.Infrastructure
             set
             {
                 if (tile == value) return;
+                tile?.TriggerGeometryChange();
                 if (tile != null)
                 {
                     tile.Structure = null;
@@ -59,8 +73,12 @@ namespace Map.Infrastructure
                 }
                 tile = value;
                 if (tile != null)
+                {
+                    tile.TriggerGeometryChange();
                     OnStructureSpawned();
+                }
                 base.Touch();
+                TriggerRendererRebuild();
             }
         }
 
@@ -71,6 +89,7 @@ namespace Map.Infrastructure
             set
             {
                 if (blueprintTile == value) return;
+                blueprintTile?.TriggerGeometryChange();
                 if (blueprintTile != null)
                 {
                     blueprintTile.BlueprintStructure = null;
@@ -82,6 +101,8 @@ namespace Map.Infrastructure
                     value.BlueprintStructure = this;
                 }
                 blueprintTile = value;
+                blueprintTile?.TriggerGeometryChange();
+                TriggerRendererRebuild();
             }
         }
 
@@ -93,7 +114,7 @@ namespace Map.Infrastructure
             set
             {
                 blueprintPreview = value;
-                TriggerDirty();
+                TriggerRendererUpdate();
             }
         }
 
@@ -105,7 +126,7 @@ namespace Map.Infrastructure
             set
             {
                 blueprintIsValid = value;
-                TriggerDirty();
+                TriggerRendererUpdate();
             }
         }
 
@@ -144,8 +165,13 @@ namespace Map.Infrastructure
         {
             Index = index;
             Tile = null;
+            Renderer = null;
+            RendererRebuildTriggered = false;
+            RendererUpdateTriggered = false;
             Touch();
         }
+
+        public abstract ObjectWithFixedGeometry AttachStructureGeometry(Transform parent);
 
         public virtual void OnStructureSpawned() { }
 
@@ -153,14 +179,56 @@ namespace Map.Infrastructure
 
         public override void Touch()
         {
-            if (Tile != null)
+            if (Tile != null || BlueprintTile != null)
                 base.Touch();
         }
 
-        public void TriggerDirty()
+        public void TriggerRendererUpdate()
         {
-            if (Tile != null) Tile.StructureDirty = true;
-            if (BlueprintTile != null) BlueprintTile.StructureDirty = true;
+            RendererUpdateTriggered = true;
+        }
+
+        public void TriggerRendererRebuild()
+        {
+            RendererRebuildTriggered = true;
+            RendererUpdateTriggered = true;
+        }
+
+        public void RebuildRenderer()
+        {
+            if (Renderer != null)
+            {
+                Object.Destroy(Renderer.gameObject);
+                Renderer = null;
+            }
+            if (Exists || BlueprintTile != null)
+            {
+                var gameObject = Object.Instantiate(StructurePrefab, Map.Instance.gameObject.transform);
+                Renderer = gameObject.GetComponent<StructureRenderer>();
+                Renderer.Init(this);
+            }
+            RendererRebuildTriggered = false;
+        }
+
+        public void ClearOutline()
+        {
+            Renderer?.Geometry.SetBaseLayer();
+        }
+
+        public void ShowOutline(Constants.OutlineData outlineData)
+        {
+            Renderer?.Geometry.SetOutlineLayer();
+            Renderer?.Geometry.SetOutlineParameters(outlineData);
+        }
+
+        public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
+        {
+            var outlineData = hoverState switch
+            {
+                HoverState.Invalid => Constants.ROAD_BLUEPRINT_INVALID_OUTLINE,
+                _ => Constants.HOVER_OUTLINE,
+            };
+            ShowOutline(outlineData);
         }
     }
 }

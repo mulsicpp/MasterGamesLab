@@ -233,7 +233,5 @@ public class ForestMountainPass : IGenerationPass
                 forestCount++;
             }
         }
-        Debug.Log($"mountain Tiles: {validMountainCount} ");
-        Debug.Log($"forest Tiles: {forestCount} ");
     }
 }

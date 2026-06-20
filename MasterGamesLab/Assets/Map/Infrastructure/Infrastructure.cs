@@ -6,34 +6,54 @@ namespace Map.Infrastructure
 {
     public class Infrastructure : IReadOnlyInfrastructure
     {
-        private Producer[] producers;
+        private readonly Producer[] producers;
         public IReadOnlyList<Producer> Producers => producers;
 
-        private Consumer[] consumers;
+        private readonly Consumer[] consumers;
         public IReadOnlyList<Consumer> Consumers => consumers;
 
-        Garage[] garages;
+        private readonly Garage[] garages;
         public IReadOnlyList<Garage> Garages => garages;
 
-        Port[] ports;
+        private readonly Port[] ports;
         public IReadOnlyList<Port> Ports => ports;
+
+        private readonly Structure[] structures;
+        public IReadOnlyList<Structure> Structures => structures;
+
+        private readonly Dictionary<Structure.StructureType, Range> structureRanges;
+        public IReadOnlyDictionary<Structure.StructureType, Range> StructureRanges => structureRanges;
 
         // TrainStation[] trainStations;
         // public IReadOnlyList<TrainStation> TrainStations => trainStations;
 
         public Infrastructure(int playerCount)
         {
+            var tempStructures = new List<Structure>();
+
+            structureRanges = new();
+
             producers = new Producer[Constants.MAX_PRODUCER_COUNT];
             for (var i = 0; i < producers.Length; i++) producers[i] = new Producer(new StructureIndex((byte)i));
+            structureRanges[Structure.StructureType.Producer] = tempStructures.Count..(tempStructures.Count + producers.Length);
+            tempStructures.AddRange(producers);
 
             consumers = new Consumer[Constants.MAX_CONSUMER_COUNT];
             for (var i = 0; i < consumers.Length; i++) consumers[i] = new Consumer(new StructureIndex((byte)i));
+            structureRanges[Structure.StructureType.Consumer] = tempStructures.Count..(tempStructures.Count + consumers.Length);
+            tempStructures.AddRange(consumers);
 
             garages = new Garage[Constants.MAX_GARAGES_PER_PLAYER * playerCount];
             for (var i = 0; i < garages.Length; i++) garages[i] = new Garage(new StructureIndex((byte)i));
+            structureRanges[Structure.StructureType.Garage] = tempStructures.Count..(tempStructures.Count + garages.Length);
+            tempStructures.AddRange(garages);
 
             ports = new Port[Constants.MAX_PORTS_PER_PLAYER * playerCount];
             for (var i = 0; i < ports.Length; i++) ports[i] = new Port(new StructureIndex((byte)i));
+            structureRanges[Structure.StructureType.Port] = tempStructures.Count..(tempStructures.Count + ports.Length);
+            tempStructures.AddRange(ports);
+
+            structures = tempStructures.ToArray();
         }
 
         public Structure this[StructureId id] => this[id.Type]?[id.Index];
@@ -80,20 +100,20 @@ namespace Map.Infrastructure
             else throw new ArgumentException("Given IStructureState is not supported: " + state.GetType().FullName);
         }
 
-        public bool SpawnLocal<T>(T state, Player.Player owner = null) where T : struct, Structure.IStructureState
+        public Structure SpawnLocal<T>(T state, Player.Player owner = null) where T : struct, Structure.IStructureState
         {
             var structure = GetFirstWith(state.Type, s => !s.Exists && s.Owner == owner);
             if (structure != null)
             {
                 state.ArrayIndex = structure.Index;
                 UpdateStructure(state);
-                return true;
+                return structure;
             }
 
-            return false;
+            return null;
         }
 
-        public bool SpawnGlobal<T>(T state, Player.Player owner = null) where T : struct, Structure.IStructureState
+        public Structure SpawnGlobal<T>(T state, Player.Player owner = null) where T : struct, Structure.IStructureState
         {
             var structure = GetFirstWith(state.Type, s => !s.Exists && s.Owner == owner);
             if (structure != null)
@@ -103,10 +123,10 @@ namespace Map.Infrastructure
                 Map.Instance.ReliableSender.Add(state);
                 Map.Instance.ReliableSender.Send();
 
-                return true;
+                return structure;
             }
 
-            return false;
+            return null;
         }
     }
 }

@@ -1,6 +1,7 @@
+using Map;
+using Map.Infrastructure;
 using System.Collections.Generic;
 using UnityEngine;
-using Map;
 
 public class ProducerConsumerSpawnPoint
 {
@@ -14,11 +15,11 @@ public class ProducerConsumerSpawnPoint
     public List<ITile> PlacedConsumers { get; private set; }
 
     //distance
-    public int MinDistProducerConsumer = 10;
-    public int MinDistProducerProducer = 8;
-    public int MinDistConsumerConsumer = 8;
+    public int MinDistProducerConsumer = 1;
+    public int MinDistProducerProducer = 6;
+    public int MinDistConsumerConsumer = 1;
 
-    public float ConsumerGroupProbability = 0.6f;
+    //public float ConsumerGroupProbability = 0.6f;
 
     public ProducerConsumerSpawnPoint(IMap map)
     {
@@ -60,53 +61,39 @@ public class ProducerConsumerSpawnPoint
         ValidConsumerTiles = new List<ITile>(validInlandTiles);
     }
 
-    public ITile GetSpawnTileProducer()
+    public ITile GetSpawnableTile(Structure.StructureType type, int continentId = 0, Good resource = Good.None)
     {
-        if (ValidProducerTiles.Count == 0) return null;
-        return ValidProducerTiles[UnityEngine.Random.Range(0, ValidProducerTiles.Count)];
-    }
+        var candidates = new List<ITile>();
 
-    public List<ITile> GetSpawnTileConsumer()
-    {
-        if (ValidConsumerTiles.Count == 0) return new List<ITile>();
+        var sourceList = (type == Structure.StructureType.Producer) ? ValidProducerTiles : ValidConsumerTiles;
 
-        var result = new List<ITile>();
-        var centerTile = ValidConsumerTiles[UnityEngine.Random.Range(0, ValidConsumerTiles.Count)];
-        result.Add(centerTile);
-
-        if (UnityEngine.Random.value < ConsumerGroupProbability)
+        foreach (var tile in sourceList)
         {
-            int groupSize = UnityEngine.Random.Range(2, 6);
-
-            foreach (var neighbor in centerTile.Neighbors)
+            if (continentId == 0 || tile.ContinentId == continentId)
             {
-                if (result.Count >= groupSize) break;
-
-                if (ValidConsumerTiles.Contains(neighbor))
-                {
-                    result.Add(neighbor);
-                }
+                candidates.Add(tile);
             }
         }
 
-        return result;
-    }
-
-    public void RegisterProducerSpawned(ITile tile)
-    {
-        //gizmo
-        PlacedProducers.Add(tile);
-
-        RemoveTilesWithinRadius(ValidProducerTiles, tile, MinDistProducerProducer);
-        RemoveTilesWithinRadius(ValidConsumerTiles, tile, MinDistProducerConsumer);
-    }
-
-    public void RegisterConsumerSpawned(List<ITile> tiles)
-    {
-        PlacedConsumers.AddRange(tiles);
-
-        foreach (var tile in tiles)
+        if (candidates.Count == 0)
         {
+            return null;
+        }
+
+        return candidates[UnityEngine.Random.Range(0, candidates.Count)];
+    }
+
+    public void RegisterSpawnedTile(Structure.StructureType type, ITile tile)
+    {
+        if (type == Structure.StructureType.Producer)
+        {
+            PlacedProducers.Add(tile);
+            RemoveTilesWithinRadius(ValidProducerTiles, tile, MinDistProducerProducer);
+            RemoveTilesWithinRadius(ValidConsumerTiles, tile, MinDistProducerConsumer);
+        }
+        else if (type == Structure.StructureType.Consumer)
+        {
+            PlacedConsumers.Add(tile);
             RemoveTilesWithinRadius(ValidConsumerTiles, tile, MinDistConsumerConsumer);
             RemoveTilesWithinRadius(ValidProducerTiles, tile, MinDistProducerConsumer);
         }

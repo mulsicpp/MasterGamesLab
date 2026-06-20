@@ -1,3 +1,4 @@
+using Map.Infrastructure;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +12,7 @@ public static class Constants
 
     public static readonly Color[] PLAYER_COLORS = { Color.red, Color.blue, Color.yellow, Color.green };
 
-    public const int PLAYER_INITIAL_CASH = 100;
+    public const int PLAYER_INITIAL_CASH = 300;
 
     // ------------------- Vehicles -------------------
 
@@ -21,7 +22,10 @@ public static class Constants
 
     public const byte MAX_FREIGHTERS_PER_PLAYER = 8;
     public const byte MAX_FREIGHTER_COUNT = MAX_FREIGHTERS_PER_PLAYER * MAX_PLAYER_COUNT;
-    public const float FREIGHTER_BASE_SPEED_TPS = 1.0f;
+    public const float FREIGHTER_BASE_SPEED_TPS = 0.4f;
+
+    public const int TRUCK_LOADING_COST_ENEMY = 40;
+    public const int TRUCK_UNLOADING_COST_ENEMY = 80;
 
 
     // ------------------- Structures -------------------
@@ -38,16 +42,41 @@ public static class Constants
 
     // ------------------- Producer & Consumer Logic -------------------
 
-    public const int CONSUMER_REQUEST_BASE_PAYOUT = 100;
+    public const int GOOD_COMMON_BASE_PAYOUT = 100;
+    public const int GOOD_UNCOMMON_BASE_PAYOUT = 150;
+    public const int GOOD_RARE_BASE_PAYOUT = 200;
+    public const int GOOD_EPIC_BASE_PAYOUT = 300;
+    public const int GOOD_LEGENDARY_BASE_PAYOUT = 500;
+
+    public static readonly float[,] GOOD_SPAWN_CHANCE_PER_CONTINENT = new float[4, 5]
+    {
+        { 0.0f, 0.7f, 0.3f, 0.0f, 0.0f },
+        { 0.0f, 0.3f, 0.5f, 0.2f, 0.0f },
+        { 0.0f, 0.0f, 0.2f, 0.5f, 0.3f },
+        { 0.0f, 0.0f, 0.0f, 0.2f, 0.8f },
+    };
+
+    public const int BASE_CONSUMER_COUNT = 10;
+    public const int CONSUMER_COUNT_PER_PLAYER = 10;
+
+    public static int TotalConsumerCount => BASE_CONSUMER_COUNT + (Map.Map.Instance?.Players?.Count ?? 0) * CONSUMER_COUNT_PER_PLAYER;
+    public static int StartConsumerCount => TotalConsumerCount / 6;
 
     public const float MIN_CONSUMER_REQUEST_COOLDOWN = 15f;
-    public const float MAX_CONSUMER_REQUEST_COOLDOWN = 30f;
+    public const float MAX_CONSUMER_REQUEST_COOLDOWN = 40f;
 
     public const float MIN_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 20f;
     public const float MAX_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 50f;
 
-    public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.05f;
-    public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.2f;
+    public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.1f;
+    public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.3f;
+
+
+    public const float MIN_CONSUMER_SPAWN_COOLDOWN = 5f;
+    public const float MAX_CONSUMER_SPAWN_COOLDOWN = 30f;
+
+    public const float MIN_PRODUCER_SPAWN_COOLDOWN = 30f;
+    public const float MAX_PRODUCER_SPAWN_COOLDOWN = 60f;
 
 
     // ------------------- Build Costs -------------------
@@ -55,10 +84,10 @@ public static class Constants
     public const float PLAIN_BUILD_COST_FACTOR = 1f;
     public const float FOREST_BUILD_COST_FACTOR = 2f;
 
-    public const int ROAD_BUILD_COST = 20;
-    public const int BASE_CANAL_BUILD_COST = 50;
+    public const int ROAD_BUILD_COST = 10;
+    public const int BASE_CANAL_BUILD_COST = 20;
 
-    public const int PORT_BUILD_COST = 300;
+    public const int PORT_BUILD_COST = 500;
 
     public const int TRUCK_BUILD_COST = 150;
     public const int FREIGHTER_BUILD_COST = 300;
@@ -66,28 +95,28 @@ public static class Constants
 
     // ------------------- Market Cap -------------------
 
-    public const int ROAD_MARKET_CAP = (int)(0.5f * ROAD_BUILD_COST);
+    public const int ROAD_MARKET_CAP = (int)(0.7f * ROAD_BUILD_COST);
     public const int CANAL_MARKET_CAP = (int)(1.0f * BASE_CANAL_BUILD_COST);
 
-    public const int PORT_MARKET_CAP = (int)(0.8f * PORT_BUILD_COST);
+    public const int PORT_MARKET_CAP = (int)(0.9f * PORT_BUILD_COST);
 
-    public const int TRUCK_MARKET_CAP = (int)(0.6f * TRUCK_BUILD_COST);
-    public const int FREIGHTER_MARKET_CAP = (int)(0.8f * FREIGHTER_BUILD_COST);
+    public const int TRUCK_MARKET_CAP = (int)(0.7f * TRUCK_BUILD_COST);
+    public const int FREIGHTER_MARKET_CAP = (int)(0.7f * FREIGHTER_BUILD_COST);
 
 
     // ------------------- Pathfinding -------------------
 
     public const int MAX_PRIORITYS_FOR_PATHFINDING = 4;
 
-    public const int ROAD_TRAVERSAL_COST_PUBLIC = 1;
+    public const int ROAD_TRAVERSAL_COST_PUBLIC = 0;
     public const int ROAD_TRAVERSAL_COST_OWN = 0;
-    public const int ROAD_TRAVERSAL_COST_ENEMY = 5;
+    public const int ROAD_TRAVERSAL_COST_ENEMY = 1;
 
     public const float ROAD_SPEED_MULTIPLIER = 1.0f;
 
-    public const int CANAL_TRAVERSAL_COST_PUBLIC = 1;
+    public const int CANAL_TRAVERSAL_COST_PUBLIC = 0;
     public const int CANAL_TRAVERSAL_COST_OWN = 0;
-    public const int CANAL_TRAVERSAL_COST_ENEMY = 5;
+    public const int CANAL_TRAVERSAL_COST_ENEMY = 1;
 
     public const float CANAL_SPEED_MULTIPLIER = 1.0f;
 
@@ -128,6 +157,20 @@ public static class Constants
         OutlineColor = HOVER_OUTLINE.OutlineColor,
         InnerColor = new Color(1f, 0.92f, 0.016f, 0.5f),
         TextureId = 1,
+    };
+
+    public static OutlineData SELECTED_OUTLINE = new OutlineData()
+    {
+        OutlineColor = new Color(0f, 0.5f, 1.0f, 1f),
+        InnerColor = new Color(0, 0, 0, 0),
+        TextureId = 0,
+    };
+
+    public static OutlineData SELECTED_OUTLINE_FILLED_IN = new OutlineData()
+    {
+        OutlineColor = SELECTED_OUTLINE.OutlineColor,
+        InnerColor = new Color(0f, 0.5f, 1.0f, 0.5f),
+        TextureId = 0,
     };
 
     public static OutlineData ROAD_BLUEPRINT_VALID_OUTLINE = new OutlineData()

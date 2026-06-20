@@ -17,19 +17,19 @@
                 </ui:VisualElement>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header">
-                <ui:VisualElement name="Icon" class="element tab-menu-header-icon"/>
+                <ui:VisualElement name="Icon" class="element tab-menu-header-icon truck"/>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header">
-                <ui:VisualElement name="Icon" class="element tab-menu-header-icon"/>
+                <ui:VisualElement name="Icon" class="element tab-menu-header-icon freighter"/>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header">
-                <ui:VisualElement name="Icon" class="element tab-menu-header-icon"/>
+                <ui:VisualElement name="Icon" class="element tab-menu-header-icon road"/>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header">
-                <ui:VisualElement name="Icon" class="element tab-menu-header-icon"/>
+                <ui:VisualElement name="Icon" class="element tab-menu-header-icon canal"/>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" class="element tab-menu-header" style="border-right-width: 0;">
-                <ui:VisualElement name="Icon" class="element tab-menu-header-icon"/>
+                <ui:VisualElement name="Icon" class="element tab-menu-header-icon port"/>
             </ResponsiveButton>
         </ui:VisualElement>
         <ui:VisualElement name="players-container" style="width: 100%; height: 80%; flex-direction: column;">

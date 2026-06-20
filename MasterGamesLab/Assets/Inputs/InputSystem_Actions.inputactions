@@ -553,137 +553,6 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "018199c5-003f-427b-b8e9-5009facf9728",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "PrimaryMousePressed",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "192b2765-a245-478f-b213-59984f2cbbb3",
-                    "path": "<Mouse>/delta",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Look",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "820c8b48-cc7e-4e2b-9fef-f2629d891cb3",
-                    "path": "<Mouse>/scroll",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Zoom",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "Controls",
-            "id": "d71068c5-d7f2-473e-b8d7-8eb83d24752e",
-            "actions": [
-                {
-                    "name": "LeftClick",
-                    "type": "Button",
-                    "id": "3bdc880a-0042-4cb1-9c0b-0adc22c2b106",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "BuildRoad",
-                    "type": "Button",
-                    "id": "38f068d2-3a55-49be-a881-17039038f211",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "BuildCanal",
-                    "type": "Button",
-                    "id": "f4c916b0-a068-4a99-9332-4d4691eaba1b",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "BuildPort",
-                    "type": "Button",
-                    "id": "8d7370bb-5000-44c8-b905-da7a91e51b24",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "BuyTruck",
-                    "type": "Button",
-                    "id": "53c90019-7805-492a-b487-63f78999f0e0",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "BuyFreighter",
-                    "type": "Button",
-                    "id": "12f02145-d297-45cf-ad58-bde911fd5ff8",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "ConfirmBuildPlan",
-                    "type": "Button",
-                    "id": "bd10da1f-9611-4b3c-811c-b1c55514dc10",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "HideBuild",
-                    "type": "Button",
-                    "id": "2e0a201c-0911-4376-b74d-4001f8db55ff",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Cancel",
-                    "type": "Button",
-                    "id": "11abec6a-cf85-4cb4-867f-d5f3309b7ddb",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "OpenTabMenu",
-                    "type": "Button",
-                    "id": "edebbd4f-c1b0-4182-9271-137d72bbec91",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "",
                     "id": "281c33cd-2213-418e-953a-41327909d36f",
                     "path": "<Mouse>/leftButton",
                     "interactions": "Tap",
@@ -696,7 +565,7 @@
                 {
                     "name": "",
                     "id": "b187d659-9e7f-44c6-9c4e-29803c8cb088",
-                    "path": "<Keyboard>/q",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -707,7 +576,7 @@
                 {
                     "name": "",
                     "id": "538d381e-094f-4141-bab8-3ccbc60d774d",
-                    "path": "<Keyboard>/w",
+                    "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -729,7 +598,7 @@
                 {
                     "name": "",
                     "id": "370bfb21-58d3-4a33-adf3-f0deb1a039a7",
-                    "path": "<Keyboard>/r",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -740,7 +609,7 @@
                 {
                     "name": "",
                     "id": "34de9461-1664-4f44-95ad-7bee66b16711",
-                    "path": "<Keyboard>/t",
+                    "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -789,6 +658,718 @@
                     "processors": "",
                     "groups": "",
                     "action": "OpenTabMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a26022d2-21b9-4ea1-ad24-ba7de5ec7a37",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChangeVehicle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7fd78189-e4c5-40fa-a158-7ef8f28acdbd",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrimaryMousePressed",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "78d863c9-439d-4d49-b8bb-b8cd7ad4e7bf",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "820c8b48-cc7e-4e2b-9fef-f2629d891cb3",
+                    "path": "<Mouse>/scroll",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Controls",
+            "id": "d71068c5-d7f2-473e-b8d7-8eb83d24752e",
+            "actions": [
+                {
+                    "name": "LeftClick",
+                    "type": "Button",
+                    "id": "3bdc880a-0042-4cb1-9c0b-0adc22c2b106",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Cancel",
+                    "type": "Button",
+                    "id": "11abec6a-cf85-4cb4-867f-d5f3309b7ddb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "BuildRoad",
+                    "type": "Button",
+                    "id": "38f068d2-3a55-49be-a881-17039038f211",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "BuildCanal",
+                    "type": "Button",
+                    "id": "f4c916b0-a068-4a99-9332-4d4691eaba1b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "BuyTruck",
+                    "type": "Button",
+                    "id": "53c90019-7805-492a-b487-63f78999f0e0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "BuyFreighter",
+                    "type": "Button",
+                    "id": "12f02145-d297-45cf-ad58-bde911fd5ff8",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "BuildPort",
+                    "type": "Button",
+                    "id": "8d7370bb-5000-44c8-b905-da7a91e51b24",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ConfirmBuildPlan",
+                    "type": "Button",
+                    "id": "bd10da1f-9611-4b3c-811c-b1c55514dc10",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "HideBuild",
+                    "type": "Button",
+                    "id": "2e0a201c-0911-4376-b74d-4001f8db55ff",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "OpenTabMenu",
+                    "type": "Button",
+                    "id": "edebbd4f-c1b0-4182-9271-137d72bbec91",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ChangeVehicle",
+                    "type": "Button",
+                    "id": "7826f3c3-4fb9-4b87-89b2-fd16acbb843c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ChooseCheapestRoute",
+                    "type": "Button",
+                    "id": "03264ebf-7f64-4570-8e1b-1dd01b5aac53",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ChooseFastestRoute",
+                    "type": "Button",
+                    "id": "c69a4d4a-6b5f-4931-81e1-8a655095e2be",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Truck0",
+                    "type": "Button",
+                    "id": "c043d4e9-0044-4f9e-912a-bc99a456bcd9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Truck1",
+                    "type": "Button",
+                    "id": "e1d782a5-979a-428a-b006-8981a4256bcd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Truck2",
+                    "type": "Button",
+                    "id": "a243d4e1-2244-4f9e-912a-bc91a456bcd1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Truck3",
+                    "type": "Button",
+                    "id": "b343d4e2-3344-4f9e-912a-bc92a456bcd2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Truck4",
+                    "type": "Button",
+                    "id": "c443d4e3-4444-4f9e-912a-bc93a456bcd3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Truck5",
+                    "type": "Button",
+                    "id": "d543d4e4-5544-4f9e-912a-bc94a456bcd4",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Truck6",
+                    "type": "Button",
+                    "id": "e643d4e5-6644-4f9e-912a-bc95a456bcd5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Truck7",
+                    "type": "Button",
+                    "id": "f743d4e6-7744-4f9e-912a-bc96a456bcd6",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Truck8",
+                    "type": "Button",
+                    "id": "a843d4e7-8844-4f9e-912a-bc97a456bcd7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Truck9",
+                    "type": "Button",
+                    "id": "b943d4e8-9944-4f9e-912a-bc98a456bcd8",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Freighter0",
+                    "type": "Button",
+                    "id": "9af02154-d297-45cf-ad58-bde911fd5f01",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Freighter1",
+                    "type": "Button",
+                    "id": "efef244e-f24f-42b0-8e36-12e18f3d0576",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Freighter2",
+                    "type": "Button",
+                    "id": "12f02146-d297-45cf-ad58-bde911fd5ff9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Freighter3",
+                    "type": "Button",
+                    "id": "23f02147-d297-45cf-ad58-bde911fd5ffa",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Freighter4",
+                    "type": "Button",
+                    "id": "34f02148-d297-45cf-ad58-bde911fd5ffb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Freighter5",
+                    "type": "Button",
+                    "id": "45f02149-d297-45cf-ad58-bde911fd5ffc",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Freighter6",
+                    "type": "Button",
+                    "id": "56f02150-d297-45cf-ad58-bde911fd5ffd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Freighter7",
+                    "type": "Button",
+                    "id": "67f02151-d297-45cf-ad58-bde911fd5ffe",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Freighter8",
+                    "type": "Button",
+                    "id": "78f02152-d297-45cf-ad58-bde911fd5fff",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Freighter9",
+                    "type": "Button",
+                    "id": "89f02153-d297-45cf-ad58-bde911fd5f00",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "c4aa7f6a-56f9-4365-a6d6-c2b2378b5b55",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Truck1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d5aa7f6b-56f9-4365-a6d6-c2b2378b5b56",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Truck2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e6aa7f6c-56f9-4365-a6d6-c2b2378b5b57",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Truck3",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f7aa7f6d-56f9-4365-a6d6-c2b2378b5b58",
+                    "path": "<Keyboard>/5",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Truck4",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a8aa7f6e-56f9-4365-a6d6-c2b2378b5b59",
+                    "path": "<Keyboard>/6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Truck5",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b9aa7f6f-56f9-4365-a6d6-c2b2378b5b60",
+                    "path": "<Keyboard>/7",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Truck6",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c0aa7f7a-56f9-4365-a6d6-c2b2378b5b61",
+                    "path": "<Keyboard>/8",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Truck7",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d1aa7f7b-56f9-4365-a6d6-c2b2378b5b62",
+                    "path": "<Keyboard>/9",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Truck8",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e2aa7f7c-56f9-4365-a6d6-c2b2378b5b63",
+                    "path": "<Keyboard>/0",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Truck9",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f3aa7f7d-56f9-4365-a6d6-c2b2378b5b64",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Truck0",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bf928ad9-94bd-4dcf-8bb7-385c0f74fb1e",
+                    "path": "<Keyboard>/f2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Freighter1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cf928ada-94bd-4dcf-8bb7-385c0f74fb1f",
+                    "path": "<Keyboard>/f3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Freighter2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "df928adb-94bd-4dcf-8bb7-385c0f74fb20",
+                    "path": "<Keyboard>/f4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Freighter3",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ef928adc-94bd-4dcf-8bb7-385c0f74fb21",
+                    "path": "<Keyboard>/f5",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Freighter4",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "af928add-94bd-4dcf-8bb7-385c0f74fb22",
+                    "path": "<Keyboard>/f6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Freighter5",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bf928ade-94bd-4dcf-8bb7-385c0f74fb23",
+                    "path": "<Keyboard>/f7",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Freighter6",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cf928adf-94bd-4dcf-8bb7-385c0f74fb24",
+                    "path": "<Keyboard>/f8",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Freighter7",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "df928ae0-94bd-4dcf-8bb7-385c0f74fb25",
+                    "path": "<Keyboard>/f9",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Freighter8",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ef928ae1-94bd-4dcf-8bb7-385c0f74fb26",
+                    "path": "<Keyboard>/f10",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Freighter9",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ff928ae2-94bd-4dcf-8bb7-385c0f74fb27",
+                    "path": "<Keyboard>/f1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Freighter0",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cd93aca0-bfd1-4ce4-89e5-04427f7855b4",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LeftClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1f432ba9-5871-470c-a1ae-a5b94c4ae3f4",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ff7a8507-f656-4e4d-9c7e-e0bab2617925",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "BuildRoad",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "51603593-411f-470c-bc5f-4c0c9f9f8b68",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "BuildCanal",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9902cfa2-60df-4d8c-81b2-e370f9fe2c72",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "BuyTruck",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d811da57-eefb-47fa-bf1f-266c8b85be84",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "BuyFreighter",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "121dc6a8-ddcf-432b-933b-53d247f8f30e",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "BuildPort",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "72f0b9ef-eef5-46e7-92f7-2ba88b60ffbd",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ConfirmBuildPlan",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f675bc32-2fc4-4be8-bc91-709a061df331",
+                    "path": "<Keyboard>/h",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HideBuild",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "522731e6-4203-4226-8bd6-f7f93ed266ff",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OpenTabMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "30adc407-e692-4cb2-9c55-fbb10950ca31",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChangeVehicle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9157cd59-558d-4751-b660-6918ab3fdaf0",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChooseFastestRoute",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8effcd48-00b9-487e-8b23-dd6685bc93fa",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChooseCheapestRoute",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

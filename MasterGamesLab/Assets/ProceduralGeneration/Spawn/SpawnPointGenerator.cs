@@ -19,7 +19,6 @@ public static class SpawnPointGenerator
         for (int i = 0; i < playerSpawns.Length; i++)
         {
             var spawnTile = playerSpawns[i];
-            Debug.Log($"PLayer {i + 1} spawns on tile-id {spawnTile.Id} (continent: {spawnTile.ContinentId}).");
 
             //player spawn
         }
@@ -27,8 +26,7 @@ public static class SpawnPointGenerator
     }
     public static ITile[] GetFairSpawnPoints(IMap map, int playerCount)
     {
-        var continent1Tiles = new List<ITile>();
-        var continent2Tiles = new List<ITile>();
+        var targetContinent = new List<ITile>();
 
         foreach (var tile in map.Tiles)
         {
@@ -36,12 +34,8 @@ public static class SpawnPointGenerator
             if (tile.Type == Tile.TileType.Water || tile.Type == Tile.TileType.Mountain)
                 continue;
 
-            if (tile.ContinentId == 1) continent1Tiles.Add(tile);
-            else if (tile.ContinentId == 2) continent2Tiles.Add(tile);
+            if (tile.ContinentId == 1) targetContinent.Add(tile);
         }
-
-        //choose main cont with most tiles
-        var targetContinent = continent1Tiles.Count > continent2Tiles.Count ? continent1Tiles : continent2Tiles;
 
         if (targetContinent.Count < playerCount)
         {

@@ -48,11 +48,7 @@ namespace Map.Fleet
         public override VehicleType Type => VehicleType.Truck;
         public override Player.Player Owner => Map.Instance.Players[(byte)(Index / Constants.MAX_TRUCKS_PER_PLAYER)];
 
-        protected override GameObject GetVehiclePrefab()
-        {
-            var id = Map.Instance.GetTileAndEdgeCount() + Index.Value;
-            return GeometriesManager.Instance.GetGameObject(GeometriesManager.GeometryType.Truck, id);
-        }
+        public override GameObject VehiclePrefab => Map.Instance.TruckPrefab;
 
         public override float BaseSpeedTPS => Constants.TRUCK_BASE_SPEED_TPS;
 
@@ -120,18 +116,29 @@ namespace Map.Fleet
             ResetDirty();
         }
 
+        public override ObjectWithFixedGeometry AttachVehicleGeometry(Transform parent)
+        {
+            // var id = Map.Instance.GetTileAndEdgeCount() + IndexInVehicles;
+            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Truck, EntityId.Value, parent);
+        }
+
         protected override void OnParked()
         {
-            if (ParkedTile.Structure == null) return;
 
-            if (ParkedTile.Structure is Producer p) Good = p.Good;
+        }
+
+        public override void Tick(float tickDuration)
+        {
+            base.Tick(tickDuration);
+
+            if (ParkedTile == null || ParkedTile.Structure == null) return;
+
+            if (ParkedTile.Structure is Producer p && p.Good != Good.None) Good = p.Good;
             else if (ParkedTile.Structure is Consumer c)
             {
-                if (c.RequestedGood != Good.None && c.RequestedGood == Good)
+                if (c.Request.Good != Good.None && c.Request.Good == Good)
                 {
-                    Owner.Earn(c.CurrentPayout);
-                    Good = Good.None;
-                    c.ClearRequest();
+                    c.FulfillRequest(this);
                 }
             }
         }

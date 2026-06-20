@@ -4,12 +4,15 @@ using System.Linq;
 using Map.Fleet;
 using Map.GeometryGeneration;
 using Map.GeometryGeneration.Edges;
+using Map.Hoverables;
 using Map.Infrastructure;
+using Map.OutlineEffect;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Map
 {
-    public class Tile : ITile
+    public class Tile : ITile, IOutlinable
     {
         private const float FLOAT_COMPARISON_DELTA = 1e-5f;
 
@@ -34,6 +37,9 @@ namespace Map
 
         // Tile data
         public TileId Id { get; private set; }
+
+        public EntityId EntityId => new (Map.Instance.EntityIdManager.TileRange.Start.Value + Id);
+
         public MapChunk Chunk;
         public IReadOnlyList<ITile> Neighbors => neighbors;
         public Vector3 PositionOnSphere { get; private set; }
@@ -113,8 +119,6 @@ namespace Map
         public Vector3 EdgesCenter;
         public Vector3 EdgesCenterBlueprint;
 
-        // public bool EdgeDirty;
-        public bool StructureDirty;
         private bool wasCanal;
 
         private readonly List<Tile> neighbors;
@@ -122,6 +126,8 @@ namespace Map
         private bool active;
         private readonly List<Edge> edges;
         private MapChunk.TileGeometryInformation tileGeometryInformation;
+
+        private TileOutliner outliner;
 
         public Tile(Vector3 position)
         {
@@ -138,6 +144,8 @@ namespace Map
             edges = new List<Edge>();
 
             Structure = null;
+
+            outliner = null;
         }
 
         // Point Functions
@@ -418,7 +426,7 @@ namespace Map
                 }*/
             }
 
-            if (Type == TileType.Forest && (infoNormal.AmountOfCanals > 0 || infoNormal.AmountOfRoads > 0))
+            if (Type == TileType.Forest && (infoNormal.AmountOfCanals > 0 || infoNormal.AmountOfRoads > 0 || Structure != null))
             {
                 Chunk.GeometryChanged = true;
             }
@@ -427,7 +435,7 @@ namespace Map
         public Vector4 GetTileData()
         {
             //return new Vector4(Id + Map.ID_OFFSET, randomValue, active ? 1 : 0, 0);
-            return new Vector4(Id + Map.ID_OFFSET, (float)Type, active ? 1 : 0, RandomValue);
+            return new Vector4(EntityId.Value + Map.ID_OFFSET, (float)Type, active ? 1 : 0, RandomValue);
         }
 
         private void SortList<T>(List<T> listToSort, Func<T, Vector3> toVector3)
@@ -453,6 +461,38 @@ namespace Map
                 var angleB = Mathf.Atan2(Vector3.Dot(vB, bitangent), Vector3.Dot(vB, tangent));
                 return angleA.CompareTo(angleB);
             }
+        }
+
+        public void ClearOutline()
+        {
+            if (outliner != null)
+            {
+                TileOutlinerPool.Instance.Release(outliner);
+                outliner = null;
+            }
+        }
+
+        public void ShowOutline(Constants.OutlineData outlineData)
+        {
+            if(outliner == null)
+                outliner = TileOutlinerPool.Instance.Get();
+            outliner.SetOutlineParameters(outlineData);
+            outliner.OutlineTile(this);
+        }
+
+        public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
+        {
+            var outlineData = hoverState switch
+            {
+                HoverState.Invalid => Constants.ROAD_BLUEPRINT_INVALID_OUTLINE,
+                _ => Constants.HOVER_OUTLINE,
+            };
+            ShowOutline(outlineData);
+        }
+
+        public void TriggerGeometryChange()
+        {
+            GeometryChanged = true;
         }
     }
 }

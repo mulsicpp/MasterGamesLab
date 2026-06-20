@@ -5,10 +5,16 @@ using Networking;
 using System.Security.Cryptography;
 using Map.Blueprint;
 using Map.Hoverables;
+using Map.OutlineEffect;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Map.GeometryGeneration;
+using System.Collections.Generic;
+using static Unity.VectorGraphics.VectorUtils;
 
 namespace Map.Fleet
 {
-    public abstract class Vehicle : Timestamped, ISynchableObject<Vehicle.VehicleProgressState>, IHoverable
+    public abstract class Vehicle : Timestamped, ISynchableObject<Vehicle.VehicleProgressState>, IHoverable, IOutlinable
     {
         [System.Serializable]
         public enum VehicleType : byte
@@ -79,8 +85,8 @@ namespace Map.Fleet
 
             public int ArrayIndex
             {
-                get => GetOffsetFromType(Type) + Index;
-                set { GetTypeFromIndex(value).Deconstruct(out Type, out Index); }
+                get => Map.Instance.Fleet.VehicleRanges[Type].Start.Value + Index;
+                set { VehicleIndexToId(value).Deconstruct(out Type, out Index); }
             }
 
             public int SerializedSize => FastBufferWriter.GetWriteSize(this);
@@ -90,12 +96,15 @@ namespace Map.Fleet
         public readonly VehicleIndex Index;
 
         public VehicleId Id => new VehicleId(Type, Index);
+        public int IndexInVehicles => Map.Instance.Fleet.VehicleRanges[Type].Start.Value + Index;
+
+        public EntityId EntityId => new(Map.Instance.EntityIdManager.VehicleRange.Start.Value + IndexInVehicles);
 
         public abstract Player.Player Owner { get; }
 
-        protected abstract GameObject GetVehiclePrefab();
-
-        private GameObject gameObject;
+        public VehicleRenderer Renderer { get; private set; }
+        public abstract GameObject VehiclePrefab { get; }
+        public Constants.OutlineData? Outline { get; private set; }
 
         private bool exists;
 
@@ -266,22 +275,16 @@ namespace Map.Fleet
             set => ProgressState = value;
         }
 
-        public static int GetOffsetFromType(VehicleType type)
+        public static VehicleId VehicleIndexToId(int index)
         {
-            int offset = 0;
-            if (type == VehicleType.Truck) return offset;
-            offset += Map.Instance.Fleet.Trucks.Count;
-            if (type == VehicleType.Freighter) return offset;
-            offset += Map.Instance.Fleet.Freighters.Count;
-            return offset;
-        }
-
-        public static VehicleId GetTypeFromIndex(int index)
-        {
-            if (index < Map.Instance.Fleet.Trucks.Count)
-                return new VehicleId(VehicleType.Truck, new((byte)index));
-            else
-                return new VehicleId(VehicleType.Freighter, new((byte)(index - Map.Instance.Fleet.Trucks.Count)));
+            foreach (var (type, range) in Map.Instance.Fleet.VehicleRanges)
+            {
+                if (index >= range.Start.Value && index < range.End.Value)
+                {
+                    return new VehicleId(type, new((byte)(index - range.Start.Value)));
+                }
+            }
+            return VehicleId.NONE;
         }
 
         public static int GetMaxCountPerPlayer(VehicleType type)
@@ -303,6 +306,59 @@ namespace Map.Fleet
             return false;
         }
 
+        public bool CanDriveRoute(Player.Player player, TileId[] routeIds, out int publicCost, out Dictionary<Player.Player, int> enemyCosts)
+        {
+            publicCost = 0;
+            enemyCosts = new();
+
+            if (routeIds == null || routeIds.Length < 2) return false;
+            Tile[] route = new Tile[routeIds.Length];
+
+            for (int i = 0; i < routeIds.Length; i++)
+            {
+                if (routeIds[i] < 0 || routeIds[i] >= Map.Instance.Tiles.Count) return false;
+                route[i] = Map.Instance.Tiles[routeIds[i]] as Tile;
+            }
+
+            return CanDriveRoute(player, route, out publicCost, out enemyCosts);
+        }
+
+        public bool CanDriveRoute(Player.Player player, Tile[] route, out int publicCost, out Dictionary<Player.Player, int> enemyCosts)
+        {
+            publicCost = 0;
+            enemyCosts = new();
+
+            if (!Exists || !IsParked || Owner != player) return false;
+            if (route == null || route.Length < 2) return false;
+
+            foreach (var p in Map.Instance.Players)
+            {
+                enemyCosts.Add(p, 0);
+            }
+
+            for (int i = 1; i < route.Length; i++)
+            {
+                if (!CanCross(route[i - 1], route[i], Type)) return false;
+
+                if (route[i - 1]?.FindEdgeTo(route[i]) is Edge e)
+                {
+                    if (e.Owner == null)
+                        publicCost += e.GetTraversalCost(player);
+                    else
+                        enemyCosts[e.Owner] += e.GetTraversalCost(player);
+                }
+            }
+
+            int totalCost = publicCost;
+
+            foreach (var (p, c) in enemyCosts)
+            {
+                totalCost += c;
+            }
+
+            return totalCost <= player.Cash;
+        }
+
         protected Vehicle(VehicleIndex index)
         {
             Index = index;
@@ -311,6 +367,8 @@ namespace Map.Fleet
             routeProgress = 0;
             parkedTile = null;
             lastServerTime = 0;
+
+            Renderer = null;
 
             smoothDriving = new SmoothDrivingLinearSimulationInterpolation(this);
             Touch();
@@ -326,6 +384,8 @@ namespace Map.Fleet
                 lastServerTime = serverTime;
             }
         }
+
+        public abstract ObjectWithFixedGeometry AttachVehicleGeometry(Transform parent);
 
         public override void ResetDirty()
         {
@@ -357,18 +417,18 @@ namespace Map.Fleet
 
                 int lastIndex = Route.Length - 1;
 
-                int oldTileIndex = Mathf.Clamp((int)(RouteProgress + 0.5f), 0, lastIndex);
+                // int oldTileIndex = Mathf.Clamp((int)(RouteProgress + 0.5f), 0, lastIndex);
 
                 RouteProgress += tickDuration * SpeedTPS;
 
-                int newTileIndex = Mathf.Clamp((int)(RouteProgress + 0.5f), 0, lastIndex);
-                for (int i = oldTileIndex; i < newTileIndex; i++)
-                {
-                    var edge = Route[i].FindEdgeTo(Route[i + 1]);
-                    if (edge == null) continue;
-
-                    Owner?.TransferMoneyTo(edge.Owner, edge.GetTraversalCost(Owner));
-                }
+                // int newTileIndex = Mathf.Clamp((int)(RouteProgress + 0.5f), 0, lastIndex);
+                // for (int i = oldTileIndex; i < newTileIndex; i++)
+                // {
+                //     var edge = Route[i].FindEdgeTo(Route[i + 1]);
+                //     if (edge == null) continue;
+                // 
+                //     Owner?.TransferMoneyTo(edge.Owner, edge.GetTraversalCost(Owner));
+                // }
 
                 if (RouteProgress >= lastIndex) ParkedTile = Route[lastIndex];
             }
@@ -387,6 +447,28 @@ namespace Map.Fleet
             int index = Mathf.Clamp((int)progress, 0, Route.Length - 2);
 
             return BaseSpeedTPS * (Route[index].FindEdgeTo(Route[index + 1])?.GetSpeedMultiplier() ?? 1.0f);
+        }
+
+        public virtual float? RemainingDriveTime
+        {
+            get
+            {
+                if (!IsDriving) return null;
+
+                int lastIndex = Route.Length - 1;
+                int previousTileIndex = Mathf.Clamp((int)RouteProgress, 0, lastIndex);
+
+                if (previousTileIndex >= lastIndex) return 0;
+                int nextTileIndex = previousTileIndex + 1;
+
+                float remainingTime = (nextTileIndex - RouteProgress) / (BaseSpeedTPS * (Route[previousTileIndex].FindEdgeTo(Route[nextTileIndex])?.GetSpeedMultiplier() ?? 1.0f));
+                for (int i = nextTileIndex; i < lastIndex; i++)
+                {
+                    remainingTime += 1.0f / (BaseSpeedTPS * (Route[i].FindEdgeTo(Route[i + 1])?.GetSpeedMultiplier() ?? 1.0f));
+                }
+
+                return remainingTime;
+            }
         }
 
         public virtual VehicleTransform Transform
@@ -449,40 +531,45 @@ namespace Map.Fleet
             }
         }
 
-        public void EvaluateGameobjectPresence()
+        public void EvaluateGameObjectPresence()
         {
             if (Exists || BlueprintTile != null)
             {
-                if (gameObject == null)
+                if (Renderer == null)
                 {
-                    gameObject = GetVehiclePrefab();
-                    UpdateGameobject();
+                    var gameObject = Object.Instantiate(VehiclePrefab, Map.Instance.gameObject.transform);
+                    Renderer = gameObject.GetComponent<VehicleRenderer>();
+                    Renderer.Init(this);
                 }
             }
-            else if (gameObject != null)
+            else if (Renderer != null)
             {
-                Object.Destroy(gameObject);
-                gameObject = null;
+                Object.Destroy(Renderer.gameObject);
+                Renderer = null;
             }
         }
 
-        public virtual void UpdateGameobject()
+        public void ClearOutline()
         {
-            EvaluateGameobjectPresence();
-            if (gameObject == null) return;
+            Outline = null;
+            //Renderer?.Geometry.SetBaseLayer();
+        }
 
-            var t = Transform;
+        public void ShowOutline(Constants.OutlineData outlineData)
+        {
+            Outline = outlineData;
+            //Renderer?.Geometry.SetOutlineLayer();
+            //Renderer?.Geometry.SetOutlineParameters(outlineData);
+        }
 
-            if (t == null)
+        public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
+        {
+            var outlineData = hoverState switch
             {
-                gameObject.SetActive(false);
-                return;
-            }
-
-            gameObject.SetActive(true);
-            var tProj = t; // Map.Instance.GetProjectedVehicleTransform(t);
-            gameObject.transform.localPosition = tProj.Position;
-            gameObject.transform.localRotation = Quaternion.LookRotation(tProj.Forward, tProj.Up);
+                HoverState.Invalid => Constants.ROAD_BLUEPRINT_INVALID_OUTLINE,
+                _ => Constants.HOVER_OUTLINE,
+            };
+            ShowOutline(outlineData);
         }
     }
 }

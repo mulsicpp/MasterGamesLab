@@ -2,31 +2,40 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using InGameCamera;
 using Map.Blueprint;
+using Map.Fleet;
+using Map.Hoverables;
 using Player;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace UI
 {
     [RequireComponent(typeof(UIDocument))]
     [RequireComponent(typeof(ConstructionControls))]
-    public class IngameUI : Menu
+    [RequireComponent(typeof(VehicleControls))]
+    public class IngameUI : Menu, IClickEventHandler
     {
         public static IngameUI Instance { get; private set; }
         public override MenuId Id => MenuId.Ingame;
+        public bool IsHovered = false;
 
         // --- Configuration Constants ---
         public const string activeClass = "ingame-build-button--active";
         public const string activeColumnClass = "tab-menu-active-column";
         public const string hoveredColumnClass = "tab-menu-hovered-row";
 
+        public const HoverablePicker.HoverableLayer DEFAULT_HOVERABLE_LAYERS = HoverablePicker.HoverableLayer.All;
+
         // --- Sorting Enums & Variables ---
         private enum SortColumn { Name, MarketCap, Cash, Trucks, Freighters, Roads, Canals, Ports }
         private SortColumn currentSortColumn = SortColumn.Name;
 
         // --- Dependencies & Coroutines ---
-        private ConstructionControls constructionControls;
+        public VehicleControls VehicleControls { get; private set; }
+        public ConstructionControls ConstructionControls { get; private set; }
         private Coroutine uiUpdateCoroutine;
 
         // --- UI Toolkit Elements ---
@@ -43,6 +52,13 @@ namespace UI
         private Button buyTruckButton, buyFreighterButton;
         private Button confirmButton, cancelButton, hideButton;
         private Button currentActiveButton;
+        private GroupBox buildCount;
+
+
+        protected PlanetCameraController mainCamera;
+
+
+        private IControls[] controls;
 
         #region Unity Lifecycle
 
@@ -50,16 +66,24 @@ namespace UI
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
 
+            OnBecameVisible += BecameVisible;
+            OnBecameHidden += BecameHidden;
+
             // 1. Resolve Dependencies
-            constructionControls = GetComponent<ConstructionControls>();
-            constructionControls.OnConstructionTypeChanged += HandleStateUIUpdate;
-            Map.Map.Instance.Blueprint.OnChanged += HandleBlueprintUpdate;
+            VehicleControls = GetComponent<VehicleControls>();
+
+            ConstructionControls = GetComponent<ConstructionControls>();
+            ConstructionControls.OnConstructionTypeChanged += HandleStateUIUpdate;
+
+            controls = new IControls[] { VehicleControls, ConstructionControls };
+
             Player.Player.OnPlayerChanged += ChangePlayerInfo;
 
             // 2. Query Visual Elements
@@ -78,6 +102,7 @@ namespace UI
             totalCostLabel = root.Q<Label>("TotalCost");
             playersContainer = root.Q<VisualElement>("players-container");
             tabMenu = root.Q<VisualElement>("TabMenu");
+            buildCount = root.Q<GroupBox>("BuildCount");
 
             // 3. Setup Sorting Header Events
             var headerRow = root.Q<VisualElement>("header-row");
@@ -118,13 +143,22 @@ namespace UI
             blueprintCountContainer.style.display = DisplayStyle.None;
             UpdateAllPlayerStats();
             uiUpdateCoroutine = StartCoroutine(PeriodicUiUpdateLoop());
+
+            container.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
+            container.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+            blueprintCountContainer.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
+            blueprintCountContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+            tabMenu.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
+            tabMenu.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+
+
+            mainCamera = MainCamera.Instance.GetComponentInChildren<PlanetCameraController>();
         }
 
         void OnDisable()
         {
-            Map.Map.Instance.Blueprint.OnChanged -= HandleBlueprintUpdate;
-            if (constructionControls != null)
-                constructionControls.OnConstructionTypeChanged -= HandleStateUIUpdate;
+            if (ConstructionControls != null)
+                ConstructionControls.OnConstructionTypeChanged -= HandleStateUIUpdate;
 
             Player.Player.OnPlayerChanged -= ChangePlayerInfo;
 
@@ -144,9 +178,61 @@ namespace UI
             hideButton.clicked -= OnHidePressed;
         }
 
+        private void BecameVisible()
+        {
+            foreach (var c in controls)
+            {
+                c.DisableControls();
+            }
+
+            Map.Map.Instance.Blueprint.OnChanged += HandleBlueprintUpdate;
+
+            // Map.Map.Instance.enabled = true;
+            // TODO enable ingame actions
+        }
+
+        private void BecameHidden()
+        {
+            if (Map.Map.Instance.Blueprint != null)
+                Map.Map.Instance.Blueprint.OnChanged -= HandleBlueprintUpdate;
+            // Map.Map.Instance.enabled = false;
+            // TODO disable ingame actions
+        }
+
+        private void Update()
+        {
+            if (IsHovered)
+            {
+                Map.Map.Instance.CurrentlyHovered = null;
+                HoverablePicker.Instance.DenyPick = true;
+            }
+
+            Map.Map.Instance.HoverLayers = controls.FirstOrDefault(c => c.ControlsAreActive)?.SelectHoverableLayers() ?? DEFAULT_HOVERABLE_LAYERS;
+
+            Map.Map.Instance.HoverOutliner.HoverState = HoverState.Valid;
+            foreach (var c in controls)
+                c.UpdateControls();
+
+            if (IngameInputs.selectClickAction.WasPerformedThisFrame())
+                HandleClick(ClickEventType.Select);
+            if (IngameInputs.cancelClickAction.WasPressedThisFrame())
+                HandleClick(ClickEventType.CancelPressed);
+            if (IngameInputs.cancelClickAction.WasReleasedThisFrame())
+                HandleClick(ClickEventType.CancelReleased);
+        }
+
+        public bool HandleClick(ClickEventType type)
+        {
+            foreach (var handler in controls)
+            {
+                if (handler.HandleClick(type)) return true;
+            }
+            return false;
+        }
+
         #endregion
 
-        #region Leaderboard Sorting Logic
+        #region Tab Menu Sorting Logic
 
         private void HighliteHoveredColumn(SortColumn column)
         {
@@ -293,14 +379,23 @@ namespace UI
 
         private void HandleBlueprintUpdate(Blueprint blueprint)
         {
+
             if (blueprint.IsEmpty)
             {
+                confirmButton.style.display = DisplayStyle.None;
+                cancelButton.style.display = DisplayStyle.None;
                 blueprintCountContainer.style.display = DisplayStyle.None;
                 return;
             }
+
             blueprintCountContainer.style.display = DisplayStyle.Flex;
             var details = blueprint.GetDetails();
             var objectInfos = details.ObjectInfos;
+            cancelButton.style.display = DisplayStyle.Flex;
+
+            confirmButton.style.display = Player.Player.Self.Cash >= details.TotalCost ? DisplayStyle.Flex : DisplayStyle.None;
+
+
 
             foreach (ConstructibleType type in System.Enum.GetValues(typeof(ConstructibleType)))
             {
@@ -352,14 +447,57 @@ namespace UI
 
         #region Construction Infrastructure Interaction Callbacks
 
-        private void OnRoadClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Road;
-        private void OnCanalClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Canal;
-        private void OnPortClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Port;
-        private void OnTruckClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Truck;
-        private void OnFreighterClicked() => constructionControls.Type = ConstructionControls.ConstructionType.Freighter;
-        public void OnConfirmPressed() => constructionControls.ConfirmConstruction();
-        public void OnCancelPressed() => constructionControls.CancelConstruction();
-        public void OnHidePressed() => constructionControls.ToggleHide();
+        private void OnRoadClicked() => ConstructionControls.Type = ConstructionControls.ConstructionType.Road;
+        private void OnCanalClicked() => ConstructionControls.Type = ConstructionControls.ConstructionType.Canal;
+        private void OnPortClicked() => ConstructionControls.Type = ConstructionControls.ConstructionType.Port;
+        private void OnTruckClicked() => ConstructionControls.Type = ConstructionControls.ConstructionType.Truck;
+        private void OnFreighterClicked() => ConstructionControls.Type = ConstructionControls.ConstructionType.Freighter;
+        public void OnConfirmPressed() => ConstructionControls.ConfirmConstruction();
+        public void OnCancelPressed() => ConstructionControls.CancelConstruction();
+        public void OnHidePressed() => ConstructionControls.ToggleHide();
+
+        public void SelectNextVehicle()
+        {
+            var current = VehicleControls.SelectedVehicle;
+            Vehicle nextVehicle = null;
+
+            Func<Vehicle, bool> condition = v => v.Exists && v.Owner.IsSelf && (v as Truck)?.Freighter == null;
+
+            if (current != null)
+            {
+                nextVehicle = Map.Map.Instance.Fleet.Vehicles.FirstOrDefault(v => condition(v) && v.IndexInVehicles > current.IndexInVehicles);
+            }
+
+            if (nextVehicle == null)
+                nextVehicle = Map.Map.Instance.Fleet.Vehicles.FirstOrDefault(condition);
+
+            mainCamera.CenterOnPosition(nextVehicle.Transform.Position);
+            VehicleControls.SelectedVehicle = nextVehicle;
+        }
+
+        public void SelectVehicleBySlot(Vehicle.VehicleType type, int slotIndex)
+        {
+            Vehicle v;
+            if (type == Vehicle.VehicleType.Truck)
+            {
+                v = Map.Map.Instance.Fleet.Trucks[Player.Player.SelfId * Constants.MAX_TRUCKS_PER_PLAYER + slotIndex];
+                if ((v as Truck).Freighter != null)
+                    v = (v as Truck).Freighter;
+            }
+            else
+                v = Map.Map.Instance.Fleet.Freighters[Player.Player.SelfId * Constants.MAX_FREIGHTERS_PER_PLAYER + slotIndex];
+
+
+            if (v.Exists)
+            {
+                VehicleControls.SelectedVehicle = v;
+
+                if (v.Transform != null)
+                {
+                    mainCamera.CenterOnPosition(v.Transform.Position);
+                }
+            }
+        }
 
         #endregion
 
@@ -414,6 +552,8 @@ namespace UI
         {
             Visibility style = visible ? Visibility.Visible : Visibility.Hidden;
 
+            buildCount.style.visibility = style;
+
             var buildButtonsGroup = root.Q<GroupBox>("BuildButtons");
             buildButtonsGroup.style.visibility = style;
 
@@ -429,6 +569,18 @@ namespace UI
                 container.RemoveFromClassList("container-hidden");
             else
                 container.AddToClassList("container-hidden");
+        }
+
+        private void OnMouseEnterElement(MouseEnterEvent evt)
+        {
+            IsHovered = true;
+            Map.Map.Instance.CurrentlyHovered = null;
+            HoverablePicker.Instance.DenyPick = true;
+        }
+
+        private void OnMouseLeaveElement(MouseLeaveEvent evt)
+        {
+            IsHovered = false;
         }
 
         #endregion

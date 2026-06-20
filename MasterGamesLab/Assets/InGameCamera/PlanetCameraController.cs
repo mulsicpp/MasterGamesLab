@@ -48,7 +48,14 @@ namespace InGameCamera
         private float currentYaw = 0f;
         private float currentPitch = 0f;
 
-        public float ScalingFactor => Remap(CurrentDistance, minZoom, maxZoom, maxScalingFactor, minScalingFactor);
+        // public float ScalingFactor => Remap(CurrentDistance, minZoom, maxZoom, maxScalingFactor, minScalingFactor);
+        public float ScalingFactor
+        {
+            get
+            {
+                return (1.0f / (CurrentDistance - 1.0f)) * 0.5f + 0.7f;
+            }
+        }
 
         private void Awake()
         {
@@ -181,6 +188,33 @@ namespace InGameCamera
 
             // 2. Project that percentage onto the new target range
             return toMin + percentage * (toMax - toMin);
+        }
+
+
+        public void CenterOnPosition(Vector3 worldPosition, float? desiredDistance = null)
+        {
+            if (Target == null) return;
+
+            if (desiredDistance.HasValue)
+            {
+                CurrentDistance = Mathf.Clamp(desiredDistance.Value, minZoom, maxZoom);
+                zoomExp = Mathf.Log((CurrentDistance - zoomOffset) / zoomFactor, zoomBase);
+            }
+
+            Vector3 directionToTarget = (worldPosition - Target.position).normalized;
+
+            Vector3 lookDirection = -directionToTarget;
+
+            Vector3 approximateUp = Vector3.up;
+            if (Mathf.Abs(Vector3.Dot(lookDirection, approximateUp)) > 0.99f)
+            {
+                approximateUp = Vector3.forward;
+            }
+
+            transform.rotation = Quaternion.LookRotation(lookDirection, approximateUp);
+
+            var position = Target.position + transform.rotation * new Vector3(0f, 0f, -CurrentDistance);
+            transform.position = position;
         }
     }
 }

@@ -74,6 +74,16 @@ public class ContinentPass : IGenerationPass
             var countExtra = GrowContinent(extraSeed, continentId, extraContinentSize, extraNoiseScale, extraOrganicHarshness, extraDistancePenalty);
             ContinentSizes[continentId] = countExtra;
         }
+
+        var continentInfos = new Dictionary<int, ContinentInfo>();
+
+        foreach (var (id, size) in ContinentSizes)
+        {
+            continentInfos.Add(id, new(id, size));
+        }
+
+        Map.Map.Instance.ContinentInfos = continentInfos;
+
         //small water tiles remove
         var visitedWater = new HashSet<ITile>();
         foreach (var tile in map.Tiles)
@@ -132,10 +142,8 @@ public class ContinentPass : IGenerationPass
             }
         }
 
-        Debug.Log($"extraContinentCount: {extraCount}");
         foreach (var kvp in ContinentSizes)
         {
-            Debug.Log($"Continent {kvp.Key} has {kvp.Value} Land-Tiles.");
         }
     }
 
@@ -251,7 +259,6 @@ public class ContinentPass : IGenerationPass
             }
         }
 
-        Debug.Log($"Land-Tiles: {currentLandTiles}");
         return currentLandTiles;
     }
 
