@@ -2,7 +2,7 @@
 
 - Correct spawn logic !!!
     - Truck spawn tile !!!
-- Correct consumer logic !!!
+- Correct consumer logic !!! [done]
     - Only request spawned goods
 
 - 3d models !!! [done]
@@ -15,22 +15,22 @@
     - Load/Unload trucks [done]
 
 - Check money before buying !!! [done]
-    - Disable submit button when blueprint is empty or price is too high
+    - Disable submit button when blueprint is empty or price is too high [schlecht]
 - Hide blueprinted elements !!!
 - Only overwrite hovered object if enabled in layers
 
 - Pins
-    - Clickable !!!
+    - Clickable !!! [done]
     - Scaling
     - Vehiclepins
         - Time
         - Correct position
         - Zitter nicht
-        - Correct icon !!!
+        - Correct icon !!! [done]
     - Roadpins !!!
         - Cost
         - Duration
-    - Consumerpins !!!
+    - Consumerpins !!! [done]
         - Good
         - Reward
     - Producerpins

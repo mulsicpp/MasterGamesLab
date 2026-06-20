@@ -379,14 +379,23 @@ namespace UI
 
         private void HandleBlueprintUpdate(Blueprint blueprint)
         {
+
             if (blueprint.IsEmpty)
             {
+                confirmButton.style.display = DisplayStyle.None;
+                cancelButton.style.display = DisplayStyle.None;
                 blueprintCountContainer.style.display = DisplayStyle.None;
                 return;
             }
+
             blueprintCountContainer.style.display = DisplayStyle.Flex;
             var details = blueprint.GetDetails();
             var objectInfos = details.ObjectInfos;
+            cancelButton.style.display = DisplayStyle.Flex;
+
+            confirmButton.style.display = Player.Player.Self.Cash >= details.TotalCost ? DisplayStyle.Flex : DisplayStyle.None;
+
+
 
             foreach (ConstructibleType type in System.Enum.GetValues(typeof(ConstructibleType)))
             {
@@ -464,6 +473,30 @@ namespace UI
 
             mainCamera.CenterOnPosition(nextVehicle.Transform.Position);
             VehicleControls.SelectedVehicle = nextVehicle;
+        }
+
+        public void SelectVehicleBySlot(Vehicle.VehicleType type, int slotIndex)
+        {
+            Vehicle v;
+            if (type == Vehicle.VehicleType.Truck)
+            {
+                v = Map.Map.Instance.Fleet.Trucks[Player.Player.SelfId * Constants.MAX_TRUCKS_PER_PLAYER + slotIndex];
+                if ((v as Truck).Freighter != null)
+                    v = (v as Truck).Freighter;
+            }
+            else
+                v = Map.Map.Instance.Fleet.Freighters[Player.Player.SelfId * Constants.MAX_FREIGHTERS_PER_PLAYER + slotIndex];
+
+
+            if (v.Exists)
+            {
+                VehicleControls.SelectedVehicle = v;
+
+                if (v.Transform != null)
+                {
+                    mainCamera.CenterOnPosition(v.Transform.Position);
+                }
+            }
         }
 
         #endregion

@@ -2,6 +2,7 @@ using Map;
 using UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
 public class IngameInputs : MonoBehaviour
 {
@@ -22,6 +23,9 @@ public class IngameInputs : MonoBehaviour
     public static InputAction chooseFastestRoute;
     public static InputAction chooseCheapestRoute;
 
+    // Arrays to store our dynamic hotkey actions dynamically
+    private List<InputAction> truckHotkeyActions = new List<InputAction>();
+    private List<InputAction> freighterHotkeyActions = new List<InputAction>();
 
     [SerializeField] private ConstructionControls constructionControls;
 
@@ -41,6 +45,14 @@ public class IngameInputs : MonoBehaviour
         openTabMenuAction = controlsActionMap.FindAction("OpenTabMenu");
         changeTruckAction = controlsActionMap.FindAction("ChangeVehicle");
 
+        for (int i = 0; i < 10; i++)
+        {
+            var truckAct = controlsActionMap.FindAction($"Truck{i}");
+            if (truckAct != null) truckHotkeyActions.Add(truckAct);
+
+            var freighterAct = controlsActionMap.FindAction($"Freighter{i}");
+            if (freighterAct != null) freighterHotkeyActions.Add(freighterAct);
+        }
         chooseFastestRoute = controlsActionMap.FindAction("ChooseFastestRoute");
         chooseCheapestRoute = controlsActionMap.FindAction("ChooseCheapestRoute");
     }
@@ -54,11 +66,21 @@ public class IngameInputs : MonoBehaviour
         buyFreighterAction.started += OnBuyFreighter;
         confirmBuildPlanAction.started += OnConfirm;
         hideBuildPlanAction.started += OnHide;
-        // cancelAction.started += OnCancel;
         openTabMenuAction.started += OnTabPressed;
         openTabMenuAction.canceled += OnTabReleased;
         changeTruckAction.started += OnChangeVehicle;
 
+        for (int i = 0; i < truckHotkeyActions.Count; i++)
+        {
+            int slotIndex = i;
+            truckHotkeyActions[slotIndex].started += ctx => OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType.Truck, slotIndex);
+        }
+
+        for (int i = 0; i < freighterHotkeyActions.Count; i++)
+        {
+            int slotIndex = i;
+            freighterHotkeyActions[slotIndex].started += ctx => OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType.Freighter, slotIndex);
+        }
         chooseFastestRoute.started += OnChooseFastestRoute;
         chooseCheapestRoute.started += OnChooseCheapestRoute;
     }
@@ -72,11 +94,22 @@ public class IngameInputs : MonoBehaviour
         buyFreighterAction.started -= OnBuyFreighter;
         confirmBuildPlanAction.started -= OnConfirm;
         hideBuildPlanAction.started -= OnHide;
-        // cancelAction.started -= OnCancel;
         openTabMenuAction.started -= OnTabPressed;
         openTabMenuAction.canceled -= OnTabReleased;
         changeTruckAction.started -= OnChangeVehicle;
 
+        // Unsubscribe hotkeys
+        for (int i = 0; i < truckHotkeyActions.Count; i++)
+        {
+            int slotIndex = i;
+            truckHotkeyActions[slotIndex].started -= ctx => OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType.Truck, slotIndex);
+        }
+
+        for (int i = 0; i < freighterHotkeyActions.Count; i++)
+        {
+            int slotIndex = i;
+            freighterHotkeyActions[slotIndex].started -= ctx => OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType.Freighter, slotIndex);
+        }
         chooseFastestRoute.started -= OnChooseFastestRoute;
         chooseCheapestRoute.started -= OnChooseCheapestRoute;
     }
@@ -87,12 +120,16 @@ public class IngameInputs : MonoBehaviour
     private void OnBuyTruck(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Truck;
     private void OnBuyFreighter(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Freighter;
     private void OnConfirm(InputAction.CallbackContext ctx) => constructionControls.ConfirmConstruction();
-    // private void OnCancel(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.None;
     private void OnHide(InputAction.CallbackContext ctx) => constructionControls.ToggleHide();
     private void OnTabPressed(InputAction.CallbackContext ctx) => IngameUI.Instance.ShowTabMenu(true);
     private void OnTabReleased(InputAction.CallbackContext ctx) => IngameUI.Instance.ShowTabMenu(false);
     private void OnChangeVehicle(InputAction.CallbackContext ctx) => IngameUI.Instance.SelectNextVehicle();
 
+    // Sends hotkey slot selections directly down to the UI Layer
+    private void OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType type, int slotIndex)
+    {
+        IngameUI.Instance.SelectVehicleBySlot(type, slotIndex);
+    }
     private void OnChooseFastestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseFastestRoute();
     private void OnChooseCheapestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseCheapestRoute();
 }
