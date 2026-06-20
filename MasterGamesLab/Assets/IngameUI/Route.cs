@@ -25,7 +25,17 @@ namespace UI
 
         public void SetRoute(TileId[] tiles)
         {
+            if (tiles != null)
+                SetRoute(tiles, GetRouteMidpoint(tiles, 0, tiles.Length - 1), false);
+            else
+                SetRoute(null, Vector3.zero, false);
+        }
+
+        public void SetRoute(TileId[] tiles, Vector3 pinPosition, bool facingLeft)
+        {
             this.tiles = tiles;
+            Renderer.Pin.transform.position = pinPosition;
+            Renderer.Pin.FacingLeft = facingLeft;
         }
 
         public static bool AreSame(TileId[] r1, TileId[] r2)
@@ -37,6 +47,26 @@ namespace UI
                 if (r1[i] != r2[i]) return false;
             }
             return true;
+        }
+
+        public static Vector3 GetRouteMidpoint(TileId[] route, int startIndex, int endIndex)
+        {
+            if (route == null || route.Length == 0) return Vector3.zero;
+
+            if ((endIndex - startIndex) % 2 == 0)
+            {
+                int midIndex = startIndex + (endIndex - startIndex) / 2;
+                midIndex = Mathf.Clamp(midIndex, 0, route.Length - 1);
+
+                return Map.Map.Instance.Tiles[route[midIndex]].PositionOnSphere;
+            }
+            else
+            {
+                int midIndex1 = Mathf.Clamp(startIndex + (endIndex - startIndex) / 2, 0, route.Length - 1);
+                int midIndex2 = Mathf.Clamp(midIndex1 + 1, 0, route.Length - 1);
+
+                return (Map.Map.Instance.Tiles[route[midIndex1]].PositionOnSphere + Map.Map.Instance.Tiles[route[midIndex2]].PositionOnSphere) * 0.5f;
+            }
         }
     }
 }

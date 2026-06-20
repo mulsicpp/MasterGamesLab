@@ -4,15 +4,20 @@ using UnityEngine.UIElements;
 
 public class RoadPin : Pin
 {
-    Label cost, duration;
+    private Label cost, duration;
 
     protected override float pinHeightPercent => 0.3f;
 
     protected override float pinAspectRatio => 4;
 
+    public bool FacingLeft = false;
+
     protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)
     {
-        throw new System.NotImplementedException();
+        Vector3 rawPosition = gameObject.transform.position;
+        Vector3 projectedPosition = Map.Map.Instance.GetProjectedPosition(rawPosition);
+        upVector = (Map.Map.Instance.GetProjectedPosition(rawPosition * 1.01f) - projectedPosition).normalized;
+        return projectedPosition;
     }
 
     protected override void InitializeUiComponents()

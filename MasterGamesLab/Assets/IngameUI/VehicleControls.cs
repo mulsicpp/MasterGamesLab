@@ -78,7 +78,7 @@ namespace UI
                     this.destination = destination;
                 }
 
-                if (!Route.AreSame(this.fastestRoute, cheapestRoute) && vehicle.CanDriveRoute(Player.Player.Self, cheapestRoute, out _, out _))
+                if (vehicle.CanDriveRoute(Player.Player.Self, cheapestRoute, out _, out _))
                 {
                     this.cheapestRoute = cheapestRoute;
                     this.destination = destination;
@@ -88,9 +88,7 @@ namespace UI
             public override bool Commit()
             {
                 // Map.Map.Instance.RequestVehicleRouteServerRpc(controls.SelectedVehicle.IndexInVehicles, route);
-                controls.SelectedDestination = destination;
-                controls.routes[0].SetRoute(fastestRoute);
-                controls.routes[1].SetRoute(cheapestRoute);
+                controls.RouteOptions.Set(destination, fastestRoute, cheapestRoute);
                 return true;
             }
         }
@@ -162,7 +160,7 @@ namespace UI
                 if (selectedVehicle != null)
                     selectedVehicle?.ClearOutline();
                 selectedVehicle = value;
-                ClearDestination();
+                RouteOptions.Clear();
 
 
 
@@ -173,38 +171,18 @@ namespace UI
             }
         }
 
-        private Tile selectedDestination = null;
-        public Tile SelectedDestination
-        {
-            get { return selectedDestination; }
-            set
-            {
-                if (selectedDestination != null)
-                {
-                    selectedDestination?.ClearOutline();
-                }
-                selectedDestination = value;
-
-
-                if (ControlsAreActive)
-                {
-                    IngameUI.Instance.ConstructionControls.DisableControls();
-                }
-            }
-        }
-
-        private Route[] routes;
+        public RouteOptions RouteOptions { get; private set; }
 
         public void Awake()
         {
-             routes = new Route[] { new Route(null, Color.red), new Route(null, Color.green) };
+            RouteOptions = new();
         }
 
         public void DisableControls()
         {
             hoveredAction = null;
             SelectedVehicle = null;
-            ClearDestination();
+            RouteOptions.Clear();
         }
 
         public HoverablePicker.HoverableLayer SelectHoverableLayers() => HoverablePicker.HoverableLayer.All;
@@ -225,9 +203,8 @@ namespace UI
             {
                 SelectedVehicle.ShowOutline(Constants.SELECTED_OUTLINE);
 
-                if (SelectedDestination == null)
+                if (RouteOptions.Destination == null)
                 {
-
                     switch (Map.Map.Instance.CurrentlyHovered)
                     {
                         case Tile t:
@@ -246,7 +223,7 @@ namespace UI
                     }
                 } else
                 {
-                    SelectedDestination.ShowOutline(Constants.SELECTED_OUTLINE);
+                    RouteOptions.Destination.ShowOutline(Constants.SELECTED_OUTLINE);
 
                     switch (Map.Map.Instance.CurrentlyHovered)
                     {
@@ -288,35 +265,28 @@ namespace UI
             return false;
         }
 
-        public void ClearDestination()
-        {
-            SelectedDestination = null;
-            routes[0].SetRoute(null);
-            routes[1].SetRoute(null);
-        }
-
         public void ChooseFastestRoute()
         {
-            if(SelectedVehicle != null && SelectedDestination != null)
+            if(SelectedVehicle != null && RouteOptions.Destination != null)
             {
-                TileId[] routeIds = routes[0].Tiles ?? routes[1].Tiles;
+                TileId[] routeIds = RouteOptions.FastestRoute.Tiles ?? RouteOptions.CheapestRoute.Tiles;
                 if (routeIds != null)
                 {
                     Map.Map.Instance.RequestVehicleRouteServerRpc(SelectedVehicle.IndexInVehicles, routeIds);
-                    ClearDestination();
+                    RouteOptions.Clear();
                 }
             }
         }
 
         public void ChooseCheapestRoute()
         {
-            if (SelectedVehicle != null && SelectedDestination != null)
+            if (SelectedVehicle != null && RouteOptions.Destination != null)
             {
-                TileId[] routeIds = routes[1].Tiles ?? routes[0].Tiles;
+                TileId[] routeIds = RouteOptions.CheapestRoute.Tiles ?? RouteOptions.FastestRoute.Tiles;
                 if (routeIds != null)
                 {
                     Map.Map.Instance.RequestVehicleRouteServerRpc(SelectedVehicle.IndexInVehicles, routeIds);
-                    ClearDestination();
+                    RouteOptions.Clear();
                 }
             }
         }
