@@ -277,6 +277,7 @@ namespace Map
             if (geometry == null)
             {
                 geometry = sender.Chunk.RequestNewEdgeGeometry();
+                geometry.SetLayerNames("Default", "Outline", "Outline Transparent");
             }
 
             if (sender.Id == StartTile.Id)

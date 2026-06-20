@@ -1,8 +1,5 @@
-using Map;
-using System.Collections.Generic;
 using Map.GeometryGeneration.Edges;
 using UnityEngine;
-using static Unity.VectorGraphics.VectorUtils;
 
 namespace UI
 {
@@ -45,18 +42,19 @@ namespace UI
 
             if (tiles != null)
             {
-                Renderer.Geometry = EdgeGeometryFactory.GenerateFullRoad(tiles, FullRoadGeometry.FullRoadType.Cheapest);
+                Renderer.Geometry = EdgeGeometryFactory.GenerateFullRoad(tiles, Type);
             }
         }
 
         public static bool AreSame(TileId[] r1, TileId[] r2)
         {
-            if(r1?.Length != r2?.Length) return false;
+            if (r1?.Length != r2?.Length) return false;
 
             for (int i = 0; i < r1?.Length; i++)
             {
                 if (r1[i] != r2[i]) return false;
             }
+
             return true;
         }
 
@@ -76,7 +74,8 @@ namespace UI
                 int midIndex1 = Mathf.Clamp(startIndex + (endIndex - startIndex) / 2, 0, route.Length - 1);
                 int midIndex2 = Mathf.Clamp(midIndex1 + 1, 0, route.Length - 1);
 
-                return (Map.Map.Instance.Tiles[route[midIndex1]].PositionOnSphere + Map.Map.Instance.Tiles[route[midIndex2]].PositionOnSphere) * 0.5f;
+                return (Map.Map.Instance.Tiles[route[midIndex1]].PositionOnSphere +
+                        Map.Map.Instance.Tiles[route[midIndex2]].PositionOnSphere) * 0.5f;
             }
         }
     }
