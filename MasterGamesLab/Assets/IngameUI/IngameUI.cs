@@ -475,6 +475,30 @@ namespace UI
             VehicleControls.SelectedVehicle = nextVehicle;
         }
 
+        public void SelectVehicleBySlot(Vehicle.VehicleType type, int slotIndex)
+        {
+            Vehicle v;
+            if (type == Vehicle.VehicleType.Truck)
+            {
+                v = Map.Map.Instance.Fleet.Trucks[Player.Player.SelfId * Constants.MAX_TRUCKS_PER_PLAYER + slotIndex];
+                if ((v as Truck).Freighter != null)
+                    v = (v as Truck).Freighter;
+            }
+            else
+                v = Map.Map.Instance.Fleet.Freighters[Player.Player.SelfId * Constants.MAX_FREIGHTERS_PER_PLAYER + slotIndex];
+
+
+            if (v.Exists)
+            {
+                VehicleControls.SelectedVehicle = v;
+
+                if (v.Transform != null)
+                {
+                    mainCamera.CenterOnPosition(v.Transform.Position);
+                }
+            }
+        }
+
         #endregion
 
         #region General View Visibility & Layout Formatting
