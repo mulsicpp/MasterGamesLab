@@ -24,6 +24,9 @@ namespace Map
         public static int VehicleLayer { get; private set; }
         public static int VehicleOutlineLayer { get; private set; }
         public static int VehicleOutlineTransparentLayer { get; private set; }
+        public static int FullRoadLayer { get; private set; }
+        public static int FullRoadOutlineLayer { get; private set; }
+        public static int FullRoadOutlineTransparentLayer { get; private set; }
 
         private static readonly int PlanetRadius = Shader.PropertyToID("_PlanetRadius");
         private static readonly int ProjectionFactor = Shader.PropertyToID("_ProjectionFactor");
@@ -74,7 +77,7 @@ namespace Map
 
         public GameObject TruckPrefab;
         public GameObject FreighterPrefab;
-        
+
         public GameObject ProducerPrefab;
         public GameObject ConsumerPrefab;
         public GameObject GaragePrefab;
@@ -138,6 +141,9 @@ namespace Map
             VehicleLayer = LayerMask.NameToLayer("Vehicles");
             VehicleOutlineLayer = LayerMask.NameToLayer("Vehicles Outline");
             VehicleOutlineTransparentLayer = LayerMask.NameToLayer("Vehicles Outline Transparent");
+            FullRoadLayer = LayerMask.NameToLayer("Full Road");
+            FullRoadOutlineLayer = LayerMask.NameToLayer("Full Road Outline");
+            FullRoadOutlineTransparentLayer = LayerMask.NameToLayer("Full Road Outline Transparent");
         }
 
         private void UpdateEntireMesh()
@@ -250,12 +256,13 @@ namespace Map
             {
                 return;
             }
+
             HoverablePicker.Instance.RequestPick(new Vector2Int(mX, mY), OnReadbackComplete);
         }
 
         private void OnReadbackComplete(AsyncGPUReadbackRequest request)
         {
-            if(HoverablePicker.Instance.DenyPick)
+            if (HoverablePicker.Instance.DenyPick)
             {
                 return;
             }
@@ -275,7 +282,7 @@ namespace Map
                 return;
             }
 
-            CurrentlyHovered = EntityIdManager[new(currentlyHoveredId)] as IHoverable;
+            CurrentlyHovered = EntityIdManager[new EntityId(currentlyHoveredId)] as IHoverable;
 
             // if (currentlyHoveredId < tiles.Count)
             // {
@@ -413,7 +420,7 @@ namespace Map
 
             GenerationSeed = seed;
         }
-        
+
         public void GeneratePlayersAndStructures(int playerCount)
         {
             players = new Player.Player[playerCount];
@@ -432,8 +439,7 @@ namespace Map
             for (int i = 0; i < storedBlueprintPackets.Length; i++)
                 storedBlueprintPackets[i] = new BlueprintPacket();
 
-            
-        
+
             spawnLogic = new SpawnLogic(this);
             spawnLogic.GenerateInitalState();
         }
@@ -669,6 +675,7 @@ namespace Map
                     packet.Clear();
                     return;
                 }
+
                 player.Pay(cost);
 
                 // TODO validation
@@ -788,7 +795,8 @@ namespace Map
 
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void LoadTruckOnFreighterServerRpc(VehicleIndex truckIndex, VehicleIndex freighterIndex, RpcParams rpcParams = default)
+        public void LoadTruckOnFreighterServerRpc(VehicleIndex truckIndex, VehicleIndex freighterIndex,
+            RpcParams rpcParams = default)
         {
             var player =
                 Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
@@ -807,6 +815,7 @@ namespace Map
 
                 truck.Freighter = freighter;
             }
+
             UpdateDirtyObjectsOnClient();
         }
 
@@ -832,6 +841,7 @@ namespace Map
 
                 player.TransferMoneyTo(tile.Structure.Owner, cost);
             }
+
             UpdateDirtyObjectsOnClient();
         }
 

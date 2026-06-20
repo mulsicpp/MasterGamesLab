@@ -74,6 +74,10 @@ namespace Map.Hoverables
             var layers = Map.Instance.HoverLayers;
             var isAll = layers.HasFlag(HoverableLayer.All);
 
+            LayerMask |= 1 << Map.FullRoadLayer;
+            LayerMask |= 1 << Map.FullRoadOutlineLayer;
+            LayerMask |= 1 << Map.FullRoadOutlineTransparentLayer;
+
             if (isAll || layers.HasFlag(HoverableLayer.Tiles))
             {
                 LayerMask |= 1 << Map.TileLayer;

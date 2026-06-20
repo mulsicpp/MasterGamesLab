@@ -251,13 +251,13 @@ namespace Map
             {
                 EdgeType.Road =>
                     owner == null ? Constants.ROAD_TRAVERSAL_COST_PUBLIC :
-                        owner == player ? Constants.ROAD_TRAVERSAL_COST_OWN :
-                        Constants.ROAD_TRAVERSAL_COST_ENEMY,
+                    owner == player ? Constants.ROAD_TRAVERSAL_COST_OWN :
+                    Constants.ROAD_TRAVERSAL_COST_ENEMY,
 
                 EdgeType.Canal =>
                     owner == null ? Constants.CANAL_TRAVERSAL_COST_PUBLIC :
-                        owner == player ? Constants.CANAL_TRAVERSAL_COST_OWN :
-                        Constants.CANAL_TRAVERSAL_COST_ENEMY,
+                    owner == player ? Constants.CANAL_TRAVERSAL_COST_OWN :
+                    Constants.CANAL_TRAVERSAL_COST_ENEMY,
                 _ => 0,
             };
         }
@@ -334,8 +334,11 @@ namespace Map
         {
             SetBlueprintColorAndOutline();
             SetColorAndOutline();
-            if (outline is Constants.OutlineData o)
+            if (outline is { } o)
+            {
                 SetOutlineParameters(o, Type == EdgeType.Canal);
+            }
+
             EdgeDirty = false;
         }
 

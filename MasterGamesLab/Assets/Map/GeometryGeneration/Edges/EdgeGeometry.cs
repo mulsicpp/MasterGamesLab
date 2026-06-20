@@ -4,6 +4,7 @@ namespace Map.GeometryGeneration.Edges
 {
     public class EdgeGeometry : AObjectWithProcedualGeometry
     {
+        protected override string DefaultLayerName() => "Edge";
         protected override string OutlineLayerName() => "Edge Outline";
         protected override string OutlineTransparentLayerName() => "Edge Outline Transparent";
 

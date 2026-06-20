@@ -1,5 +1,6 @@
 using Map;
 using System.Collections.Generic;
+using Map.GeometryGeneration.Edges;
 using UnityEngine;
 
 namespace UI

@@ -38,7 +38,7 @@ namespace Map
         // Tile data
         public TileId Id { get; private set; }
 
-        public EntityId EntityId => new (Map.Instance.EntityIdManager.TileRange.Start.Value + Id);
+        public EntityId EntityId => new(Map.Instance.EntityIdManager.TileRange.Start.Value + Id);
 
         public MapChunk Chunk;
         public IReadOnlyList<ITile> Neighbors => neighbors;
@@ -426,7 +426,8 @@ namespace Map
                 }*/
             }
 
-            if (Type == TileType.Forest && (infoNormal.AmountOfCanals > 0 || infoNormal.AmountOfRoads > 0 || Structure != null))
+            if (Type == TileType.Forest &&
+                (infoNormal.AmountOfCanals > 0 || infoNormal.AmountOfRoads > 0 || Structure != null))
             {
                 Chunk.GeometryChanged = true;
             }
@@ -474,7 +475,7 @@ namespace Map
 
         public void ShowOutline(Constants.OutlineData outlineData)
         {
-            if(outliner == null)
+            if (outliner == null)
                 outliner = TileOutlinerPool.Instance.Get();
             outliner.SetOutlineParameters(outlineData);
             outliner.OutlineTile(this);
