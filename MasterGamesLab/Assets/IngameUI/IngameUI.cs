@@ -6,9 +6,11 @@ using InGameCamera;
 using Map.Blueprint;
 using Map.Fleet;
 using Map.Hoverables;
+using Map.Infrastructure;
 using Player;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 namespace UI
@@ -18,6 +20,18 @@ namespace UI
     [RequireComponent(typeof(VehicleControls))]
     public class IngameUI : Menu, IClickEventHandler
     {
+        [Serializable]
+        public struct GoodImagePair
+        {
+            public Good GoodType;
+            public Sprite ImageAsset;
+        }
+
+        [SerializeField]
+        private List<GoodImagePair> goodsConfiguration = new List<GoodImagePair>();
+
+        public Dictionary<Good, Sprite> goodsImages = new Dictionary<Good, Sprite>();
+
         public static IngameUI Instance { get; private set; }
         public override MenuId Id => MenuId.Ingame;
         public bool IsHovered = false;
@@ -67,6 +81,16 @@ namespace UI
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
 
+        }
+        private void Start()
+        {
+            foreach (var pair in goodsConfiguration)
+            {
+                if (!goodsImages.ContainsKey(pair.GoodType))
+                {
+                    goodsImages.Add(pair.GoodType, pair.ImageAsset);
+                }
+            }
         }
 
         protected override void OnEnable()

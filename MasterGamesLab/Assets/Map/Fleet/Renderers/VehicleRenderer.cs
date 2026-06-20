@@ -8,7 +8,6 @@ namespace Map.Fleet
     public abstract class VehicleRenderer : MonoBehaviour
     {
         public Vehicle Vehicle { get; private set; }
-        public VehiclePin Pin { get; private set; }
         public ObjectWithFixedGeometry Geometry { get; private set; }
         public Transform CargoTransform;
 
@@ -21,7 +20,6 @@ namespace Map.Fleet
         protected virtual void InitVehicle(Vehicle vehicle)
         {
             Vehicle = vehicle;
-            Pin = gameObject.GetComponent<VehiclePin>();
 
             Geometry = vehicle.AttachVehicleGeometry(transform);
         }

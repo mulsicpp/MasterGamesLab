@@ -1,8 +1,8 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/Lobby/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
+    <Style src="project://database/Assets/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
     <Style src="project://database/Assets/IngameUI/template.uss?fileID=7433441132597879392&amp;guid=3723fea38ff90684baaec6994f354e62&amp;type=3#template"/>
     <ui:VisualElement name="root" class="unity-ui-document__root" style="flex-grow: 1; width: 100%; height: 100%; flex-direction: row; align-items: center;">
-        <SquareHightElement name="Icon" enabled="true" class="element template-icon-node" style="height: 100%;"/>
+        <SquareHightElement name="Icon" enabled="true" class="element template-icon-node" style="height: 100%; -unity-background-scale-mode: scale-to-fit;"/>
         <ResponsiveLabel text=": 100" height-percentage="0.65" class="element label" style="flex-grow: 1; flex-shrink: 1; height: 100%; width: auto; margin-left: 5%; padding-right: 10%;"/>
     </ui:VisualElement>
 </ui:UXML>

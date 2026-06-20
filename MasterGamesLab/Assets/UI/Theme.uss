@@ -8,7 +8,7 @@
     --outline-width: 1px;
     --text-outline-color: rgb(0, 0, 0);
     --text-outline-width: 1px;
-    --border-color: var(--outline-color);
+    --border-color: var() --outline-color;
     --border-width: var(--outline-width);
     --disabled-border-color: rgba(255, 254, 254, 0.2);
     --disabled-background-color: rgba(0, 0, 0, 0);
@@ -25,10 +25,10 @@
     --tab-menu-header-border: rgba(255, 255, 255, 0.22);
     --tab-menu-hover-column: rgb(255, 238, 123);
     --tab-menu-active-column: rgb(175, 152, 0);
-    --icon-freighter: url("project://database/Assets/IngameUI/Freighter_Icon.svg?fileID=7388822144124034973&guid=4f2d2d410d5a0b04a9d28c66af7fd964&type=3#Freighter_Icon");
-    --icon-road: url("project://database/Assets/IngameUI/Road_Icon.svg?fileID=7388822144124034973&guid=6e6eff8ac554ae540bd44a3bd553b5df&type=3#Road_Icon");
-    --icon-port: url("project://database/Assets/IngameUI/Port_Icon.svg?fileID=7388822144124034973&guid=bb3dece4b5ab3434f9c6882fa7796f86&type=3#Port_Icon");
-    --icon-canal: url("project://database/Assets/IngameUI/Canal_icon.svg?fileID=7388822144124034973&guid=200d087653a6f0a4bb33f8d4b4a8cb9f&type=3#Canal_icon");
+    --icon-freighter: url("project://database/Assets/Icons/svg/freighter.svg?fileID=7388822144124034973&guid=97086ff4a3b104a46b85fee4cf4b50a5&type=3#freighter");
+    --icon-road: url("project://database/Assets/Icons/svg/road.svg?fileID=7388822144124034973&guid=00c99cde3fa3ed643ba78a33749b0611&type=3#road");
+    --icon-port: url("project://database/Assets/Icons/svg/port.svg?fileID=7388822144124034973&guid=0df0792016bfb164bb2bb24561548882&type=3#port");
+    --icon-canal: url("project://database/Assets/Icons/svg/canal.svg?fileID=7388822144124034973&guid=352d2c7705f71cc478c1138c90a7ae84&type=3#canal");
     --icon-truck: url("project://database/Assets/IngameUI/LKW_Icon.svg?fileID=7388822144124034973&guid=bee6275bf0ec2d2498c79c7cb139def1&type=3#LKW_Icon");
 }
 
@@ -319,9 +319,10 @@
 
 .host-crown {
     height: 100%;
-    background-image: url("project://database/Assets/Lobby/Crown.svg?fileID=7388822144124034973&guid=5771e13031fb0b546824e0b0c877c56e&type=3#Crown");
-    -unity-background-image-tint-color: var(--background-button-color);
+    background-image: url("project://database/Assets/Icons/svg/crown.svg?fileID=7388822144124034973&guid=527bd7333798a3145821f3c2d0a7dc5a&type=3#crown");
+    -unity-background-image-tint-color: rgb(255, 255, 255);
     margin-right: 2%;
+    -unity-background-scale-mode: scale-to-fit;
 }
 
 .copy-button {
