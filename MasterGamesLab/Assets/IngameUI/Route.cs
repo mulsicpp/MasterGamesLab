@@ -26,16 +26,15 @@ namespace UI
         public void SetRoute(TileId[] tiles)
         {
             if (tiles != null)
-                SetRoute(tiles, GetRouteMidpoint(tiles, 0, tiles.Length - 1), false);
+                SetRoute(tiles, GetRouteMidpoint(tiles, 0, tiles.Length - 1));
             else
-                SetRoute(null, Vector3.zero, false);
+                SetRoute(null, Vector3.zero);
         }
 
-        public void SetRoute(TileId[] tiles, Vector3 pinPosition, bool facingLeft)
+        public void SetRoute(TileId[] tiles, Vector3 pinPosition)
         {
             this.tiles = tiles;
             Renderer.Pin.transform.position = pinPosition;
-            Renderer.Pin.FacingLeft = facingLeft;
         }
 
         public static bool AreSame(TileId[] r1, TileId[] r2)

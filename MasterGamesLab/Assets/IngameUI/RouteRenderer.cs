@@ -29,6 +29,7 @@ namespace UI
                 }
 
                 Vector3 pinPos = Map.Map.Instance.GetProjectedPosition(Pin.transform.position, 1.04f);
+                Gizmos.color = Pin.FacingLeft ? Color.blue : Color.red;
                 Gizmos.DrawSphere(pinPos, 0.02f);
             }
 
