@@ -8,9 +8,9 @@ namespace Map.GeometryGeneration
     {
         private MeshFilter meshFilter;
 
-        protected readonly List<Vector3> Vertices = new List<Vector3>();
+        public readonly List<Vector3> Vertices = new List<Vector3>();
         protected readonly List<Vector4> UV1 = new List<Vector4>();
-        protected readonly List<int> Triangles = new List<int>();
+        public readonly List<int> Triangles = new List<int>();
         protected Mesh Mesh { get; private set; }
 
         protected void Init(bool outlineable = true)
@@ -54,7 +54,7 @@ namespace Map.GeometryGeneration
             }
         }
 
-        protected void ClearMeshData()
+        public void ClearMeshData()
         {
             Vertices.Clear();
             UV1.Clear();
