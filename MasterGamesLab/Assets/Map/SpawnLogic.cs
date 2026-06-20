@@ -18,7 +18,7 @@ namespace Map
 
         private List<Good> availableGoods;
 
-        public float Progress => Math.Clamp((Time.time - startTime) / 60f, 0.0f, 1.0f);
+        public float Progress => Math.Clamp((Time.time - startTime) / 600f, 0.0f, 1.0f);
 
         private readonly float startTime;
 
