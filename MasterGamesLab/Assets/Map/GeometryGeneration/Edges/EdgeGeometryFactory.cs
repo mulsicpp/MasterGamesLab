@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.VisualScripting.ReorderableList.Element_Adder_Menu;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -13,7 +14,7 @@ namespace Map.GeometryGeneration.Edges
         private const float EDGE_HANDLE_DISTANCE = 0.025f;
         private const float ROAD_HEIGHT = 0.01f;
         private const int EDGE_RESOLUTION = 5;
-        private const float ROAD_RADIUS = 0.01f;
+        private const float ROAD_RADIUS = 0.005f;
 
         public struct TileInformation
         {
@@ -499,6 +500,70 @@ namespace Map.GeometryGeneration.Edges
                 UV1 = tempGeo.TileData,
                 Triangles = tempGeo.Triangles,
             };
+        }
+
+        public static FullRoadGeometry GenerateFullRoad(TileId[] tiles, FullRoadGeometry.FullRoadType type)
+        {
+            var go = GeometriesManager.Instance.GetFullRoadGameObject();
+            var fullRoadGeometry = go.GetComponent<FullRoadGeometry>();
+            fullRoadGeometry.Init(type);
+
+            var uv1 = new Vector4(fullRoadGeometry.EntityId.Value + Map.ID_OFFSET, 0, 0, 0);
+
+            if (tiles.Length <= 1)
+            {
+                return fullRoadGeometry;
+            }
+
+
+            var startCurve = ParametricCurve.FromTileToTileCenter(Map.Instance.Tiles[tiles[0]] as Tile,
+                Map.Instance.Tiles[tiles[1]] as Tile);
+            AddCurveData(startCurve, fullRoadGeometry, uv1);
+
+            for (var i = 1; i < tiles.Length - 1; i++)
+            {
+                var curve = ParametricCurve.FromTileToTileOverTile(Map.Instance.Tiles[tiles[i - 1]] as Tile,
+                    Map.Instance.Tiles[tiles[i]] as Tile, Map.Instance.Tiles[tiles[i + 1]] as Tile);
+                AddCurveData(curve, fullRoadGeometry, uv1);
+            }
+
+            if (tiles.Length <= 2)
+            {
+                fullRoadGeometry.StoreMeshData();
+                return fullRoadGeometry;
+            }
+
+            var endCurve = ParametricCurve.FromTileToTileCenter(Map.Instance.Tiles[tiles[^2]] as Tile,
+                Map.Instance.Tiles[tiles[^1]] as Tile);
+            AddCurveData(endCurve, fullRoadGeometry, uv1);
+
+            fullRoadGeometry.StoreMeshData();
+            return fullRoadGeometry;
+        }
+
+        private static void AddCurveData(ParametricCurve curve, AObjectWithProcedualGeometry element, Vector4 uv1)
+        {
+            for (var i = 0; i < EDGE_RESOLUTION; i++)
+            {
+                var t = (float)i / (EDGE_RESOLUTION - 1);
+
+                var (p, normal) = GetPosAndNormal(curve, t);
+
+                var leftPoint = p + normal * ROAD_RADIUS;
+                var rightPoint = p - normal * ROAD_RADIUS;
+
+                element.AddVertex(leftPoint, uv1);
+                element.AddVertex(rightPoint, uv1);
+
+                if (i == 0)
+                {
+                    continue;
+                }
+
+                var i2 = i * 2;
+                element.AddTriangle(i2 - 2, i2, i2 - 1);
+                element.AddTriangle(i2 - 1, i2, i2 + 1);
+            }
         }
     }
 }

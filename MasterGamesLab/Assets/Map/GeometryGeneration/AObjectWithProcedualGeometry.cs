@@ -61,13 +61,20 @@ namespace Map.GeometryGeneration
             Triangles.Clear();
         }
 
-        protected void AddVertex(Vector3 vertex, Vector4 uv)
+        public void AddVertex(Vector3 vertex, Vector4 uv)
         {
             Vertices.Add(vertex);
             UV1.Add(uv);
         }
 
-        protected void StoreMeshData()
+        public void AddTriangle(int a, int b, int c)
+        {
+            Triangles.Add(a);
+            Triangles.Add(b);
+            Triangles.Add(c);
+        }
+
+        public void StoreMeshData()
         {
             Mesh.Clear();
             Mesh.SetVertices(Vertices);
