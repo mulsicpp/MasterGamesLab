@@ -268,6 +268,10 @@ PrefabInstance:
       value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: RoutePrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: 150795788ac5c7c4f9f5e9c6edd94670, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: TruckPrefab
       value: 
       objectReference: {fileID: 4004374116097416254, guid: 0485a3edd4750d643ab708244a98d11b, type: 3}

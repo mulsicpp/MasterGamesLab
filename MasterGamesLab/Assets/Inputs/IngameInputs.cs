@@ -20,6 +20,8 @@ public class IngameInputs : MonoBehaviour
     public static InputAction cancelClickAction;
     public static InputAction openTabMenuAction;
     public static InputAction changeTruckAction;
+    public static InputAction chooseFastestRoute;
+    public static InputAction chooseCheapestRoute;
 
     // Arrays to store our dynamic hotkey actions dynamically
     private List<InputAction> truckHotkeyActions = new List<InputAction>();
@@ -51,6 +53,8 @@ public class IngameInputs : MonoBehaviour
             var freighterAct = controlsActionMap.FindAction($"Freighter{i}");
             if (freighterAct != null) freighterHotkeyActions.Add(freighterAct);
         }
+        chooseFastestRoute = controlsActionMap.FindAction("ChooseFastestRoute");
+        chooseCheapestRoute = controlsActionMap.FindAction("ChooseCheapestRoute");
     }
 
     void OnEnable()
@@ -77,6 +81,8 @@ public class IngameInputs : MonoBehaviour
             int slotIndex = i;
             freighterHotkeyActions[slotIndex].started += ctx => OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType.Freighter, slotIndex);
         }
+        chooseFastestRoute.started += OnChooseFastestRoute;
+        chooseCheapestRoute.started += OnChooseCheapestRoute;
     }
 
     void OnDisable()
@@ -104,6 +110,8 @@ public class IngameInputs : MonoBehaviour
             int slotIndex = i;
             freighterHotkeyActions[slotIndex].started -= ctx => OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType.Freighter, slotIndex);
         }
+        chooseFastestRoute.started -= OnChooseFastestRoute;
+        chooseCheapestRoute.started -= OnChooseCheapestRoute;
     }
 
     private void OnBuildRoad(InputAction.CallbackContext ctx) => constructionControls.Type = ConstructionControls.ConstructionType.Road;
@@ -122,4 +130,6 @@ public class IngameInputs : MonoBehaviour
     {
         IngameUI.Instance.SelectVehicleBySlot(type, slotIndex);
     }
+    private void OnChooseFastestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseFastestRoute();
+    private void OnChooseCheapestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseCheapestRoute();
 }

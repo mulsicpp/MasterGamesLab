@@ -811,6 +811,24 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "ChooseCheapestRoute",
+                    "type": "Button",
+                    "id": "03264ebf-7f64-4570-8e1b-1dd01b5aac53",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ChooseFastestRoute",
+                    "type": "Button",
+                    "id": "c69a4d4a-6b5f-4931-81e1-8a655095e2be",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Truck0",
                     "type": "Button",
                     "id": "c043d4e9-0044-4f9e-912a-bc99a456bcd9",
@@ -1330,6 +1348,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ChangeVehicle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9157cd59-558d-4751-b660-6918ab3fdaf0",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChooseFastestRoute",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8effcd48-00b9-487e-8b23-dd6685bc93fa",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChooseCheapestRoute",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
