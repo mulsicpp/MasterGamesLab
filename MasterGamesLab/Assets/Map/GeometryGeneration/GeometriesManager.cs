@@ -53,7 +53,17 @@ namespace Map.GeometryGeneration
             string outlineLayerName;
             string outlineTransparentLayerName;
             Quaternion localRotation;
+            Vector3 localScale;
             var localPosition = Vector3.zero;
+
+            if (type is GeometryType.Truck or GeometryType.Freighter)
+            {
+                localScale = Vector3.one;
+            }
+            else
+            {
+                localScale = Vector3.one * 1.4f;
+            }
 
             switch (type)
             {
@@ -121,6 +131,7 @@ namespace Map.GeometryGeneration
             var gO = Instantiate(geometryPrefab, parent);
             gO.transform.localPosition = localPosition;
             gO.transform.localRotation = localRotation;
+            gO.transform.localScale = localScale;
             var fixedGeometry = gO.GetComponent<ObjectWithFixedGeometry>();
             fixedGeometry.Init(mesh, defaultLayerName, outlineLayerName, outlineTransparentLayerName, id,
                 owner?.Color ?? Color.black);
