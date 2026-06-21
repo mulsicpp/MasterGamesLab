@@ -45,7 +45,7 @@ public class RoadPin : Pin
             return;
         }
         cost.text = routeRenderer.Route.Cost.ToString();
-        duration.text = routeRenderer.Route.Cost.ToString();
+        duration.text = routeRenderer.Route.Duration.ToString();
         setActive(true);
         base.LateUpdate();
     }
