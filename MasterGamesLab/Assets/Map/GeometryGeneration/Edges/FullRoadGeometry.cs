@@ -1,5 +1,6 @@
 ﻿using System;
 using Map.Hoverables;
+using UnityEngine;
 
 namespace Map.GeometryGeneration.Edges
 {
@@ -19,6 +20,8 @@ namespace Map.GeometryGeneration.Edges
 
         public FullRoadType Type { get; private set; }
 
+        private bool hovered = false;
+
         private void Awake()
         {
             Init();
@@ -34,6 +37,11 @@ namespace Map.GeometryGeneration.Edges
             ClearOutline();
         }
 
+        public void Update()
+        {
+            transform.localScale = Vector3.one * (hovered ? 1.001f : 1.0f);
+        }
+
         // Clears only the hovered outline
         public void ClearOutline()
         {
@@ -45,11 +53,13 @@ namespace Map.GeometryGeneration.Edges
             };
 
             SetOutlineParameters(outline);
+            hovered = false;
         }
 
         public void ShowOutline(Constants.OutlineData outlineData)
         {
             SetOutlineParameters(outlineData);
+            hovered = true;
         }
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
@@ -61,6 +71,7 @@ namespace Map.GeometryGeneration.Edges
             };
 
             SetOutlineParameters(outlineData);
+            hovered = true;
         }
     }
 }

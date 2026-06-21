@@ -12,6 +12,7 @@ public static class Constants
     public static readonly Color[] PLAYER_COLORS = { Color.red, Color.blue, Color.yellow, Color.green };
 
     public const int PLAYER_INITIAL_CASH = 300;
+    public const int WINNING_MARKET_CAP = 10000;
 
     // ------------------- Vehicles -------------------
 
@@ -227,14 +228,14 @@ public static class Constants
 
     public static OutlineData CHEAPEST_ROAD_OUTLINE = new OutlineData()
     {
-        OutlineColor = Color.green,
+        OutlineColor = new Color(0, 0, 0, 0),
         InnerColor = Color.green,
         TextureId = 1,
     };
 
     public static OutlineData CHEAPEST_ROAD_OUTLINE_HOVERED = new OutlineData()
     {
-        OutlineColor = new Color(0, 0, 0, 0),
+        OutlineColor = Color.green,
         InnerColor = Color.green,
         TextureId = 1,
     };

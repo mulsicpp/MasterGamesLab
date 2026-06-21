@@ -474,6 +474,16 @@ namespace Map
                 }
 
                 UpdateDirtyObjectsOnClient();
+
+                var player_stats = GetPlayerStats();
+                
+                foreach (var p in player_stats)
+                {
+                    if (p.MarketCap > Constants.WINNING_MARKET_CAP)
+                    {
+                        FinishGame();
+                    }
+                }
             }
 
             if (IsClient)

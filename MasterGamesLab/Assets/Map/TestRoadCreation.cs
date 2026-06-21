@@ -48,7 +48,7 @@ public class TestRoadCreation : NetworkBehaviour
         // {
         //     Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
         // }
-        
+
         // if(Input.GetKeyDown(KeyCode.A)) 
         // {
         //     Map.Map.Instance.LoadFirstTruckOnFreighterServerRpc();
@@ -65,7 +65,8 @@ public class TestRoadCreation : NetworkBehaviour
             var details = Map.Map.Instance.Blueprint.GetDetails();
         }
 
-        if (Input.GetKeyDown(KeyCode.M) && IsServer) {
+        if (Input.GetKeyDown(KeyCode.M) && IsServer)
+        {
             foreach (var player in Map.Map.Instance.Players)
             {
                 player.Earn(1000);
