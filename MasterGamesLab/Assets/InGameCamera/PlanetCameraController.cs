@@ -53,7 +53,7 @@ namespace InGameCamera
         {
             get
             {
-                return (1.0f / (CurrentDistance - 1.0f)) * 0.5f + 0.7f;
+                return (1.0f / (CurrentDistance - 1.0f)) * 0.8f + 0.7f;
             }
         }
 

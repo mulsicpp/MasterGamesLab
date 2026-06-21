@@ -619,14 +619,11 @@ namespace Map
             ApplyStatesLocal(serverTime, Infrastructure.Garages, garages);
             ApplyStatesLocal(serverTime, Infrastructure.Ports, ports);
 
-            if (edges.Length + producers.Length + consumers.Length + ports.Length + garages.Length + trucks.Length +
-                freighters.Length > 0)
-            {
-                Blueprint.Validate();
-            }
-
             ApplyStatesLocal(serverTime, Fleet.Trucks, trucks);
             ApplyStatesLocal(serverTime, Fleet.Freighters, freighters);
+
+
+            Blueprint?.Validate();
         }
 
         [ClientRpc(Delivery = RpcDelivery.Unreliable)]
