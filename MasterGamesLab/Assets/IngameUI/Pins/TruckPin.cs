@@ -14,7 +14,7 @@ namespace UI
         private VisualElement icon, good;
 
         protected override float pinHeightPercent => 6f;
-        protected override float pinAspectRatio => 0.44f;
+        protected override float pinAspectRatio => 0.4f;
 
         public void OnEnable()
         {
