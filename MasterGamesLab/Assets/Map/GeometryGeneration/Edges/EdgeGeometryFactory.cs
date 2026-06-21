@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.VisualScripting.ReorderableList.Element_Adder_Menu;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
 
 namespace Map.GeometryGeneration.Edges
 {

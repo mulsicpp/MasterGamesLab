@@ -31,6 +31,7 @@ namespace Map.GeometryGeneration.Edges
             type = newType;
             EntityId = new EntityId(Map.Instance.EntityIdManager.FullRoadRange.Start.Value + (int)type);
             Map.Instance.EntityIdManager[EntityId] = this;
+            ClearOutline();
         }
 
         // Clears only the hovered outline
