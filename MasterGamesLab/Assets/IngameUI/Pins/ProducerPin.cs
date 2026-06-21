@@ -1,0 +1,83 @@
+using System;
+using UnityEngine;
+using UnityEngine.UIElements;
+using System.Collections.Generic;
+using Map.Infrastructure;
+using Map.Hoverables;
+
+namespace UI
+{
+    public class ProducerPin : Pin
+    {
+       
+
+        private StructureRenderer structureRenderer;
+        private VisualElement goodIcon;
+
+        protected override float pinHeightPercent => 6f;
+        protected override float pinAspectRatio => 0.55f;
+
+        public void OnEnable()
+        {
+            structureRenderer = GetComponentInParent<StructureRenderer>();
+        }
+
+        protected override void Start()
+        {
+
+            base.Start();
+        }
+
+        public void Update()
+        {
+            if (IsHovered && Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Tiles))
+            {
+                Map.Map.Instance.CurrentlyHovered = structureRenderer.Structure.Tile;
+                HoverablePicker.Instance.DenyPick = true;
+            }
+        }
+
+        protected override void LateUpdate()
+        {
+            if (structureRenderer?.Structure is Producer producer)
+            {
+                var Good = producer.Good;
+
+                if (Good != Good.None && IngameUI.Instance.goodsImages.TryGetValue(Good, out Sprite img))
+                {
+                    setActive(true);
+                    goodIcon.style.backgroundImage = new StyleBackground(img);
+                }
+                else
+                {
+                    goodIcon.style.backgroundImage = null;
+                    setActive(false);
+                    return;
+                }
+            }
+
+            base.LateUpdate();
+        }
+
+        protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)
+        {
+            Vector3 rawPosition = gameObject.transform.position;
+            Vector3 projectedPosition = Map.Map.Instance.GetProjectedPosition(rawPosition);
+            upVector = (Map.Map.Instance.GetProjectedPosition(rawPosition * 1.01f) - projectedPosition).normalized;
+            return projectedPosition;
+        }
+
+        protected override void InitializeUiComponents()
+        {
+            goodIcon = UiElement.Q<VisualElement>("Icon");
+            if (structureRenderer?.Structure is Producer producer)
+            {
+                var requestedGood = producer.Good;
+                if (requestedGood != Good.None && IngameUI.Instance.goodsImages.TryGetValue(requestedGood, out Sprite img))
+                {
+                    goodIcon.style.backgroundImage = new StyleBackground(img);
+                }
+            }
+        }
+    }
+}
