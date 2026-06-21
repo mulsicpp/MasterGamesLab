@@ -46,7 +46,6 @@ namespace UI
             mainCamera = MainCamera.Instance.GetComponentInChildren<Camera>();
             cameraController = MainCamera.Instance.GetComponentInChildren<PlanetCameraController>();
             pinboard = FindAnyObjectByType<PinboardUi>();
-
             UiElement = pinboard.CreatePinElement(PinTemplate, pinHeightPercent, pinAspectRatio);
 
             UiElement.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
