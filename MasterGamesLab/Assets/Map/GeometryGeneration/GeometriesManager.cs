@@ -12,19 +12,29 @@ namespace Map.GeometryGeneration
         {
             Truck,
             Freighter,
-            Producer,
+            ProducerTetrahedron,
+            ProducerCube,
+            ProducerOctahedron,
+            ProducerIcosahedron,
+            ProducerDodecahedron,
             Consumer,
             Port,
         }
 
-        private const float SCALE_VALUE = 0.015f;
+        private const float SCALE_VALUE = 0.008f;
 
         public static Vector3 Scale => new Vector3(SCALE_VALUE, SCALE_VALUE, SCALE_VALUE);
         public static GeometriesManager Instance { get; private set; }
 
         [SerializeField] private Mesh truckMesh;
         [SerializeField] private Mesh freighterMesh;
-        [SerializeField] private Mesh producerMesh;
+
+        [SerializeField] private Mesh producerTetrahedronMesh;
+        [SerializeField] private Mesh producerCubeMesh;
+        [SerializeField] private Mesh producerOctahedronMesh;
+        [SerializeField] private Mesh producerIcosahedronMesh;
+        [SerializeField] private Mesh producerDodecahedronMesh;
+
         [SerializeField] private Mesh consumerMesh;
         [SerializeField] private Mesh portMesh;
         [SerializeField] private GameObject geometryPrefab;
@@ -52,17 +62,41 @@ namespace Map.GeometryGeneration
                     defaultLayerName = "Vehicles";
                     outlineLayerName = "Vehicles Outline";
                     outlineTransparentLayerName = "Vehicles Outline Transparent";
-                    localRotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
+                    localRotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
                     break;
                 case GeometryType.Freighter:
                     mesh = freighterMesh;
                     defaultLayerName = "Vehicles";
                     outlineLayerName = "Vehicles Outline";
                     outlineTransparentLayerName = "Vehicles Outline Transparent";
-                    localRotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
+                    localRotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
                     break;
-                case GeometryType.Producer:
-                    mesh = producerMesh;
+                case GeometryType.ProducerTetrahedron:
+                    mesh = producerTetrahedronMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.ProducerCube:
+                    mesh = producerCubeMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.ProducerOctahedron:
+                    mesh = producerOctahedronMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.ProducerIcosahedron:
+                    mesh = producerIcosahedronMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.ProducerDodecahedron:
+                    mesh = producerDodecahedronMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
                     localRotation = Quaternion.Euler(90, 0, 0);
@@ -88,7 +122,9 @@ namespace Map.GeometryGeneration
             gO.transform.localPosition = localPosition;
             gO.transform.localRotation = localRotation;
             var fixedGeometry = gO.GetComponent<ObjectWithFixedGeometry>();
-            fixedGeometry.Init(mesh, defaultLayerName, outlineLayerName, outlineTransparentLayerName, id);
+            fixedGeometry.Init(mesh, defaultLayerName, outlineLayerName, outlineTransparentLayerName, id,
+                owner?.Color ?? Color.black);
+            Debug.Log($"Debug: {owner}, color: {owner?.Color ?? Color.black}, truck?: {type == GeometryType.Truck}");
             return fixedGeometry;
         }
 

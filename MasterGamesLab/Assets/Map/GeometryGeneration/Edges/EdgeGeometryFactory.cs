@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.VisualScripting.ReorderableList.Element_Adder_Menu;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
 
 namespace Map.GeometryGeneration.Edges
 {
@@ -15,7 +12,7 @@ namespace Map.GeometryGeneration.Edges
         private const float ROAD_HEIGHT = 0.01f;
         private const int EDGE_RESOLUTION = 5;
         private const float ROAD_RADIUS = 0.01f;
-        private const float FULL_ROAD_RADIUS = ROAD_RADIUS * 0.5f;
+        private const float FULL_ROAD_RADIUS = ROAD_RADIUS * 0.9f;
         
         private const float FASTEST_ROAD_NORMAL_DELTA = 0.002f;
         private const float CHEAPEST_ROAD_NORMAL_DELTA = 0.001f;

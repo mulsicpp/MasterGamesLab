@@ -17,7 +17,8 @@ namespace Map.GeometryGeneration
         private string outlineLayerName;
         private string outlineTransparentLayerName;
 
-        public void Init(Mesh mesh, string defaultName, string outlineName, string outlineTransparentName, int id)
+        public void Init(Mesh mesh, string defaultName, string outlineName, string outlineTransparentName, int id,
+            Color playerColor)
         {
             defaultLayerName = defaultName;
             outlineLayerName = outlineName;
@@ -29,6 +30,8 @@ namespace Map.GeometryGeneration
             meshFilter.mesh = mesh;
 
             FillUv1(id);
+
+            SetPlayerColor(playerColor);
         }
 
         private void FillUv1(int id)

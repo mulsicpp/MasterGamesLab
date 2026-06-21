@@ -17,7 +17,7 @@ namespace Map.GeometryGeneration.Edges
 
         public EntityId EntityId { get; private set; }
 
-        private FullRoadType type;
+        public FullRoadType Type { get; private set; }
 
         private void Awake()
         {
@@ -28,15 +28,16 @@ namespace Map.GeometryGeneration.Edges
 
         public void Init(FullRoadType newType)
         {
-            type = newType;
-            EntityId = new EntityId(Map.Instance.EntityIdManager.FullRoadRange.Start.Value + (int)type);
+            Type = newType;
+            EntityId = new EntityId(Map.Instance.EntityIdManager.FullRoadRange.Start.Value + (int)Type);
             Map.Instance.EntityIdManager[EntityId] = this;
+            ClearOutline();
         }
 
         // Clears only the hovered outline
         public void ClearOutline()
         {
-            var outline = type switch
+            var outline = Type switch
             {
                 FullRoadType.Cheapest => Constants.CHEAPEST_ROAD_OUTLINE,
                 FullRoadType.Fastest => Constants.FASTEST_ROAD_OUTLINE,
@@ -53,7 +54,7 @@ namespace Map.GeometryGeneration.Edges
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
         {
-            var outlineData = type switch
+            var outlineData = Type switch
             {
                 FullRoadType.Cheapest => Constants.CHEAPEST_ROAD_OUTLINE_HOVERED,
                 _ => Constants.FASTEST_ROAD_OUTLINE_HOVERED,
