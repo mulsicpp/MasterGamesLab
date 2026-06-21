@@ -9,9 +9,12 @@ namespace Map.Fleet
     {
         public ObjectWithFixedGeometry CargoGeometry { get; private set; }
         public Truck Truck { get; private set; }
+        public TruckPin Pin { get; private set; }
 
         protected override void InitVehicle(Vehicle vehicle)
         {
+            Pin = gameObject.GetComponent<TruckPin>();
+
             base.InitVehicle(vehicle);
             if (Vehicle is Truck t)
                 Truck = t;

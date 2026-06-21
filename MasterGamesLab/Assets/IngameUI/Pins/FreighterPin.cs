@@ -5,17 +5,16 @@ using Map.Hoverables;
 
 namespace UI
 {
-    public class VehiclePin : Pin
+    public class FreighterPin : Pin
     {
 
-        [SerializeField] VectorImage icon;
         private VehicleRenderer vehicleRenderer;
 
         private Label time;
-        private VisualElement playerColor;
+        private VisualElement icon;
 
         protected override float pinHeightPercent => 6f;
-        protected override float pinAspectRatio => 0.5f;
+        protected override float pinAspectRatio => 0.44f;
 
         public void OnEnable()
         {
@@ -60,10 +59,9 @@ namespace UI
 
         protected override void InitializeUiComponents()
         {
-            UiElement.Q<VisualElement>("Icon").style.backgroundImage = new StyleBackground(icon);
+            icon = UiElement.Q<VisualElement>("Icon");
             time = UiElement.Q<Label>("TimeLabel");
-            playerColor = UiElement.Q<VisualElement>("PlayerColor");
-            playerColor.style.backgroundColor = vehicleRenderer.Vehicle.Owner.Color;
+            icon.style.unityBackgroundImageTintColor = vehicleRenderer.Vehicle.Owner.Color;
         }
 
         // override protected void OnMouseEnterElement(MouseEnterEvent evt)

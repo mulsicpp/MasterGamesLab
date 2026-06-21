@@ -567,6 +567,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d05f6d0cbd81587488dad771356b471f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI.IngameUI
+  goodsConfiguration:
+  - GoodType: 1
+    ImageAsset: {fileID: 1622455931, guid: d35b304fceb0655409de4861d79bb644, type: 3}
+  - GoodType: 2
+    ImageAsset: {fileID: -642459099, guid: 9e3b519e9da0fed4d9443cba6a2fbc40, type: 3}
+  - GoodType: 3
+    ImageAsset: {fileID: -1230515884, guid: b2962de4b09307a44b3c8397a05fa466, type: 3}
+  - GoodType: 4
+    ImageAsset: {fileID: 1125310662, guid: 943501dfff5631c42a64f0f6313fc90b, type: 3}
+  - GoodType: 5
+    ImageAsset: {fileID: 725648652, guid: 93835b88ef5bec34cae8d9a7ee1f2a2a, type: 3}
   IsHovered: 0
 --- !u!114 &985979806
 MonoBehaviour:
