@@ -5,11 +5,12 @@ using UnityEngine.UIElements;
 public class RoadPin : Pin
 {
     private Label cost, duration;
+    private VisualElement arrow;
     RouteRenderer routeRenderer;
 
     protected override float pinHeightPercent => 6f;
 
-    protected override float pinAspectRatio => 4;
+    protected override float pinAspectRatio => 4.5f;
 
     public bool FacingLeft = false;
 
@@ -22,16 +23,17 @@ public class RoadPin : Pin
     private void Update()
     {
         pivotDirection = FacingLeft ? PinDirection.Left : PinDirection.Right;
+        arrow.style.scale = new StyleScale(new Scale(new Vector3(FacingLeft ? -1 : 1, 1, 1)));
     }
 
     protected override void LateUpdate()
     {
-        if (routeRenderer.Route.Tiles == null)
+        if (routeRenderer.Route.TileIds == null)
         {
             setActive(false);
             return;
         }
-        
+        setActive(true);
         base.LateUpdate();
     }
 
@@ -48,5 +50,6 @@ public class RoadPin : Pin
     {
         cost = UiElement.Q<Label>("CostLabel");
         duration = UiElement.Q<Label>("DurationLabel");
+        arrow = UiElement.Q<VisualElement>("Arrow");
     }
 }

@@ -14,8 +14,8 @@ namespace Map.GeometryGeneration.Edges
         private const float ROAD_RADIUS = 0.01f;
         private const float FULL_ROAD_RADIUS = ROAD_RADIUS * 0.5f;
         
-        private const float FASTEST_ROAD_NORMAL_DELTA = 0.001f;
-        private const float CHEAPEST_ROAD_NORMAL_DELTA = 0.002f;
+        private const float FASTEST_ROAD_NORMAL_DELTA = 0.002f;
+        private const float CHEAPEST_ROAD_NORMAL_DELTA = 0.001f;
 
         public struct TileInformation
         {
@@ -534,6 +534,7 @@ namespace Map.GeometryGeneration.Edges
             AddCurveData(endCurve, fullRoadGeometry, uv1, type);
 
             fullRoadGeometry.StoreMeshData();
+            fullRoadGeometry.ClearOutline();
             return fullRoadGeometry;
         }
 

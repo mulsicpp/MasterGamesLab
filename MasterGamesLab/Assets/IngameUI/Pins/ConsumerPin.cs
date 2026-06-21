@@ -8,24 +8,14 @@ namespace UI
 {
     public class ConsumerPin : Pin
     {
-        [Serializable]
-        public struct GoodImagePair
-        {
-            public Good GoodType;
-            public VectorImage ImageAsset;
-        }
-
-        [SerializeField] 
-        private List<GoodImagePair> goodsConfiguration = new List<GoodImagePair>();
-
-        private Dictionary<Good, VectorImage> goodsImages = new Dictionary<Good, VectorImage>();
+       
 
         private StructureRenderer structureRenderer;
         private Label payout;
         private VisualElement goodIcon;
 
         protected override float pinHeightPercent => 6f;
-        protected override float pinAspectRatio => 0.5f;
+        protected override float pinAspectRatio => 0.55f;
 
         public void OnEnable()
         {
@@ -34,13 +24,6 @@ namespace UI
 
         protected override void Start()
         {
-            foreach (var pair in goodsConfiguration)
-            {
-                if (!goodsImages.ContainsKey(pair.GoodType))
-                {
-                    goodsImages.Add(pair.GoodType, pair.ImageAsset);
-                }
-            }
 
             base.Start();
         }
@@ -52,18 +35,19 @@ namespace UI
                 payout.text = consumer.Request.Payout.ToString();
                 var requestedGood = consumer.Request.Good;
 
-                if (requestedGood != Good.None && goodsImages.TryGetValue(requestedGood, out VectorImage img))
+                if (requestedGood != Good.None && IngameUI.Instance.goodsImages.TryGetValue(requestedGood, out Sprite img))
                 {
                     setActive(true);
                     goodIcon.style.backgroundImage = new StyleBackground(img);
                 }
                 else
                 {
+                    goodIcon.style.backgroundImage = null;
                     setActive(false);
                     return;
                 }
             }
-            
+
             base.LateUpdate();
         }
 
@@ -78,12 +62,12 @@ namespace UI
         protected override void InitializeUiComponents()
         {
             goodIcon = UiElement.Q<VisualElement>("Icon");
-            payout = UiElement.Q<Label>("TimeLabel");
+            payout = UiElement.Q<Label>("Payout");
 
             if (structureRenderer?.Structure is Consumer consumer)
             {
                 var requestedGood = consumer.Request.Good;
-                if (requestedGood != Good.None && goodsImages.TryGetValue(requestedGood, out VectorImage img))
+                if (requestedGood != Good.None && IngameUI.Instance.goodsImages.TryGetValue(requestedGood, out Sprite img))
                 {
                     goodIcon.style.backgroundImage = new StyleBackground(img);
                 }

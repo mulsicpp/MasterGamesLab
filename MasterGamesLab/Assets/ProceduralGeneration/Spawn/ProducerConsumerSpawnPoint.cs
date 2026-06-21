@@ -1,4 +1,5 @@
 using Map;
+using Map.GeometryGeneration.Edges;
 using Map.Infrastructure;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,14 +11,16 @@ public class ProducerConsumerSpawnPoint
     public List<ITile> ValidProducerTiles { get; private set; }
     public List<ITile> ValidConsumerTiles { get; private set; }
 
+    public List<ITile> ValidFallbackTiles { get; private set; }
+
     //gizmo
     public List<ITile> PlacedProducers { get; private set; }
     public List<ITile> PlacedConsumers { get; private set; }
 
     //distance
-    public int MinDistProducerConsumer = 1;
-    public int MinDistProducerProducer = 6;
-    public int MinDistConsumerConsumer = 1;
+    public int MinDistProducerConsumer = 5;
+    public int MinDistProducerProducer = 7;
+    public int MinDistConsumerConsumer = 2;
 
     //public float ConsumerGroupProbability = 0.6f;
 
@@ -59,6 +62,8 @@ public class ProducerConsumerSpawnPoint
 
         ValidProducerTiles = new List<ITile>(validInlandTiles);
         ValidConsumerTiles = new List<ITile>(validInlandTiles);
+
+        ValidFallbackTiles = new List<ITile>(validInlandTiles);
     }
 
     public ITile GetSpawnableTile(Structure.StructureType type, int continentId = 0, Good resource = Good.None)
@@ -69,7 +74,7 @@ public class ProducerConsumerSpawnPoint
 
         foreach (var tile in sourceList)
         {
-            if (continentId == 0 || tile.ContinentId == continentId)
+            if ((continentId == 0 || tile.ContinentId == continentId) && tile.CanSpawnStructure(type))
             {
                 candidates.Add(tile);
             }
@@ -77,8 +82,20 @@ public class ProducerConsumerSpawnPoint
 
         if (candidates.Count == 0)
         {
+            foreach (var tile in ValidFallbackTiles)
+            {
+                if ((continentId == 0 || tile.ContinentId == continentId) && tile.CanSpawnStructure(type))
+                {
+                    candidates.Add(tile);
+                }
+            }
+        }
+
+        if (candidates.Count == 0)
+        {
             return null;
         }
+
 
         return candidates[UnityEngine.Random.Range(0, candidates.Count)];
     }

@@ -1,5 +1,6 @@
 using InGameCamera;
 using Map;
+using Map.Fleet;
 using Map.GeometryGeneration.Edges;
 using UnityEngine;
 
@@ -13,11 +14,11 @@ namespace UI
 
         public RouteOptions()
         {
-            FastestRoute = new(null, FullRoadGeometry.FullRoadType.Fastest);
-            CheapestRoute = new(null, FullRoadGeometry.FullRoadType.Cheapest);
+            FastestRoute = new(FullRoadGeometry.FullRoadType.Fastest);
+            CheapestRoute = new(FullRoadGeometry.FullRoadType.Cheapest);
         }
 
-        public void Set(Tile destination, TileId[] fastestRoute, TileId[] cheapestRoute = null)
+        public void Set(Vehicle vehicle, Tile destination, TileId[] fastestRoute, TileId[] cheapestRoute = null)
         {
             if (fastestRoute == null)
             {
@@ -36,8 +37,8 @@ namespace UI
                 Destination?.ClearOutline();
                 Destination = destination;
 
-                FastestRoute.SetRoute(fastestRoute);
-                CheapestRoute.SetRoute(null);
+                FastestRoute.SetRoute(vehicle, fastestRoute);
+                CheapestRoute.SetRoute(null, null);
 
                 UpdateFacingDirections();
 
@@ -83,8 +84,8 @@ namespace UI
             Destination?.ClearOutline();
             Destination = destination;
 
-            FastestRoute.SetRoute(fastestRoute, fastestPinPosition);
-            CheapestRoute.SetRoute(cheapestRoute, cheapestPinPosition);
+            FastestRoute.SetRoute(vehicle, fastestRoute, fastestPinPosition);
+            CheapestRoute.SetRoute(vehicle, cheapestRoute, cheapestPinPosition);
 
             UpdateFacingDirections();
         }
@@ -93,15 +94,15 @@ namespace UI
         {
             Destination?.ClearOutline();
             Destination = null;
-            FastestRoute.SetRoute(null);
-            CheapestRoute.SetRoute(null);
+            FastestRoute.SetRoute(null, null);
+            CheapestRoute.SetRoute(null, null);
         }
 
         public void UpdateFacingDirections()
         {
-            if (FastestRoute.Tiles == null) return;
+            if (FastestRoute.TileIds == null) return;
 
-            if(CheapestRoute.Tiles == null)
+            if(CheapestRoute.TileIds == null)
             {
                 FastestRoute.Renderer.Pin.FacingLeft = false;
                 return;

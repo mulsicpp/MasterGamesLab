@@ -1,20 +1,26 @@
+using Map;
+using Map.Fleet;
 using Map.GeometryGeneration.Edges;
+using System.Linq;
 using UnityEngine;
 
 namespace UI
 {
     public class Route
     {
-        private TileId[] tiles;
-        public TileId[] Tiles => tiles;
+        private TileId[] tileids;
+        public TileId[] TileIds => tileids;
 
         public readonly FullRoadGeometry.FullRoadType Type;
 
+        public float Duration { get; private set; }
+        public int Cost { get; private set; }
+
         public RouteRenderer Renderer { get; private set; }
 
-        public Route(TileId[] tiles, FullRoadGeometry.FullRoadType type)
+        public Route(FullRoadGeometry.FullRoadType type)
         {
-            this.tiles = tiles;
+            this.tileids = null;
             Type = type;
 
             var gameObject = Object.Instantiate(Map.Map.Instance.RoutePrefab);
@@ -22,17 +28,19 @@ namespace UI
             Renderer.Init(this);
         }
 
-        public void SetRoute(TileId[] tiles)
+        public void SetRoute(Vehicle vehicle, TileId[] tileIds)
         {
-            if (tiles != null)
-                SetRoute(tiles, GetRouteMidpoint(tiles, 0, tiles.Length - 1));
+            if (tileIds != null)
+                SetRoute(vehicle, tileIds, GetRouteMidpoint(tileIds, 0, tileIds.Length - 1));
             else
-                SetRoute(null, Vector3.zero);
+                SetRoute(vehicle, null, Vector3.zero);
         }
 
-        public void SetRoute(TileId[] tiles, Vector3 pinPosition)
+        public void SetRoute(Vehicle vehicle, TileId[] tileIds, Vector3 pinPosition)
         {
-            this.tiles = tiles;
+            this.tileids = tileIds;
+            EvaluateDurationAndCost(vehicle);
+
             Renderer.Pin.transform.position = pinPosition;
             if (Renderer.Geometry != null)
             {
@@ -40,9 +48,9 @@ namespace UI
                 Renderer.Geometry = null;
             }
 
-            if (tiles != null)
+            if (tileIds != null)
             {
-                Renderer.Geometry = EdgeGeometryFactory.GenerateFullRoad(tiles, Type);
+                Renderer.Geometry = EdgeGeometryFactory.GenerateFullRoad(tileIds, Type);
             }
         }
 
@@ -77,6 +85,29 @@ namespace UI
                 return (Map.Map.Instance.Tiles[route[midIndex1]].PositionOnSphere +
                         Map.Map.Instance.Tiles[route[midIndex2]].PositionOnSphere) * 0.5f;
             }
+        }
+
+        private void EvaluateDurationAndCost(Vehicle v)
+        {
+            if (v == null || tileids == null)
+            {
+                Duration = 0;
+                Cost = 0;
+                return;
+            }
+            var tiles = TileIds.Select(id => Map.Map.Instance.Tiles[id] as Tile).ToArray();
+
+            float duration = 0;
+            int cost = 0;
+            for (int i = 0; i < tiles.Length - 1; i++)
+            {
+                var edge = tiles[i].FindEdgeTo(tiles[i + 1]);
+                duration += 1.0f / (v.BaseSpeedTPS * (edge?.GetSpeedMultiplier() ?? 1.0f));
+                cost += edge?.GetTraversalCost(v.Owner) ?? 0;
+            }
+
+            Duration = duration;
+            Cost = cost;
         }
     }
 }

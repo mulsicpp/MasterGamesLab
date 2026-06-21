@@ -1,5 +1,6 @@
 using Map;
 using Map.Fleet;
+using Map.GeometryGeneration.Edges;
 using Map.Hoverables;
 using Map.Infrastructure;
 using System.Linq;
@@ -88,7 +89,7 @@ namespace UI
             public override bool Commit()
             {
                 // Map.Map.Instance.RequestVehicleRouteServerRpc(controls.SelectedVehicle.IndexInVehicles, route);
-                controls.RouteOptions.Set(destination, fastestRoute, cheapestRoute);
+                controls.RouteOptions.Set(controls.SelectedVehicle, destination, fastestRoute, cheapestRoute);
                 return true;
             }
         }
@@ -267,24 +268,16 @@ namespace UI
             return false;
         }
 
-        public void ChooseFastestRoute()
+        public void ChooseRoute(FullRoadGeometry.FullRoadType type)
         {
             if(SelectedVehicle != null && RouteOptions.Destination != null)
             {
-                TileId[] routeIds = RouteOptions.FastestRoute.Tiles ?? RouteOptions.CheapestRoute.Tiles;
-                if (routeIds != null)
+                TileId[] routeIds = type switch
                 {
-                    Map.Map.Instance.RequestVehicleRouteServerRpc(SelectedVehicle.IndexInVehicles, routeIds);
-                    RouteOptions.Clear();
-                }
-            }
-        }
+                    FullRoadGeometry.FullRoadType.Cheapest => RouteOptions.CheapestRoute.TileIds ?? RouteOptions.FastestRoute.TileIds,
+                    _ => RouteOptions.FastestRoute.TileIds ?? RouteOptions.CheapestRoute.TileIds,
+                };
 
-        public void ChooseCheapestRoute()
-        {
-            if (SelectedVehicle != null && RouteOptions.Destination != null)
-            {
-                TileId[] routeIds = RouteOptions.CheapestRoute.Tiles ?? RouteOptions.FastestRoute.Tiles;
                 if (routeIds != null)
                 {
                     Map.Map.Instance.RequestVehicleRouteServerRpc(SelectedVehicle.IndexInVehicles, routeIds);
