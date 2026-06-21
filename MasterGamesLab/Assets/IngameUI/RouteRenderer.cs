@@ -20,13 +20,13 @@ namespace UI
 
         public void OnDrawGizmos()
         {
-            if (Route.Tiles != null)
+            if (Route.TileIds != null)
             {
                 Gizmos.color = Route.Type == FullRoadGeometry.FullRoadType.Fastest ? Color.orange.linear : Color.purple.linear;
-                for (int i = 0; i < Route.Tiles.Length; i++)
+                for (int i = 0; i < Route.TileIds.Length; i++)
                 {
                     Vector3 pos =
-                        Map.Map.Instance.GetProjectedPosition(Map.Map.Instance.Tiles[Route.Tiles[i]].PositionOnSphere,
+                        Map.Map.Instance.GetProjectedPosition(Map.Map.Instance.Tiles[Route.TileIds[i]].PositionOnSphere,
                             1.02f);
                     Gizmos.DrawSphere(pos, 0.01f);
                 }

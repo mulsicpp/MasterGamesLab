@@ -53,10 +53,10 @@ namespace Map.GeometryGeneration.Edges
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
         {
-            var outlineData = hoverState switch
+            var outlineData = type switch
             {
-                HoverState.Invalid => Constants.ROAD_BLUEPRINT_INVALID_OUTLINE,
-                _ => Constants.HOVER_OUTLINE_FILLED_IN,
+                FullRoadType.Cheapest => Constants.CHEAPEST_ROAD_OUTLINE_HOVERED,
+                _ => Constants.FASTEST_ROAD_OUTLINE_HOVERED,
             };
 
             SetOutlineParameters(outlineData);
