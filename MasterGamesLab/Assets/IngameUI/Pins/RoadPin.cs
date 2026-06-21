@@ -28,7 +28,7 @@ public class RoadPin : Pin
 
     protected override void LateUpdate()
     {
-        if (routeRenderer.Route.Tiles == null)
+        if (routeRenderer.Route.TileIds == null)
         {
             setActive(false);
             return;

@@ -3,6 +3,7 @@ using UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
+using Map.GeometryGeneration.Edges;
 
 public class IngameInputs : MonoBehaviour
 {
@@ -130,6 +131,6 @@ public class IngameInputs : MonoBehaviour
     {
         IngameUI.Instance.SelectVehicleBySlot(type, slotIndex);
     }
-    private void OnChooseFastestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseFastestRoute();
-    private void OnChooseCheapestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseCheapestRoute();
+    private void OnChooseFastestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseRoute(FullRoadGeometry.FullRoadType.Fastest);
+    private void OnChooseCheapestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseRoute(FullRoadGeometry.FullRoadType.Cheapest);
 }
