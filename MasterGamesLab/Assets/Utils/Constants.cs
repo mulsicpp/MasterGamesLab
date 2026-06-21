@@ -213,29 +213,29 @@ public static class Constants
 
     public static OutlineData FASTEST_ROAD_OUTLINE = new OutlineData()
     {
-        OutlineColor = Color.orange,
-        InnerColor = new Color(255, 164, 0, 1),
+        OutlineColor = new Color(0, 0, 0, 0),
+        InnerColor = Color.orange,
         TextureId = 1,
     };
 
     public static OutlineData FASTEST_ROAD_OUTLINE_HOVERED = new OutlineData()
     {
         OutlineColor = Color.orange,
-        InnerColor = new Color(255, 164, 0, 1),
+        InnerColor = Color.orange,
         TextureId = 1,
     };
 
     public static OutlineData CHEAPEST_ROAD_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.green,
-        InnerColor = new Color(0, 128, 0, 1),
+        InnerColor = Color.green,
         TextureId = 1,
     };
 
     public static OutlineData CHEAPEST_ROAD_OUTLINE_HOVERED = new OutlineData()
     {
-        OutlineColor = Color.green,
-        InnerColor = new Color(0, 128, 0, 1),
+        OutlineColor = new Color(0, 0, 0, 0),
+        InnerColor = Color.green,
         TextureId = 1,
     };
 }

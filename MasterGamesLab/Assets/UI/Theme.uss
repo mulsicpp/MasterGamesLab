@@ -8,7 +8,7 @@
     --outline-width: 1px;
     --text-outline-color: rgb(0, 0, 0);
     --text-outline-width: 1px;
-    --border-color: var() --outline-color;
+    --border-color: var(--outline-color);
     --border-width: var(--outline-width);
     --disabled-border-color: rgba(255, 254, 254, 0.2);
     --disabled-background-color: rgba(0, 0, 0, 0);
