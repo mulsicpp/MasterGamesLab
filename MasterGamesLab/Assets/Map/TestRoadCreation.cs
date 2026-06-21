@@ -72,5 +72,10 @@ public class TestRoadCreation : NetworkBehaviour
                 player.Earn(1000);
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.N) && IsServer)
+        {
+            Map.Map.Instance.SpawnLogic.FastForward(0.05f);
+        }
     }
 }
