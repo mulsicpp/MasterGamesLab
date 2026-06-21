@@ -16,9 +16,11 @@ namespace Map.Infrastructure
 
     public static class GoodUtils
     {
-        public static readonly Good[] Goods = new Good[] { Good.Common, Good.Uncommon, Good.Rare, Good.Epic, Good.Legendary };
+        public static readonly Good[] Goods = new Good[]
+            { Good.Common, Good.Uncommon, Good.Rare, Good.Epic, Good.Legendary };
 
-        public static readonly Dictionary<Good, Color> GoodColors = new() {
+        public static readonly Dictionary<Good, Color> GoodColors = new()
+        {
             { Good.Common, Color.darkGray },
             { Good.Uncommon, Color.dodgerBlue },
             { Good.Rare, Color.seaGreen },
@@ -26,7 +28,8 @@ namespace Map.Infrastructure
             { Good.Legendary, Color.magenta },
         };
 
-        public static readonly Dictionary<Good, int> GoodBasePayout = new() {
+        public static readonly Dictionary<Good, int> GoodBasePayout = new()
+        {
             { Good.Common, Constants.GOOD_COMMON_BASE_PAYOUT },
             { Good.Uncommon, Constants.GOOD_UNCOMMON_BASE_PAYOUT },
             { Good.Rare, Constants.GOOD_RARE_BASE_PAYOUT },

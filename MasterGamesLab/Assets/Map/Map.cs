@@ -135,7 +135,7 @@ namespace Map
         private void OnEnable()
         {
             TileLayer = LayerMask.NameToLayer("Tiles");
-            EdgeLayer = LayerMask.NameToLayer("Edges");
+            EdgeLayer = LayerMask.NameToLayer("Edge");
             EdgeOutlineLayer = LayerMask.NameToLayer("Edge Outline");
             EdgeOutlineTransparentLayer = LayerMask.NameToLayer("Edge Outline Transparent");
             VehicleLayer = LayerMask.NameToLayer("Vehicles");

@@ -73,7 +73,8 @@ namespace Map.Fleet
         public override ObjectWithFixedGeometry AttachVehicleGeometry(Transform parent)
         {
             // var id = Map.Instance.GetTileAndEdgeCount() + IndexInVehicles;
-            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Freighter, EntityId.Value, parent);
+            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Freighter,
+                EntityId.Value, parent, Owner);
         }
 
         protected override void OnParked()
@@ -85,7 +86,8 @@ namespace Map.Fleet
         {
             cost = 0;
             if (!(truck?.ParkedTile?.Structure?.Type == Structure.StructureType.Port)) return false;
-            if (Truck != null || truck.Owner != player || Owner != player || (!ParkedTile?.Neighbors.Contains(truck?.ParkedTile) ?? true)) return false;
+            if (Truck != null || truck.Owner != player || Owner != player ||
+                (!ParkedTile?.Neighbors.Contains(truck?.ParkedTile) ?? true)) return false;
 
             var portOwner = truck.ParkedTile.Structure.Owner;
             if (portOwner != null && portOwner != player)
@@ -93,6 +95,7 @@ namespace Map.Fleet
                 cost = Constants.TRUCK_LOADING_COST_ENEMY;
                 return cost <= player.Cash;
             }
+
             return true;
         }
 
@@ -109,6 +112,7 @@ namespace Map.Fleet
                 cost = Constants.TRUCK_UNLOADING_COST_ENEMY;
                 return cost <= player.Cash;
             }
+
             return true;
         }
     }

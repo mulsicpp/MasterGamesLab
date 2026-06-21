@@ -44,10 +44,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7a7a9a2a0bf4c3e80a3ac9c389a24b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map.GeometryGeneration.GeometriesManager
-  truckMesh: {fileID: -2432090755550338912, guid: a27d16d4dadab5f49957c6245b9e30d9, type: 3}
-  freighterMesh: {fileID: -2432090755550338912, guid: d62077404bacc0845948a4445090d647, type: 3}
-  producerMesh: {fileID: -2432090755550338912, guid: e7507e5d3c1252446b10c7112a0a94ea, type: 3}
-  consumerMesh: {fileID: -2432090755550338912, guid: d7f83939c766c3247ab64c71a7bfe6e1, type: 3}
-  portMesh: {fileID: -2432090755550338912, guid: a2132b342f6b8154aa5c0dc8d9590a11, type: 3}
+  truckMesh: {fileID: -2432090755550338912, guid: 15fc4a36941ae1a4a9277951f18d29c1, type: 3}
+  freighterMesh: {fileID: -2432090755550338912, guid: 1a2fdd9cc5adede4dbf952f24a393ef9, type: 3}
+  producerTetrahedronMesh: {fileID: -2432090755550338912, guid: ae8cfd61e21aa2f43b7e0b7ba77857d8, type: 3}
+  producerCubeMesh: {fileID: -2432090755550338912, guid: 38f56ea50b97e10419c229c42e3559c7, type: 3}
+  producerOctahedronMesh: {fileID: -2432090755550338912, guid: 97f9b4bce4054c648845bb17761190b6, type: 3}
+  producerIcosahedronMesh: {fileID: -2432090755550338912, guid: 7ec19ddf71fdc6146ad035ea559c3530, type: 3}
+  producerDodecahedronMesh: {fileID: -2432090755550338912, guid: 02a7c90abf5dd1440b841f09fa5ce140, type: 3}
+  consumerMesh: {fileID: -2432090755550338912, guid: 82457382839a733429f44b5b80bf1ce8, type: 3}
+  portMesh: {fileID: -2432090755550338912, guid: 6ee54aa8c30e23d478f9236f3b900f2b, type: 3}
   geometryPrefab: {fileID: 1656574153691020000, guid: 3f431ad8f77587748abe2332aecce29e, type: 3}
   fullRoadPrefab: {fileID: 1656574153691020000, guid: a0c329c131d7c8c4cae9f255306af9bb, type: 3}
