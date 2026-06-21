@@ -5,15 +5,13 @@ using UnityEngine.UIElements;
 public class RoadPin : Pin
 {
     private Label cost, duration;
-    private VisualElement arrow;
-    RouteRenderer routeRenderer;
+    private VisualElement arrow, element;
+    private RouteRenderer routeRenderer;
 
     protected override float pinHeightPercent => 6f;
-
     protected override float pinAspectRatio => 4.5f;
 
     public bool FacingLeft = false;
-
 
     public void OnEnable()
     {
@@ -22,21 +20,28 @@ public class RoadPin : Pin
 
     private void Update()
     {
-        pivotDirection = FacingLeft ? PinDirection.Left : PinDirection.Right;
-        arrow.style.scale = new StyleScale(new Scale(new Vector3(FacingLeft ? -1 : 1, 1, 1)));
+        // Dynamically configure tracking anchors
+        pivotDirection = FacingLeft ? PinDirection.Right : PinDirection.Left;
+
+        if (arrow != null)
+        {
+            arrow.style.scale = new StyleScale(new Scale(new Vector3(FacingLeft ? 1f : -1f, 1f, 1f)));
+            element.style.flexDirection = FacingLeft ? FlexDirection.Row : FlexDirection.RowReverse;
+        }
     }
 
     protected override void LateUpdate()
     {
-        if (routeRenderer.Route.TileIds == null)
+        if (routeRenderer == null || routeRenderer.Route.TileIds == null)
         {
             setActive(false);
             return;
         }
+        cost.text = routeRenderer.Route.Cost.ToString();
+        duration.text = routeRenderer.Route.Cost.ToString();
         setActive(true);
         base.LateUpdate();
     }
-
 
     protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)
     {
@@ -51,5 +56,6 @@ public class RoadPin : Pin
         cost = UiElement.Q<Label>("CostLabel");
         duration = UiElement.Q<Label>("DurationLabel");
         arrow = UiElement.Q<VisualElement>("Arrow");
+        element = UiElement.Q<VisualElement>("Element");
     }
 }
