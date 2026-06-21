@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Rendering.Universal;
 using UI;
+using UnityEngine.UIElements;
 
 public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
 {
@@ -242,6 +243,7 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
 
     public void ToggleHide()
     {
+        IngameUI.Instance.hideButton.style.backgroundImage = new StyleBackground((Type == ConstructionType.Hidden)? IngameUI.Instance.hidden: IngameUI.Instance.hide);
         Type = (Type == ConstructionType.Hidden) ? ConstructionType.None : ConstructionType.Hidden;
     }
 

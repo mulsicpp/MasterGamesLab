@@ -1,3 +1,4 @@
+using Map.Hoverables;
 using UI;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -22,6 +23,12 @@ public class RoadPin : Pin
     {
         // Dynamically configure tracking anchors
         pivotDirection = FacingLeft ? PinDirection.Right : PinDirection.Left;
+
+        if (IsHovered)
+        {
+            Map.Map.Instance.CurrentlyHovered = routeRenderer.Geometry;
+            HoverablePicker.Instance.DenyPick = true;
+        }
 
         if (arrow != null)
         {
