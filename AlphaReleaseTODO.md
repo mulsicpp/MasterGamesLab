@@ -12,6 +12,7 @@
 - Check money before buying !!! [done]
     - Disable submit button when blueprint is empty or price is too high [schlecht]
 - Hide blueprinted elements !!!
+- Choose route on hover + hot key
 
 - Pins
     - Clickable !!! [done]
@@ -28,8 +29,6 @@
         - Good
         - Reward
     - Producerpins
-
-- Game end !!!
 
 - Textures
 - Outline scaling
