@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using Map.Infrastructure;
+using Map.Hoverables;
 
 namespace UI
 {
@@ -26,6 +27,15 @@ namespace UI
         {
 
             base.Start();
+        }
+
+        public void Update()
+        {
+            if (IsHovered && Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Tiles))
+            {
+                Map.Map.Instance.CurrentlyHovered = structureRenderer.Structure.Tile;
+                HoverablePicker.Instance.DenyPick = true;
+            }
         }
 
         protected override void LateUpdate()
