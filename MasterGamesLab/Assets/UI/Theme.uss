@@ -144,7 +144,7 @@
     border-right-color: rgba(0, 0, 0, 0);
     border-top-color: rgba(0, 0, 0, 0);
     border-bottom-color: rgba(0, 0, 0, 0);
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.02);
     border-top-width: 4px;
     border-right-width: 4px;
     border-bottom-width: 4px;
@@ -407,6 +407,7 @@
     width: auto;
     background-image: url("project://database/Assets/IngameUI/LKW_Icon.svg?fileID=7388822144124034973&guid=bee6275bf0ec2d2498c79c7cb139def1&type=3#LKW_Icon");
     height: 100%;
+    -unity-background-scale-mode: scale-to-fit;
 }
 
 .tab-menu-header {

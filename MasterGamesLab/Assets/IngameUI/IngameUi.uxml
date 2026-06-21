@@ -3,7 +3,10 @@
     <ui:Template name="TabMenu" src="project://database/Assets/IngameUI/TabMenu.uxml?fileID=9197481963319205126&amp;guid=1226372f1629f6c45a297bd9a0f823c2&amp;type=3#TabMenu"/>
     <Style src="project://database/Assets/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
     <ui:VisualElement name="Root" picking-mode="Ignore" class="unity-ui-document__root">
-        <ResponsiveLabel name="MONEY" text="Money: 100" class="element label money-display"/>
+        <ui:VisualElement class="element money-display" style="flex-direction: row-reverse; width: 21%; align-items: center; margin-top: 0.5%; margin-right: 1%;">
+            <ui:VisualElement style="-unity-background-scale-mode: scale-to-fit; background-image: url(&quot;project://database/Assets/Icons/svg/cash.svg?fileID=7388822144124034973&amp;guid=3e75e502074cfd64691dbaf661d1c65e&amp;type=3#cash&quot;); height: 59%; aspect-ratio: 1;"/>
+            <ResponsiveLabel name="MONEY" text="Money: 100" class="element label" style="width: auto; height: 100%; top: 4%;"/>
+        </ui:VisualElement>
         <ui:GroupBox name="Row1" class="element ingam-build-menu-row"/>
         <ui:GroupBox name="BuildMenu" class="element build-menu-sidebar" style="justify-content: flex-end; height: auto; position: absolute; right: 1%; bottom: 2%; left: auto; top: auto; width: 12%;">
             <ui:GroupBox name="BuildCount" class="element" style="margin-bottom: 5%;">
@@ -23,7 +26,10 @@
                     <ui:VisualElement name="FreighterCount" class="element countlabel">
                         <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
                     </ui:VisualElement>
-                    <ResponsiveLabel name="TotalCost" height-percentage="0.8" text="Total Cost: 500" class="element label" style="width: 100%; aspect-ratio: 6;"/>
+                    <ui:VisualElement class="element" style="width: 100%; aspect-ratio: 6; flex-direction: row;">
+                        <ResponsiveLabel name="TotalCost" height-percentage="0.8" text="Total Cost: 5000" class="element label" style="flex-shrink: 1; padding-right: 3%; top: 7%;"/>
+                        <ui:VisualElement class="element" style="aspect-ratio: 1; height: 100%; background-image: url(&quot;project://database/Assets/Icons/svg/cash.svg?fileID=7388822144124034973&amp;guid=3e75e502074cfd64691dbaf661d1c65e&amp;type=3#cash&quot;); -unity-background-scale-mode: scale-to-fit;"/>
+                    </ui:VisualElement>
                 </ShrinkWrapContainer>
             </ui:GroupBox>
             <ShrinkWrapContainer name="Container" class="element container" style="right: 0; bottom: 0;">
@@ -60,13 +66,13 @@
                 </ui:GroupBox>
                 <ui:GroupBox class="element group-box-bottom" style="align-items: stretch; flex-grow: 0; bottom: 0; right: 0; justify-content: space-between; padding-top: 5%; padding-right: 5%; padding-bottom: 5%; padding-left: 5%;">
                     <ui:VisualElement class="element ingame-build-button-square">
-                        <ResponsiveButton text="" name="ConfirmButton" class="element button ingame-build-button confirm-btn"/>
+                        <ResponsiveButton text="" name="ConfirmButton" class="element button ingame-build-button confirm-btn" style="background-image: url(&quot;project://database/Assets/Icons/Commit.png?fileID=1504485910&amp;guid=28fa3396e97fcdc4c8762da95962e14c&amp;type=3#image49_0&quot;); -unity-background-scale-mode: scale-to-fit; background-size: 80% 80%;"/>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-build-button-square">
-                        <ResponsiveButton text="" name="CancelButton" class="element button ingame-build-button cancel-btn"/>
+                        <ResponsiveButton text="" name="CancelButton" class="element button ingame-build-button confirm-btn" style="background-image: url(&quot;project://database/Assets/Icons/Cancel.png?fileID=-508303762&amp;guid=1679241bb7d407e4c851cc60a4a66080&amp;type=3#image47_0&quot;); -unity-background-scale-mode: scale-to-fit; background-size: 80% 80%; -unity-background-image-tint-color: rgb(255, 29, 0);"/>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-build-button-square" style="background-color: rgba(0, 0, 0, 0); align-self: flex-end;">
-                        <ui:Button text="hide" name="HideButton" class="element button ingame-build-button" style="position: relative;"/>
+                        <ui:Button text="" name="HideButton" class="element button ingame-build-button" style="position: relative; background-image: url(&quot;project://database/Assets/Icons/image52.png?fileID=1506502981&amp;guid=e81343c7df71c6f4984e62c3c1fccb34&amp;type=3#image52_0&quot;); background-size: 80% 80%;"/>
                     </ui:VisualElement>
                 </ui:GroupBox>
             </ShrinkWrapContainer>
