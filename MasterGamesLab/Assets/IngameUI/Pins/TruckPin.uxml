@@ -1,8 +1,8 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
     <ui:VisualElement name="Root" class="unity-ui-document__root element">
-        <ui:VisualElement class="element" style="flex-grow: 0; width: 100%; aspect-ratio: 2; flex-shrink: 0; flex-direction: row; align-items: center;">
-            <ResponsiveLabel name="TimeLabel" text="1:23" height-percentage="1" class="element label" style="height: 100%; width: 75%; -unity-font-style: normal; -unity-text-align: middle-right; padding-right: 7px;"/>
+        <ui:VisualElement name="Time" class="element" style="flex-grow: 0; width: 100%; aspect-ratio: 2; flex-shrink: 0; flex-direction: row; align-items: center; justify-content: center;">
+            <ResponsiveLabel name="TimeLabel" text="1:23" height-percentage="1" class="element label" style="height: 100%; width: auto; -unity-font-style: normal; -unity-text-align: middle-right; padding-right: 4%;"/>
             <ui:VisualElement class="element" style="width: 25%; aspect-ratio: 0.6; background-image: url(&quot;project://database/Assets/Icons/svg/time.svg?fileID=7388822144124034973&amp;guid=b2e97c98e177a1341b06bc66284a98ef&amp;type=3#time&quot;); top: -4%;"/>
         </ui:VisualElement>
         <ui:VisualElement class="element" style="position: relative; height: auto; width: 100%; aspect-ratio: 0.49; background-image: url(&quot;project://database/Assets/Icons/svg/pin.svg?fileID=7388822144124034973&amp;guid=fa382bd0f429ef349bc6835d2d40ff92&amp;type=3#pin&quot;); -unity-background-image-tint-color: rgb(0, 0, 0); flex-shrink: 0;">

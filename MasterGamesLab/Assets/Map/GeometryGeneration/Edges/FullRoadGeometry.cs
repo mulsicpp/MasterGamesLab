@@ -1,5 +1,6 @@
 ﻿using System;
 using Map.Hoverables;
+using UnityEngine;
 
 namespace Map.GeometryGeneration.Edges
 {
@@ -17,7 +18,9 @@ namespace Map.GeometryGeneration.Edges
 
         public EntityId EntityId { get; private set; }
 
-        private FullRoadType type;
+        public FullRoadType Type { get; private set; }
+
+        private bool hovered = false;
 
         private void Awake()
         {
@@ -28,16 +31,21 @@ namespace Map.GeometryGeneration.Edges
 
         public void Init(FullRoadType newType)
         {
-            type = newType;
-            EntityId = new EntityId(Map.Instance.EntityIdManager.FullRoadRange.Start.Value + (int)type);
+            Type = newType;
+            EntityId = new EntityId(Map.Instance.EntityIdManager.FullRoadRange.Start.Value + (int)Type);
             Map.Instance.EntityIdManager[EntityId] = this;
             ClearOutline();
+        }
+
+        public void Update()
+        {
+            transform.localScale = Vector3.one * (hovered ? 1.001f : 1.0f);
         }
 
         // Clears only the hovered outline
         public void ClearOutline()
         {
-            var outline = type switch
+            var outline = Type switch
             {
                 FullRoadType.Cheapest => Constants.CHEAPEST_ROAD_OUTLINE,
                 FullRoadType.Fastest => Constants.FASTEST_ROAD_OUTLINE,
@@ -45,22 +53,25 @@ namespace Map.GeometryGeneration.Edges
             };
 
             SetOutlineParameters(outline);
+            hovered = false;
         }
 
         public void ShowOutline(Constants.OutlineData outlineData)
         {
             SetOutlineParameters(outlineData);
+            hovered = true;
         }
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
         {
-            var outlineData = type switch
+            var outlineData = Type switch
             {
                 FullRoadType.Cheapest => Constants.CHEAPEST_ROAD_OUTLINE_HOVERED,
                 _ => Constants.FASTEST_ROAD_OUTLINE_HOVERED,
             };
 
             SetOutlineParameters(outlineData);
+            hovered = true;
         }
     }
 }

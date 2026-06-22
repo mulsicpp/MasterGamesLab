@@ -7,12 +7,11 @@ using Map.Hoverables;
 
 namespace UI
 {
-    public class ConsumerPin : Pin
+    public class ProducerPin : Pin
     {
        
 
         private StructureRenderer structureRenderer;
-        private Label payout;
         private VisualElement goodIcon;
 
         protected override float pinHeightPercent => 6f;
@@ -40,12 +39,11 @@ namespace UI
 
         protected override void LateUpdate()
         {
-            if (payout != null && structureRenderer?.Structure is Consumer consumer)
+            if (structureRenderer?.Structure is Producer producer)
             {
-                payout.text = consumer.Request.Payout.ToString();
-                var requestedGood = consumer.Request.Good;
+                var Good = producer.Good;
 
-                if (requestedGood != Good.None && IngameUI.Instance.goodsImages.TryGetValue(requestedGood, out Sprite img))
+                if (Good != Good.None && IngameUI.Instance.goodsImages.TryGetValue(Good, out Sprite img))
                 {
                     setActive(true);
                     goodIcon.style.backgroundImage = new StyleBackground(img);
@@ -72,11 +70,9 @@ namespace UI
         protected override void InitializeUiComponents()
         {
             goodIcon = UiElement.Q<VisualElement>("Icon");
-            payout = UiElement.Q<Label>("Payout");
-
-            if (structureRenderer?.Structure is Consumer consumer)
+            if (structureRenderer?.Structure is Producer producer)
             {
-                var requestedGood = consumer.Request.Good;
+                var requestedGood = producer.Good;
                 if (requestedGood != Good.None && IngameUI.Instance.goodsImages.TryGetValue(requestedGood, out Sprite img))
                 {
                     goodIcon.style.backgroundImage = new StyleBackground(img);

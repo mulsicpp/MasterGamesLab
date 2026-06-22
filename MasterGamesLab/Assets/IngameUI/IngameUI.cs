@@ -64,9 +64,12 @@ namespace UI
         private Label totalCostLabel;
         private Button buildRoadButton, buildCanalButton, buildPortButton;
         private Button buyTruckButton, buyFreighterButton;
-        private Button confirmButton, cancelButton, hideButton;
+        private Button confirmButton, cancelButton;
+        public Button hideButton;
         private Button currentActiveButton;
         private GroupBox buildCount;
+
+        [SerializeField] public Sprite hide, hidden;
 
 
         protected PlanetCameraController mainCamera;

@@ -77,7 +77,7 @@ namespace Map.Infrastructure
 
             if ((payoutIncreaseCooldown -= tickDuration) <= 0)
             {
-                request = new(Request.Good, nextPayout);
+                Request = new(Request.Good, nextPayout);
                 SetupPayoutIncrease();
             }
         }

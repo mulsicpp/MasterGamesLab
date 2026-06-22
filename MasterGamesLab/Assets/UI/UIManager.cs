@@ -325,7 +325,8 @@ public class UIManager : MonoBehaviour
         var updateTask = LobbyService.Instance.UpdateLobbyAsync(Lobby.Id, options);
         yield return new WaitUntil(() => updateTask.IsCompleted);
 
-        Map.Map.Instance.GameFinishedClientRpc();
+        if(NetworkManager.Singleton.IsListening)
+            Map.Map.Instance.GameFinishedClientRpc();
         yield break;
     }
 

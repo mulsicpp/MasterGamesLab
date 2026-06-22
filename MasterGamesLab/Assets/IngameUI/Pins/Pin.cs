@@ -9,10 +9,10 @@ namespace UI
         public enum PinDirection
         {
             Center,
-            Bottom,      // Exact same math as your original script
-            Top,         
-            Left,        
-            Right,       
+            Bottom,
+            Top,
+            Left,
+            Right,
             BottomLeft,
             BottomRight,
             TopLeft,
@@ -21,7 +21,7 @@ namespace UI
 
         [SerializeField] private float panelOffset = 10f;
         [SerializeField] private float invisibleThreshold = -0.1f;
-        
+
         [SerializeField] protected PinDirection pivotDirection = PinDirection.Bottom;
 
         protected abstract float pinHeightPercent { get; }
@@ -46,14 +46,12 @@ namespace UI
             mainCamera = MainCamera.Instance.GetComponentInChildren<Camera>();
             cameraController = MainCamera.Instance.GetComponentInChildren<PlanetCameraController>();
             pinboard = FindAnyObjectByType<PinboardUi>();
-
             UiElement = pinboard.CreatePinElement(PinTemplate, pinHeightPercent, pinAspectRatio);
 
             UiElement.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
             UiElement.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
 
             ApplyLayoutPivots();
-
             InitializeUiComponents();
         }
 
@@ -78,8 +76,11 @@ namespace UI
 
             float scaleFactor = cameraController.ScalingFactor;
 
-            // 1. Get the unscaled layout displacement offset
-            Vector2 offset = GetPivotOffset();
+            // Update transform origins dynamically if direction shifts at runtime
+            ApplyLayoutPivots();
+
+            // 1. Get the cleanly calculated layout displacement offset
+            Vector2 offset = GetPivotOffset(scaleFactor);
 
             // 2. Combine panelPosition with the exact pixel displacements
             float finalXPixels = panelPosition.x + offset.x;
@@ -97,32 +98,35 @@ namespace UI
         }
 
         /// <summary>
-        /// Calculates matching layout displacement shifts. 
-        /// PinDirection.Bottom matches your original formula perfectly.
+        /// Calculates matching layout displacement shifts safely using 
+        /// the raw unscaled pixel sizes of your percentage layouts.
         /// </summary>
-        private Vector2 GetPivotOffset()
+        private Vector2 GetPivotOffset(float currentScaleFactor)
         {
-            float width = UiElement.layout.width;
-            float height = UiElement.layout.height;
+            // 1. Get the real unscaled pixel height of the canvas container
+            float containerHeight = pinboard.root.layout.height;
+            if (float.IsNaN(containerHeight) || containerHeight <= 0)
+                containerHeight = Screen.height;
 
-            // Fallback rules if UI Toolkit layout properties haven't resolved yet
-            if (float.IsNaN(width) || width <= 0) width = 100f; 
-            if (float.IsNaN(height) || height <= 0) height = 100f;
+            // 2. Reconstruct raw dimensions before visual scale is applied
+            float unscaledHeight = containerHeight * (pinHeightPercent / 100f);
+            float unscaledWidth = unscaledHeight * pinAspectRatio;
 
+            // 3. Calculate shifts based on raw dimensions.
+            // Notice how we DO NOT multiply width/height by currentScaleFactor here.
+            // The scale transform handles this automatically relative to the transformOrigin.
             return pivotDirection switch
             {
-                // YOUR ORIGINAL FORMULA: x - (width * 0.5f), y - height - panelOffset
-                PinDirection.Bottom      => new Vector2(-(width * 0.5f), -height - panelOffset),
-                
-                PinDirection.Center      => new Vector2(-(width * 0.5f), -(height * 0.5f)),
-                PinDirection.Top         => new Vector2(-(width * 0.5f), panelOffset),
-                PinDirection.Left        => new Vector2(panelOffset,     -(height * 0.5f)),
-                PinDirection.Right       => new Vector2(-width - panelOffset, -(height * 0.5f)),
-                PinDirection.BottomLeft  => new Vector2(panelOffset,     -height - panelOffset),
-                PinDirection.BottomRight => new Vector2(-width - panelOffset, -height - panelOffset),
-                PinDirection.TopLeft     => new Vector2(panelOffset,     panelOffset),
-                PinDirection.TopRight    => new Vector2(-width - panelOffset, panelOffset),
-                _                        => Vector2.zero
+                PinDirection.Bottom => new Vector2(-(unscaledWidth * 0.5f), -unscaledHeight - panelOffset),
+                PinDirection.Center => new Vector2(-(unscaledWidth * 0.5f), -(unscaledHeight * 0.5f)),
+                PinDirection.Top => new Vector2(-(unscaledWidth * 0.5f), panelOffset),
+                PinDirection.Left => new Vector2(panelOffset, -(unscaledHeight * 0.5f)),
+                PinDirection.Right => new Vector2(-unscaledWidth - panelOffset, -(unscaledHeight * 0.5f)),
+                PinDirection.BottomLeft => new Vector2(panelOffset, -unscaledHeight - panelOffset),
+                PinDirection.BottomRight => new Vector2(-unscaledWidth - panelOffset, -unscaledHeight - panelOffset),
+                PinDirection.TopLeft => new Vector2(panelOffset, panelOffset),
+                PinDirection.TopRight => new Vector2(-unscaledWidth - panelOffset, panelOffset),
+                _ => Vector2.zero
             };
         }
 
@@ -136,16 +140,16 @@ namespace UI
 
             var (x, y) = pivotDirection switch
             {
-                PinDirection.Center      => (center, center),
-                PinDirection.Bottom      => (center, bottom),
-                PinDirection.Top         => (center, top),
-                PinDirection.Left        => (left,   center),
-                PinDirection.Right       => (right,  center),
-                PinDirection.BottomLeft  => (left,   bottom),
-                PinDirection.BottomRight => (right,  bottom),
-                PinDirection.TopLeft     => (left,   top),
-                PinDirection.TopRight    => (right,  top),
-                _                        => (center, center)
+                PinDirection.Center => (center, center),
+                PinDirection.Bottom => (center, bottom),
+                PinDirection.Top => (center, top),
+                PinDirection.Left => (left, center),
+                PinDirection.Right => (right, center),
+                PinDirection.BottomLeft => (left, bottom),
+                PinDirection.BottomRight => (right, bottom),
+                PinDirection.TopLeft => (left, top),
+                PinDirection.TopRight => (right, top),
+                _ => (center, center)
             };
 
             UiElement.style.transformOrigin = new StyleTransformOrigin(new TransformOrigin(x, y));

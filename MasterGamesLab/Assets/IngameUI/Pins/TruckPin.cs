@@ -10,11 +10,11 @@ namespace UI
 
         private VehicleRenderer vehicleRenderer;
 
-        private Label time;
-        private VisualElement icon, good;
+        private Label timeLabel;
+        private VisualElement icon, good, time;
 
-        protected override float pinHeightPercent => 6f;
-        protected override float pinAspectRatio => 0.44f;
+        protected override float pinHeightPercent => 8f;
+        protected override float pinAspectRatio => 0.4f;
 
         public void OnEnable()
         {
@@ -47,7 +47,7 @@ namespace UI
                 setActive(false);
                 return;
             }
-            time.text = vehicleRenderer.Vehicle.RemainingDriveTime is float t ? ((int)Mathf.Ceil(t)).ToString() + "s" : "";
+            timeLabel.text = vehicleRenderer.Vehicle.RemainingDriveTime is float t ? ((int)Mathf.Ceil(t)).ToString() + "s" : "";
             base.LateUpdate();
         }
 
@@ -62,8 +62,9 @@ namespace UI
         protected override void InitializeUiComponents()
         {
             icon = UiElement.Q<VisualElement>("Icon");
-            time = UiElement.Q<Label>("TimeLabel");
+            timeLabel = UiElement.Q<Label>("TimeLabel");
             good = UiElement.Q<VisualElement>("Recource");
+            time = UiElement.Q<VisualElement>("Time");
             icon.style.unityBackgroundImageTintColor = vehicleRenderer.Vehicle.Owner.Color;
         }
 

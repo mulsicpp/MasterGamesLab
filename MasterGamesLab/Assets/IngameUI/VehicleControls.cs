@@ -54,7 +54,7 @@ namespace UI
             }
         }
 
-        public class HoveredSelectRoute : HoveredAction
+        public class HoveredSelectDestination : HoveredAction
         {
             public override bool IsValid => destination != null;
 
@@ -62,7 +62,7 @@ namespace UI
             private TileId[] cheapestRoute = null;
             private Tile destination = null;
 
-            public HoveredSelectRoute(VehicleControls controls, Tile destination) : base(controls)
+            public HoveredSelectDestination(VehicleControls controls, Tile destination) : base(controls)
             {
                 var vehicle = controls.SelectedVehicle;
                 if (vehicle == null) return;
@@ -147,6 +147,24 @@ namespace UI
             }
         }
 
+        public class HoveredSelectRoute : HoveredAction
+        {
+            public override bool IsValid => true;
+
+            private FullRoadGeometry.FullRoadType Type;
+
+            public HoveredSelectRoute(VehicleControls controls, FullRoadGeometry.FullRoadType type) : base(controls)
+            {
+                Type = type;
+            }
+
+            public override bool Commit()
+            {
+                controls.ChooseRoute(Type);
+                return true;
+            }
+        }
+
         public bool ControlsAreActive => SelectedVehicle != null;
 
         private HoveredAction hoveredAction = null;
@@ -209,7 +227,7 @@ namespace UI
                     switch (Map.Map.Instance.CurrentlyHovered)
                     {
                         case Tile t:
-                            hoveredAction = new HoveredSelectRoute(this, t);
+                            hoveredAction = new HoveredSelectDestination(this, t);
                             if (hoveredAction.IsValid) break;
                             hoveredAction = new HoveredUnloadTruck(this, t);
                             break;
@@ -229,7 +247,7 @@ namespace UI
                     switch (Map.Map.Instance.CurrentlyHovered)
                     {
                         case Tile t:
-                            hoveredAction = new HoveredSelectRoute(this, t);
+                            hoveredAction = new HoveredSelectDestination(this, t);
                             if (hoveredAction.IsValid) break;
                             hoveredAction = new HoveredUnloadTruck(this, t);
                             break;
@@ -240,6 +258,9 @@ namespace UI
                                 if (hoveredAction.IsValid) break;
                                 hoveredAction = new HoveredSelectVehicle(this, v);
                             }
+                            break;
+                        case FullRoadGeometry r:
+                            hoveredAction = new  HoveredSelectRoute(this, r.Type);
                             break;
                     }
                 }

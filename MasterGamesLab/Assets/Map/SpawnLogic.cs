@@ -18,9 +18,9 @@ namespace Map
 
         private List<Good> availableGoods;
 
-        public float Progress => Math.Clamp((Time.time - startTime) / 600f, 0.0f, 1.0f);
+        private float progress;
+        public float Progress => Mathf.Clamp01(progress);
 
-        private readonly float startTime;
 
         private Dictionary<int, SortedSet<Good>> goodsPerContinent;
 
@@ -40,7 +40,7 @@ namespace Map
 
             availableGoods = new();
 
-            startTime = Time.time;
+            progress = 0;
 
             var spawnChances = GetGoodSpawnChancePerContinent();
 
@@ -145,6 +145,7 @@ namespace Map
 
         public void Tick(float tickDuration)
         {
+            progress += tickDuration / 600.0f;
             List<(float, Action)> newProgressEvents = new();
             foreach (var (p, e) in progressEvents)
             {
@@ -170,6 +171,11 @@ namespace Map
                     GenerateConsumerRequest(consumer);
                 }
             }
+        }
+
+        public void FastForward(float delta)
+        {
+            progress += delta;
         }
 
         public void ClearConsumerRequest(Consumer consumer)
