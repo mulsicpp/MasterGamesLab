@@ -39,7 +39,7 @@
                 if (id == 0)
                     return float4(0, 0, 0, 0); // Transparent if no tile is here
 
-                return float4(hash(id), 0.7); // 70% opacity random color
+                return float4(hash(id), 0.8);
             }
             ENDHLSL
         }
