@@ -4,7 +4,7 @@
 - correct material/outline for blueprints/previews
 - correct driving across splines
 
-- Better keyboard shortcuts ! [done]
+- Better keyboard shortcuts !
 - Vehicle controls !!!
     - Select fastest/cheapest route to valid structures
     - Load/Unload trucks [done]
@@ -38,10 +38,34 @@
 - Show canal owner 
 - Compass
 
-- Display good on trucks
-- Prevent overlapping trucks
 - Fix bug: Construction controls are disabled when hidden
 - Fix bug: Consumer/Producer spawn on canals
+
+Visuals/3D:
+- Hide elements in blueprint
+- Introduce scale factor based on tile size
+- Visualize canal owner
+- Dynamically make independent objects hoverable with predicate (edges, vehicles, structures)
+- Display good on trucks
+- More detailed/textured road
+- Better outline textures
+- Better player colros
+- Biomes
+
+UI:
+- Outline pin when hovered/selected
+- Better looking pins
+- Compass
+- Time
+- Smooth camera movement when focusing object
+- Change keyboard shortcuts
+- Audio
+
+Logic:
+- Highway
+- Speedy canals
+- Generate public roads at start
+- Destination queue
 - Find fastest affordable road
 
 Balancing:
@@ -53,11 +77,4 @@ Balancing:
 - Change market cap calculation
 - More balanced spawn
 - Pick consumer for request at random (not from ready list)
-
-Possible future changes:
-- Destination queue for vehicles
-- Outline pin when hovered/selected
-- Highway
-- Speedy canals
-- Generate public roads at start
-- 
+- Change progress calculation
