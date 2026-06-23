@@ -36,7 +36,7 @@ public class TestRoadCreation : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.O) && IsServer)
         {
-            Map.Map.Instance.Infrastructure.SpawnGlobal(new Garage.GarageState { Common = { TileId = tile.Id } });
+            Map.Map.Instance.Infrastructure.SpawnGlobal(new CarPark.CarParkState { Common = { TileId = tile.Id } });
         }
 
         // if (Input.GetKeyDown(KeyCode.L))

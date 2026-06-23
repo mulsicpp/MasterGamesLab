@@ -21,7 +21,7 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
         Hidden,
         Road,
         Canal,
-        Garage,
+        CarPark,
         Port,
         Freighter,
         Truck

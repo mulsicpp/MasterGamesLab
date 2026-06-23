@@ -199,7 +199,7 @@ namespace Map.Blueprint
             switch (vehicle.Type)
             {
                 case Vehicle.VehicleType.Truck:
-                    if (!(ConfirmedStructure(tile)?.Type == Structure.StructureType.Garage)) return false;
+                    if (!(ConfirmedStructure(tile)?.Type == Structure.StructureType.CarPark)) return false;
 
                     SetValid(vehicle, true, Constants.TRUCK_BUILD_COST);
                     return true;

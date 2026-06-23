@@ -81,7 +81,7 @@ namespace Map
 
         public GameObject ProducerPrefab;
         public GameObject ConsumerPrefab;
-        public GameObject GaragePrefab;
+        public GameObject CarParkPrefab;
         public GameObject PortPrefab;
 
         public GameObject RoutePrefab;
@@ -543,7 +543,7 @@ namespace Map
 
             sender.AddObjects<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
             sender.AddObjects<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
-            sender.AddObjects<Garage, Garage.GarageState>(infrastructure.Garages, condition);
+            sender.AddObjects<CarPark, CarPark.CarParkState>(infrastructure.CarParks, condition);
             sender.AddObjects<Port, Port.PortState>(infrastructure.Ports, condition);
 
             sender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
@@ -564,7 +564,7 @@ namespace Map
 
             ReliableSender.AddObjects<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
             ReliableSender.AddObjects<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
-            ReliableSender.AddObjects<Garage, Garage.GarageState>(infrastructure.Garages, condition);
+            ReliableSender.AddObjects<CarPark, CarPark.CarParkState>(infrastructure.CarParks, condition);
             ReliableSender.AddObjects<Port, Port.PortState>(infrastructure.Ports, condition);
 
             ReliableSender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
@@ -601,7 +601,7 @@ namespace Map
             Edge.EdgeState[] edges,
             Producer.ProducerState[] producers,
             Consumer.ConsumerState[] consumers,
-            Garage.GarageState[] garages,
+            CarPark.CarParkState[] carParks,
             Port.PortState[] ports,
             Truck.TruckState[] trucks,
             Freighter.FreighterState[] freighters,
@@ -617,7 +617,7 @@ namespace Map
 
             ApplyStatesLocal(serverTime, Infrastructure.Producers, producers);
             ApplyStatesLocal(serverTime, Infrastructure.Consumers, consumers);
-            ApplyStatesLocal(serverTime, Infrastructure.Garages, garages);
+            ApplyStatesLocal(serverTime, Infrastructure.CarParks, carParks);
             ApplyStatesLocal(serverTime, Infrastructure.Ports, ports);
 
             ApplyStatesLocal(serverTime, Fleet.Trucks, trucks);
@@ -1020,11 +1020,11 @@ namespace Map
                 }
             }
 
-            foreach (var garage in infrastructure.Garages)
+            foreach (var carPark in infrastructure.CarParks)
             {
-                if (garage.Tile != null)
+                if (carPark.Tile != null)
                 {
-                    Vector3 basePos = GetProjectedPosition(garage.Tile.PositionOnSphere, 1.015f);
+                    Vector3 basePos = GetProjectedPosition(carPark.Tile.PositionOnSphere, 1.015f);
                     Gizmos.color = Color.brown;
                     Gizmos.DrawSphere(basePos, 0.025f);
                 }

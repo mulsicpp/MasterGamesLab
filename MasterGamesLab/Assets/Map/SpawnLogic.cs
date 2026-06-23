@@ -122,7 +122,7 @@ namespace Map
 
             for (int i = 0; i < map.Players.Count; i++)
             {
-                map.Infrastructure.SpawnLocal(new Garage.GarageState { Common = { TileId = playerSpawnTiles[i].Id } });
+                map.Infrastructure.SpawnLocal(new CarPark.CarParkState { Common = { TileId = playerSpawnTiles[i].Id } });
                 map.Fleet.SpawnLocal(
                     new Truck.TruckState
                     {
