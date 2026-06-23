@@ -138,8 +138,7 @@ namespace Map
 
             for (int i = 0; i < map.Players.Count; i++)
             {
-                var consumer = readyConsumers[UnityEngine.Random.Range(0, readyConsumers.Count)];
-                GenerateConsumerRequest(consumer);
+                GenerateConsumerRequest(FindRandomConsumer());
             }
         }
 
@@ -167,8 +166,7 @@ namespace Map
                 consumerRequestCooldown = NextConsumerRequestCooldown();
                 if (readyConsumers.Count > 0)
                 {
-                    var consumer = readyConsumers[UnityEngine.Random.Range(0, readyConsumers.Count)];
-                    GenerateConsumerRequest(consumer);
+                    GenerateConsumerRequest(FindRandomConsumer());
                 }
             }
         }
@@ -178,8 +176,14 @@ namespace Map
             progress += delta;
         }
 
+        public Consumer FindRandomConsumer()
+        {
+            return readyConsumers.Count > 0 ? readyConsumers[UnityEngine.Random.Range(0, readyConsumers.Count)] : null;
+        }
+
         public void ClearConsumerRequest(Consumer consumer)
         {
+            if (consumer == null) return;
             consumer.Request = new(Good.None, 0);
             if (busyConsumers.Remove(consumer))
                 readyConsumers.Add(consumer);
@@ -187,7 +191,7 @@ namespace Map
 
         public void GenerateConsumerRequest(Consumer consumer)
         {
-            if (availableGoods.Count == 0) return;
+            if (consumer == null || availableGoods.Count == 0) return;
 
             var good = availableGoods[UnityEngine.Random.Range(0, availableGoods.Count)];
 
