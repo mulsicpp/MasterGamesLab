@@ -12,6 +12,7 @@ namespace Map.Blueprint
     {
         private SortedList<EdgeId, int> canalDepths;
         private Queue<Edge> canalQueue;
+        private SortedList<ConstructibleType, int> objectCount;
 
         protected abstract IEnumerable<Edge> EnumerateEdges();
         protected abstract IEnumerable<Structure> EnumerateStructures();
@@ -55,6 +56,17 @@ namespace Map.Blueprint
             canalDepths = new();
             canalQueue = new();
 
+            var playerStats = Map.Instance.GetPlayerStats()[Player.Player.SelfId];
+
+            objectCount = new()
+            {
+                { ConstructibleType.Road, playerStats.RoadCount },
+                { ConstructibleType.Canal, playerStats.CanalCount },
+                { ConstructibleType.Port, playerStats.PortCount },
+                { ConstructibleType.Truck, playerStats.TruckCount },
+                { ConstructibleType.Freighter, playerStats.FreighterCount },
+            };
+
             foreach (var edge in EnumerateEdges()) SetValid(edge, false, 0);
             foreach (var structure in EnumerateStructures()) SetValid(structure, false, 0);
             foreach (var vehicle in EnumerateVehicles()) SetValid(vehicle, false, 0);
@@ -76,7 +88,7 @@ namespace Map.Blueprint
                     if(edge.StartTile.CanBuild(out float factor1) && edge.EndTile.CanBuild(out float factor2))
                     {
                         var factor = (factor1 + factor2) / 2;
-                        SetValid(edge, true, (int)Math.Round(factor * Constants.ROAD_BUILD_COST));
+                        SetValid(edge, true, (int)Math.Round(factor * Constants.RoadBuildCost(objectCount[ConstructibleType.Road]++)));
                     }
                     return;
                 case Edge.EdgeType.Canal:
@@ -113,7 +125,7 @@ namespace Map.Blueprint
                         edge.StartTile.CanBuild(out float factor1);
                         edge.EndTile.CanBuild(out float factor2);
                         var factor = (factor1 + factor2) / 2;
-                        SetValid(edge, true, (int)Math.Round(factor * (depth + 1) * Constants.BASE_CANAL_BUILD_COST));
+                        SetValid(edge, true, (int)Math.Round(factor * (1.0f + depth * 0.5f) * Constants.CanalBuildCost(objectCount[ConstructibleType.Canal]++)));
                     }
                 }
             }
@@ -183,7 +195,7 @@ namespace Map.Blueprint
 
                     if (tile.CountEdgesWith(edge => !(ConfirmedEdgeType(edge) is Edge.EdgeType.None or Edge.EdgeType.Road)) > 0) return false;
 
-                    SetValid(structure, true, (int)Math.Round(factor * Constants.PORT_BUILD_COST));
+                    SetValid(structure, true, (int)Math.Round(factor * Constants.PortBuildCost(objectCount[ConstructibleType.Port]++)));
                     return true;
             }
             return false;
@@ -201,13 +213,13 @@ namespace Map.Blueprint
                 case Vehicle.VehicleType.Truck:
                     if (!(ConfirmedStructure(tile)?.Type == Structure.StructureType.CarPark)) return false;
 
-                    SetValid(vehicle, true, Constants.TRUCK_BUILD_COST);
+                    SetValid(vehicle, true, Constants.TruckBuildCost(objectCount[ConstructibleType.Truck]++));
                     return true;
                 case Vehicle.VehicleType.Freighter:
                     if (tile.Type != Tile.TileType.Water) return false;
                     if (tile.Neighbors.FirstOrDefault(n => ConfirmedStructure(n as Tile)?.Type == Structure.StructureType.Port) == null) return false;
 
-                    SetValid(vehicle, true, Constants.FREIGHTER_BUILD_COST);
+                    SetValid(vehicle, true, Constants.FreighterBuildCost(objectCount[ConstructibleType.Freighter]++));
                     return true;
             }
             return false;

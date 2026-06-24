@@ -1,4 +1,5 @@
 using Map.Infrastructure;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -93,6 +94,14 @@ public static class Constants
 
     public const int TRUCK_BUILD_COST = 150;
     public const int FREIGHTER_BUILD_COST = 300;
+
+    public static int RoadBuildCost(int n) => 10 + (n / 20) * 5;
+    public static int CanalBuildCost(int n) => 20 + (n / 10) * 5;
+
+    public static int PortBuildCost(int n) => 500 + n * 250;
+
+    public static int TruckBuildCost(int n) => 150 * n;
+    public static int FreighterBuildCost(int n) => 200 + n * 300;
 
 
     // ------------------- Market Cap -------------------
