@@ -10,11 +10,14 @@ namespace InGameCamera
     {
         private InputActionMap sphereNavigationActionMap;
         private InputAction primaryMousePressedAction;
+        private InputAction turnNorthAction;
         private InputAction lookAction;
         private InputAction zoomAction;
 
         public Transform Target;
         public float CurrentDistance { get; private set; } = 3f;
+
+        public Transform FocusedObject;
 
         [SerializeField] private InputActionAsset inputActions;
 
@@ -40,6 +43,13 @@ namespace InGameCamera
         [SerializeField] private float minScalingFactor = 0.5f;
         [SerializeField] private float maxScalingFactor = 2f;
 
+        [SerializeField] private float baseDegreesPerSecond = 45f;
+        [SerializeField] private float approachFactorPerSecond = 4f;
+
+        [SerializeField] private Vector3 north = new(0, 1, 0);
+
+        private bool turnNorth = false;
+
         private new Camera camera;
 
         private float zoomExp;
@@ -57,10 +67,29 @@ namespace InGameCamera
             }
         }
 
+        public Vector3 TangentNorth
+        {
+            get
+            {
+                var northNorm = north.normalized;
+                var dot = Vector3.Dot(transform.forward, northNorm);
+                return dot < 0.99f ? (northNorm - dot * transform.forward).normalized : transform.up;
+            }
+        }
+
+        public Vector2 LocalNorth
+        {
+            get
+            {
+                return camera.worldToCameraMatrix.MultiplyVector(TangentNorth);
+            }
+        }
+
         private void Awake()
         {
             sphereNavigationActionMap = inputActions.FindActionMap("SphereNavigation");
             primaryMousePressedAction = sphereNavigationActionMap.FindAction("PrimaryMousePressed");
+            turnNorthAction = sphereNavigationActionMap.FindAction("TurnNorth");
             lookAction = sphereNavigationActionMap.FindAction("Look");
             zoomAction = sphereNavigationActionMap.FindAction("Zoom");
         }
@@ -143,12 +172,20 @@ namespace InGameCamera
         {
             if (primaryMousePressedAction.IsPressed())
             {
+                FocusedObject = null;
                 var lookDelta = lookAction.ReadValue<Vector2>();
 
                 var velocityWorld = camera.ScreenToWorldPoint(new(0, 0, CurrentDistance - 1)) - camera.ScreenToWorldPoint(new(lookDelta.x, lookDelta.y, CurrentDistance - 1));
                 var axis = Vector3.Cross(transform.position, velocityWorld).normalized;
 
                 transform.rotation = Quaternion.AngleAxis(velocityWorld.magnitude * rotationSpeedFactor * 180 / Mathf.PI, axis) * transform.rotation;
+            }
+            else if (FocusedObject != null)
+            {
+                var currentVec = (transform.position - Target.position).normalized;
+                var targetVec = (FocusedObject.position - Target.position).normalized;
+
+                AddRotationStepFromTo(currentVec, targetVec);
             }
 
             var scrollDelta = zoomAction.ReadValue<Vector2>();
@@ -164,6 +201,36 @@ namespace InGameCamera
 
             var position = Target.position + transform.rotation * new Vector3(0f, 0f, -CurrentDistance);
             transform.position = position;
+
+            if (turnNorthAction.IsPressed())
+            {
+                TurnNorth();
+            }
+
+            if (turnNorth)
+            {
+                var currentVec = transform.up;
+                var targetVec = TangentNorth;
+
+                if(!AddRotationStepFromTo(currentVec, targetVec))
+                {
+                    turnNorth = false;
+                }
+            }
+        }
+
+        private bool AddRotationStepFromTo(Vector3 currentVec, Vector3 targetVec)
+        {
+            var totalAngle = Vector3.Angle(currentVec, targetVec);
+            if (totalAngle > 0.001f)
+            {
+                var angleThisFrame = Mathf.Min((totalAngle * approachFactorPerSecond + baseDegreesPerSecond) * Time.deltaTime, totalAngle);
+
+                var targetVecThisFrame = Vector3.Slerp(currentVec, targetVec, angleThisFrame / totalAngle);
+                transform.rotation = Quaternion.FromToRotation(currentVec, targetVecThisFrame) * transform.rotation;
+                return true;
+            }
+            return false;
         }
 
         private static float ExponentialMapRange(float value, float minX, float maxX, float minY, float maxY)
@@ -173,13 +240,18 @@ namespace InGameCamera
             return minY * (float)Math.Exp(k * (value - minX));
         }
 
-        // private void OnDrawGizmos()
-        // {
-        //     Gizmos.color = Color.red;
-        // 
-        //     var worldSpacePos = MainCamera.Instance.GetComponentInChildren<Camera>().ScreenToWorldPoint(new(0, 0, CurrentDistance - 1));
-        //     Gizmos.DrawSphere(worldSpacePos, 0.02f);
-        // }
+        private void OnDrawGizmos()
+        {
+            if (camera == null) return;
+            Gizmos.color = Color.red;
+
+            Vector3 localNorth = LocalNorth * 50f;
+            Vector3 screenCenter = new Vector3(camera.pixelWidth / 2, camera.pixelHeight / 2, CurrentDistance - 1.05f);
+            
+            var startPos = camera.ScreenToWorldPoint(screenCenter);
+            var endPos = camera.ScreenToWorldPoint(screenCenter + localNorth);
+            Gizmos.DrawLine(startPos, endPos);
+        }
 
         public static float Remap(float value, float fromMin, float fromMax, float toMin, float toMax)
         {
@@ -188,6 +260,11 @@ namespace InGameCamera
 
             // 2. Project that percentage onto the new target range
             return toMin + percentage * (toMax - toMin);
+        }
+
+        public void TurnNorth()
+        {
+            turnNorth = true;
         }
 
 

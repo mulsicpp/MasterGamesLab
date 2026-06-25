@@ -498,7 +498,7 @@ namespace UI
             if (nextVehicle == null)
                 nextVehicle = Map.Map.Instance.Fleet.Vehicles.FirstOrDefault(condition);
 
-            mainCamera.CenterOnPosition(nextVehicle.Transform.Position);
+            mainCamera.FocusedObject = nextVehicle.Renderer.transform;
             VehicleControls.SelectedVehicle = nextVehicle;
         }
 
@@ -521,7 +521,7 @@ namespace UI
 
                 if (v.Transform != null)
                 {
-                    mainCamera.CenterOnPosition(v.Transform.Position);
+                    mainCamera.FocusedObject = v.Renderer.transform;
                 }
             }
         }

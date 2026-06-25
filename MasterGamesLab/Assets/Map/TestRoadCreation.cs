@@ -60,11 +60,6 @@ public class TestRoadCreation : NetworkBehaviour
             Map.Map.Instance.FinishGame();
         }
 
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            var details = Map.Map.Instance.Blueprint.GetDetails();
-        }
-
         if (Input.GetKeyDown(KeyCode.M) && IsServer)
         {
             foreach (var player in Map.Map.Instance.Players)
@@ -73,7 +68,7 @@ public class TestRoadCreation : NetworkBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.N) && IsServer)
+        if (Input.GetKeyDown(KeyCode.P) && IsServer)
         {
             Map.Map.Instance.SpawnLogic.FastForward(0.05f);
         }

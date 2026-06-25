@@ -548,6 +548,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "TurnNorth",
+                    "type": "Button",
+                    "id": "d1c666c9-0853-4cf0-a2cf-693cc75abbe9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -702,6 +711,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "216b0450-8443-4a99-bd5b-32f368f675bf",
+                    "path": "<Keyboard>/n",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TurnNorth",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
