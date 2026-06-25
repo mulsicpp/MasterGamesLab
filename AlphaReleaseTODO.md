@@ -49,7 +49,7 @@ Visuals/3D:
 - Display good on trucks
 - More detailed/textured road
 - Better outline textures
-- Better player colros
+- Better player colors
 - Biomes
 
 UI:
@@ -57,13 +57,13 @@ UI:
 - Better looking pins
 - Compass
 - Time
-- Smooth camera movement when focusing object
+- Smooth camera movement when focusing object [done]
 - Change keyboard shortcuts
 - Audio
 
 Logic:
 - Highway
-- Speedy canals
+- Speedy canals [done]
 - Generate public roads at start
 - Destination queue
 - Find fastest affordable road
