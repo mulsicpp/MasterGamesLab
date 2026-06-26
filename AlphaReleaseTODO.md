@@ -66,15 +66,15 @@ Logic:
 - Speedy canals [done]
 - Generate public roads at start
 - Destination queue
-- Find fastest affordable road
+- Find fastest affordable road [ignore]
 
 Balancing:
 - Adjust prices for constructible objects
     - Increasing prices for consequtive elements [done]
 - Tolls (ports, roads, canals)
 - Consumer request payout increases more linear
-- Higher payout for foreign goods
+- Higher payout for foreign goods [done]
 - Change market cap calculation
 - More balanced spawn
-- Pick consumer for request at random (not from ready list)
+- Pick consumer for request at random (not from ready list) [done]
 - Change progress calculation
