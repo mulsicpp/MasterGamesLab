@@ -192,7 +192,7 @@ namespace UI
 
         public RouteOptions RouteOptions { get; private set; }
 
-        public void Awake()
+        public void Start()
         {
             RouteOptions = new();
         }

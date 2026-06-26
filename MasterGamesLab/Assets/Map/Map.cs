@@ -129,7 +129,6 @@ namespace Map
         private void Awake()
         {
             Instance = this;
-
             Generate(GenerationSeed ?? 0);
         }
 

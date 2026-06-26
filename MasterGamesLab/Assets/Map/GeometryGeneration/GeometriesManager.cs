@@ -1,7 +1,4 @@
-﻿using Player;
-using System;
-using Map.GeometryGeneration.Edges;
-using UnityEditorInternal;
+﻿using System;
 using UnityEngine;
 
 namespace Map.GeometryGeneration
