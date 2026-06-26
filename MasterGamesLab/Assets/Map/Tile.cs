@@ -273,6 +273,8 @@ namespace Map
         {
             if (Structure != null) return false;
 
+            if (CountEdgesWith(edge => !(edge.Type is Edge.EdgeType.None or Edge.EdgeType.Road)) > 0) return false;
+
             switch (type)
             {
                 case Structure.StructureType.Producer:

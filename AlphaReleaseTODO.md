@@ -38,8 +38,8 @@
 - Show canal owner 
 - Compass
 
-- Fix bug: Construction controls are disabled when hidden
-- Fix bug: Consumer/Producer spawn on canals
+- Fix bug: Construction controls are disabled when hidden [done]
+- Fix bug: Consumer/Producer spawn on canals [done]
 
 Visuals/3D:
 - Hide elements in blueprint
@@ -70,7 +70,7 @@ Logic:
 
 Balancing:
 - Adjust prices for constructible objects
-    - Increasing prices for consequtive elements
+    - Increasing prices for consequtive elements [done]
 - Tolls (ports, roads, canals)
 - Consumer request payout increases more linear
 - Higher payout for foreign goods
