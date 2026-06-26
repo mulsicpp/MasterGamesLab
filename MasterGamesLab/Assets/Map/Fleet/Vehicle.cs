@@ -493,27 +493,33 @@ namespace Map.Fleet
                         int tileIndex = (int)(visualProgress + 0.5f);
                         float localProgress = visualProgress - tileIndex;
 
-                        Vector3 position = default;
-                        Vector3 tangent = default;
+                        Vector3 position;
+                        Vector3 tangent;
+
+                        ParametricCurve.CurveType curveType = Type switch
+                        {
+                            VehicleType.Freighter => ParametricCurve.CurveType.Water,
+                            _ => ParametricCurve.CurveType.Road,
+                        };
 
                         if (tileIndex == 0)
                         {
                             var curve = GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex + 1],
-                                Route[tileIndex]);
+                                Route[tileIndex], curveType);
                             position = curve.Evaluate(1 - localProgress * 2f);
                             tangent = -curve.Derivative(1 - localProgress * 2f).normalized;
                         }
                         else if (tileIndex >= (Route.Length - 1))
                         {
                             var curve = GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex - 1],
-                                Route[tileIndex]);
+                                Route[tileIndex], curveType);
                             position = curve.Evaluate(1 + localProgress * 2f);
                             tangent = curve.Derivative(1 + localProgress * 2f).normalized;
                         }
                         else
                         {
                             var curve = GeometryGeneration.ParametricCurve.FromTileToTileOverTile(Route[tileIndex - 1],
-                                Route[tileIndex + 1], Route[tileIndex]);
+                                Route[tileIndex + 1], Route[tileIndex], curveType);
                             position = curve.Evaluate(localProgress + 0.5f);
                             tangent = curve.Derivative(localProgress + 0.5f).normalized;
                         }

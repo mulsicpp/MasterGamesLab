@@ -29,7 +29,7 @@ namespace Networking
 
             private List<Producer.ProducerState> producers;
             private List<Consumer.ConsumerState> consumers;
-            private List<Garage.GarageState> garages;
+            private List<CarPark.CarParkState> carParks;
             private List<Port.PortState> ports;
 
             private List<Truck.TruckState> trucks;
@@ -41,7 +41,7 @@ namespace Networking
                 edges = new();
                 producers = new();
                 consumers = new();
-                garages = new();
+                carParks = new();
                 ports = new();
                 trucks = new();
                 freighters = new();
@@ -55,7 +55,7 @@ namespace Networking
                     case Edge.EdgeState e: edges.Add(e); break;
                     case Producer.ProducerState p: producers.Add(p); break;
                     case Consumer.ConsumerState c: consumers.Add(c); break;
-                    case Garage.GarageState g: garages.Add(g); break;
+                    case CarPark.CarParkState g: carParks.Add(g); break;
                     case Port.PortState pt: ports.Add(pt); break;
                     case Truck.TruckState t: trucks.Add(t); break;
                     case Freighter.FreighterState f: freighters.Add(f); break;
@@ -74,7 +74,7 @@ namespace Networking
                     edges.ToArray(),
                     producers.ToArray(),
                     consumers.ToArray(),
-                    garages.ToArray(),
+                    carParks.ToArray(),
                     ports.ToArray(),
                     trucks.ToArray(),
                     freighters.ToArray(),

@@ -38,6 +38,7 @@ namespace Map
         public IReadOnlyList<ITile> ActiveTiles => activeTiles;
         public float Radius => radius;
         public int Resolution => resolution;
+        public float TileScale => (Radius / (Resolution + 1)) * 0.3524163807f;
 
         public float TEST_ROAD_HANDLE_DISTANCE = 0.025f;
         public float TEST_ROAD_HEIGHT = 0.01f;
@@ -80,7 +81,7 @@ namespace Map
 
         public GameObject ProducerPrefab;
         public GameObject ConsumerPrefab;
-        public GameObject GaragePrefab;
+        public GameObject CarParkPrefab;
         public GameObject PortPrefab;
 
         public GameObject RoutePrefab;
@@ -88,6 +89,10 @@ namespace Map
 
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
+        [SerializeField] private float projectionActivationDistance = 2.4f;
+
+        [SerializeField] private float projectionBaseSpeed = 2f;
+        [SerializeField] private float projectionApproachFactor = 4f;
 
         public HoverablePicker.HoverableLayer HoverLayers = HoverablePicker.HoverableLayer.All;
 
@@ -128,7 +133,6 @@ namespace Map
         private void Awake()
         {
             Instance = this;
-
             Generate(GenerationSeed ?? 0);
         }
 
@@ -229,10 +233,21 @@ namespace Map
         {
             var projectionCenter = (MainCamera.Instance.CurrentPosition - transform.position).normalized;
             var currentDistance = MainCamera.Instance.CurrentDistance;
-            var projectionFactor = (currentDistance - fullSphereDistance) /
-                                   (fullProjectionDistance - fullSphereDistance);
+            // var projectionFactor = (currentDistance - fullSphereDistance) /
+            //                        (fullProjectionDistance - fullSphereDistance);
+            // projectionFactor = Mathf.Clamp01(projectionFactor);
 
-            projectionFactor = Mathf.Clamp01(projectionFactor);
+            var projectionFactor = oldProjectionFactor;
+            var targetProjectionFactor = currentDistance < projectionActivationDistance ? 1.0f : 0.0f;
+
+            var distanceAbs = Mathf.Abs(targetProjectionFactor - oldProjectionFactor);
+            if (distanceAbs > 0.001f)
+            {
+                var distanceThisFrame = Mathf.Min((distanceAbs * projectionApproachFactor + projectionBaseSpeed) * Time.deltaTime, distanceAbs);
+
+                projectionFactor = Mathf.Lerp(oldProjectionFactor, targetProjectionFactor, distanceThisFrame / distanceAbs);
+            }
+
 
             if (oldProjectionCenter == projectionCenter && Mathf.Approximately(oldProjectionFactor, projectionFactor))
             {
@@ -542,7 +557,7 @@ namespace Map
 
             sender.AddObjects<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
             sender.AddObjects<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
-            sender.AddObjects<Garage, Garage.GarageState>(infrastructure.Garages, condition);
+            sender.AddObjects<CarPark, CarPark.CarParkState>(infrastructure.CarParks, condition);
             sender.AddObjects<Port, Port.PortState>(infrastructure.Ports, condition);
 
             sender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
@@ -563,7 +578,7 @@ namespace Map
 
             ReliableSender.AddObjects<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
             ReliableSender.AddObjects<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
-            ReliableSender.AddObjects<Garage, Garage.GarageState>(infrastructure.Garages, condition);
+            ReliableSender.AddObjects<CarPark, CarPark.CarParkState>(infrastructure.CarParks, condition);
             ReliableSender.AddObjects<Port, Port.PortState>(infrastructure.Ports, condition);
 
             ReliableSender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
@@ -600,7 +615,7 @@ namespace Map
             Edge.EdgeState[] edges,
             Producer.ProducerState[] producers,
             Consumer.ConsumerState[] consumers,
-            Garage.GarageState[] garages,
+            CarPark.CarParkState[] carParks,
             Port.PortState[] ports,
             Truck.TruckState[] trucks,
             Freighter.FreighterState[] freighters,
@@ -616,7 +631,7 @@ namespace Map
 
             ApplyStatesLocal(serverTime, Infrastructure.Producers, producers);
             ApplyStatesLocal(serverTime, Infrastructure.Consumers, consumers);
-            ApplyStatesLocal(serverTime, Infrastructure.Garages, garages);
+            ApplyStatesLocal(serverTime, Infrastructure.CarParks, carParks);
             ApplyStatesLocal(serverTime, Infrastructure.Ports, ports);
 
             ApplyStatesLocal(serverTime, Fleet.Trucks, trucks);
@@ -1019,11 +1034,11 @@ namespace Map
                 }
             }
 
-            foreach (var garage in infrastructure.Garages)
+            foreach (var carPark in infrastructure.CarParks)
             {
-                if (garage.Tile != null)
+                if (carPark.Tile != null)
                 {
-                    Vector3 basePos = GetProjectedPosition(garage.Tile.PositionOnSphere, 1.015f);
+                    Vector3 basePos = GetProjectedPosition(carPark.Tile.PositionOnSphere, 1.015f);
                     Gizmos.color = Color.brown;
                     Gizmos.DrawSphere(basePos, 0.025f);
                 }

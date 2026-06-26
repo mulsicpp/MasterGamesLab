@@ -36,7 +36,7 @@ public class TestRoadCreation : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.O) && IsServer)
         {
-            Map.Map.Instance.Infrastructure.SpawnGlobal(new Garage.GarageState { Common = { TileId = tile.Id } });
+            Map.Map.Instance.Infrastructure.SpawnGlobal(new CarPark.CarParkState { Common = { TileId = tile.Id } });
         }
 
         // if (Input.GetKeyDown(KeyCode.L))
@@ -60,11 +60,6 @@ public class TestRoadCreation : NetworkBehaviour
             Map.Map.Instance.FinishGame();
         }
 
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            var details = Map.Map.Instance.Blueprint.GetDetails();
-        }
-
         if (Input.GetKeyDown(KeyCode.M) && IsServer)
         {
             foreach (var player in Map.Map.Instance.Players)
@@ -73,7 +68,7 @@ public class TestRoadCreation : NetworkBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.N) && IsServer)
+        if (Input.GetKeyDown(KeyCode.P) && IsServer)
         {
             Map.Map.Instance.SpawnLogic.FastForward(0.05f);
         }

@@ -7,7 +7,7 @@ namespace Map.Infrastructure
     {
         public IReadOnlyList<Producer> Producers { get; }
         public IReadOnlyList<Consumer> Consumers { get; }
-        public IReadOnlyList<Garage> Garages { get; }
+        public IReadOnlyList<CarPark> CarParks { get; }
         public IReadOnlyList<Port> Ports { get; }
 
         public IReadOnlyList<Structure> Structures { get; }

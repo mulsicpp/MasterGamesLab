@@ -16,7 +16,7 @@ namespace Map.Infrastructure
         {
             Producer,
             Consumer,
-            Garage,
+            CarPark,
             Port,
             TrainStation
         }
@@ -155,7 +155,7 @@ namespace Map.Infrastructure
         {
             return type switch
             {
-                StructureType.Garage => Constants.MAX_GARAGES_PER_PLAYER,
+                StructureType.CarPark => Constants.MAX_GARAGES_PER_PLAYER,
                 StructureType.Port => Constants.MAX_PORTS_PER_PLAYER,
                 _ => -1
             };

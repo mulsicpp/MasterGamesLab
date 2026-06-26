@@ -12,8 +12,8 @@ namespace Map.Infrastructure
         private readonly Consumer[] consumers;
         public IReadOnlyList<Consumer> Consumers => consumers;
 
-        private readonly Garage[] garages;
-        public IReadOnlyList<Garage> Garages => garages;
+        private readonly CarPark[] carParks;
+        public IReadOnlyList<CarPark> CarParks => carParks;
 
         private readonly Port[] ports;
         public IReadOnlyList<Port> Ports => ports;
@@ -43,10 +43,10 @@ namespace Map.Infrastructure
             structureRanges[Structure.StructureType.Consumer] = tempStructures.Count..(tempStructures.Count + consumers.Length);
             tempStructures.AddRange(consumers);
 
-            garages = new Garage[Constants.MAX_GARAGES_PER_PLAYER * playerCount];
-            for (var i = 0; i < garages.Length; i++) garages[i] = new Garage(new StructureIndex((byte)i));
-            structureRanges[Structure.StructureType.Garage] = tempStructures.Count..(tempStructures.Count + garages.Length);
-            tempStructures.AddRange(garages);
+            carParks = new CarPark[Constants.MAX_GARAGES_PER_PLAYER * playerCount];
+            for (var i = 0; i < carParks.Length; i++) carParks[i] = new CarPark(new StructureIndex((byte)i));
+            structureRanges[Structure.StructureType.CarPark] = tempStructures.Count..(tempStructures.Count + carParks.Length);
+            tempStructures.AddRange(carParks);
 
             ports = new Port[Constants.MAX_PORTS_PER_PLAYER * playerCount];
             for (var i = 0; i < ports.Length; i++) ports[i] = new Port(new StructureIndex((byte)i));
@@ -66,7 +66,7 @@ namespace Map.Infrastructure
                 {
                     Structure.StructureType.Producer => producers,
                     Structure.StructureType.Consumer => consumers,
-                    Structure.StructureType.Garage => garages,
+                    Structure.StructureType.CarPark => carParks,
                     Structure.StructureType.Port => ports,
                     // case Structure.StructureType.TrainStation: structures = trainStations; break;
                     _ => null
@@ -96,7 +96,7 @@ namespace Map.Infrastructure
             if (state is Producer.ProducerState p) producers[p.ArrayIndex].State = p;
             else if (state is Consumer.ConsumerState c) consumers[c.ArrayIndex].State = c;
             else if (state is Port.PortState pt) ports[pt.ArrayIndex].State = pt;
-            else if (state is Garage.GarageState g) garages[g.ArrayIndex].State = g;
+            else if (state is CarPark.CarParkState g) carParks[g.ArrayIndex].State = g;
             else throw new ArgumentException("Given IStructureState is not supported: " + state.GetType().FullName);
         }
 

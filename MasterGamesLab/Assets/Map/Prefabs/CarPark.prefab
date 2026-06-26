@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3878134763162412230}
   - component: {fileID: 5823246843871546993}
   m_Layer: 0
-  m_Name: Garage
+  m_Name: CarPark
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -94,6 +94,8 @@ namespace UI
                     goodsImages.Add(pair.GoodType, pair.ImageAsset);
                 }
             }
+
+            mainCamera = MainCamera.Instance.GetComponentInChildren<PlanetCameraController>();
         }
 
         protected override void OnEnable()
@@ -168,7 +170,7 @@ namespace UI
 
             // 5. Initialize States & Loops
             blueprintCountContainer.style.display = DisplayStyle.None;
-            UpdateAllPlayerStats();
+            // UpdateAllPlayerStats();
             uiUpdateCoroutine = StartCoroutine(PeriodicUiUpdateLoop());
 
             container.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
@@ -177,9 +179,6 @@ namespace UI
             blueprintCountContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
             tabMenu.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
             tabMenu.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
-
-
-            mainCamera = MainCamera.Instance.GetComponentInChildren<PlanetCameraController>();
         }
 
         void OnDisable()
@@ -498,7 +497,7 @@ namespace UI
             if (nextVehicle == null)
                 nextVehicle = Map.Map.Instance.Fleet.Vehicles.FirstOrDefault(condition);
 
-            mainCamera.CenterOnPosition(nextVehicle.Transform.Position);
+            mainCamera.FocusedObject = nextVehicle.Renderer.transform;
             VehicleControls.SelectedVehicle = nextVehicle;
         }
 
@@ -521,7 +520,7 @@ namespace UI
 
                 if (v.Transform != null)
                 {
-                    mainCamera.CenterOnPosition(v.Transform.Position);
+                    mainCamera.FocusedObject = v.Renderer.transform;
                 }
             }
         }
@@ -532,6 +531,10 @@ namespace UI
 
         public void ShowTabMenu(bool visible)
         {
+            if(visible)
+            {
+                UpdateAllPlayerStats();
+            }
             Visibility style = visible ? Visibility.Visible : Visibility.Hidden;
             tabMenu.style.visibility = style;
         }

@@ -1,4 +1,5 @@
 using Map.Infrastructure;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,7 +23,7 @@ public static class Constants
 
     public const byte MAX_FREIGHTERS_PER_PLAYER = 8;
     public const byte MAX_FREIGHTER_COUNT = MAX_FREIGHTERS_PER_PLAYER * MAX_PLAYER_COUNT;
-    public const float FREIGHTER_BASE_SPEED_TPS = 0.4f;
+    public const float FREIGHTER_BASE_SPEED_TPS = 0.6f;
 
     public const int TRUCK_LOADING_COST_ENEMY = 40;
     public const int TRUCK_UNLOADING_COST_ENEMY = 80;
@@ -94,6 +95,14 @@ public static class Constants
     public const int TRUCK_BUILD_COST = 150;
     public const int FREIGHTER_BUILD_COST = 300;
 
+    public static int RoadBuildCost(int n) => 10 + (n / 20) * 5;
+    public static int CanalBuildCost(int n) => 20 + (n / 10) * 5;
+
+    public static int PortBuildCost(int n) => 500 + n * 250;
+
+    public static int TruckBuildCost(int n) => 150 * n;
+    public static int FreighterBuildCost(int n) => 200 + n * 300;
+
 
     // ------------------- Market Cap -------------------
 
@@ -120,7 +129,7 @@ public static class Constants
     public const int CANAL_TRAVERSAL_COST_OWN = 0;
     public const int CANAL_TRAVERSAL_COST_ENEMY = 1;
 
-    public const float CANAL_SPEED_MULTIPLIER = 1.0f;
+    public const float CANAL_SPEED_MULTIPLIER = 2.5f;
 
 
     // ------------------- Networking -------------------
