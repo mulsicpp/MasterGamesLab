@@ -43,8 +43,11 @@ namespace InGameCamera
         [SerializeField] private float minScalingFactor = 0.5f;
         [SerializeField] private float maxScalingFactor = 2f;
 
-        [SerializeField] private float baseDegreesPerSecond = 45f;
-        [SerializeField] private float approachFactorPerSecond = 4f;
+        [SerializeField] private float rotationBaseSpeed = 90f;
+        [SerializeField] private float rotationApproachFactor = 5f;
+
+        [SerializeField] private float zoomBaseSpeed = 1.0f;
+        [SerializeField] private float zoomApproachFactor = 8f;
 
         [SerializeField] private Vector3 north = new(0, 1, 0);
 
@@ -53,6 +56,7 @@ namespace InGameCamera
         private new Camera camera;
 
         private float zoomExp;
+        private float currentZoomExp;
 
         // Internal tracking variables
         private float currentYaw = 0f;
@@ -109,6 +113,7 @@ namespace InGameCamera
             currentYaw = angles.y;
 
             zoomExp = 0.0f;
+            currentZoomExp = zoomExp;
         }
 
         private void LateUpdate()
@@ -196,8 +201,16 @@ namespace InGameCamera
             if (zoomExp - scrollDelta.y <= maxZoomExp && zoomExp - scrollDelta.y >= minZoomExp)
             {
                 zoomExp -= scrollDelta.y;
-                CurrentDistance = Mathf.Pow(zoomBase, zoomExp) * zoomFactor + zoomOffset;
             }
+
+            var totalZoomDistanceAbs = Mathf.Abs(zoomExp - currentZoomExp);
+            if (totalZoomDistanceAbs > 0.001f)
+            {
+                var zoomDistanceThisFrame = Mathf.Min((totalZoomDistanceAbs * zoomApproachFactor + zoomBaseSpeed) * Time.deltaTime, totalZoomDistanceAbs);
+
+                currentZoomExp = Mathf.Lerp(currentZoomExp, zoomExp, zoomDistanceThisFrame / totalZoomDistanceAbs);
+            }
+            CurrentDistance = Mathf.Pow(zoomBase, currentZoomExp) * zoomFactor + zoomOffset;
 
             var position = Target.position + transform.rotation * new Vector3(0f, 0f, -CurrentDistance);
             transform.position = position;
@@ -224,7 +237,7 @@ namespace InGameCamera
             var totalAngle = Vector3.Angle(currentVec, targetVec);
             if (totalAngle > 0.001f)
             {
-                var angleThisFrame = Mathf.Min((totalAngle * approachFactorPerSecond + baseDegreesPerSecond) * Time.deltaTime, totalAngle);
+                var angleThisFrame = Mathf.Min((totalAngle * rotationApproachFactor + rotationBaseSpeed) * Time.deltaTime, totalAngle);
 
                 var targetVecThisFrame = Vector3.Slerp(currentVec, targetVec, angleThisFrame / totalAngle);
                 transform.rotation = Quaternion.FromToRotation(currentVec, targetVecThisFrame) * transform.rotation;

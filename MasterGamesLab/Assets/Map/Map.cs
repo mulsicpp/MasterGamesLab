@@ -89,6 +89,10 @@ namespace Map
 
         [SerializeField] private float fullSphereDistance = 2;
         [SerializeField] private float fullProjectionDistance = 1.5f;
+        [SerializeField] private float projectionActivationDistance = 2.4f;
+
+        [SerializeField] private float projectionBaseSpeed = 2f;
+        [SerializeField] private float projectionApproachFactor = 4f;
 
         public HoverablePicker.HoverableLayer HoverLayers = HoverablePicker.HoverableLayer.All;
 
@@ -229,10 +233,21 @@ namespace Map
         {
             var projectionCenter = (MainCamera.Instance.CurrentPosition - transform.position).normalized;
             var currentDistance = MainCamera.Instance.CurrentDistance;
-            var projectionFactor = (currentDistance - fullSphereDistance) /
-                                   (fullProjectionDistance - fullSphereDistance);
+            // var projectionFactor = (currentDistance - fullSphereDistance) /
+            //                        (fullProjectionDistance - fullSphereDistance);
+            // projectionFactor = Mathf.Clamp01(projectionFactor);
 
-            projectionFactor = Mathf.Clamp01(projectionFactor);
+            var projectionFactor = oldProjectionFactor;
+            var targetProjectionFactor = currentDistance < projectionActivationDistance ? 1.0f : 0.0f;
+
+            var distanceAbs = Mathf.Abs(targetProjectionFactor - oldProjectionFactor);
+            if (distanceAbs > 0.001f)
+            {
+                var distanceThisFrame = Mathf.Min((distanceAbs * projectionApproachFactor + projectionBaseSpeed) * Time.deltaTime, distanceAbs);
+
+                projectionFactor = Mathf.Lerp(oldProjectionFactor, targetProjectionFactor, distanceThisFrame / distanceAbs);
+            }
+
 
             if (oldProjectionCenter == projectionCenter && Mathf.Approximately(oldProjectionFactor, projectionFactor))
             {
