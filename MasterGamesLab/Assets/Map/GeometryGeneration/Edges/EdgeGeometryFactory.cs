@@ -13,9 +13,50 @@ namespace Map.GeometryGeneration.Edges
         private const int EDGE_RESOLUTION = 5;
         private const float ROAD_RADIUS = 0.01f;
         private const float FULL_ROAD_RADIUS = ROAD_RADIUS * 0.9f;
-        
+
         private const float FASTEST_ROAD_NORMAL_DELTA = 0.0015f;
         private const float CHEAPEST_ROAD_NORMAL_DELTA = 0.001f;
+
+        public struct ProfileValue
+        {
+            public float t;
+            public float height;
+            public float uvXValue;
+        }
+
+        private static readonly ProfileValue[] RoadProfile = new[]
+        {
+            new ProfileValue()
+            {
+                t = 0,
+                height = 0,
+                uvXValue = 0,
+            },
+            new ProfileValue()
+            {
+                t = 0.8f,
+                height = 0,
+                uvXValue = 0.1f,
+            },
+            new ProfileValue()
+            {
+                t = 0.8f,
+                height = 0.1f,
+                uvXValue = 0.5f,
+            },
+            new ProfileValue()
+            {
+                t = 1f,
+                height = 0.1f,
+                uvXValue = 0.9f,
+            },
+            new ProfileValue()
+            {
+                t = 1f,
+                height = 0f,
+                uvXValue = 1,
+            },
+        };
 
         public struct TileInformation
         {
@@ -29,9 +70,7 @@ namespace Map.GeometryGeneration.Edges
             if ((!blueprint && edge.Type == Edge.EdgeType.Road) ||
                 (blueprint && edge.BlueprintType == Edge.EdgeType.Road))
             {
-                return info.AmountOfRoads <= 2
-                    ? BuildParametricCurve(tile, edge, blueprint)
-                    : BuildConnectingParametricCurves(tile, edge, blueprint);
+                return BuildConnectingParametricCurves(tile, edge, blueprint, RoadProfile);
             }
 
             if (edge.Type == Edge.EdgeType.Canal || edge.BlueprintType == Edge.EdgeType.Canal)
@@ -43,85 +82,23 @@ namespace Map.GeometryGeneration.Edges
             // return BuildBackup(tile, edge);
         }
 
-        public static Edge.PartialEdgeGeometry BuildParametricCurve(Tile tile, Edge edge, bool blueprint)
+        public static Edge.PartialEdgeGeometry BuildConnectingParametricCurves(Tile tile, Edge edge, bool blueprint,
+            ProfileValue[] profile)
         {
-            var vertices = new List<Vector3>();
-            var triangles = new List<int>();
-            var uv1 = new List<Vector4>();
-            var data = edge.GetEdgeData();
+            var geometry = Edge.PartialEdgeGeometry.Empty;
 
-            var otherFound = false;
-            Edge other = null;
-            foreach (var e in tile.Edges)
-            {
-                if (!((blueprint && e.BlueprintType == edge.BlueprintType) ||
-                      (!blueprint && e.Type == edge.Type)))
-                {
-                    continue;
-                }
-
-                if (e.Id != edge.Id)
-                {
-                    other = e;
-                    otherFound = true;
-                }
-            }
-
-            var curve = otherFound
-                ? ParametricCurve.FromEdgeToEdge(edge, other, tile)
-                : ParametricCurve.FromEdgeToTileCenter(edge, tile);
-
-            var factor = otherFound ? 0.5f : 1f;
-
-            for (var i = 0; i < EDGE_RESOLUTION; i++)
-            {
-                var t = (float)i / (EDGE_RESOLUTION - 1) * factor;
-
-                var (p, normal) = GetPosAndNormal(curve, t);
-
-                var leftPoint = p + normal * ROAD_RADIUS;
-                var rightPoint = p - normal * ROAD_RADIUS;
-
-                vertices.Add(leftPoint);
-                vertices.Add(rightPoint);
-
-                uv1.Add(data);
-                uv1.Add(data);
-
-                if (i == 0)
-                {
-                    continue;
-                }
-
-                var i2 = i * 2;
-                triangles.Add(i2 - 2);
-                triangles.Add(i2);
-                triangles.Add(i2 - 1);
-
-                triangles.Add(i2 - 1);
-                triangles.Add(i2);
-                triangles.Add(i2 + 1);
-            }
-
-            return new Edge.PartialEdgeGeometry
-            {
-                Vertices = vertices,
-                UV1 = uv1,
-                Triangles = triangles
-            };
-        }
-
-        public static Edge.PartialEdgeGeometry BuildConnectingParametricCurves(Tile tile, Edge edge, bool blueprint)
-        {
-            var vertices = new List<Vector3>();
-            var triangles = new List<int>();
-            var uv1 = new List<Vector4>();
             var data = edge.GetEdgeData();
 
             var validEdges = new List<Edge>(6);
             var selfIdx = -1;
+            var hasCanal = false;
             foreach (var e in tile.Edges)
             {
+                if (e.Type == Edge.EdgeType.Canal)
+                {
+                    hasCanal = true;
+                }
+
                 if (!((blueprint && e.BlueprintType == edge.BlueprintType) ||
                       (!blueprint && e.Type == edge.Type)))
                 {
@@ -176,53 +153,64 @@ namespace Map.GeometryGeneration.Edges
 
             var nextIdx = (selfIdx + 1) % validEdges.Count;
             var prevIdx = (selfIdx - 1 + validEdges.Count) % validEdges.Count;
-            var curveToPrevious = ParametricCurve.FromEdgeToEdge(edge, validEdges[prevIdx], tile);
-            var curveToNext = ParametricCurve.FromEdgeToEdge(edge, validEdges[nextIdx], tile);
+
+            var curveToPrevious =
+                validEdges.Count > 1
+                    ? ParametricCurve.FromEdgeToEdge(edge, validEdges[prevIdx], tile)
+                    : ParametricCurve.FromEdgeToTileCenter(edge, tile);
+            var curveToNext = validEdges.Count > 1
+                ? ParametricCurve.FromEdgeToEdge(edge, validEdges[nextIdx], tile)
+                : ParametricCurve.FromEdgeToTileCenter(edge, tile);
+
+            var factor = validEdges.Count > 1 ? 0.5f : 1f;
+            var includeCenter = validEdges.Count > 2;
 
             for (var i = 0; i < EDGE_RESOLUTION; i++)
             {
-                var t = (float)i / (EDGE_RESOLUTION - 1) * 0.5f;
+                var t = (float)i / (EDGE_RESOLUTION - 1) * factor;
 
                 var (pToPrev, normalToPrev) = GetPosAndNormal(curveToPrevious, t);
                 var (pToNext, normalToNext) = GetPosAndNormal(curveToNext, t);
 
+                data.w = i / (float)(EDGE_RESOLUTION - 1);
 
-                var leftPoint = pToNext + normalToNext * ROAD_RADIUS;
-                var rightPoint = pToPrev - normalToPrev * ROAD_RADIUS;
+                AddProfileValues(pToPrev, -normalToPrev, profile, ref geometry, data, i > 0, false);
+                AddProfileValues(pToNext, normalToNext, profile, ref geometry, data, i > 0, true);
 
-                vertices.Add(leftPoint);
-                vertices.Add(rightPoint);
-
-                uv1.Add(data);
-                uv1.Add(data);
-
-                if (i == 0)
+                if (includeCenter && i > 0)
                 {
-                    continue;
+                    if (i == 1)
+                    {
+                        geometry.Triangles.Add(0);
+                        geometry.Triangles.Add(3 * profile.Length);
+                        geometry.Triangles.Add(2 * profile.Length);
+                    }
+                    else
+                    {
+                        var start = (i - 1) * 2 * profile.Length;
+
+                        geometry.Triangles.Add(start);
+                        geometry.Triangles.Add(start + profile.Length);
+                        geometry.Triangles.Add(start + 2 * profile.Length);
+
+                        geometry.Triangles.Add(start + profile.Length);
+                        geometry.Triangles.Add(start + 3 * profile.Length);
+                        geometry.Triangles.Add(start + 2 * profile.Length);
+                    }
                 }
-
-                var i2 = i * 2;
-                triangles.Add(i2 - 2);
-                triangles.Add(i2);
-                triangles.Add(i2 - 1);
-
-                triangles.Add(i2 - 1);
-                triangles.Add(i2);
-                triangles.Add(i2 + 1);
             }
 
-            vertices.Add(center);
-            uv1.Add(data);
-            triangles.Add(vertices.Count - 3);
-            triangles.Add(vertices.Count - 1);
-            triangles.Add(vertices.Count - 2);
-
-            return new Edge.PartialEdgeGeometry
+            if (includeCenter)
             {
-                Vertices = vertices,
-                UV1 = uv1,
-                Triangles = triangles
-            };
+                geometry.Vertices.Add(center);
+                geometry.UV1.Add(data);
+
+                geometry.Triangles.Add(geometry.Vertices.Count - 1);
+                geometry.Triangles.Add((EDGE_RESOLUTION - 1) * 2 * profile.Length);
+                geometry.Triangles.Add((EDGE_RESOLUTION - 1) * 2 * profile.Length + profile.Length);
+            }
+
+            return geometry;
         }
 
         public static (Vector3, Vector3) GetPosAndNormal(ParametricCurve curve, float t)
@@ -538,7 +526,8 @@ namespace Map.GeometryGeneration.Edges
             return fullRoadGeometry;
         }
 
-        private static void AddCurveData(ParametricCurve curve, FullRoadGeometry element, Vector4 uv1, FullRoadGeometry.FullRoadType type)
+        private static void AddCurveData(ParametricCurve curve, FullRoadGeometry element, Vector4 uv1,
+            FullRoadGeometry.FullRoadType type)
         {
             var vertexOffset = element.Vertices.Count;
             var heightOffset = type == FullRoadGeometry.FullRoadType.Fastest
@@ -566,6 +555,49 @@ namespace Map.GeometryGeneration.Edges
                 var i2 = vertexOffset + i * 2;
                 element.AddTriangle(i2 - 2, i2, i2 - 1);
                 element.AddTriangle(i2 - 1, i2, i2 + 1);
+            }
+        }
+
+        private static void AddProfileValues(Vector3 center, Vector3 normal, ProfileValue[] profile,
+            ref Edge.PartialEdgeGeometry geometry, Vector4 data, bool generateTriangles, bool flipWindingOrder)
+        {
+            var offset = profile.Length * 2;
+            var startIdx = geometry.Vertices.Count;
+
+            for (var i = 0; i < profile.Length; i++)
+            {
+                var profileValue = profile[i];
+                var horizontalPos = center + normal * (profileValue.t * ROAD_RADIUS);
+                var pos = horizontalPos + horizontalPos.normalized * (profileValue.height * ROAD_RADIUS);
+
+                data.z = profile[i].uvXValue;
+
+                geometry.Vertices.Add(pos);
+                geometry.UV1.Add(data);
+
+                if (generateTriangles && i > 0)
+                {
+                    if (!flipWindingOrder)
+                    {
+                        geometry.Triangles.Add(startIdx + i - 1 - offset);
+                        geometry.Triangles.Add(startIdx + i - 1);
+                        geometry.Triangles.Add(startIdx + i);
+
+                        geometry.Triangles.Add(startIdx + i);
+                        geometry.Triangles.Add(startIdx + i - offset);
+                        geometry.Triangles.Add(startIdx + i - 1 - offset);
+                    }
+                    else
+                    {
+                        geometry.Triangles.Add(startIdx + i - 1);
+                        geometry.Triangles.Add(startIdx + i - 1 - offset);
+                        geometry.Triangles.Add(startIdx + i);
+
+                        geometry.Triangles.Add(startIdx + i - offset);
+                        geometry.Triangles.Add(startIdx + i);
+                        geometry.Triangles.Add(startIdx + i - 1 - offset);
+                    }
+                }
             }
         }
     }

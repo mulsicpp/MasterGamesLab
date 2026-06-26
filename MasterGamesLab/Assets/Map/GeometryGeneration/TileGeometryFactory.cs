@@ -974,7 +974,7 @@ namespace Map.GeometryGeneration
         {
             var left = nt.LeftVertex.normalized * height;
             var right = nt.RightVertex.normalized * height;
-            var center = (left + right) / 2;
+            var center = ((left + right) / 2).normalized * height;
 
             return (left, right, center);
 
