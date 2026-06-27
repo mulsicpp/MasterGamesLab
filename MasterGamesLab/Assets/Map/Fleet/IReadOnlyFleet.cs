@@ -11,6 +11,8 @@ namespace Map.Fleet
 
         public IReadOnlyList<Vehicle> Vehicles { get; }
 
+        public IReadOnlyList<VehicleActionQueue> VehicleActionQueues { get; }
+
         public IReadOnlyDictionary<Vehicle.VehicleType, Range> VehicleRanges { get; }
 
         public Vehicle this[VehicleId id] { get; }

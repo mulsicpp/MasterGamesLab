@@ -52,6 +52,8 @@ namespace Map.Fleet
 
         public override float BaseSpeedTPS => Constants.FREIGHTER_BASE_SPEED_TPS;
 
+        public override bool IsIdle => IsParked;
+
         public Truck Truck;
 
         public FreighterState State
@@ -80,6 +82,17 @@ namespace Map.Fleet
         protected override void OnParked()
         {
             // TODO implement
+        }
+
+        protected override bool CanDoAction(VehicleAction action)
+        {
+            // TODO correct validation
+            return false;
+        }
+
+        protected override void DoAction(VehicleAction action)
+        {
+            throw new System.NotImplementedException();
         }
 
         public bool CanLoadTruck(Player.Player player, Truck truck, out int cost)

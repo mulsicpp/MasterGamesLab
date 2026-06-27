@@ -563,6 +563,8 @@ namespace Map
             sender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
             sender.AddObjects<Freighter, Freighter.FreighterState>(fleet.Freighters, condition);
 
+            sender.AddObjects<VehicleActionQueue, VehicleActionQueue.VehicleActionQueueState>(fleet.VehicleActionQueues, condition);
+
             sender.Send();
         }
 
@@ -583,6 +585,8 @@ namespace Map
 
             ReliableSender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
             ReliableSender.AddObjects<Freighter, Freighter.FreighterState>(fleet.Freighters, condition);
+
+            ReliableSender.AddObjects<VehicleActionQueue, VehicleActionQueue.VehicleActionQueueState>(fleet.VehicleActionQueues, condition);
 
             ReliableSender.Send();
         }
@@ -619,6 +623,7 @@ namespace Map
             Port.PortState[] ports,
             Truck.TruckState[] trucks,
             Freighter.FreighterState[] freighters,
+            VehicleActionQueue.VehicleActionQueueState[] vehicleActionQueues,
             ClientRpcParams rpcParams = default
         )
         {
@@ -636,6 +641,8 @@ namespace Map
 
             ApplyStatesLocal(serverTime, Fleet.Trucks, trucks);
             ApplyStatesLocal(serverTime, Fleet.Freighters, freighters);
+
+            ApplyStatesLocal(serverTime, Fleet.VehicleActionQueues, vehicleActionQueues);
 
 
             Blueprint?.Validate();

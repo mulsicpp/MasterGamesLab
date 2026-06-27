@@ -52,6 +52,8 @@ namespace Map.Fleet
 
         public override float BaseSpeedTPS => Constants.TRUCK_BASE_SPEED_TPS;
 
+        public override bool IsIdle => Freighter != null ? Freighter.IsIdle : IsParked;
+
         private Good good;
 
         public Good Good
@@ -93,7 +95,7 @@ namespace Map.Fleet
         public TruckState State
         {
             get => new TruckState
-                { Common = CommonState, Good = Good, FreighterIndex = Freighter?.Index ?? VehicleIndex.NONE };
+            { Common = CommonState, Good = Good, FreighterIndex = Freighter?.Index ?? VehicleIndex.NONE };
             set
             {
                 CommonState = value.Common;
@@ -129,6 +131,8 @@ namespace Map.Fleet
 
         public override void Tick(float tickDuration)
         {
+            if (!Exists) return;
+
             base.Tick(tickDuration);
 
             if (ParkedTile == null || ParkedTile.Structure == null) return;
@@ -141,6 +145,17 @@ namespace Map.Fleet
                     c.FulfillRequest(this);
                 }
             }
+        }
+
+        protected override bool CanDoAction(VehicleAction action)
+        {
+            // TODO correct validation
+            return false;
+        }
+
+        protected override void DoAction(VehicleAction action)
+        {
+            throw new System.NotImplementedException();
         }
 
         public override VehicleTransform Transform

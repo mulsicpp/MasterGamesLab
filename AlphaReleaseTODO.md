@@ -54,11 +54,13 @@ Visuals/3D:
 
 UI:
 - Outline pin when hovered/selected
+- Add depth to pins
 - Better looking pins
 - Compass
 - Time
 - Smooth camera movement when focusing object [done]
 - Change keyboard shortcuts
+- Enable actions only when ingame
 - Audio
 
 Logic:
@@ -66,7 +68,7 @@ Logic:
 - Speedy canals [done]
 - Generate public roads at start
 - Destination queue
-- Find fastest affordable road [ignore]
+- Parking visual for different structures
 
 Balancing:
 - Adjust prices for constructible objects

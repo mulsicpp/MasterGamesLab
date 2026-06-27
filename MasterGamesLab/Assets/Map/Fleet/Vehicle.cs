@@ -185,6 +185,7 @@ namespace Map.Fleet
 
         public bool IsParked => parkedTile != null;
 
+        public abstract bool IsIdle { get; }
 
         private Tile blueprintTile;
 
@@ -401,6 +402,18 @@ namespace Map.Fleet
         public virtual void Tick(float tickDuration)
         {
             if (!Exists) return;
+
+            VehicleActionQueue actionQueue = Map.Instance.Fleet.VehicleActionQueues[IndexInVehicles];
+
+            while (IsIdle && actionQueue.Count > 0)
+            {
+                if (CanDoAction(actionQueue.Peek()))
+                {
+                    var action = actionQueue.Dequeue();
+                    DoAction(action);
+                }
+            }
+
             if (IsDriving)
             {
                 if (Route.Length == 0)
@@ -434,12 +447,16 @@ namespace Map.Fleet
             }
         }
 
+        protected abstract bool CanDoAction(VehicleAction action);
+        protected abstract void DoAction(VehicleAction action);
+
+        protected abstract void OnParked();
+
         public virtual void ClientTick(float tickDuration)
         {
             smoothDriving?.Tick(tickDuration);
         }
 
-        protected abstract void OnParked();
 
         public float SpeedAt(float progress)
         {
