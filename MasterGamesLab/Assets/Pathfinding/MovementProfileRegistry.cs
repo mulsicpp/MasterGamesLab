@@ -37,13 +37,13 @@ public static class MovementProfileRegistry
 
         FindRoadBuildPath = new MovementProfile();
         FindRoadBuildPath.CanPass = (s, t) => PathfindingRules.CanBecomeBlueprintType(s, t, Edge.EdgeType.Road);
-        FindRoadBuildPath.AddPriorityRule(0, PathfindingRules.MinimizeDuration);
+        FindRoadBuildPath.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
         FindRoadBuildPath.AddPriorityRule(1, PathfindingRules.AvoidForest);
         //FindRoadBuildPath.AddPriorityRule(1, PathfindingRules.AvoidWater);
 
         FindCanalBuildPath = new MovementProfile();
         FindCanalBuildPath.CanPass = (s, t) => PathfindingRules.CanBecomeBlueprintType(s, t, Edge.EdgeType.Canal);
-        FindCanalBuildPath.AddPriorityRule(0, PathfindingRules.MinimizeDuration);
+        FindCanalBuildPath.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
         FindCanalBuildPath.AddPriorityRule(1, PathfindingRules.AvoidForest);
 
     }

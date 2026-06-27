@@ -34,7 +34,7 @@
 - Outline scaling
 - Canal tile black line artefact
 
-- Better pathfinding for roads/canals
+- Better pathfinding for roads/canals [done]
 - Show canal owner 
 - Compass
 
@@ -51,10 +51,11 @@ Visuals/3D:
 - Better outline textures
 - Better player colors
 - Biomes
+- Fix outline not showing properly in canals
 
 UI:
 - Outline pin when hovered/selected
-- Add depth to pins
+- Add depth (z-index) to pins
 - Better looking pins
 - Compass
 - Time
