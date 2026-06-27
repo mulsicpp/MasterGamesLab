@@ -77,7 +77,9 @@ namespace InGameCamera
             {
                 var northNorm = north.normalized;
                 var dot = Vector3.Dot(transform.forward, northNorm);
-                return dot < 0.99f ? (northNorm - dot * transform.forward).normalized : transform.up;
+
+                var ret = (northNorm - dot * transform.forward).normalized;
+                return ret == Vector3.zero ? transform.up : ret;
             }
         }
 

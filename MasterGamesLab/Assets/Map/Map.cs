@@ -86,8 +86,9 @@ namespace Map
 
         public GameObject RoutePrefab;
 
-
+#pragma warning disable CS0414
         [SerializeField] private float fullSphereDistance = 2;
+#pragma warning disable CS0414
         [SerializeField] private float fullProjectionDistance = 1.5f;
         [SerializeField] private float projectionActivationDistance = 2.4f;
 
