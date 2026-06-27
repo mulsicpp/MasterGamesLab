@@ -62,6 +62,7 @@ UI:
 - Smooth camera movement when focusing object [done]
 - Change keyboard shortcuts
 - Enable actions only when ingame
+- Game Over UI
 - Audio
 
 Logic:

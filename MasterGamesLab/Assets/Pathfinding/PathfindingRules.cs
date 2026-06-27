@@ -76,6 +76,12 @@ public static class PathfindingRules
         score[slot] += current.FindEdgeTo(neighbor)?.GetTraversalCost(Player.Player.Self) ?? 0;
     }
 
+    public static void PrioritizeStructures(Tile current, Tile neighbor, ref PathScore score, int slot)
+    {
+        PlayerId self = Player.Player.SelfId;
+        score[slot] += neighbor.Structure != null || neighbor.BlueprintStructure != null ? 0 : 1;
+    }
+
 
     /// <summary>
     /// Terrain Soft Penalty: Strongly discourages traveling through water without hard blocking it.
