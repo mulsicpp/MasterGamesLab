@@ -4,6 +4,8 @@ using Unity.Collections;
 using Unity.Netcode;
 using Networking;
 using UnityEngine;
+using System.Linq;
+using System;
 
 namespace Map.Fleet
 {
@@ -149,7 +151,17 @@ namespace Map.Fleet
 
         public override bool CanDoAction(VehicleAction action)
         {
-            // TODO correct validation
+            if (action.TargetTileId < 0 || action.TargetTileId >= Map.Instance.Tiles.Count) return false;
+            var tile = Map.Instance.Tiles[action.TargetTileId] as Tile;
+
+            switch (action.Type)
+            {
+                case VehicleAction.ActionType.DriveRoute: return CanDriveRoute(Player.Player.Self, action.RouteIds, out _, out _);
+                case VehicleAction.ActionType.LoadTruck:
+                    Predicate<Freighter> additionalCondition = f => f.ActionQueue.Count == 0 || f.ActionQueue.First.Value.Type == VehicleAction.ActionType.WaitForTruck;
+                    return CanBeLoaded(Player.Player.Self, tile, out _, out _, additionalCondition);
+                case VehicleAction.ActionType.UnloadTruck: return CanBeUnloaded(Player.Player.Self, tile, out _);
+            }
             return false;
         }
 
@@ -164,6 +176,35 @@ namespace Map.Fleet
 
                 return base.Transform;
             }
+        }
+
+        public bool CanBeLoaded(Player.Player player, Tile tile, out Freighter freighter, out int cost, Predicate<Freighter> additionalCondition = null)
+        {
+            cost = 0;
+            freighter = null;
+
+            if (Owner != player) return false;
+            if (!(ParkedTile?.Structure?.Type == Structure.StructureType.Port)) return false;
+            if (tile == null || tile.Type != Tile.TileType.Water || !tile.Neighbors.Contains(ParkedTile)) return false;
+
+            freighter = Map.Instance.Fleet.Freighters.FirstOrDefault(f => f.Owner == Owner && f.ParkedTile == tile && f.Truck == null && (additionalCondition?.Invoke(f) ?? true));
+            if (freighter == null) return false;
+
+            var portOwner = ParkedTile.Structure.Owner;
+            if (portOwner != null && portOwner != player)
+            {
+                cost = Constants.TRUCK_LOADING_COST_ENEMY;
+                return cost <= player.Cash;
+            }
+
+            return true;
+        }
+
+        public bool CanBeUnloaded(Player.Player player, Tile tile, out int cost)
+        {
+            cost = 0;
+            
+            return Freighter?.CanUnloadTruck(player, tile, out cost) ?? false;
         }
     }
 }

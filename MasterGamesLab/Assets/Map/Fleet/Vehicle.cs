@@ -465,9 +465,9 @@ namespace Map.Fleet
             {
                 var nextAction = ActionQueue.First.Value;
                 if (CanDoAction(nextAction))
-                {
                     SubmitAction(nextAction);
-                }
+                else
+                    break;
             }
 
             smoothDriving?.Tick(tickDuration);
@@ -609,6 +609,11 @@ namespace Map.Fleet
                 _ => Constants.HOVER_OUTLINE,
             };
             ShowOutline(outlineData);
+        }
+
+        public void EnqueueAction(VehicleAction action)
+        {
+            ActionQueue.AddLast(action);
         }
     }
 }

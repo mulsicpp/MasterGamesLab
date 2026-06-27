@@ -6,6 +6,7 @@ using Networking;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using System.Linq;
+using System;
 
 namespace Map.Fleet
 {
@@ -86,7 +87,10 @@ namespace Map.Fleet
 
         public override bool CanDoAction(VehicleAction action)
         {
-            // TODO correct validation
+            if (action.Type == VehicleAction.ActionType.DriveRoute)
+            {
+                return CanDriveRoute(Player.Player.Self, action.RouteIds, out _, out _);
+            }
             return false;
         }
 

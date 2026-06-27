@@ -115,7 +115,8 @@ namespace UI
 
             public override bool Commit()
             {
-                Map.Map.Instance.RequestVehicleActionServerRpc(truck.IndexInVehicles, new VehicleAction(VehicleAction.ActionType.LoadTruck, freighter.ParkedTile.Id));
+                truck.EnqueueAction(new VehicleAction(VehicleAction.ActionType.LoadTruck, freighter.ParkedTile.Id));
+                // Map.Map.Instance.RequestVehicleActionServerRpc(truck.IndexInVehicles, new VehicleAction(VehicleAction.ActionType.LoadTruck, freighter.ParkedTile.Id));
                 // Map.Map.Instance.LoadTruckOnFreighterServerRpc(truck.Index, freighter.Index);
                 controls.SelectedVehicle = freighter;
                 return true;
@@ -143,7 +144,8 @@ namespace UI
             public override bool Commit()
             {
                 var truck = freighter.Truck;
-                Map.Map.Instance.RequestVehicleActionServerRpc(truck.IndexInVehicles, new VehicleAction(VehicleAction.ActionType.UnloadTruck, portTile.Id));
+                truck.EnqueueAction(new VehicleAction(VehicleAction.ActionType.UnloadTruck, portTile.Id));
+                // Map.Map.Instance.RequestVehicleActionServerRpc(truck.IndexInVehicles, new VehicleAction(VehicleAction.ActionType.UnloadTruck, portTile.Id));
                 // Map.Map.Instance.UnoadTruckOnPortServerRpc(freighter.Index, portTile.Id);
                 controls.SelectedVehicle = truck;
                 return true;
@@ -304,7 +306,8 @@ namespace UI
 
                 if (routeIds != null)
                 {
-                    Map.Map.Instance.RequestVehicleActionServerRpc(SelectedVehicle.IndexInVehicles, new VehicleAction(VehicleAction.ActionType.DriveRoute, RouteOptions.Destination.Id, routeIds));
+                    SelectedVehicle.EnqueueAction(new VehicleAction(VehicleAction.ActionType.DriveRoute, RouteOptions.Destination.Id, routeIds));
+                    // Map.Map.Instance.RequestVehicleActionServerRpc(SelectedVehicle.IndexInVehicles, new VehicleAction(VehicleAction.ActionType.DriveRoute, RouteOptions.Destination.Id, routeIds));
                     // Map.Map.Instance.RequestVehicleRouteServerRpc(SelectedVehicle.IndexInVehicles, routeIds);
                     RouteOptions.Clear();
                 }

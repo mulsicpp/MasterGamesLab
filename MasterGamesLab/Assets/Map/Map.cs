@@ -832,8 +832,7 @@ namespace Map
 
             if (action.Type is VehicleAction.ActionType.LoadTruck)
             {
-                var freighter = Fleet.Freighters.FirstOrDefault(f => f.ParkedTile == tile && f.Truck == null);
-                if (freighter?.CanLoadTruck(player, truck, out int cost) ?? false)
+                if (truck.CanBeLoaded(player, tile, out Freighter freighter, out int cost))
                 {
                     player.TransferMoneyTo(truck.ParkedTile.Structure.Owner, cost);
 
@@ -843,9 +842,7 @@ namespace Map
             }
             else if (action.Type is VehicleAction.ActionType.UnloadTruck)
             {
-                var freighter = truck.Freighter;
-
-                if (freighter?.CanUnloadTruck(player, tile, out int cost) ?? false)
+                if (truck.CanBeUnloaded(player, tile, out int cost))
                 {
                     truck.Freighter = null;
                     truck.ParkedTile = tile;

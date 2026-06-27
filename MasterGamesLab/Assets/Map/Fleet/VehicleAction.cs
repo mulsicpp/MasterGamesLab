@@ -10,6 +10,7 @@ namespace Map.Fleet
             DriveRoute,
             LoadTruck,
             UnloadTruck,
+            WaitForTruck
         }
 
         public ActionType Type;
