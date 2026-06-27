@@ -58,23 +58,23 @@ namespace Map.GeometryGeneration
 
         private const float INSET_FACTOR_CANAL = 0.98f;
 
-        private static readonly Vector2 PlainColor = new(320, 1762);
-        private static readonly Vector2 ForrestColor = new(763, 1762);
-        private static readonly Vector2 MountainColor = new(1207, 1762);
+        private static readonly Vector2 PlainColor = new(2039, 1373);
+        private static readonly Vector2 ForrestColor = new(2532, 1373);
+        private static readonly Vector2 MountainColor = new(3025, 1373);
 
         private static readonly Vector2 WaterCenter = new(128 * TanPI3, 256);
         private static readonly Vector2 PlainCenter = new(2 * 128 * TanPI3, 3 * 256);
         private static readonly Vector2 ForrestCenter = new(128 * TanPI3, 5 * 256);
-        private static readonly Vector2 MountainCenter = new(2500 - 128 * TanPI3, 2048 - 256);
+        private static readonly Vector2 MountainCenter = new(5 * 128 * TanPI3, 1280);
 
         private static readonly Vector2 ShoreTriangleCenter = new(128, 2048 - Diff);
 
         private static readonly Vector2 CanalRectangleOrigin = new(0, 2405);
-        private static readonly float CanalRectangleWidth = 280;
+        private static readonly float CanalRectangleWidth = 221.702f;
         private static readonly float CanalRectangleHeight = 190;
         private static readonly Vector2 CanalTriangleCenter = new(128, 2048 - Diff + 262);
 
-        private static readonly Vector2 TextureSize = new(2500, 2500);
+        private static readonly Vector2 TextureSize = new(8700, 2500);
         private static readonly Vector2 InvTextureSize = new(1f / TextureSize.x, 1f / TextureSize.y);
 
         public const float WATER_HEIGHT = 0.99f;
@@ -135,6 +135,8 @@ namespace Map.GeometryGeneration
             canalTextureBottomEnd = new Vector2(CanalRectangleWidth, -CanalRectangleHeight * 0.5f);
 
             canalTextureMiddleEnd = new Vector2(CanalRectangleWidth, 0);
+
+            Debug.Log($"Texture Upper Middle: {canalTextureTopUpperMiddle}, Texture Upper End: {canalTextureTopEnd}");
         }
 
         private static (float percentageAlongVertexToCenter, float percentageAlongCenterLineToCenter, float
@@ -252,7 +254,7 @@ namespace Map.GeometryGeneration
             float perimeterHeight, Vector4 tileDataVec)
         {
             var centerVertex = tile.PositionOnSphere.normalized * centerHeight;
-            var animate = tile.Type != Tile.TileType.Mountain;
+            var animate = (tile.Type != Tile.TileType.Mountain) && (tile.Type != Tile.TileType.Forest);
             var startIdx = cg.Vertices.Count;
             var addedVertices = 0;
 
@@ -284,7 +286,7 @@ namespace Map.GeometryGeneration
             float centerHeight, float perimeterHeight, Vector4 tileDataVec)
         {
             var centerVertex = tile.PositionOnSphere.normalized * centerHeight;
-            var animate = tile.Type != Tile.TileType.Mountain;
+            var animate = (tile.Type != Tile.TileType.Mountain) && (tile.Type != Tile.TileType.Forest);
             var startIdx = cg.Vertices.Count;
             var addedVertices = 0;
 
