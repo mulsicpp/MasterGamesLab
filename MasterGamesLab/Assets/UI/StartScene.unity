@@ -1150,6 +1150,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: parkingLotMesh
+      value: 
+      objectReference: {fileID: -2432090755550338912, guid: 1d9abc1cf16ffcd459a902e314992922, type: 3}
     - target: {fileID: 5965362561141683518, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: m_Name
       value: GeometriesManager

@@ -16,6 +16,12 @@ namespace Map.GeometryGeneration
             ProducerDodecahedron,
             Consumer,
             Port,
+            ParkingLot,
+            Tetrahedron,
+            Cube,
+            Octahedron,
+            Icosahedron,
+            Dodecahedron,
         }
 
         private const float SCALE_VALUE = 0.008f;
@@ -34,6 +40,13 @@ namespace Map.GeometryGeneration
 
         [SerializeField] private Mesh consumerMesh;
         [SerializeField] private Mesh portMesh;
+        [SerializeField] private Mesh parkingLotMesh;
+        [SerializeField] private Mesh tetrahedronMesh;
+        [SerializeField] private Mesh cubeMesh;
+        [SerializeField] private Mesh octahedronMesh;
+        [SerializeField] private Mesh icosahedronMesh;
+        [SerializeField] private Mesh dodecahedronMesh;
+        
         [SerializeField] private GameObject geometryPrefab;
         [SerializeField] private GameObject fullRoadPrefab;
 
@@ -116,6 +129,42 @@ namespace Map.GeometryGeneration
                     break;
                 case GeometryType.Port:
                     mesh = portMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.ParkingLot:
+                    mesh = parkingLotMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.Tetrahedron:
+                    mesh = tetrahedronMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.Cube:
+                    mesh = cubeMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.Octahedron:
+                    mesh = octahedronMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.Icosahedron:
+                    mesh = icosahedronMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.Dodecahedron:
+                    mesh = dodecahedronMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
                     localRotation = Quaternion.Euler(90, 0, 0);

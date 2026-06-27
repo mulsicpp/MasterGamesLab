@@ -14,7 +14,12 @@ namespace Map.Infrastructure
 
             public StructureType Type => StructureType.CarPark;
 
-            public int ArrayIndex { get => Common.ArrayIndex; set => Common.ArrayIndex = value; }
+            public int ArrayIndex
+            {
+                get => Common.ArrayIndex;
+                set => Common.ArrayIndex = value;
+            }
+
             public int SerializedSize => FastBufferWriter.GetWriteSize(this);
         }
 
@@ -29,14 +34,20 @@ namespace Map.Infrastructure
         }
 
         public CarPark(StructureIndex index) : base(index)
-        { }
+        {
+        }
 
-        public void ApplyServerState(CarParkState state, double _) { State = state; ResetDirty(); }
+        public void ApplyServerState(CarParkState state, double _)
+        {
+            State = state;
+            ResetDirty();
+        }
 
         public override ObjectWithFixedGeometry AttachStructureGeometry(Transform parent)
         {
             var id = Tile?.Id ?? BlueprintTile.Id;
-            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Consumer, id, parent);
+            return GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.ParkingLot, id,
+                parent);
         }
     }
 }
