@@ -14,8 +14,8 @@ namespace UI
 
         public RouteOptions()
         {
-            FastestRoute = new(FullRoadGeometry.FullRoadType.Fastest);
-            CheapestRoute = new(FullRoadGeometry.FullRoadType.Cheapest);
+            FastestRoute = new(RouteGeometry.RouteType.Fastest);
+            CheapestRoute = new(RouteGeometry.RouteType.Cheapest);
         }
 
         public void Set(Vehicle vehicle, Tile destination, TileId[] fastestRoute, TileId[] cheapestRoute = null)

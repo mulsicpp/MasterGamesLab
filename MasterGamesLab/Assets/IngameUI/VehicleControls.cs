@@ -151,9 +151,9 @@ namespace UI
         {
             public override bool IsValid => true;
 
-            private FullRoadGeometry.FullRoadType Type;
+            private RouteGeometry.RouteType Type;
 
-            public HoveredSelectRoute(VehicleControls controls, FullRoadGeometry.FullRoadType type) : base(controls)
+            public HoveredSelectRoute(VehicleControls controls, RouteGeometry.RouteType type) : base(controls)
             {
                 Type = type;
             }
@@ -259,7 +259,7 @@ namespace UI
                                 hoveredAction = new HoveredSelectVehicle(this, v);
                             }
                             break;
-                        case FullRoadGeometry r:
+                        case RouteGeometry r:
                             hoveredAction = new  HoveredSelectRoute(this, r.Type);
                             break;
                     }
@@ -289,13 +289,13 @@ namespace UI
             return false;
         }
 
-        public void ChooseRoute(FullRoadGeometry.FullRoadType type)
+        public void ChooseRoute(RouteGeometry.RouteType type)
         {
             if(SelectedVehicle != null && RouteOptions.Destination != null)
             {
                 TileId[] routeIds = type switch
                 {
-                    FullRoadGeometry.FullRoadType.Cheapest => RouteOptions.CheapestRoute.TileIds ?? RouteOptions.FastestRoute.TileIds,
+                    RouteGeometry.RouteType.Cheapest => RouteOptions.CheapestRoute.TileIds ?? RouteOptions.FastestRoute.TileIds,
                     _ => RouteOptions.FastestRoute.TileIds ?? RouteOptions.CheapestRoute.TileIds,
                 };
 

@@ -503,10 +503,10 @@ namespace Map.GeometryGeneration.Edges
             };
         }
 
-        public static FullRoadGeometry GenerateFullRoad(TileId[] tiles, FullRoadGeometry.FullRoadType type)
+        public static RouteGeometry GenerateFullRoad(TileId[] tiles, RouteGeometry.RouteType type)
         {
             var go = GeometriesManager.Instance.GetFullRoadGameObject();
-            var fullRoadGeometry = go.GetComponent<FullRoadGeometry>();
+            var fullRoadGeometry = go.GetComponent<RouteGeometry>();
             fullRoadGeometry.Init(type);
             fullRoadGeometry.ClearMeshData();
 
@@ -538,10 +538,10 @@ namespace Map.GeometryGeneration.Edges
             return fullRoadGeometry;
         }
 
-        private static void AddCurveData(ParametricCurve curve, FullRoadGeometry element, Vector4 uv1, FullRoadGeometry.FullRoadType type)
+        private static void AddCurveData(ParametricCurve curve, RouteGeometry element, Vector4 uv1, RouteGeometry.RouteType type)
         {
             var vertexOffset = element.Vertices.Count;
-            var heightOffset = type == FullRoadGeometry.FullRoadType.Fastest
+            var heightOffset = type == RouteGeometry.RouteType.Fastest
                 ? FASTEST_ROAD_NORMAL_DELTA
                 : CHEAPEST_ROAD_NORMAL_DELTA;
 

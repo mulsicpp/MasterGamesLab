@@ -3,7 +3,7 @@ using UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class RoadPin : Pin
+public class RoutePin : Pin
 {
     private Label cost, duration;
     private VisualElement arrow, element;

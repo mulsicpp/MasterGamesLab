@@ -11,14 +11,14 @@ namespace UI
         private TileId[] tileids;
         public TileId[] TileIds => tileids;
 
-        public readonly FullRoadGeometry.FullRoadType Type;
+        public readonly RouteGeometry.RouteType Type;
 
         public float Duration { get; private set; }
         public int Cost { get; private set; }
 
         public RouteRenderer Renderer { get; private set; }
 
-        public Route(FullRoadGeometry.FullRoadType type)
+        public Route(RouteGeometry.RouteType type)
         {
             this.tileids = null;
             Type = type;

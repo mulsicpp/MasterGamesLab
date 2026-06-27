@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Map.GeometryGeneration.Edges
 {
-    public class FullRoadGeometry : AObjectWithProcedualGeometry, IHoverable
+    public class RouteGeometry : AObjectWithProcedualGeometry, IHoverable
     {
-        public enum FullRoadType
+        public enum RouteType
         {
             Cheapest = 0,
             Fastest = 1,
@@ -18,7 +18,7 @@ namespace Map.GeometryGeneration.Edges
 
         public EntityId EntityId { get; private set; }
 
-        public FullRoadType Type { get; private set; }
+        public RouteType Type { get; private set; }
 
         private bool hovered = false;
 
@@ -29,7 +29,7 @@ namespace Map.GeometryGeneration.Edges
             ClearOutline();
         }
 
-        public void Init(FullRoadType newType)
+        public void Init(RouteType newType)
         {
             Type = newType;
             EntityId = new EntityId(Map.Instance.EntityIdManager.FullRoadRange.Start.Value + (int)Type);
@@ -47,8 +47,8 @@ namespace Map.GeometryGeneration.Edges
         {
             var outline = Type switch
             {
-                FullRoadType.Cheapest => Constants.CHEAPEST_ROAD_OUTLINE,
-                FullRoadType.Fastest => Constants.FASTEST_ROAD_OUTLINE,
+                RouteType.Cheapest => Constants.CHEAPEST_ROAD_OUTLINE,
+                RouteType.Fastest => Constants.FASTEST_ROAD_OUTLINE,
                 _ => Constants.TRANSPARENT_OUTLINE,
             };
 
@@ -66,7 +66,7 @@ namespace Map.GeometryGeneration.Edges
         {
             var outlineData = Type switch
             {
-                FullRoadType.Cheapest => Constants.CHEAPEST_ROAD_OUTLINE_HOVERED,
+                RouteType.Cheapest => Constants.CHEAPEST_ROAD_OUTLINE_HOVERED,
                 _ => Constants.FASTEST_ROAD_OUTLINE_HOVERED,
             };
 
