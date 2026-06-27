@@ -147,15 +147,10 @@ namespace Map.Fleet
             }
         }
 
-        protected override bool CanDoAction(VehicleAction action)
+        public override bool CanDoAction(VehicleAction action)
         {
             // TODO correct validation
             return false;
-        }
-
-        protected override void DoAction(VehicleAction action)
-        {
-            throw new System.NotImplementedException();
         }
 
         public override VehicleTransform Transform

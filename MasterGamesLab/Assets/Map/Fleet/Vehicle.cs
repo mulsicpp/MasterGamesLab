@@ -186,6 +186,8 @@ namespace Map.Fleet
         public bool IsParked => parkedTile != null;
 
         public abstract bool IsIdle { get; }
+        public LinkedList<VehicleAction> ActionQueue { get; private set; }
+        public bool WaitingForActionResponse { get; private set; } = false;
 
         private Tile blueprintTile;
 
@@ -371,6 +373,7 @@ namespace Map.Fleet
 
             Renderer = null;
 
+            ActionQueue = new();
             smoothDriving = new SmoothDrivingLinearSimulationInterpolation(this);
             Touch();
         }
@@ -402,17 +405,6 @@ namespace Map.Fleet
         public virtual void Tick(float tickDuration)
         {
             if (!Exists) return;
-
-            VehicleActionQueue actionQueue = Map.Instance.Fleet.VehicleActionQueues[IndexInVehicles];
-
-            while (IsIdle && actionQueue.Count > 0)
-            {
-                if (CanDoAction(actionQueue.Peek()))
-                {
-                    var action = actionQueue.Dequeue();
-                    DoAction(action);
-                }
-            }
 
             if (IsDriving)
             {
@@ -447,13 +439,37 @@ namespace Map.Fleet
             }
         }
 
-        protected abstract bool CanDoAction(VehicleAction action);
-        protected abstract void DoAction(VehicleAction action);
+        public abstract bool CanDoAction(VehicleAction action);
+        public void SubmitAction(VehicleAction action)
+        {
+            WaitingForActionResponse = true;
+            Map.Instance.RequestVehicleActionServerRpc(IndexInVehicles, action);
+        }
+
+        public void HandleActionResponse(bool success)
+        {
+            if (success && ActionQueue.Count > 0)
+            {
+                ActionQueue.RemoveFirst();
+            }
+            WaitingForActionResponse = false;
+        }
 
         protected abstract void OnParked();
 
         public virtual void ClientTick(float tickDuration)
         {
+            if (!Exists) return;
+
+            while (!WaitingForActionResponse && IsIdle && ActionQueue.Count > 0)
+            {
+                var nextAction = ActionQueue.First.Value;
+                if (CanDoAction(nextAction))
+                {
+                    SubmitAction(nextAction);
+                }
+            }
+
             smoothDriving?.Tick(tickDuration);
         }
 

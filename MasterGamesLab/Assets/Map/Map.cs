@@ -7,6 +7,8 @@ using Map.Infrastructure;
 using Networking;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -564,8 +566,6 @@ namespace Map
             sender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
             sender.AddObjects<Freighter, Freighter.FreighterState>(fleet.Freighters, condition);
 
-            sender.AddObjects<VehicleActionQueue, VehicleActionQueue.VehicleActionQueueState>(fleet.VehicleActionQueues, condition);
-
             sender.Send();
         }
 
@@ -586,8 +586,6 @@ namespace Map
 
             ReliableSender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
             ReliableSender.AddObjects<Freighter, Freighter.FreighterState>(fleet.Freighters, condition);
-
-            ReliableSender.AddObjects<VehicleActionQueue, VehicleActionQueue.VehicleActionQueueState>(fleet.VehicleActionQueues, condition);
 
             ReliableSender.Send();
         }
@@ -624,7 +622,6 @@ namespace Map
             Port.PortState[] ports,
             Truck.TruckState[] trucks,
             Freighter.FreighterState[] freighters,
-            VehicleActionQueue.VehicleActionQueueState[] vehicleActionQueues,
             ClientRpcParams rpcParams = default
         )
         {
@@ -643,8 +640,6 @@ namespace Map
             ApplyStatesLocal(serverTime, Fleet.Trucks, trucks);
             ApplyStatesLocal(serverTime, Fleet.Freighters, freighters);
 
-            ApplyStatesLocal(serverTime, Fleet.VehicleActionQueues, vehicleActionQueues);
-
 
             Blueprint?.Validate();
         }
@@ -660,6 +655,12 @@ namespace Map
         public void BlueprintAcknowledgementClientRpc(ClientRpcParams rpcParams = default)
         {
             Blueprint.Clear();
+        }
+
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        public void VehicleActionResponseClientRpc(int vehicleIndex, bool success, ClientRpcParams rpcParams = default)
+        {
+            Fleet.Vehicles[vehicleIndex].HandleActionResponse(success);
         }
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
@@ -767,26 +768,94 @@ namespace Map
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void RequestNewVehicleServerRpc(Vehicle.VehicleType type, TileId parkedTileId,
-            RpcParams rpcParams = default)
+        public void RequestVehicleActionServerRpc(int vehicleIndex, VehicleAction action, RpcParams rpcParams = default)
         {
             var player =
                 Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
 
             if (player == null) return;
+            if (vehicleIndex < 0 || vehicleIndex >= Fleet.Vehicles.Count) return;
 
-            var vehicle = fleet.GetFirstWith(type, v => !v.Exists && v.Owner.Id == player.Id);
+            var vehicle = Fleet.Vehicles[vehicleIndex];
 
-            if (parkedTileId >= tiles.Count || parkedTileId < 0) return;
+            var success = ExecuteVehicleAction(player, vehicle, action);
 
-            var tile = tiles[parkedTileId];
-            if (!tile.CanSpawnVehicle(type)) return;
+            var responseRpcParams = new ClientRpcParams
+            {
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds = new List<ulong> { rpcParams.Receive.SenderClientId },
+                }
+            };
 
-            vehicle.Exists = true;
-            vehicle.ParkedTile = tile;
-
+            VehicleActionResponseClientRpc(vehicleIndex, success, responseRpcParams);
             UpdateDirtyObjectsOnClient();
         }
+
+        private bool ExecuteVehicleAction(Player.Player player, Vehicle vehicle, VehicleAction action)
+        {
+            if (action.Type == VehicleAction.ActionType.DriveRoute)
+            {
+                var routeIds = action.RouteIds;
+
+                if (routeIds == null || routeIds.Length < 2) return false;
+                Tile[] route = new Tile[routeIds.Length];
+
+                for (int i = 0; i < routeIds.Length; i++)
+                {
+                    if (routeIds[i] < 0 || routeIds[i] >= tiles.Count) return false;
+                    route[i] = tiles[routeIds[i]];
+                }
+
+                if (vehicle.CanDriveRoute(player, route, out var publicCost, out var enemyCosts))
+                {
+                    vehicle.Route = route;
+                    vehicle.RouteProgress = 0;
+                    player.Pay(publicCost);
+                    foreach (var (p, c) in enemyCosts)
+                    {
+                        player.TransferMoneyTo(p, c);
+                    }
+                    return true;
+                }
+
+                return false;
+            }
+
+            var truck = vehicle as Truck;
+
+            if (truck == null) return false;
+
+            if (action.TargetTileId < 0 || action.TargetTileId >= Tiles.Count) return false;
+
+            var tile = Tiles[action.TargetTileId] as Tile;
+
+            if (action.Type is VehicleAction.ActionType.LoadTruck)
+            {
+                var freighter = Fleet.Freighters.FirstOrDefault(f => f.ParkedTile == tile && f.Truck == null);
+                if (freighter?.CanLoadTruck(player, truck, out int cost) ?? false)
+                {
+                    player.TransferMoneyTo(truck.ParkedTile.Structure.Owner, cost);
+
+                    truck.Freighter = freighter;
+                    return true;
+                }
+            }
+            else if (action.Type is VehicleAction.ActionType.UnloadTruck)
+            {
+                var freighter = truck.Freighter;
+
+                if (freighter?.CanUnloadTruck(player, tile, out int cost) ?? false)
+                {
+                    truck.Freighter = null;
+                    truck.ParkedTile = tile;
+
+                    player.TransferMoneyTo(tile.Structure.Owner, cost);
+                    return true;
+                }
+            }
+            return false;
+        } 
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
         public void RequestVehicleRouteServerRpc(int vehicleIndex, TileId[] routeIds, RpcParams rpcParams = default)

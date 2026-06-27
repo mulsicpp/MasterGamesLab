@@ -84,15 +84,10 @@ namespace Map.Fleet
             // TODO implement
         }
 
-        protected override bool CanDoAction(VehicleAction action)
+        public override bool CanDoAction(VehicleAction action)
         {
             // TODO correct validation
             return false;
-        }
-
-        protected override void DoAction(VehicleAction action)
-        {
-            throw new System.NotImplementedException();
         }
 
         public bool CanLoadTruck(Player.Player player, Truck truck, out int cost)

@@ -15,9 +15,6 @@ namespace Map.Fleet
         private readonly Vehicle[] vehicles;
         public IReadOnlyList<Vehicle> Vehicles => vehicles;
 
-        private readonly VehicleActionQueue[] vehicleActionQueues;
-        public IReadOnlyList<VehicleActionQueue> VehicleActionQueues => vehicleActionQueues;
-
         private readonly Dictionary<Vehicle.VehicleType, Range> vehicleRanges;
         public IReadOnlyDictionary<Vehicle.VehicleType, Range> VehicleRanges => vehicleRanges;
 
@@ -37,12 +34,6 @@ namespace Map.Fleet
             tempVehicles.AddRange(freighters);
 
             vehicles = tempVehicles.ToArray();
-
-            vehicleActionQueues = new VehicleActionQueue[vehicles.Length];
-            for (int i = 0; i < vehicles.Length; i++)
-            {
-                vehicleActionQueues[i] = new VehicleActionQueue(i);
-            }
         }
 
         public Vehicle this[VehicleId id] => this[id.Type]?[id.Index];

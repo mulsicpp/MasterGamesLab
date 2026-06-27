@@ -35,8 +35,6 @@ namespace Networking
             private List<Truck.TruckState> trucks;
             private List<Freighter.FreighterState> freighters;
 
-            private List<VehicleActionQueue.VehicleActionQueueState> vehicleActionQueues;
-
             public Packet() {
                 nettoSize = 0;
                 players = new();
@@ -47,7 +45,6 @@ namespace Networking
                 ports = new();
                 trucks = new();
                 freighters = new();
-                vehicleActionQueues = new();
             }
 
             public void InsertState(IState state)
@@ -62,7 +59,6 @@ namespace Networking
                     case Port.PortState pt: ports.Add(pt); break;
                     case Truck.TruckState t: trucks.Add(t); break;
                     case Freighter.FreighterState f: freighters.Add(f); break;
-                    case VehicleActionQueue.VehicleActionQueueState vaq: vehicleActionQueues.Add(vaq); break;
                     default: return;
                 }
                 nettoSize += state.SerializedSize;
@@ -82,7 +78,6 @@ namespace Networking
                     ports.ToArray(),
                     trucks.ToArray(),
                     freighters.ToArray(),
-                    vehicleActionQueues.ToArray(),
                     rpcParams
                 );
             }
