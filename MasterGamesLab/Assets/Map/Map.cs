@@ -788,8 +788,8 @@ namespace Map
                 }
             };
 
-            VehicleActionResponseClientRpc(vehicleIndex, success, responseRpcParams);
             UpdateDirtyObjectsOnClient();
+            VehicleActionResponseClientRpc(vehicleIndex, success, responseRpcParams);
         }
 
         private bool ExecuteVehicleAction(Player.Player player, Vehicle vehicle, VehicleAction action)
@@ -852,95 +852,7 @@ namespace Map
                 }
             }
             return false;
-        } 
-
-        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void RequestVehicleRouteServerRpc(int vehicleIndex, TileId[] routeIds, RpcParams rpcParams = default)
-        {
-            var player =
-                Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-
-            if (player == null) return;
-            if (vehicleIndex < 0 || vehicleIndex >= Fleet.Vehicles.Count) return;
-
-            var vehicle = Fleet.Vehicles[vehicleIndex];
-
-            if (routeIds == null || routeIds.Length < 2) return;
-            Tile[] route = new Tile[routeIds.Length];
-
-            for (int i = 0; i < routeIds.Length; i++)
-            {
-                if (routeIds[i] < 0 || routeIds[i] >= tiles.Count) return;
-                route[i] = tiles[routeIds[i]];
-            }
-
-            if (vehicle.CanDriveRoute(player, route, out var publicCost, out var enemyCosts))
-            {
-                vehicle.Route = route;
-                vehicle.RouteProgress = 0;
-                player.Pay(publicCost);
-                foreach (var (p, c) in enemyCosts)
-                {
-                    player.TransferMoneyTo(p, c);
-                }
-            }
-
-
-            UpdateDirtyObjectsOnClient();
         }
-
-
-        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void LoadTruckOnFreighterServerRpc(VehicleIndex truckIndex, VehicleIndex freighterIndex,
-            RpcParams rpcParams = default)
-        {
-            var player =
-                Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-
-            if (player == null) return;
-
-            if (truckIndex < 0 || truckIndex >= Fleet.Trucks.Count) return;
-            if (freighterIndex < 0 || freighterIndex >= Fleet.Freighters.Count) return;
-
-            var truck = Fleet.Trucks[truckIndex];
-            var freighter = Fleet.Freighters[freighterIndex];
-
-            if (freighter.CanLoadTruck(player, truck, out int cost))
-            {
-                player.TransferMoneyTo(truck.ParkedTile.Structure.Owner, cost);
-
-                truck.Freighter = freighter;
-            }
-
-            UpdateDirtyObjectsOnClient();
-        }
-
-        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void UnoadTruckOnPortServerRpc(VehicleIndex freighterIndex, TileId tileId, RpcParams rpcParams = default)
-        {
-            var player =
-                Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-
-            if (player == null) return;
-
-            if (freighterIndex < 0 || freighterIndex >= Fleet.Freighters.Count) return;
-            if (tileId < 0 || tileId >= Tiles.Count) return;
-
-            var freighter = Fleet.Freighters[freighterIndex];
-            var tile = Tiles[tileId] as Tile;
-
-            if (freighter.CanUnloadTruck(player, tile, out int cost))
-            {
-                var truck = freighter.Truck;
-                truck.Freighter = null;
-                truck.ParkedTile = tile;
-
-                player.TransferMoneyTo(tile.Structure.Owner, cost);
-            }
-
-            UpdateDirtyObjectsOnClient();
-        }
-
 
         public Vector3 GetProjectedPosition(Vector3 positionOnSphere, float heightOffsetFactor = 1.0f)
         {

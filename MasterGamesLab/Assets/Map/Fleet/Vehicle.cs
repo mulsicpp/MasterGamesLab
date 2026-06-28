@@ -450,6 +450,11 @@ namespace Map.Fleet
         {
             if (success && ActionQueue.Count > 0)
             {
+                if (ActionQueue.First.Value.Type == VehicleAction.ActionType.LoadTruck && this is Truck truck)
+                {
+                    if (truck.Freighter?.ActionQueue.First?.Value.Type == VehicleAction.ActionType.WaitForTruck)
+                        truck.Freighter.ActionQueue.RemoveFirst();
+                }
                 ActionQueue.RemoveFirst();
             }
             WaitingForActionResponse = false;
@@ -569,6 +574,36 @@ namespace Map.Fleet
                 return null;
             }
         }
+
+        public Tile GetTileLocationAfterAction(LinkedListNode<VehicleAction> actionNode, out bool loaded)
+        {
+            loaded = false;
+            if (actionNode == null)
+            {
+                if (this is Truck t && t.Freighter != null)
+                {
+                    loaded = true;
+                    return t.Freighter.GetTileLocationAfterAction(t.Freighter.ActionQueue.First, out _);
+                }
+                if (IsParked) return ParkedTile;
+                if (IsDriving) return Route[^1];
+                return null;
+            } else
+            {
+                var action = actionNode.Value;
+                if(action.Type == VehicleAction.ActionType.WaitForTruck)
+                {
+                    return GetTileLocationAfterAction(actionNode.Previous, out _);
+                }
+                else
+                {
+                    loaded = action.Type == VehicleAction.ActionType.LoadTruck;
+                    return Map.Instance.Tiles[action.TargetTileId] as Tile;
+                }
+            }
+        }
+
+        public Tile GetTileLocationAfterAllActions(out bool loaded) => GetTileLocationAfterAction(ActionQueue.Last, out loaded);
 
         public void EvaluateGameObjectPresence()
         {
