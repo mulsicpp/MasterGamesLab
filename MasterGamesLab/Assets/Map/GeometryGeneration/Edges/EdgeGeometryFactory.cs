@@ -34,27 +34,73 @@ namespace Map.GeometryGeneration.Edges
             },
             new ProfileValue()
             {
-                t = 0.8f,
+                t = 0.75f,
                 height = 0,
-                uvXValue = 0.1f,
+                uvXValue = 1f,
             },
             new ProfileValue()
             {
-                t = 0.8f,
-                height = 0.1f,
-                uvXValue = 0.5f,
+                t = 0.75f,
+                height = 0.01f,
+                uvXValue = 1.5f,
+            },
+            new ProfileValue()
+            {
+                t = 0.75f,
+                height = 0.125f,
+                uvXValue = 1.5f,
             },
             new ProfileValue()
             {
                 t = 1f,
-                height = 0.1f,
-                uvXValue = 0.9f,
+                height = 0.125f,
+                uvXValue = 1.5f,
             },
             new ProfileValue()
             {
                 t = 1f,
                 height = 0f,
-                uvXValue = 1,
+                uvXValue = 1.5f,
+            },
+        };
+
+        private static readonly ProfileValue[] BlueprintRoadProfile = new[]
+        {
+            new ProfileValue()
+            {
+                t = 0,
+                height = 0,
+                uvXValue = 1.5f,
+            },
+            new ProfileValue()
+            {
+                t = 0.75f,
+                height = 0,
+                uvXValue = 1.5f,
+            },
+            new ProfileValue()
+            {
+                t = 0.75f,
+                height = 0.01f,
+                uvXValue = 1.5f,
+            },
+            new ProfileValue()
+            {
+                t = 0.75f,
+                height = 0.125f,
+                uvXValue = 1.5f,
+            },
+            new ProfileValue()
+            {
+                t = 1f,
+                height = 0.125f,
+                uvXValue = 1.5f,
+            },
+            new ProfileValue()
+            {
+                t = 1f,
+                height = 0f,
+                uvXValue = 1.5f,
             },
         };
 
@@ -70,7 +116,8 @@ namespace Map.GeometryGeneration.Edges
             if ((!blueprint && edge.Type == Edge.EdgeType.Road) ||
                 (blueprint && edge.BlueprintType == Edge.EdgeType.Road))
             {
-                return BuildConnectingParametricCurves(tile, edge, blueprint, RoadProfile);
+                return BuildConnectingParametricCurves(tile, edge, blueprint,
+                    blueprint ? BlueprintRoadProfile : RoadProfile);
             }
 
             if (edge.Type == Edge.EdgeType.Canal || edge.BlueprintType == Edge.EdgeType.Canal)

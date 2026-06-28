@@ -423,6 +423,7 @@ namespace Map.GeometryGeneration
                 CalculatePercentages(canalInsetWater);
 
             var tile = data.Tile;
+            var animate = tile.Type != Tile.TileType.Forest;
             var uvCenter = data.LandTextureCenter;
             var uvCenterWall = data.CanalWallsTextureCenter;
             var uv1 = data.UV1Data;
@@ -567,25 +568,25 @@ namespace Map.GeometryGeneration
                         var uvOnEdgeRight = CalculateUVOffset(onEdgeRightL);
 
                         cg.AddVertex(edgeLeftL, uv1,
-                            BuildMaterialData(uvCenter, uvLeft, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvLeft, animate, tile.RandomValue));
 
                         cg.AddVertex(lowerLeftL, uv1,
-                            BuildMaterialData(uvCenter, uvLowerLeft, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvLowerLeft, animate, tile.RandomValue));
 
                         cg.AddVertex(onEdgeLeftL, uv1,
-                            BuildMaterialData(uvCenter, uvOnEdgeLeft, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvOnEdgeLeft, animate, tile.RandomValue));
 
                         cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 1, currentIdx + 2 });
                         currentIdx += 3;
 
                         cg.AddVertex(edgeRightL, uv1,
-                            BuildMaterialData(uvCenter, uvRight, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvRight, animate, tile.RandomValue));
 
                         cg.AddVertex(lowerRightL, uv1,
-                            BuildMaterialData(uvCenter, uvLowerRight, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvLowerRight, animate, tile.RandomValue));
 
                         cg.AddVertex(onEdgeRightL, uv1,
-                            BuildMaterialData(uvCenter, uvOnEdgeRight, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvOnEdgeRight, animate, tile.RandomValue));
 
                         cg.Triangles.AddRange(new List<int> { currentIdx + 2, currentIdx + 1, currentIdx });
                         currentIdx += 3;
@@ -736,25 +737,25 @@ namespace Map.GeometryGeneration
                     if (data.IncludeLand)
                     {
                         cg.AddVertex(edgeCenterL, uv1,
-                            BuildMaterialData(uvCenter, uvEdgeCenter, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvEdgeCenter, animate, tile.RandomValue));
 
                         cg.AddVertex(onCenterLineL, uv1,
-                            BuildMaterialData(uvCenter, uvOnCenterLine, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvOnCenterLine, animate, tile.RandomValue));
 
                         // Right part of the triangle
                         if (prevCanal)
                         {
                             cg.AddVertex(lowerRightL, uv1,
-                                BuildMaterialData(uvCenter, uvLowerRight, true, tile.RandomValue));
+                                BuildMaterialData(uvCenter, uvLowerRight, animate, tile.RandomValue));
                         }
                         else
                         {
                             cg.AddVertex(upperRightL, uv1,
-                                BuildMaterialData(uvCenter, uvUpperRight, true, tile.RandomValue));
+                                BuildMaterialData(uvCenter, uvUpperRight, animate, tile.RandomValue));
                         }
 
                         cg.AddVertex(edgeRightL, uv1,
-                            BuildMaterialData(uvCenter, uvRight, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvRight, animate, tile.RandomValue));
 
                         if (!onlyLeftSubTriangle)
                         {
@@ -766,16 +767,16 @@ namespace Map.GeometryGeneration
                         if (nextCanal)
                         {
                             cg.AddVertex(lowerLeftL, uv1,
-                                BuildMaterialData(uvCenter, uvLowerLeft, true, tile.RandomValue));
+                                BuildMaterialData(uvCenter, uvLowerLeft, animate, tile.RandomValue));
                         }
                         else
                         {
                             cg.AddVertex(upperLeftL, uv1,
-                                BuildMaterialData(uvCenter, uvUpperLeft, true, tile.RandomValue));
+                                BuildMaterialData(uvCenter, uvUpperLeft, animate, tile.RandomValue));
                         }
 
                         cg.AddVertex(edgeLeftL, uv1,
-                            BuildMaterialData(uvCenter, uvLeft, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvLeft, animate, tile.RandomValue));
 
                         if (!onlyRightSubTriangle)
                         {
@@ -880,16 +881,16 @@ namespace Map.GeometryGeneration
                     if (data.IncludeLand)
                     {
                         cg.AddVertex(upperLeftL, uv1,
-                            BuildMaterialData(uvCenter, uvUpperLeft, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvUpperLeft, animate, tile.RandomValue));
 
                         cg.AddVertex(upperRightL, uv1,
-                            BuildMaterialData(uvCenter, uvUpperRight, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvUpperRight, animate, tile.RandomValue));
 
                         cg.AddVertex(edgeLeftL, uv1,
-                            BuildMaterialData(uvCenter, uvLeft, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvLeft, animate, tile.RandomValue));
 
                         cg.AddVertex(edgeRightL, uv1,
-                            BuildMaterialData(uvCenter, uvRight, true, tile.RandomValue));
+                            BuildMaterialData(uvCenter, uvRight, animate, tile.RandomValue));
 
                         cg.Triangles.AddRange(new List<int> { currentIdx, currentIdx + 1, currentIdx + 2 });
                         cg.Triangles.AddRange(new List<int> { currentIdx + 1, currentIdx + 3, currentIdx + 2 });
