@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2783601176748815280}
   - component: {fileID: 6208533227953581589}
   m_Layer: 21
-  m_Name: FullRoadPrefab
+  m_Name: RoutePrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

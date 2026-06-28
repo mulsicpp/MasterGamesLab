@@ -26,9 +26,9 @@ namespace Map
         public static int VehicleLayer { get; private set; }
         public static int VehicleOutlineLayer { get; private set; }
         public static int VehicleOutlineTransparentLayer { get; private set; }
-        public static int FullRoadLayer { get; private set; }
-        public static int FullRoadOutlineLayer { get; private set; }
-        public static int FullRoadOutlineTransparentLayer { get; private set; }
+        public static int RouteLayer { get; private set; }
+        public static int RouteOutlineLayer { get; private set; }
+        public static int RouteOutlineTransparentLayer { get; private set; }
 
         private static readonly int PlanetRadius = Shader.PropertyToID("_PlanetRadius");
         private static readonly int ProjectionFactor = Shader.PropertyToID("_ProjectionFactor");
@@ -148,9 +148,9 @@ namespace Map
             VehicleLayer = LayerMask.NameToLayer("Vehicles");
             VehicleOutlineLayer = LayerMask.NameToLayer("Vehicles Outline");
             VehicleOutlineTransparentLayer = LayerMask.NameToLayer("Vehicles Outline Transparent");
-            FullRoadLayer = LayerMask.NameToLayer("Full Road");
-            FullRoadOutlineLayer = LayerMask.NameToLayer("Full Road Outline");
-            FullRoadOutlineTransparentLayer = LayerMask.NameToLayer("Full Road Outline Transparent");
+            RouteLayer = LayerMask.NameToLayer("Full Road");
+            RouteOutlineLayer = LayerMask.NameToLayer("Full Road Outline");
+            RouteOutlineTransparentLayer = LayerMask.NameToLayer("Full Road Outline Transparent");
         }
 
         private void UpdateEntireMesh()
