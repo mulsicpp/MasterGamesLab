@@ -1153,7 +1153,7 @@ PrefabInstance:
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: routePrefab
       value: 
-      objectReference: {fileID: 4004374116097416254, guid: 150795788ac5c7c4f9f5e9c6edd94670, type: 3}
+      objectReference: {fileID: 1656574153691020000, guid: a0c329c131d7c8c4cae9f255306af9bb, type: 3}
     - target: {fileID: 5965362561141683518, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: m_Name
       value: GeometriesManager
