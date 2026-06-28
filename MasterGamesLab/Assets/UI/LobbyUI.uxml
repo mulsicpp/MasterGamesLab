@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
-    <ui:VisualElement name="root" class="unity-ui-document__root" style="flex-grow: 0; background-color: rgb(0, 0, 0); justify-content: center; width: 100%; flex-shrink: 0; height: 100%; align-items: center; top: 1px; bottom: 0; right: 0; left: 0;">
+    <ui:VisualElement name="root" class="unity-ui-document__root" style="flex-grow: 0; background-color: rgb(0, 0, 0); justify-content: center; width: 100%; flex-shrink: 0; height: 100%; align-items: center;">
         <SquareHightElement class="element" style="flex-shrink: 0; position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 74%; height: 10%; background-image: none;">
             <ui:Button text="" name="BackButton" class="element" style="width: 100%; height: 100%; background-color: rgba(188, 188, 188, 0); background-image: url(&quot;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=-1008301579157283121&amp;guid=422dbfc4599da0e48800bd75080c7a52&amp;type=3#arrow-left@2x&quot;);"/>
         </SquareHightElement>
