@@ -29,7 +29,7 @@ namespace InGameCamera
         private Quaternion lastCamRot;
         private float lastFOV;
 
-        private void OnEnable()
+        private void Awake()
         {
             Instance = this;
             planetCameraController = mainCamera.GetComponent<PlanetCameraController>();

@@ -48,10 +48,10 @@ public class ProducerConsumerSpawnPoint
             {
                 if (n1.Type == Tile.TileType.Water) isTooCloseToWater = true;
 
-                foreach (var n2 in n1.Neighbors)
-                {
-                    if (n2.Type == Tile.TileType.Water) isTooCloseToWater = true;
-                }
+                // foreach (var n2 in n1.Neighbors)
+                // {
+                //     if (n2.Type == Tile.TileType.Water) isTooCloseToWater = true;
+                // }
             }
 
             if (!isTooCloseToWater)
@@ -91,11 +91,12 @@ public class ProducerConsumerSpawnPoint
             }
         }
 
+        Debug.Log("Found " + candidates.Count + " spawn tiles on continent " + continentId);
+
         if (candidates.Count == 0)
         {
             return null;
         }
-
 
         return candidates[UnityEngine.Random.Range(0, candidates.Count)];
     }

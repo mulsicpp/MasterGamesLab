@@ -7,6 +7,8 @@ using Map.Infrastructure;
 using Networking;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -38,6 +40,7 @@ namespace Map
         public IReadOnlyList<ITile> ActiveTiles => activeTiles;
         public float Radius => radius;
         public int Resolution => resolution;
+        public float TileScale => (Radius / (Resolution + 1)) * 0.3524163807f;
 
         public float TEST_ROAD_HANDLE_DISTANCE = 0.025f;
         public float TEST_ROAD_HEIGHT = 0.01f;
@@ -80,14 +83,19 @@ namespace Map
 
         public GameObject ProducerPrefab;
         public GameObject ConsumerPrefab;
-        public GameObject GaragePrefab;
+        public GameObject CarParkPrefab;
         public GameObject PortPrefab;
 
         public GameObject RoutePrefab;
 
-
+#pragma warning disable CS0414
         [SerializeField] private float fullSphereDistance = 2;
+#pragma warning disable CS0414
         [SerializeField] private float fullProjectionDistance = 1.5f;
+        [SerializeField] private float projectionActivationDistance = 2.4f;
+
+        [SerializeField] private float projectionBaseSpeed = 2f;
+        [SerializeField] private float projectionApproachFactor = 4f;
 
         public HoverablePicker.HoverableLayer HoverLayers = HoverablePicker.HoverableLayer.All;
 
@@ -128,7 +136,6 @@ namespace Map
         private void Awake()
         {
             Instance = this;
-
             Generate(GenerationSeed ?? 0);
         }
 
@@ -229,10 +236,21 @@ namespace Map
         {
             var projectionCenter = (MainCamera.Instance.CurrentPosition - transform.position).normalized;
             var currentDistance = MainCamera.Instance.CurrentDistance;
-            var projectionFactor = (currentDistance - fullSphereDistance) /
-                                   (fullProjectionDistance - fullSphereDistance);
+            // var projectionFactor = (currentDistance - fullSphereDistance) /
+            //                        (fullProjectionDistance - fullSphereDistance);
+            // projectionFactor = Mathf.Clamp01(projectionFactor);
 
-            projectionFactor = Mathf.Clamp01(projectionFactor);
+            var projectionFactor = oldProjectionFactor;
+            var targetProjectionFactor = currentDistance < projectionActivationDistance ? 1.0f : 0.0f;
+
+            var distanceAbs = Mathf.Abs(targetProjectionFactor - oldProjectionFactor);
+            if (distanceAbs > 0.001f)
+            {
+                var distanceThisFrame = Mathf.Min((distanceAbs * projectionApproachFactor + projectionBaseSpeed) * Time.deltaTime, distanceAbs);
+
+                projectionFactor = Mathf.Lerp(oldProjectionFactor, targetProjectionFactor, distanceThisFrame / distanceAbs);
+            }
+
 
             if (oldProjectionCenter == projectionCenter && Mathf.Approximately(oldProjectionFactor, projectionFactor))
             {
@@ -542,7 +560,7 @@ namespace Map
 
             sender.AddObjects<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
             sender.AddObjects<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
-            sender.AddObjects<Garage, Garage.GarageState>(infrastructure.Garages, condition);
+            sender.AddObjects<CarPark, CarPark.CarParkState>(infrastructure.CarParks, condition);
             sender.AddObjects<Port, Port.PortState>(infrastructure.Ports, condition);
 
             sender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
@@ -563,7 +581,7 @@ namespace Map
 
             ReliableSender.AddObjects<Producer, Producer.ProducerState>(infrastructure.Producers, condition);
             ReliableSender.AddObjects<Consumer, Consumer.ConsumerState>(infrastructure.Consumers, condition);
-            ReliableSender.AddObjects<Garage, Garage.GarageState>(infrastructure.Garages, condition);
+            ReliableSender.AddObjects<CarPark, CarPark.CarParkState>(infrastructure.CarParks, condition);
             ReliableSender.AddObjects<Port, Port.PortState>(infrastructure.Ports, condition);
 
             ReliableSender.AddObjects<Truck, Truck.TruckState>(fleet.Trucks, condition);
@@ -600,7 +618,7 @@ namespace Map
             Edge.EdgeState[] edges,
             Producer.ProducerState[] producers,
             Consumer.ConsumerState[] consumers,
-            Garage.GarageState[] garages,
+            CarPark.CarParkState[] carParks,
             Port.PortState[] ports,
             Truck.TruckState[] trucks,
             Freighter.FreighterState[] freighters,
@@ -616,7 +634,7 @@ namespace Map
 
             ApplyStatesLocal(serverTime, Infrastructure.Producers, producers);
             ApplyStatesLocal(serverTime, Infrastructure.Consumers, consumers);
-            ApplyStatesLocal(serverTime, Infrastructure.Garages, garages);
+            ApplyStatesLocal(serverTime, Infrastructure.CarParks, carParks);
             ApplyStatesLocal(serverTime, Infrastructure.Ports, ports);
 
             ApplyStatesLocal(serverTime, Fleet.Trucks, trucks);
@@ -637,6 +655,12 @@ namespace Map
         public void BlueprintAcknowledgementClientRpc(ClientRpcParams rpcParams = default)
         {
             Blueprint.Clear();
+        }
+
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        public void VehicleActionResponseClientRpc(int vehicleIndex, bool success, ClientRpcParams rpcParams = default)
+        {
+            Fleet.Vehicles[vehicleIndex].HandleActionResponse(success);
         }
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
@@ -744,29 +768,7 @@ namespace Map
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void RequestNewVehicleServerRpc(Vehicle.VehicleType type, TileId parkedTileId,
-            RpcParams rpcParams = default)
-        {
-            var player =
-                Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-
-            if (player == null) return;
-
-            var vehicle = fleet.GetFirstWith(type, v => !v.Exists && v.Owner.Id == player.Id);
-
-            if (parkedTileId >= tiles.Count || parkedTileId < 0) return;
-
-            var tile = tiles[parkedTileId];
-            if (!tile.CanSpawnVehicle(type)) return;
-
-            vehicle.Exists = true;
-            vehicle.ParkedTile = tile;
-
-            UpdateDirtyObjectsOnClient();
-        }
-
-        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void RequestVehicleRouteServerRpc(int vehicleIndex, TileId[] routeIds, RpcParams rpcParams = default)
+        public void RequestVehicleActionServerRpc(int vehicleIndex, VehicleAction action, RpcParams rpcParams = default)
         {
             var player =
                 Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
@@ -776,82 +778,81 @@ namespace Map
 
             var vehicle = Fleet.Vehicles[vehicleIndex];
 
-            if (routeIds == null || routeIds.Length < 2) return;
-            Tile[] route = new Tile[routeIds.Length];
+            var success = ExecuteVehicleAction(player, vehicle, action);
 
-            for (int i = 0; i < routeIds.Length; i++)
+            var responseRpcParams = new ClientRpcParams
             {
-                if (routeIds[i] < 0 || routeIds[i] >= tiles.Count) return;
-                route[i] = tiles[routeIds[i]];
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds = new List<ulong> { rpcParams.Receive.SenderClientId },
+                }
+            };
+
+            UpdateDirtyObjectsOnClient();
+            VehicleActionResponseClientRpc(vehicleIndex, success, responseRpcParams);
+        }
+
+        private bool ExecuteVehicleAction(Player.Player player, Vehicle vehicle, VehicleAction action)
+        {
+            if (action.Type == VehicleAction.ActionType.DriveRoute)
+            {
+                var routeIds = action.RouteIds;
+
+                if (routeIds == null || routeIds.Length < 2) return false;
+                Tile[] route = new Tile[routeIds.Length];
+
+                for (int i = 0; i < routeIds.Length; i++)
+                {
+                    if (routeIds[i] < 0 || routeIds[i] >= tiles.Count) return false;
+                    route[i] = tiles[routeIds[i]];
+                }
+
+                if (vehicle.CanDriveRoute(player, route, out var publicCost, out var enemyCosts))
+                {
+                    vehicle.Route = route;
+                    vehicle.RouteProgress = 0;
+                    player.Pay(publicCost);
+                    foreach (var (p, c) in enemyCosts)
+                    {
+                        player.TransferMoneyTo(p, c);
+                    }
+                    return true;
+                }
+
+                return false;
             }
 
-            if (vehicle.CanDriveRoute(player, route, out var publicCost, out var enemyCosts))
+            var truck = vehicle as Truck;
+
+            if (truck == null) return false;
+
+            if (action.TargetTileId < 0 || action.TargetTileId >= Tiles.Count) return false;
+
+            var tile = Tiles[action.TargetTileId] as Tile;
+
+            if (action.Type is VehicleAction.ActionType.LoadTruck)
             {
-                vehicle.Route = route;
-                vehicle.RouteProgress = 0;
-                player.Pay(publicCost);
-                foreach (var (p, c) in enemyCosts)
+                if (truck.CanBeLoaded(player, tile, out Freighter freighter, out int cost))
                 {
-                    player.TransferMoneyTo(p, c);
+                    player.TransferMoneyTo(truck.ParkedTile.Structure.Owner, cost);
+
+                    truck.Freighter = freighter;
+                    return true;
                 }
             }
-
-
-            UpdateDirtyObjectsOnClient();
-        }
-
-
-        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void LoadTruckOnFreighterServerRpc(VehicleIndex truckIndex, VehicleIndex freighterIndex,
-            RpcParams rpcParams = default)
-        {
-            var player =
-                Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-
-            if (player == null) return;
-
-            if (truckIndex < 0 || truckIndex >= Fleet.Trucks.Count) return;
-            if (freighterIndex < 0 || freighterIndex >= Fleet.Freighters.Count) return;
-
-            var truck = Fleet.Trucks[truckIndex];
-            var freighter = Fleet.Freighters[freighterIndex];
-
-            if (freighter.CanLoadTruck(player, truck, out int cost))
+            else if (action.Type is VehicleAction.ActionType.UnloadTruck)
             {
-                player.TransferMoneyTo(truck.ParkedTile.Structure.Owner, cost);
+                if (truck.CanBeUnloaded(player, tile, out int cost))
+                {
+                    truck.Freighter = null;
+                    truck.ParkedTile = tile;
 
-                truck.Freighter = freighter;
+                    player.TransferMoneyTo(tile.Structure.Owner, cost);
+                    return true;
+                }
             }
-
-            UpdateDirtyObjectsOnClient();
+            return false;
         }
-
-        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void UnoadTruckOnPortServerRpc(VehicleIndex freighterIndex, TileId tileId, RpcParams rpcParams = default)
-        {
-            var player =
-                Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-
-            if (player == null) return;
-
-            if (freighterIndex < 0 || freighterIndex >= Fleet.Freighters.Count) return;
-            if (tileId < 0 || tileId >= Tiles.Count) return;
-
-            var freighter = Fleet.Freighters[freighterIndex];
-            var tile = Tiles[tileId] as Tile;
-
-            if (freighter.CanUnloadTruck(player, tile, out int cost))
-            {
-                var truck = freighter.Truck;
-                truck.Freighter = null;
-                truck.ParkedTile = tile;
-
-                player.TransferMoneyTo(tile.Structure.Owner, cost);
-            }
-
-            UpdateDirtyObjectsOnClient();
-        }
-
 
         public Vector3 GetProjectedPosition(Vector3 positionOnSphere, float heightOffsetFactor = 1.0f)
         {
@@ -1019,11 +1020,11 @@ namespace Map
                 }
             }
 
-            foreach (var garage in infrastructure.Garages)
+            foreach (var carPark in infrastructure.CarParks)
             {
-                if (garage.Tile != null)
+                if (carPark.Tile != null)
                 {
-                    Vector3 basePos = GetProjectedPosition(garage.Tile.PositionOnSphere, 1.015f);
+                    Vector3 basePos = GetProjectedPosition(carPark.Tile.PositionOnSphere, 1.015f);
                     Gizmos.color = Color.brown;
                     Gizmos.DrawSphere(basePos, 0.025f);
                 }

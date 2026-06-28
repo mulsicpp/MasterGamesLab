@@ -185,6 +185,9 @@ namespace Map.Fleet
 
         public bool IsParked => parkedTile != null;
 
+        public abstract bool IsIdle { get; }
+        public LinkedList<VehicleAction> ActionQueue { get; private set; }
+        public bool WaitingForActionResponse { get; private set; } = false;
 
         private Tile blueprintTile;
 
@@ -370,6 +373,7 @@ namespace Map.Fleet
 
             Renderer = null;
 
+            ActionQueue = new();
             smoothDriving = new SmoothDrivingLinearSimulationInterpolation(this);
             Touch();
         }
@@ -401,6 +405,7 @@ namespace Map.Fleet
         public virtual void Tick(float tickDuration)
         {
             if (!Exists) return;
+
             if (IsDriving)
             {
                 if (Route.Length == 0)
@@ -434,12 +439,45 @@ namespace Map.Fleet
             }
         }
 
-        public virtual void ClientTick(float tickDuration)
+        public abstract bool CanDoAction(VehicleAction action);
+        public void SubmitAction(VehicleAction action)
         {
-            smoothDriving?.Tick(tickDuration);
+            WaitingForActionResponse = true;
+            Map.Instance.RequestVehicleActionServerRpc(IndexInVehicles, action);
+        }
+
+        public void HandleActionResponse(bool success)
+        {
+            if (success && ActionQueue.Count > 0)
+            {
+                if (ActionQueue.First.Value.Type == VehicleAction.ActionType.LoadTruck && this is Truck truck)
+                {
+                    if (truck.Freighter?.ActionQueue.First?.Value.Type == VehicleAction.ActionType.WaitForTruck)
+                        truck.Freighter.ActionQueue.RemoveFirst();
+                }
+                ActionQueue.RemoveFirst();
+            }
+            WaitingForActionResponse = false;
         }
 
         protected abstract void OnParked();
+
+        public virtual void ClientTick(float tickDuration)
+        {
+            if (!Exists) return;
+
+            while (!WaitingForActionResponse && IsIdle && ActionQueue.Count > 0)
+            {
+                var nextAction = ActionQueue.First.Value;
+                if (CanDoAction(nextAction))
+                    SubmitAction(nextAction);
+                else
+                    break;
+            }
+
+            smoothDriving?.Tick(tickDuration);
+        }
+
 
         public float SpeedAt(float progress)
         {
@@ -493,27 +531,33 @@ namespace Map.Fleet
                         int tileIndex = (int)(visualProgress + 0.5f);
                         float localProgress = visualProgress - tileIndex;
 
-                        Vector3 position = default;
-                        Vector3 tangent = default;
+                        Vector3 position;
+                        Vector3 tangent;
+
+                        ParametricCurve.CurveType curveType = Type switch
+                        {
+                            VehicleType.Freighter => ParametricCurve.CurveType.Water,
+                            _ => ParametricCurve.CurveType.Road,
+                        };
 
                         if (tileIndex == 0)
                         {
                             var curve = GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex + 1],
-                                Route[tileIndex]);
+                                Route[tileIndex], curveType);
                             position = curve.Evaluate(1 - localProgress * 2f);
                             tangent = -curve.Derivative(1 - localProgress * 2f).normalized;
                         }
                         else if (tileIndex >= (Route.Length - 1))
                         {
                             var curve = GeometryGeneration.ParametricCurve.FromTileToTileCenter(Route[tileIndex - 1],
-                                Route[tileIndex]);
+                                Route[tileIndex], curveType);
                             position = curve.Evaluate(1 + localProgress * 2f);
                             tangent = curve.Derivative(1 + localProgress * 2f).normalized;
                         }
                         else
                         {
                             var curve = GeometryGeneration.ParametricCurve.FromTileToTileOverTile(Route[tileIndex - 1],
-                                Route[tileIndex + 1], Route[tileIndex]);
+                                Route[tileIndex + 1], Route[tileIndex], curveType);
                             position = curve.Evaluate(localProgress + 0.5f);
                             tangent = curve.Derivative(localProgress + 0.5f).normalized;
                         }
@@ -530,6 +574,36 @@ namespace Map.Fleet
                 return null;
             }
         }
+
+        public Tile GetTileLocationAfterAction(LinkedListNode<VehicleAction> actionNode, out bool loaded)
+        {
+            loaded = false;
+            if (actionNode == null)
+            {
+                if (this is Truck t && t.Freighter != null)
+                {
+                    loaded = true;
+                    return t.Freighter.GetTileLocationAfterAction(t.Freighter.ActionQueue.First, out _);
+                }
+                if (IsParked) return ParkedTile;
+                if (IsDriving) return Route[^1];
+                return null;
+            } else
+            {
+                var action = actionNode.Value;
+                if(action.Type == VehicleAction.ActionType.WaitForTruck)
+                {
+                    return GetTileLocationAfterAction(actionNode.Previous, out _);
+                }
+                else
+                {
+                    loaded = action.Type == VehicleAction.ActionType.LoadTruck;
+                    return Map.Instance.Tiles[action.TargetTileId] as Tile;
+                }
+            }
+        }
+
+        public Tile GetTileLocationAfterAllActions(out bool loaded) => GetTileLocationAfterAction(ActionQueue.Last, out loaded);
 
         public void EvaluateGameObjectPresence()
         {
@@ -570,6 +644,11 @@ namespace Map.Fleet
                 _ => Constants.HOVER_OUTLINE,
             };
             ShowOutline(outlineData);
+        }
+
+        public void EnqueueAction(VehicleAction action)
+        {
+            ActionQueue.AddLast(action);
         }
     }
 }

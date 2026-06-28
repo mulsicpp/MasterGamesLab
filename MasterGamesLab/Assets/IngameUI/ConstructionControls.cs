@@ -21,7 +21,7 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
         Hidden,
         Road,
         Canal,
-        Garage,
+        CarPark,
         Port,
         Freighter,
         Truck
@@ -76,11 +76,12 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
         }
     }
 
-    public bool ControlsAreActive => Type is not ConstructionType.None or ConstructionType.Hidden;
+    public bool ControlsAreActive => !(Type is ConstructionType.None or ConstructionType.Hidden);
 
     public void DisableControls()
     {
-        Type = ConstructionType.None;
+        if (Type != ConstructionType.Hidden)
+            Type = ConstructionType.None;
     }
 
     public HoverablePicker.HoverableLayer SelectHoverableLayers() => HoverablePicker.HoverableLayer.Tiles;

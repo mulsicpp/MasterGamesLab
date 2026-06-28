@@ -7,14 +7,14 @@ namespace UI
     {
         public Route Route { get; private set; }
 
-        public RoadPin Pin;
+        public RoutePin Pin;
 
-        public FullRoadGeometry Geometry;
+        public RouteGeometry Geometry;
 
         public void Init(Route route)
         {
             Route = route;
-            Pin = GetComponentInChildren<RoadPin>();
+            Pin = GetComponentInChildren<RoutePin>();
             Geometry = null;
         }
 
@@ -22,7 +22,7 @@ namespace UI
         {
             if (Route.TileIds != null)
             {
-                Gizmos.color = Route.Type == FullRoadGeometry.FullRoadType.Fastest ? Color.orange.linear : Color.purple.linear;
+                Gizmos.color = Route.Type == RouteGeometry.RouteType.Fastest ? Color.orange.linear : Color.purple.linear;
                 for (int i = 0; i < Route.TileIds.Length; i++)
                 {
                     Vector3 pos =

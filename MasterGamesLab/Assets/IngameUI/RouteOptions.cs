@@ -11,14 +11,17 @@ namespace UI
         public Tile Destination { get; private set; } = null;
         public Route FastestRoute { get; private set; } = null;
         public Route CheapestRoute { get; private set; } = null;
+        public Tile LoadTile { get; private set; } = null;
+
+        public Tile VisualDestination => LoadTile ?? Destination;
 
         public RouteOptions()
         {
-            FastestRoute = new(FullRoadGeometry.FullRoadType.Fastest);
-            CheapestRoute = new(FullRoadGeometry.FullRoadType.Cheapest);
+            FastestRoute = new(RouteGeometry.RouteType.Fastest);
+            CheapestRoute = new(RouteGeometry.RouteType.Cheapest);
         }
 
-        public void Set(Vehicle vehicle, Tile destination, TileId[] fastestRoute, TileId[] cheapestRoute = null)
+        public void Set(Vehicle vehicle, Tile destination, TileId[] fastestRoute, TileId[] cheapestRoute = null, Tile loadTile = null)
         {
             if (fastestRoute == null)
             {
@@ -39,6 +42,8 @@ namespace UI
 
                 FastestRoute.SetRoute(vehicle, fastestRoute);
                 CheapestRoute.SetRoute(null, null);
+
+                LoadTile = loadTile;
 
                 UpdateFacingDirections();
 
@@ -81,8 +86,10 @@ namespace UI
             var fastestPinPosition = Route.GetRouteMidpoint(fastestRoute, divergenceIndex, fastestConvergenceIndex);
 
 
-            Destination?.ClearOutline();
+            VisualDestination?.ClearOutline();
+
             Destination = destination;
+            LoadTile = loadTile;
 
             FastestRoute.SetRoute(vehicle, fastestRoute, fastestPinPosition);
             CheapestRoute.SetRoute(vehicle, cheapestRoute, cheapestPinPosition);
@@ -96,6 +103,7 @@ namespace UI
             Destination = null;
             FastestRoute.SetRoute(null, null);
             CheapestRoute.SetRoute(null, null);
+            LoadTile = null;
         }
 
         public void UpdateFacingDirections()

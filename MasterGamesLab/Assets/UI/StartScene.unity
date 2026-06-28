@@ -292,6 +292,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: CarParkPrefab
+      value: 
+      objectReference: {fileID: 4004374116097416254, guid: 053638a9fd74a2f419693a7482418449, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: ConsumerPrefab
       value: 
       objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
@@ -320,6 +324,10 @@ PrefabInstance:
       value: 2.6
       objectReference: {fileID: 0}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: projectionBaseSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: TEST_CANAL_INSET_LOWER
       value: 0.65
       objectReference: {fileID: 0}
@@ -330,6 +338,14 @@ PrefabInstance:
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: fullProjectionDistance
       value: 2.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: projectionApproachFactor
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: projectionActivationDistance
+      value: 2.48
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1057,6 +1073,14 @@ PrefabInstance:
     - target: {fileID: 4333298005325406493, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
       propertyPath: m_Name
       value: Camera
+      objectReference: {fileID: 0}
+    - target: {fileID: 6831849078529806540, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
+      propertyPath: rotationBaseSpeed
+      value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: 6831849078529806540, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
+      propertyPath: rotationApproachFactor
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8619474705160191104, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
       propertyPath: m_LocalPosition.x

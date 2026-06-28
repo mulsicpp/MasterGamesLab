@@ -273,11 +273,13 @@ namespace Map
         {
             if (Structure != null) return false;
 
+            if (CountEdgesWith(edge => !(edge.Type is Edge.EdgeType.None or Edge.EdgeType.Road)) > 0) return false;
+
             switch (type)
             {
                 case Structure.StructureType.Producer:
                 case Structure.StructureType.Consumer:
-                case Structure.StructureType.Garage: return Type is TileType.Plain or TileType.Forest;
+                case Structure.StructureType.CarPark: return Type is TileType.Plain or TileType.Forest;
                 case Structure.StructureType.Port:
                     bool buildable = Type is TileType.Plain or TileType.Forest;
                     bool bordersWater = neighbors.Where(t => t.Type is TileType.Water).Count() > 0;

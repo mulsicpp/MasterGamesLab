@@ -6,32 +6,32 @@ using static Map.Infrastructure.Producer;
 
 namespace Map.Infrastructure
 {
-    public class Garage : Structure, ISynchableObject<Garage.GarageState>
+    public class CarPark : Structure, ISynchableObject<CarPark.CarParkState>
     {
-        public struct GarageState : IState, IStructureState, INetworkSerializeByMemcpy
+        public struct CarParkState : IState, IStructureState, INetworkSerializeByMemcpy
         {
             public CommonStructureState Common;
 
-            public StructureType Type => StructureType.Garage;
+            public StructureType Type => StructureType.CarPark;
 
             public int ArrayIndex { get => Common.ArrayIndex; set => Common.ArrayIndex = value; }
             public int SerializedSize => FastBufferWriter.GetWriteSize(this);
         }
 
-        public override StructureType Type => StructureType.Garage;
+        public override StructureType Type => StructureType.CarPark;
 
-        public override GameObject StructurePrefab => Map.Instance.GaragePrefab;
+        public override GameObject StructurePrefab => Map.Instance.CarParkPrefab;
 
-        public GarageState State
+        public CarParkState State
         {
-            get => new GarageState { Common = CommonState };
+            get => new CarParkState { Common = CommonState };
             set { CommonState = value.Common; }
         }
 
-        public Garage(StructureIndex index) : base(index)
+        public CarPark(StructureIndex index) : base(index)
         { }
 
-        public void ApplyServerState(GarageState state, double _) { State = state; ResetDirty(); }
+        public void ApplyServerState(CarParkState state, double _) { State = state; ResetDirty(); }
 
         public override ObjectWithFixedGeometry AttachStructureGeometry(Transform parent)
         {
