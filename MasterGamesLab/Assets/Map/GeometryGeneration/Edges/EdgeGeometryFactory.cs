@@ -290,8 +290,6 @@ namespace Map.GeometryGeneration.Edges
             if (includeCenter)
             {
                 geometry.Vertices.Add(center);
-                data.z = profile.Length > 0 ? profile[^1].uvXValue : 0.0f;
-                data.w = 1.0f;
                 geometry.UV1.Add(data);
 
                 geometry.Triangles.Add(geometry.Vertices.Count - 1);

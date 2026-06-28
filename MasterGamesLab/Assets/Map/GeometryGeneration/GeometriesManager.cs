@@ -52,6 +52,11 @@ namespace Map.GeometryGeneration
 
         [SerializeField] private Mesh buoyMesh;
 
+        [SerializeField] private Material defaultFixedGeometryMaterial;
+        [SerializeField] private Material defaultEdgeMaterial;
+        [SerializeField] private Material previewMaterial;
+        [SerializeField] private Material blueprintMaterial;
+
         private void Awake()
         {
             Instance = this;
@@ -183,12 +188,19 @@ namespace Map.GeometryGeneration
             var fixedGeometry = gO.GetComponent<ObjectWithFixedGeometry>();
             fixedGeometry.Init(mesh, defaultLayerName, outlineLayerName, outlineTransparentLayerName, id,
                 owner?.Color ?? Color.black);
-            Debug.Log($"Debug: {owner}, color: {owner?.Color ?? Color.black}, truck?: {type == GeometryType.Truck}");
             return fixedGeometry;
         }
 
         public GameObject GetFullRoadGameObject() => Instantiate(fullRoadPrefab, transform);
 
         public Mesh GetBuoyMesh() => buoyMesh;
+
+        public Material GetEdgeMaterial() => defaultEdgeMaterial;
+        
+        public Material GetFixedGeometryMaterial() => defaultFixedGeometryMaterial;
+
+        public Material GetPreviewMaterial() => previewMaterial;
+
+        public Material GetBlueprintMaterial() => blueprintMaterial;
     }
 }

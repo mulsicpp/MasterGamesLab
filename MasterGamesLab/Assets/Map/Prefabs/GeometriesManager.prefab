@@ -62,3 +62,7 @@ MonoBehaviour:
   geometryPrefab: {fileID: 1656574153691020000, guid: 3f431ad8f77587748abe2332aecce29e, type: 3}
   fullRoadPrefab: {fileID: 1656574153691020000, guid: a0c329c131d7c8c4cae9f255306af9bb, type: 3}
   buoyMesh: {fileID: -2432090755550338912, guid: 3d322a61fb2f6ad4aa70e1ffde4a177a, type: 3}
+  defaultFixedGeometryMaterial: {fileID: 2100000, guid: 8a4eab58006e6014bbc53d07ed1a90cd, type: 2}
+  defaultEdgeMaterial: {fileID: 2100000, guid: f0d0640b16dd13e43aad1d23739fbed4, type: 2}
+  previewMaterial: {fileID: 2100000, guid: 3b4ca6713d276cc4b9923b575c819930, type: 2}
+  blueprintMaterial: {fileID: 2100000, guid: 0ba95f94aeddc20499f57a803851bda3, type: 2}

@@ -9,8 +9,6 @@ using Map.Hoverables;
 using Map.Infrastructure;
 using Player;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 namespace UI

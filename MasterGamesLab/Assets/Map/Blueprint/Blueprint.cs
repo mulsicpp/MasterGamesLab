@@ -3,6 +3,8 @@ using Map.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Map.GeometryGeneration;
+using UnityEngine;
 
 namespace Map.Blueprint
 {
@@ -179,6 +181,11 @@ namespace Map.Blueprint
                 structure.BlueprintPreview = true;
                 SetValid(structure, false, 0);
                 previewStructure = structure;
+                if (previewStructure.Renderer && previewStructure.Renderer.Geometry)
+                {
+                    previewStructure.Renderer.Geometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
+                }
+
                 return true;
             }
             else
@@ -208,6 +215,11 @@ namespace Map.Blueprint
                 vehicle.BlueprintPreview = true;
                 SetValid(vehicle, false, 0);
                 previewVehicle = vehicle;
+                if (previewVehicle.Renderer && previewVehicle.Renderer.Geometry)
+                {
+                    previewVehicle.Renderer.Geometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
+                }
+
                 return true;
             }
             else
@@ -280,6 +292,7 @@ namespace Map.Blueprint
 
             previewVehicle.BlueprintPreview = false;
 
+            previewVehicle.Renderer.Geometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
             vehicles.Add(previewVehicle);
             previewVehicle = null;
 
@@ -307,11 +320,13 @@ namespace Map.Blueprint
 
             foreach (var structure in structures)
             {
+                structure.Renderer.Geometry.SetMaterial(GeometriesManager.Instance.GetFixedGeometryMaterial());
                 lastPacket = lastPacket.AddStructureToPackets(structure, packets);
             }
 
             foreach (var vehicle in vehicles)
             {
+                vehicle.Renderer.Geometry.SetMaterial(GeometriesManager.Instance.GetFixedGeometryMaterial());
                 lastPacket = lastPacket.AddVehicleToPackets(vehicle, packets);
             }
 

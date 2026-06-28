@@ -213,6 +213,11 @@ namespace Map
                 {
                     structure.RebuildRenderer();
                 }
+                else if (structure.RendererUpdateTriggered)
+                {
+                    structure.Renderer?.UpdateMaterial();
+                    structure.RendererUpdateTriggered = false;
+                }
             }
 
             UpdateHovered();

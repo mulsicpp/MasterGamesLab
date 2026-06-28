@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Map.GeometryGeneration;
 using Map.GeometryGeneration.Edges;
 using Map.Hoverables;
 using Unity.Netcode;
@@ -386,20 +387,29 @@ namespace Map
                             break;
                     }
 
+                    if (GeometriesManager.Instance)
+                    {
+                        blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
+                    }
+
                     break;
                 case Blueprint.VisualState.Preview:
+                    blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
                     blueprintGeometry.SetBaseLayer();
                     blueprintGeometry.SetPlayerColor(Constants.ROAD_BLUEPRINT_PREVIEW_COLOR);
                     break;
                 case Blueprint.VisualState.PreviewOverlapping:
+                    blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
                     blueprintGeometry.SetOutlineTransparentLayer();
                     blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_PREVIEW_OVERLAPPING_OUTLINE);
                     break;
                 case Blueprint.VisualState.Overlapping:
+                    blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
                     blueprintGeometry.SetOutlineTransparentLayer();
                     blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
                     break;
                 case Blueprint.VisualState.Invalid:
+                    blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
                     blueprintGeometry.SetOutlineLayer();
                     blueprintGeometry.SetPlayerColor(Constants.ROAD_BLUEPRINT_INVALID_COLOR);
                     blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_INVALID_OUTLINE);

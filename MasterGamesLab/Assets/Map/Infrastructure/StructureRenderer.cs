@@ -23,6 +23,20 @@ namespace Map.Infrastructure
 
             transform.position = position;
             transform.rotation = Quaternion.LookRotation(forward, up);
+
+            UpdateMaterial();
+        }
+
+        public void UpdateMaterial()
+        {
+            if (Structure.BlueprintPreview || Structure.BlueprintTile != null)
+            {
+                Geometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
+            }
+            else
+            {
+                Geometry.SetMaterial(GeometriesManager.Instance.GetFixedGeometryMaterial());
+            }
         }
     }
 }
