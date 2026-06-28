@@ -3,8 +3,6 @@ using Map.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using Player;
 
 namespace Map.Blueprint
 {
@@ -108,6 +106,7 @@ namespace Map.Blueprint
                 edge.BlueprintType = Edge.EdgeType.None;
                 edge.BlueprintPreview = false;
             }
+
             previewEdges.Clear();
 
             if (previewStructure != null)
@@ -122,7 +121,7 @@ namespace Map.Blueprint
             {
                 previewVehicle.BlueprintTile = null;
                 previewVehicle.BlueprintPreview = false;
-                
+
                 previewVehicle = null;
             }
         }
@@ -165,7 +164,9 @@ namespace Map.Blueprint
 
             if (tile == null) return false;
 
-            var structure = Map.Instance.Infrastructure.GetFirstWith(type, s => !s.Exists && s.BlueprintTile == null && s.Owner.IsSelf);
+            var structure =
+                Map.Instance.Infrastructure.GetFirstWith(type,
+                    s => !s.Exists && s.BlueprintTile == null && s.Owner.IsSelf);
 
             if (structure == null) return false;
 
@@ -195,7 +196,8 @@ namespace Map.Blueprint
 
             if (tile == null) return false;
 
-            var vehicle = Map.Instance.Fleet.GetFirstWith(type, v => !v.Exists && v.BlueprintTile == null && v.Owner.IsSelf);
+            var vehicle =
+                Map.Instance.Fleet.GetFirstWith(type, v => !v.Exists && v.BlueprintTile == null && v.Owner.IsSelf);
 
             if (vehicle == null) return false;
 
@@ -224,6 +226,7 @@ namespace Map.Blueprint
                 edge.BlueprintType = Edge.EdgeType.None;
                 edge.BlueprintPreview = false;
             }
+
             edges.Clear();
 
             foreach (var structure in structures)
@@ -231,6 +234,7 @@ namespace Map.Blueprint
                 structure.BlueprintTile = null;
                 structure.BlueprintPreview = false;
             }
+
             structures.Clear();
 
             foreach (var vehicle in vehicles)
@@ -238,6 +242,7 @@ namespace Map.Blueprint
                 vehicle.BlueprintTile = null;
                 vehicle.BlueprintPreview = false;
             }
+
             vehicles.Clear();
 
             ClearPreview();
@@ -250,6 +255,7 @@ namespace Map.Blueprint
             {
                 edge.BlueprintPreview = false;
             }
+
             edges.AddRange(previewEdges);
             previewEdges.Clear();
 
@@ -298,7 +304,7 @@ namespace Map.Blueprint
             {
                 lastPacket = lastPacket.AddEdgeToPackets(edge, packets);
             }
-            
+
             foreach (var structure in structures)
             {
                 lastPacket = lastPacket.AddStructureToPackets(structure, packets);
@@ -322,6 +328,7 @@ namespace Map.Blueprint
             {
                 packet.Send(true);
             }
+
             lastPacket.Send(false);
         }
 
@@ -330,6 +337,24 @@ namespace Map.Blueprint
             base.Validate();
 
             OnChanged?.Invoke(this);
+        }
+
+        public void ToggleHide(bool show)
+        {
+            foreach (var edge in edges)
+            {
+                edge.SetBlueprintGameObject(show);
+            }
+
+            foreach (var structure in structures)
+            {
+                structure.Renderer.gameObject.SetActive(show);
+            }
+
+            foreach (var vehicle in vehicles)
+            {
+                vehicle.Renderer.gameObject.SetActive(show);
+            }
         }
 
         protected override IEnumerable<Edge> EnumerateEdges() => edges.AsEnumerable();
@@ -344,7 +369,9 @@ namespace Map.Blueprint
 
         public override bool IsValid(Edge edge) => edge.BlueprintIsValid;
         public override int Cost(Edge edge) => edge.BlueprintCost;
-        public override Edge.EdgeType BlueprintedEdgeType(Edge edge) => !edge.BlueprintPreview ? edge.BlueprintType : Edge.EdgeType.None;
+
+        public override Edge.EdgeType BlueprintedEdgeType(Edge edge) =>
+            !edge.BlueprintPreview ? edge.BlueprintType : Edge.EdgeType.None;
 
 
         protected override void SetValid(Structure structure, bool valid, int cost)
@@ -355,7 +382,10 @@ namespace Map.Blueprint
 
         public override bool IsValid(Structure structure) => structure.BlueprintIsValid;
         public override int Cost(Structure structure) => structure.BlueprintCost;
-        public override StructureId? BlueprintedStructure(Tile tile) => (!tile.BlueprintStructure?.BlueprintPreview ?? false) ? tile.BlueprintStructure.Id : null;
+
+        public override StructureId? BlueprintedStructure(Tile tile) =>
+            (!tile.BlueprintStructure?.BlueprintPreview ?? false) ? tile.BlueprintStructure.Id : null;
+
         public override Tile BlueprintedStructureTile(Structure structure) => structure.BlueprintTile;
 
 

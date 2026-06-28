@@ -343,6 +343,13 @@ namespace Map
             EdgeDirty = false;
         }
 
+        public void SetBlueprintGameObject(bool show)
+        {
+            if (blueprintGeometry == null) return;
+
+            blueprintGeometry.gameObject.SetActive(show);
+        }
+
         private void SetColorAndOutline()
         {
             if (Owner != null)
