@@ -68,6 +68,7 @@ namespace UI
         public Button hideButton;
         private Button currentActiveButton;
         private GroupBox buildCount;
+        private Compass compass;
 
         [SerializeField] public Sprite hide, hidden;
 
@@ -132,6 +133,7 @@ namespace UI
             playersContainer = root.Q<VisualElement>("players-container");
             tabMenu = root.Q<VisualElement>("TabMenu");
             buildCount = root.Q<GroupBox>("BuildCount");
+            compass = root.Q<Compass>("Compass");
 
             // 3. Setup Sorting Header Events
             var headerRow = root.Q<VisualElement>("header-row");
@@ -227,6 +229,8 @@ namespace UI
 
         private void Update()
         {
+            //mainCamera.q
+            //compass.ArrowAngle = 
             if (IsHovered)
             {
                 Map.Map.Instance.CurrentlyHovered = null;
