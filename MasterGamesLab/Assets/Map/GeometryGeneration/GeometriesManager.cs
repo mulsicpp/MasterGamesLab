@@ -46,9 +46,11 @@ namespace Map.GeometryGeneration
         [SerializeField] private Mesh octahedronMesh;
         [SerializeField] private Mesh icosahedronMesh;
         [SerializeField] private Mesh dodecahedronMesh;
-        
+
         [SerializeField] private GameObject geometryPrefab;
         [SerializeField] private GameObject fullRoadPrefab;
+
+        [SerializeField] private Mesh buoyMesh;
 
         private void Awake()
         {
@@ -186,5 +188,7 @@ namespace Map.GeometryGeneration
         }
 
         public GameObject GetFullRoadGameObject() => Instantiate(fullRoadPrefab, transform);
+
+        public Mesh GetBuoyMesh() => buoyMesh;
     }
 }

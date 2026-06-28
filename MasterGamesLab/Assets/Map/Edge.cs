@@ -355,13 +355,6 @@ namespace Map
             }
 
             geometry.SetBaseLayer();
-
-            if (Type == EdgeType.Canal)
-            {
-                geometry.SetPlayerColor(new Color(0, 0, 255, 1));
-                geometry.SetOutlineTransparentLayer();
-                geometry.SetOutlineParameters(Constants.TRANSPARENT_OUTLINE);
-            }
         }
 
         private void SetBlueprintColorAndOutline()

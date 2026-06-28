@@ -316,6 +316,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 4004374116097416254, guid: a977a9c6a29009f47bc5bd137c5e29eb, type: 3}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: TEST_ROAD_HEIGHT
+      value: 0.001
+      objectReference: {fileID: 0}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: TEST_CANAL_RANDOM_
       value: 0.01
       objectReference: {fileID: 0}
