@@ -3,6 +3,7 @@ using Map.Fleet;
 using Map.GeometryGeneration.Edges;
 using Map.Hoverables;
 using Map.Infrastructure;
+using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -62,6 +63,7 @@ namespace UI
             private TileId[] fastestRoute = null;
             private TileId[] cheapestRoute = null;
             private Tile destination = null;
+            private Tile loadTile = null;
 
             public HoveredSelectDestination(VehicleControls controls, Tile start, Tile destination) : base(controls)
             {
@@ -73,26 +75,40 @@ namespace UI
                 var fastestProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckFastestRoute : MovementProfileRegistry.FreighterFastestRoute;
                 var cheapestProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckCheapestRoute : MovementProfileRegistry.FreighterCheapestRoute;
 
-                var fastestRoute = Pathfinding.FindPath(start, destination, fastestProfile);
-                var cheapestRoute = Pathfinding.FindPath(start, destination, cheapestProfile);
 
-
-                if (fastestRoute != null)
+                if(vehicle is Truck && destination.Type == Tile.TileType.Water)
                 {
-                    this.fastestRoute = fastestRoute;
-                    this.destination = destination;
+                    Predicate<Tile> condition = t => t.Structure?.Type == Structure.StructureType.Port && t.Neighbors.Contains(destination);
+                    var fastestRoute = Pathfinding.FindPath(start, condition, fastestProfile);
+                    var cheapestRoute = Pathfinding.FindPath(start, condition, cheapestProfile);
+
+
+                    if (fastestRoute != null || cheapestRoute != null)
+                    {
+                        this.fastestRoute = fastestRoute;
+                        this.cheapestRoute = cheapestRoute;
+                        this.destination = Map.Map.Instance.Tiles[fastestRoute?[^1] ?? cheapestRoute[^1]] as Tile;
+                        this.loadTile = destination;
+                    }
                 }
-
-                if (cheapestRoute != null)
+                else
                 {
-                    this.cheapestRoute = cheapestRoute;
-                    this.destination = destination;
+                    var fastestRoute = Pathfinding.FindPath(start, destination, fastestProfile);
+                    var cheapestRoute = Pathfinding.FindPath(start, destination, cheapestProfile);
+
+
+                    if (fastestRoute != null || cheapestRoute != null)
+                    {
+                        this.fastestRoute = fastestRoute;
+                        this.cheapestRoute = cheapestRoute;
+                        this.destination = destination;
+                    }
                 }
             }
 
             public override bool Commit()
             {
-                controls.RouteOptions.Set(controls.SelectedVehicle, destination, fastestRoute, cheapestRoute);
+                controls.RouteOptions.Set(controls.SelectedVehicle, destination, fastestRoute, cheapestRoute, loadTile);
                 return true;
             }
         }
@@ -249,7 +265,7 @@ namespace UI
             {
                 SelectedVehicle.ShowOutline(Constants.SELECTED_OUTLINE);
                 var start = SelectedVehicle.GetTileLocationAfterAllActions(out bool loaded);
-                RouteOptions.Destination?.ShowOutline(Constants.SELECTED_OUTLINE);
+                RouteOptions.VisualDestination?.ShowOutline(Constants.SELECTED_OUTLINE);
 
                 switch (Map.Map.Instance.CurrentlyHovered)
                 {
@@ -316,6 +332,10 @@ namespace UI
                 if (routeIds != null)
                 {
                     SelectedVehicle.EnqueueAction(new VehicleAction(VehicleAction.ActionType.DriveRoute, RouteOptions.Destination.Id, routeIds));
+                    if (RouteOptions.LoadTile != null)
+                    {
+                        SelectedVehicle.EnqueueAction(new VehicleAction(VehicleAction.ActionType.LoadTruck, RouteOptions.LoadTile.Id));
+                    }
                     RouteOptions.Clear();
                 }
             }
