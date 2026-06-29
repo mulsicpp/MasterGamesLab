@@ -56,6 +56,7 @@ namespace Map.GeometryGeneration
         [SerializeField] private Material defaultEdgeMaterial;
         [SerializeField] private Material previewMaterial;
         [SerializeField] private Material blueprintMaterial;
+        [SerializeField] private Material buoyMaterial;
 
         private void Awake()
         {
@@ -202,5 +203,7 @@ namespace Map.GeometryGeneration
         public Material GetPreviewMaterial() => previewMaterial;
 
         public Material GetBlueprintMaterial() => blueprintMaterial;
+
+        public Material GetBuoyMaterial() => buoyMaterial;
     }
 }

@@ -66,3 +66,4 @@ MonoBehaviour:
   defaultEdgeMaterial: {fileID: 2100000, guid: f0d0640b16dd13e43aad1d23739fbed4, type: 2}
   previewMaterial: {fileID: 2100000, guid: 3b4ca6713d276cc4b9923b575c819930, type: 2}
   blueprintMaterial: {fileID: 2100000, guid: 0ba95f94aeddc20499f57a803851bda3, type: 2}
+  buoyMaterial: {fileID: 2100000, guid: 091f595dab4f0fe43861fd59f5180afa, type: 2}

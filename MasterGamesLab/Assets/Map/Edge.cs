@@ -9,6 +9,7 @@ using Networking;
 using IState = Networking.IState;
 using Player;
 using Map.OutlineEffect;
+using Random = System.Random;
 
 namespace Map
 {
@@ -362,6 +363,11 @@ namespace Map
                 geometry.SetPlayerColor(Color.black);
             }
 
+            if (Type == EdgeType.Canal)
+            {
+                geometry.SetMaterial(GeometriesManager.Instance.GetBuoyMaterial());
+            }
+            
             geometry.SetBaseLayer();
         }
 
@@ -435,7 +441,7 @@ namespace Map
         public Vector4 GetEdgeData()
         {
             //return new Vector4(Id + Map.ID_OFFSET, randomValue, active ? 1 : 0, 0);
-            return new Vector4(EntityId.Value + Map.ID_OFFSET, 0, 0, 0);
+            return new Vector4(EntityId.Value + Map.ID_OFFSET, (float)new Random().NextDouble(), 0, 0);
         }
 
 
