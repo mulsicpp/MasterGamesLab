@@ -15,7 +15,7 @@ namespace Map.GeometryGeneration.Edges
         private const int EDGE_RESOLUTION = 5;
         private const float ROAD_RADIUS = 0.01f;
         private const float FULL_ROAD_RADIUS = ROAD_RADIUS * 0.9f;
-        
+
         private const float FASTEST_ROAD_NORMAL_DELTA = 0.0012f;
         private const float CHEAPEST_ROAD_NORMAL_DELTA = 0.001f;
         private const float QUEUED_ROAD_NORMAL_DELTA = 0.0008f;
@@ -136,41 +136,6 @@ namespace Map.GeometryGeneration.Edges
             }
 
             return Edge.PartialEdgeGeometry.Empty;
-        }
-
-        public static FullRoadGeometry GenerateFullRoad(TileId[] tiles, FullRoadGeometry.FullRoadType type)
-        {
-            var go = GeometriesManager.Instance.GetFullRoadGameObject();
-            var fullRoadGeometry = go.GetComponent<FullRoadGeometry>();
-            fullRoadGeometry.Init(type);
-            fullRoadGeometry.ClearMeshData();
-
-            var uv1 = new Vector4(fullRoadGeometry.EntityId.Value + Map.ID_OFFSET, 0, 0, 0);
-
-            if (tiles.Length <= 1)
-            {
-                return fullRoadGeometry;
-            }
-
-
-            var startCurve = ParametricCurve.FromTileToTileCenter(Map.Instance.Tiles[tiles[1]] as Tile,
-                Map.Instance.Tiles[tiles[0]] as Tile);
-            AddCurveData(startCurve, fullRoadGeometry, uv1, type);
-
-            for (var i = 1; i < tiles.Length - 1; i++)
-            {
-                var curve = ParametricCurve.FromTileToTileOverTile(Map.Instance.Tiles[tiles[i - 1]] as Tile,
-                    Map.Instance.Tiles[tiles[i + 1]] as Tile, Map.Instance.Tiles[tiles[i]] as Tile);
-                AddCurveData(curve, fullRoadGeometry, uv1, type);
-            }
-
-            var endCurve = ParametricCurve.FromTileToTileCenter(Map.Instance.Tiles[tiles[^2]] as Tile,
-                Map.Instance.Tiles[tiles[^1]] as Tile);
-            AddCurveData(endCurve, fullRoadGeometry, uv1, type);
-
-            fullRoadGeometry.StoreMeshData();
-            fullRoadGeometry.ClearOutline();
-            return fullRoadGeometry;
         }
 
         private static Edge.PartialEdgeGeometry BuildConnectingParametricCurves(Tile tile, Edge edge, bool blueprint,
@@ -463,7 +428,8 @@ namespace Map.GeometryGeneration.Edges
             return routeGeometry;
         }
 
-        private static void AddCurveData(ParametricCurve curve, RouteGeometry element, Vector4 uv1, Route.RouteType type, float heightOffset)
+        private static void AddCurveData(ParametricCurve curve, RouteGeometry element, Vector4 uv1,
+            Route.RouteType type, float heightOffset)
         {
             var vertexOffset = element.Vertices.Count;
 
