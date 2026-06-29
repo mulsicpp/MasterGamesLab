@@ -57,7 +57,8 @@ Material:
     m_Floats:
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _WobbleHeight: 0.0005
+    - _WobbleHeight: 0.00075
+    - _WobblePeriod: 5
     - _color_variation_amount: 0
     m_Colors:
     - _PlayerColor: {r: 0, g: 0, b: 0, a: 1}
