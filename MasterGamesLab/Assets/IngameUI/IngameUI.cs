@@ -70,6 +70,9 @@ namespace UI
         private GroupBox buildCount;
         private Compass compass;
 
+        [SerializeField] private VisualTreeAsset actionQueueTemplate;
+        private ScrollView actionQueueScrollView;
+
         [SerializeField] public Sprite hide, hidden;
 
 
@@ -181,7 +184,22 @@ namespace UI
             blueprintCountContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
             tabMenu.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
             tabMenu.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+
+
+            actionQueueScrollView = root.Q<ScrollView>("QueueScroll");
+
+            // Example: Add 5 items to the queue
+            for (int i = 0; i < 5; i++)
+            {
+                AddItemToQueue();
+            }
+
+            actionQueueScrollView.RegisterCallback<MouseEnterEvent>(evt => mainCamera.supressZoom = true);
+
+            // Set flag to false when mouse leaves the boundary
+            actionQueueScrollView.RegisterCallback<MouseLeaveEvent>(evt => mainCamera.supressZoom = false);
         }
+
 
         void OnDisable()
         {
@@ -205,6 +223,8 @@ namespace UI
             cancelButton.clicked -= OnCancelPressed;
             hideButton.clicked -= OnHidePressed;
             compass.clicked -= OnCompassPressed;
+
+            mainCamera.supressZoom = false;
 
         }
 
@@ -271,6 +291,17 @@ namespace UI
         #endregion
 
         #region Tab Menu Sorting Logic
+
+        public void AddItemToQueue()
+        {
+            VisualElement clone = actionQueueTemplate.Instantiate();
+
+
+            clone.AddToClassList("actionqueue-template-container");
+
+            actionQueueScrollView.Add(clone);
+            
+        }
 
         private void HighliteHoveredColumn(SortColumn column)
         {
