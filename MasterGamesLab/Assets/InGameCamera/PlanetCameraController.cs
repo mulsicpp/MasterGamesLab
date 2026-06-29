@@ -285,6 +285,22 @@ namespace InGameCamera
             turnNorth = true;
         }
 
+        public void SnapNorth()
+        {
+            transform.rotation = Quaternion.FromToRotation(transform.up, TangentNorth) * transform.rotation;
+        }
+
+        public void SnapToFocusedObject()
+        {
+            if (FocusedObject != null)
+            {
+                transform.rotation = Quaternion.FromToRotation(transform.position - Target.position, FocusedObject.transform.position - Target.position) * transform.rotation;
+
+                var position = Target.position + transform.rotation * new Vector3(0f, 0f, -CurrentDistance);
+                transform.position = position;
+            }
+        }
+
 
         public void CenterOnPosition(Vector3 worldPosition, float? desiredDistance = null)
         {
