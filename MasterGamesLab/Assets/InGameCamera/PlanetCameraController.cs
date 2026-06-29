@@ -99,14 +99,14 @@ namespace InGameCamera
             turnNorthAction = sphereNavigationActionMap.FindAction("TurnNorth");
             lookAction = sphereNavigationActionMap.FindAction("Look");
             zoomAction = sphereNavigationActionMap.FindAction("Zoom");
+
+            camera = gameObject.GetComponent<Camera>();
         }
 
         private void OnEnable()
         {
-            sphereNavigationActionMap = inputActions.FindActionMap("SphereNavigation");
             sphereNavigationActionMap.Enable();
 
-            camera = gameObject.GetComponent<Camera>();
         }
 
         private void Start()
