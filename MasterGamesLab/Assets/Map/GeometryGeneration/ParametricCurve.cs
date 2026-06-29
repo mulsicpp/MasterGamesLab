@@ -4,10 +4,22 @@ namespace Map.GeometryGeneration
 {
     public class ParametricCurve
     {
-        public enum CurveType
+        public struct CurveData
         {
-            Road,
-            Water
+            public float StartHeight;
+            public float EndHeight;
+
+            public CurveData(float startHeight, float endHeight)
+            {
+                StartHeight = startHeight;
+                EndHeight = endHeight;
+            }
+
+            public static CurveData DefaultRoadCurve =>
+                new CurveData(TileGeometryFactory.LAND_HEIGHT, TileGeometryFactory.LAND_HEIGHT);
+
+            public static CurveData DefaultWaterCurve =>
+                new CurveData(TileGeometryFactory.WATER_HEIGHT, TileGeometryFactory.WATER_HEIGHT);
         }
 
         private Vector3 a;
@@ -15,7 +27,8 @@ namespace Map.GeometryGeneration
         private Vector3 c;
         private Vector3 d;
 
-        public static ParametricCurve FromTileToTileOverTile(Tile startTile, Tile endTile, Tile tile, CurveType type = CurveType.Road)
+        public static ParametricCurve FromTileToTileOverTile(Tile startTile, Tile endTile, Tile tile,
+            CurveData? type = null)
         {
             Ray rStart = default, rEnd = default;
             bool foundStart = false, foundEnd = false;
@@ -41,10 +54,11 @@ namespace Map.GeometryGeneration
             if (Vector3.Dot(rStart.direction, rEnd.origin - rStart.origin) < 0) rStart.direction = -rStart.direction;
             if (Vector3.Dot(rEnd.direction, rStart.origin - rEnd.origin) < 0) rEnd.direction = -rEnd.direction;
 
-            return FromRaysWithType(rStart, rEnd, type);
+            return FromRaysWithType(rStart, rEnd, type ?? CurveData.DefaultRoadCurve);
         }
 
-        public static ParametricCurve FromTileToTileCenter(Tile startTile, Tile endTile, CurveType type = CurveType.Road)
+        public static ParametricCurve FromTileToTileCenter(Tile startTile, Tile endTile,
+            CurveData? type = null)
         {
             Ray ray = default;
             var found = false;
@@ -62,10 +76,11 @@ namespace Map.GeometryGeneration
 
             if (Vector3.Dot(ray.direction, endTile.PositionOnSphere - ray.origin) < 0) ray.direction = -ray.direction;
 
-            return FromRaysWithType(ray, new Ray(endTile.PositionOnSphere, -ray.direction), type, 0.5f);
+            return FromRaysWithType(ray, new Ray(endTile.PositionOnSphere, -ray.direction),
+                type ?? CurveData.DefaultRoadCurve, 0.5f);
         }
 
-        public static ParametricCurve FromEdgeToEdge(Edge start, Edge end, Tile tile, CurveType type = CurveType.Road)
+        public static ParametricCurve FromEdgeToEdge(Edge start, Edge end, Tile tile, CurveData? type = null)
         {
             var p0 = (start.VertexA + start.VertexB) / 2f;
             var dir0 = Vector3.Cross(start.VertexA, start.VertexB).normalized;
@@ -76,10 +91,10 @@ namespace Map.GeometryGeneration
             if (Vector3.Dot(dir0, p3 - p0) < 0) dir0 = -dir0;
             if (Vector3.Dot(dir3, p0 - p3) < 0) dir3 = -dir3;
 
-            return FromRaysWithType(new Ray(p0, dir0), new Ray(p3, dir3), type);
+            return FromRaysWithType(new Ray(p0, dir0), new Ray(p3, dir3), type ?? CurveData.DefaultRoadCurve);
         }
 
-        public static ParametricCurve FromEdgeToTileCenter(Edge edge, Tile tile, CurveType type = CurveType.Road)
+        public static ParametricCurve FromEdgeToTileCenter(Edge edge, Tile tile, CurveData? type = null)
         {
             var p0 = (edge.VertexA + edge.VertexB) / 2f;
             var dir0 = Vector3.Cross(edge.VertexA, edge.VertexB).normalized;
@@ -90,10 +105,10 @@ namespace Map.GeometryGeneration
             if (Vector3.Dot(dir0, p3 - p0) < 0) dir0 = -dir0;
             if (Vector3.Dot(dir3, p0 - p3) < 0) dir3 = -dir3;
 
-            return FromRaysWithType(new Ray(p0, dir0), new Ray(p3, dir3), type, 0.5f);
+            return FromRaysWithType(new Ray(p0, dir0), new Ray(p3, dir3), type ?? CurveData.DefaultRoadCurve, 0.5f);
         }
 
-        private static ParametricCurve FromRaysWithType(Ray startRay, Ray endRay, CurveType type,
+        private static ParametricCurve FromRaysWithType(Ray startRay, Ray endRay, CurveData type,
             float handleDistanceScale = 1.0f)
         {
             var p0 = startRay.origin;
@@ -102,19 +117,8 @@ namespace Map.GeometryGeneration
             var p3 = endRay.origin;
             var dir3 = endRay.direction;
 
-            switch (type)
-            {
-                case CurveType.Road:
-                    p0 = p0.normalized * (TileGeometryFactory.LAND_HEIGHT + Map.Instance.TEST_ROAD_HEIGHT);
-                    p3 = p3.normalized * (TileGeometryFactory.LAND_HEIGHT + Map.Instance.TEST_ROAD_HEIGHT);
-                    break;
-                case CurveType.Water:
-                    p0 = p0.normalized * TileGeometryFactory.WATER_HEIGHT;
-                    p3 = p3.normalized * TileGeometryFactory.WATER_HEIGHT;
-                    break;
-                default:
-                    break;
-            }
+            p0 = p0.normalized * (type.StartHeight + Map.Instance.TEST_ROAD_HEIGHT);
+            p3 = p3.normalized * (type.EndHeight + Map.Instance.TEST_ROAD_HEIGHT);
 
             var p1 = p0 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * handleDistanceScale * dir0;
             var p2 = p3 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * handleDistanceScale * dir3;

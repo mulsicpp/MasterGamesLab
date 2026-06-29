@@ -208,6 +208,7 @@ namespace Map.Infrastructure
                 Renderer.Init(this);
             }
             RendererRebuildTriggered = false;
+            RendererUpdateTriggered = false;
         }
 
         public void ClearOutline()

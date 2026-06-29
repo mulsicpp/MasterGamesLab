@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Map.GeometryGeneration;
 using Map.GeometryGeneration.Edges;
 using Map.Hoverables;
 using Unity.Netcode;
@@ -8,6 +9,7 @@ using Networking;
 using IState = Networking.IState;
 using Player;
 using Map.OutlineEffect;
+using Random = System.Random;
 
 namespace Map
 {
@@ -345,6 +347,13 @@ namespace Map
             EdgeDirty = false;
         }
 
+        public void SetBlueprintGameObject(bool show)
+        {
+            if (blueprintGeometry == null) return;
+
+            blueprintGeometry.gameObject.SetActive(show);
+        }
+
         private void SetColorAndOutline()
         {
             if (Owner != null)
@@ -356,14 +365,12 @@ namespace Map
                 geometry.SetPlayerColor(Color.black);
             }
 
-            geometry.SetBaseLayer();
-
             if (Type == EdgeType.Canal)
             {
-                geometry.SetPlayerColor(new Color(0, 0, 255, 1));
-                geometry.SetOutlineTransparentLayer();
-                geometry.SetOutlineParameters(Constants.TRANSPARENT_OUTLINE);
+                geometry.SetMaterial(GeometriesManager.Instance.GetBuoyMaterial());
             }
+            
+            geometry.SetBaseLayer();
         }
 
         private void SetBlueprintColorAndOutline()
@@ -388,20 +395,29 @@ namespace Map
                             break;
                     }
 
+                    if (GeometriesManager.Instance)
+                    {
+                        blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
+                    }
+
                     break;
                 case Blueprint.VisualState.Preview:
+                    blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
                     blueprintGeometry.SetBaseLayer();
                     blueprintGeometry.SetPlayerColor(Constants.ROAD_BLUEPRINT_PREVIEW_COLOR);
                     break;
                 case Blueprint.VisualState.PreviewOverlapping:
+                    blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
                     blueprintGeometry.SetOutlineTransparentLayer();
                     blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_PREVIEW_OVERLAPPING_OUTLINE);
                     break;
                 case Blueprint.VisualState.Overlapping:
+                    blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
                     blueprintGeometry.SetOutlineTransparentLayer();
                     blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
                     break;
                 case Blueprint.VisualState.Invalid:
+                    blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
                     blueprintGeometry.SetOutlineLayer();
                     blueprintGeometry.SetPlayerColor(Constants.ROAD_BLUEPRINT_INVALID_COLOR);
                     blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_INVALID_OUTLINE);
@@ -427,7 +443,7 @@ namespace Map
         public Vector4 GetEdgeData()
         {
             //return new Vector4(Id + Map.ID_OFFSET, randomValue, active ? 1 : 0, 0);
-            return new Vector4(EntityId.Value + Map.ID_OFFSET, 0, 0, 0);
+            return new Vector4(EntityId.Value + Map.ID_OFFSET, (float)new Random().NextDouble(), 0, 0);
         }
 
 

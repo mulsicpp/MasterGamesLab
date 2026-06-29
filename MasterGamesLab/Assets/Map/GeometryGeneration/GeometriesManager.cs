@@ -16,6 +16,12 @@ namespace Map.GeometryGeneration
             ProducerDodecahedron,
             Consumer,
             Port,
+            ParkingLot,
+            Tetrahedron,
+            Cube,
+            Octahedron,
+            Icosahedron,
+            Dodecahedron,
         }
 
         private const float SCALE_VALUE = 0.008f;
@@ -34,8 +40,23 @@ namespace Map.GeometryGeneration
 
         [SerializeField] private Mesh consumerMesh;
         [SerializeField] private Mesh portMesh;
+        [SerializeField] private Mesh parkingLotMesh;
+        [SerializeField] private Mesh tetrahedronMesh;
+        [SerializeField] private Mesh cubeMesh;
+        [SerializeField] private Mesh octahedronMesh;
+        [SerializeField] private Mesh icosahedronMesh;
+        [SerializeField] private Mesh dodecahedronMesh;
+
         [SerializeField] private GameObject geometryPrefab;
         [SerializeField] private GameObject routePrefab;
+
+        [SerializeField] private Mesh buoyMesh;
+
+        [SerializeField] private Material defaultFixedGeometryMaterial;
+        [SerializeField] private Material defaultEdgeMaterial;
+        [SerializeField] private Material previewMaterial;
+        [SerializeField] private Material blueprintMaterial;
+        [SerializeField] private Material buoyMaterial;
 
         private void Awake()
         {
@@ -120,6 +141,42 @@ namespace Map.GeometryGeneration
                     outlineTransparentLayerName = "Outline Transparent";
                     localRotation = Quaternion.Euler(90, 0, 0);
                     break;
+                case GeometryType.ParkingLot:
+                    mesh = parkingLotMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.Tetrahedron:
+                    mesh = tetrahedronMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.Cube:
+                    mesh = cubeMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.Octahedron:
+                    mesh = octahedronMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.Icosahedron:
+                    mesh = icosahedronMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case GeometryType.Dodecahedron:
+                    mesh = dodecahedronMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    localRotation = Quaternion.Euler(90, 0, 0);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
@@ -132,10 +189,21 @@ namespace Map.GeometryGeneration
             var fixedGeometry = gO.GetComponent<ObjectWithFixedGeometry>();
             fixedGeometry.Init(mesh, defaultLayerName, outlineLayerName, outlineTransparentLayerName, id,
                 owner?.Color ?? Color.black);
-            Debug.Log($"Debug: {owner}, color: {owner?.Color ?? Color.black}, truck?: {type == GeometryType.Truck}");
             return fixedGeometry;
         }
 
         public GameObject GetRouteGameObject() => Instantiate(routePrefab, transform);
+
+        public Mesh GetBuoyMesh() => buoyMesh;
+
+        public Material GetEdgeMaterial() => defaultEdgeMaterial;
+        
+        public Material GetFixedGeometryMaterial() => defaultFixedGeometryMaterial;
+
+        public Material GetPreviewMaterial() => previewMaterial;
+
+        public Material GetBlueprintMaterial() => blueprintMaterial;
+
+        public Material GetBuoyMaterial() => buoyMaterial;
     }
 }

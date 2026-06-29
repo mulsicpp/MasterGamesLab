@@ -218,6 +218,11 @@ namespace Map
                 {
                     structure.RebuildRenderer();
                 }
+                else if (structure.RendererUpdateTriggered)
+                {
+                    structure.Renderer?.UpdateMaterial();
+                    structure.RendererUpdateTriggered = false;
+                }
             }
 
             foreach (var vehicle in Fleet.Vehicles)

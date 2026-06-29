@@ -67,6 +67,14 @@ namespace Map.OutlineEffect
 
         public void SetOutlineTransparentLayer() => gameObject.layer = outlineTransparentLayer;
 
+        public void SetMaterial(Material material)
+        {
+            if (objRenderer != null)
+            {
+                objRenderer.sharedMaterial = material;
+            }
+        }
+
         private void SetMaterialPropertyBlock()
         {
             if (objRenderer == null)

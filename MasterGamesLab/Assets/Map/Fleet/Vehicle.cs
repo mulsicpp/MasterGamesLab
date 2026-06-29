@@ -290,6 +290,7 @@ namespace Map.Fleet
                     return new VehicleId(type, new((byte)(index - range.Start.Value)));
                 }
             }
+
             return VehicleId.NONE;
         }
 
@@ -312,7 +313,8 @@ namespace Map.Fleet
             return false;
         }
 
-        public bool CanDriveRoute(Player.Player player, TileId[] routeIds, out int publicCost, out Dictionary<Player.Player, int> enemyCosts)
+        public bool CanDriveRoute(Player.Player player, TileId[] routeIds, out int publicCost,
+            out Dictionary<Player.Player, int> enemyCosts)
         {
             publicCost = 0;
             enemyCosts = new();
@@ -329,7 +331,8 @@ namespace Map.Fleet
             return CanDriveRoute(player, route, out publicCost, out enemyCosts);
         }
 
-        public bool CanDriveRoute(Player.Player player, Tile[] route, out int publicCost, out Dictionary<Player.Player, int> enemyCosts)
+        public bool CanDriveRoute(Player.Player player, Tile[] route, out int publicCost,
+            out Dictionary<Player.Player, int> enemyCosts)
         {
             publicCost = 0;
             enemyCosts = new();
@@ -506,10 +509,14 @@ namespace Map.Fleet
                 if (previousTileIndex >= lastIndex) return 0;
                 int nextTileIndex = previousTileIndex + 1;
 
-                float remainingTime = (nextTileIndex - RouteProgress) / (BaseSpeedTPS * (Route[previousTileIndex].FindEdgeTo(Route[nextTileIndex])?.GetSpeedMultiplier() ?? 1.0f));
+                float remainingTime = (nextTileIndex - RouteProgress) / (BaseSpeedTPS *
+                                                                         (Route[previousTileIndex]
+                                                                             .FindEdgeTo(Route[nextTileIndex])
+                                                                             ?.GetSpeedMultiplier() ?? 1.0f));
                 for (int i = nextTileIndex; i < lastIndex; i++)
                 {
-                    remainingTime += 1.0f / (BaseSpeedTPS * (Route[i].FindEdgeTo(Route[i + 1])?.GetSpeedMultiplier() ?? 1.0f));
+                    remainingTime += 1.0f /
+                                     (BaseSpeedTPS * (Route[i].FindEdgeTo(Route[i + 1])?.GetSpeedMultiplier() ?? 1.0f));
                 }
 
                 return remainingTime;
@@ -543,10 +550,10 @@ namespace Map.Fleet
                         Vector3 position;
                         Vector3 tangent;
 
-                        ParametricCurve.CurveType curveType = Type switch
+                        ParametricCurve.CurveData curveType = Type switch
                         {
-                            VehicleType.Freighter => ParametricCurve.CurveType.Water,
-                            _ => ParametricCurve.CurveType.Road,
+                            VehicleType.Freighter => ParametricCurve.CurveData.DefaultWaterCurve,
+                            _ => ParametricCurve.CurveData.DefaultRoadCurve,
                         };
 
                         if (tileIndex == 0)

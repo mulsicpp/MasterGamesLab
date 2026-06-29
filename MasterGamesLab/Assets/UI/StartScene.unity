@@ -316,6 +316,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 4004374116097416254, guid: a977a9c6a29009f47bc5bd137c5e29eb, type: 3}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: TEST_ROAD_HEIGHT
+      value: 0.001
+      objectReference: {fileID: 0}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: TEST_CANAL_RANDOM_
       value: 0.01
       objectReference: {fileID: 0}
@@ -333,7 +337,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: TEST_CANAL_INSET_UPPER
-      value: 0.55
+      value: 0.58
       objectReference: {fileID: 0}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: fullProjectionDistance
@@ -1178,6 +1182,10 @@ PrefabInstance:
       propertyPath: routePrefab
       value: 
       objectReference: {fileID: 1656574153691020000, guid: a0c329c131d7c8c4cae9f255306af9bb, type: 3}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: parkingLotMesh
+      value: 
+      objectReference: {fileID: -2432090755550338912, guid: 1d9abc1cf16ffcd459a902e314992922, type: 3}
     - target: {fileID: 5965362561141683518, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: m_Name
       value: GeometriesManager

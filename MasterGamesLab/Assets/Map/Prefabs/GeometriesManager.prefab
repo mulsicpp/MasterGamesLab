@@ -53,5 +53,17 @@ MonoBehaviour:
   producerDodecahedronMesh: {fileID: -2432090755550338912, guid: 02a7c90abf5dd1440b841f09fa5ce140, type: 3}
   consumerMesh: {fileID: -2432090755550338912, guid: 82457382839a733429f44b5b80bf1ce8, type: 3}
   portMesh: {fileID: -2432090755550338912, guid: 6ee54aa8c30e23d478f9236f3b900f2b, type: 3}
+  parkingLotMesh: {fileID: -2432090755550338912, guid: 1d9abc1cf16ffcd459a902e314992922, type: 3}
+  tetrahedronMesh: {fileID: -2432090755550338912, guid: 3c7b2f780edc54743bb928801acba484, type: 3}
+  cubeMesh: {fileID: -2432090755550338912, guid: bcddaeaa41a1dee45822733c45e3dfd2, type: 3}
+  octahedronMesh: {fileID: -2432090755550338912, guid: d7efb86445c56654893071b8fe3a618d, type: 3}
+  icosahedronMesh: {fileID: -2432090755550338912, guid: 180f6840460e13c41b8e127b9153a64e, type: 3}
+  dodecahedronMesh: {fileID: -2432090755550338912, guid: 3a1c48d136cf29948a8f3c9f9a99af8e, type: 3}
   geometryPrefab: {fileID: 1656574153691020000, guid: 3f431ad8f77587748abe2332aecce29e, type: 3}
-  fullRoadPrefab: {fileID: 1656574153691020000, guid: a0c329c131d7c8c4cae9f255306af9bb, type: 3}
+  routePrefab: {fileID: 1656574153691020000, guid: a0c329c131d7c8c4cae9f255306af9bb, type: 3}
+  buoyMesh: {fileID: -2432090755550338912, guid: 3d322a61fb2f6ad4aa70e1ffde4a177a, type: 3}
+  defaultFixedGeometryMaterial: {fileID: 2100000, guid: 8a4eab58006e6014bbc53d07ed1a90cd, type: 2}
+  defaultEdgeMaterial: {fileID: 2100000, guid: f0d0640b16dd13e43aad1d23739fbed4, type: 2}
+  previewMaterial: {fileID: 2100000, guid: 3b4ca6713d276cc4b9923b575c819930, type: 2}
+  blueprintMaterial: {fileID: 2100000, guid: 0ba95f94aeddc20499f57a803851bda3, type: 2}
+  buoyMaterial: {fileID: 2100000, guid: 091f595dab4f0fe43861fd59f5180afa, type: 2}

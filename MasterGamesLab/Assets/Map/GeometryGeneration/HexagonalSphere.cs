@@ -11,7 +11,7 @@ namespace Map.GeometryGeneration
             return GenerateChunks(triangles, subdivisionLevel);
         }
 
-        private static List<MapGenerationTriangle> GenerateIcosahedronTriangles(float radius)
+        public static List<MapGenerationTriangle> GenerateIcosahedronTriangles(float radius)
         {
             var h = radius / Mathf.Sqrt(5f);
             var ringR = 2f * radius / Mathf.Sqrt(5f);
