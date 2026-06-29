@@ -595,6 +595,7 @@ MonoBehaviour:
   - GoodType: 5
     ImageAsset: {fileID: 725648652, guid: 93835b88ef5bec34cae8d9a7ee1f2a2a, type: 3}
   IsHovered: 0
+  actionQueueTemplate: {fileID: 9197481963319205126, guid: 102683850d6acc24288b6059039e2cab, type: 3}
   hide: {fileID: -1844845555, guid: 8a648cac76db10b42a0f3492ee5ff516, type: 3}
   hidden: {fileID: 1506502981, guid: e81343c7df71c6f4984e62c3c1fccb34, type: 3}
 --- !u!114 &985979806

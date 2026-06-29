@@ -70,6 +70,9 @@ namespace UI
         private GroupBox buildCount;
         private Compass compass;
 
+        [SerializeField] private VisualTreeAsset actionQueueTemplate;
+        private ScrollView actionQueueScrollView;
+
         [SerializeField] public Sprite hide, hidden;
 
 
@@ -181,7 +184,20 @@ namespace UI
             blueprintCountContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
             tabMenu.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
             tabMenu.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+
+
+            actionQueueScrollView = root.Q<ScrollView>("QueueScroll");
+
+            for (int i = 0; i < 20; i++)
+            {
+                AddItemToQueue();
+            }
+
+            actionQueueScrollView.RegisterCallback<MouseEnterEvent>(evt => mainCamera.supressZoom = true);
+
+            actionQueueScrollView.RegisterCallback<MouseLeaveEvent>(evt => mainCamera.supressZoom = false);
         }
+
 
         void OnDisable()
         {
@@ -205,6 +221,8 @@ namespace UI
             cancelButton.clicked -= OnCancelPressed;
             hideButton.clicked -= OnHidePressed;
             compass.clicked -= OnCompassPressed;
+
+            mainCamera.supressZoom = false;
 
         }
 
@@ -272,9 +290,50 @@ namespace UI
 
         #region Tab Menu Sorting Logic
 
+        public void AddItemToQueue()
+        {
+            VisualElement clone = actionQueueTemplate.Instantiate();
+
+
+            clone.AddToClassList("actionqueue-template-container");
+
+            actionQueueScrollView.Add(clone);
+            actionQueueScrollView.RegisterCallback<GeometryChangedEvent>(OnQueueGeometryChanged);
+        }
+
+        private void OnQueueGeometryChanged(GeometryChangedEvent evt)
+        {
+            float viewportWidth = actionQueueScrollView.contentViewport.layout.width;
+            float contentWidth = actionQueueScrollView.contentContainer.layout.width;
+
+            if (contentWidth <= viewportWidth)
+            {
+                actionQueueScrollView.scrollOffset = Vector2.zero;
+
+                actionQueueScrollView.UnregisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
+                actionQueueScrollView.UnregisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
+
+                actionQueueScrollView.RegisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
+                actionQueueScrollView.RegisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
+            }
+            else
+            {
+                actionQueueScrollView.UnregisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
+                actionQueueScrollView.UnregisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
+            }
+        }
+
+        private void BlockScrollPhysics(PointerDownEvent evt)
+        {
+            evt.StopImmediatePropagation();
+        }
+
+        private void BlockScrollWheel(WheelEvent evt)
+        {
+            evt.StopImmediatePropagation();
+        }
         private void HighliteHoveredColumn(SortColumn column)
         {
-            // First, strip old hover classes so columns don't stack highlights
             ClearHoveredColumns();
 
             string elementName = column switch
