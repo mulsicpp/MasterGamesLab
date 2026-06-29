@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using InGameCamera;
+using Map;
 using Map.Blueprint;
 using Map.Fleet;
 using Map.Hoverables;
@@ -22,7 +23,13 @@ namespace UI
     {
         public enum VehicleAction
         {
-            DriveTruck,
+            DriveTruckToCommon,
+            DriveTruckToUncommon,
+            DriveTruckToRare,
+            DriveTruckToEpic,
+            DriveTruckToLegendary,
+            DriveTruckToConsumer,
+            DriveTruckToPort,
             LoadTruck,
             UnloadTruck,
             DriveFreighter,
@@ -323,7 +330,7 @@ namespace UI
         #endregion
 
         #region Action Queue
-        public void AddItemToQueue(VehicleAction action)
+        public void AddItemToQueue(VehicleAction action, IHoverable entity)
         {
             VisualElement clone = actionQueueTemplate.Instantiate();
             clone.Q<VisualElement>("Icon").style.backgroundImage = new StyleBackground(vehicleActionImages[action]);
@@ -332,6 +339,8 @@ namespace UI
 
             actionQueueScrollView.Add(clone);
             actionQueueScrollView.RegisterCallback<GeometryChangedEvent>(OnQueueGeometryChanged);
+            actionQueueScrollView.RegisterCallback<MouseEnterEvent>((evt) => Map.Map.Instance.CurrentlyHovered = entity);
+            actionQueueScrollView.RegisterCallback<MouseLeaveEvent>((evt) => Map.Map.Instance.CurrentlyHovered = null);
         }
 
         public void ClearActionQueue()
