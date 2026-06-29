@@ -420,7 +420,8 @@ namespace UI
                     _ => SelectedVehicle.Type == Vehicle.VehicleType.Truck ?
                         IngameUI.VehicleAction.DriveTruck : IngameUI.VehicleAction.DriveFreighter
                 };
-                IngameUI.Instance.AddItemToQueue(uiAction);
+
+                IngameUI.Instance.AddItemToQueue(uiAction, null);
             }
         }
 
