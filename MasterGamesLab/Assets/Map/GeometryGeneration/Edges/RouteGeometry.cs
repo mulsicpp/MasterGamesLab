@@ -1,24 +1,19 @@
 ﻿using System;
 using Map.Hoverables;
+using UI;
 using UnityEngine;
 
 namespace Map.GeometryGeneration.Edges
 {
     public class RouteGeometry : AObjectWithProcedualGeometry, IHoverable
     {
-        public enum RouteType
-        {
-            Cheapest = 0,
-            Fastest = 1,
-        }
-
         protected override string DefaultLayerName() => "Full Road";
         protected override string OutlineLayerName() => "Full Road Outline";
         protected override string OutlineTransparentLayerName() => "Full Road Outline Transparent";
 
         public EntityId EntityId { get; private set; }
 
-        public RouteType Type { get; private set; }
+        public Route.RouteType Type { get; private set; }
 
         private bool hovered = false;
 
@@ -29,7 +24,7 @@ namespace Map.GeometryGeneration.Edges
             ClearOutline();
         }
 
-        public void Init(RouteType newType)
+        public void Init(Route.RouteType newType)
         {
             Type = newType;
             EntityId = new EntityId(Map.Instance.EntityIdManager.SelectableRouteRange.Start.Value + (int)Type);
@@ -47,8 +42,10 @@ namespace Map.GeometryGeneration.Edges
         {
             var outline = Type switch
             {
-                RouteType.Cheapest => Constants.CHEAPEST_ROAD_OUTLINE,
-                RouteType.Fastest => Constants.FASTEST_ROAD_OUTLINE,
+                Route.RouteType.Cheapest => Constants.CHEAPEST_ROUTE_OUTLINE,
+                Route.RouteType.Fastest => Constants.FASTEST_ROUTE_OUTLINE,
+                Route.RouteType.Queued => Constants.QUEUED_ROUTE_OUTLINE,
+                Route.RouteType.Current => Constants.CURRENT_ROUTE_OUTLINE,
                 _ => Constants.TRANSPARENT_OUTLINE,
             };
 
@@ -66,8 +63,11 @@ namespace Map.GeometryGeneration.Edges
         {
             var outlineData = Type switch
             {
-                RouteType.Cheapest => Constants.CHEAPEST_ROAD_OUTLINE_HOVERED,
-                _ => Constants.FASTEST_ROAD_OUTLINE_HOVERED,
+                Route.RouteType.Cheapest => Constants.CHEAPEST_ROUTE_OUTLINE_HOVERED,
+                Route.RouteType.Fastest => Constants.FASTEST_ROUTE_OUTLINE_HOVERED,
+                Route.RouteType.Queued => Constants.QUEUED_ROUTE_OUTLINE_HOVERED,
+                Route.RouteType.Current => Constants.CURRENT_ROUTE_OUTLINE_HOVERED,
+                _ => Constants.TRANSPARENT_OUTLINE,
             };
 
             SetOutlineParameters(outlineData);

@@ -45,13 +45,13 @@ namespace UI
 
                 if (Good != Good.None && IngameUI.Instance.goodsImages.TryGetValue(Good, out Sprite img))
                 {
-                    setActive(true);
+                    SetShowing(true);
                     goodIcon.style.backgroundImage = new StyleBackground(img);
                 }
                 else
                 {
                     goodIcon.style.backgroundImage = null;
-                    setActive(false);
+                    SetShowing(false);
                     return;
                 }
             }

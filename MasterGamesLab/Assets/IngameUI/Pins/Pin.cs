@@ -157,7 +157,7 @@ namespace UI
 
         protected virtual void OnMouseEnterElement(MouseEnterEvent evt) => IsHovered = true;
         protected virtual void OnMouseLeaveElement(MouseLeaveEvent evt) => IsHovered = false;
-        protected virtual void setActive(bool active) => UiElement.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
+        protected virtual void SetShowing(bool active) => UiElement.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
         protected virtual void OnDestroy() => UiElement?.RemoveFromHierarchy();
     }
 }

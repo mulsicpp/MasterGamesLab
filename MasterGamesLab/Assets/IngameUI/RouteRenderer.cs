@@ -8,6 +8,7 @@ namespace UI
         public Route Route { get; private set; }
 
         public RoutePin Pin;
+        public bool PinVisible;
 
         public RouteGeometry Geometry;
 
@@ -15,6 +16,7 @@ namespace UI
         {
             Route = route;
             Pin = GetComponentInChildren<RoutePin>();
+            PinVisible = true;
             Geometry = null;
         }
 
@@ -22,7 +24,7 @@ namespace UI
         {
             if (Route.TileIds != null)
             {
-                Gizmos.color = Route.Type == RouteGeometry.RouteType.Fastest ? Color.orange.linear : Color.purple.linear;
+                Gizmos.color = Route.Type == Route.RouteType.Fastest ? Color.orange.linear : Color.purple.linear;
                 for (int i = 0; i < Route.TileIds.Length; i++)
                 {
                     Vector3 pos =

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UI;
 using UnityEngine;
 
 namespace Map.GeometryGeneration.Edges
@@ -14,8 +15,10 @@ namespace Map.GeometryGeneration.Edges
         private const float ROAD_RADIUS = 0.01f;
         private const float FULL_ROAD_RADIUS = ROAD_RADIUS * 0.9f;
         
-        private const float FASTEST_ROAD_NORMAL_DELTA = 0.0015f;
+        private const float FASTEST_ROAD_NORMAL_DELTA = 0.0012f;
         private const float CHEAPEST_ROAD_NORMAL_DELTA = 0.001f;
+        private const float QUEUED_ROAD_NORMAL_DELTA = 0.0008f;
+        private const float CURRENT_ROAD_NORMAL_DELTA = 0.0006f;
 
         public struct TileInformation
         {
@@ -503,7 +506,7 @@ namespace Map.GeometryGeneration.Edges
             };
         }
 
-        public static RouteGeometry GenerateRoute(TileId[] tiles, RouteGeometry.RouteType type)
+        public static RouteGeometry GenerateRoute(TileId[] tiles, Route.RouteType type)
         {
             var go = GeometriesManager.Instance.GetRouteGameObject();
 
@@ -540,12 +543,15 @@ namespace Map.GeometryGeneration.Edges
             return routeGeometry;
         }
 
-        private static void AddCurveData(ParametricCurve curve, RouteGeometry element, Vector4 uv1, RouteGeometry.RouteType type)
+        private static void AddCurveData(ParametricCurve curve, RouteGeometry element, Vector4 uv1, Route.RouteType type)
         {
             var vertexOffset = element.Vertices.Count;
-            var heightOffset = type == RouteGeometry.RouteType.Fastest
-                ? FASTEST_ROAD_NORMAL_DELTA
-                : CHEAPEST_ROAD_NORMAL_DELTA;
+            var heightOffset = type switch {
+                Route.RouteType.Cheapest => CHEAPEST_ROAD_NORMAL_DELTA,
+                Route.RouteType.Queued => QUEUED_ROAD_NORMAL_DELTA,
+                Route.RouteType.Current => CURRENT_ROAD_NORMAL_DELTA,
+                _ => FASTEST_ROAD_NORMAL_DELTA,
+            };
 
             for (var i = 0; i < EDGE_RESOLUTION; i++)
             {

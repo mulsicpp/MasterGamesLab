@@ -131,6 +131,6 @@ public class IngameInputs : MonoBehaviour
     {
         IngameUI.Instance.SelectVehicleBySlot(type, slotIndex);
     }
-    private void OnChooseFastestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseRoute(RouteGeometry.RouteType.Fastest);
-    private void OnChooseCheapestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseRoute(RouteGeometry.RouteType.Cheapest);
+    private void OnChooseFastestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseRoute(Route.RouteType.Fastest);
+    private void OnChooseCheapestRoute(InputAction.CallbackContext ctx) => IngameUI.Instance.VehicleControls.ChooseRoute(Route.RouteType.Cheapest);
 }

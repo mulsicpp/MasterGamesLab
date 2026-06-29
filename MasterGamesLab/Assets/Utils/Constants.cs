@@ -17,7 +17,7 @@ public static class Constants
 
     // ------------------- Vehicles -------------------
 
-    public const byte MAX_TRUCKS_PER_PLAYER = 32;
+    public const byte MAX_TRUCKS_PER_PLAYER = 16;
     public const byte MAX_TRUCK_COUNT = MAX_TRUCKS_PER_PLAYER * MAX_PLAYER_COUNT;
     public const float TRUCK_BASE_SPEED_TPS = 1.0f;
 
@@ -225,31 +225,59 @@ public static class Constants
         TextureId = 1,
     };
 
-    public static OutlineData FASTEST_ROAD_OUTLINE = new OutlineData()
+    public static OutlineData FASTEST_ROUTE_OUTLINE = new OutlineData()
     {
         OutlineColor = new Color(0, 0, 0, 0),
         InnerColor = Color.orange,
         TextureId = 1,
     };
 
-    public static OutlineData FASTEST_ROAD_OUTLINE_HOVERED = new OutlineData()
+    public static OutlineData FASTEST_ROUTE_OUTLINE_HOVERED = new OutlineData()
     {
         OutlineColor = Color.orange,
         InnerColor = Color.orange,
         TextureId = 1,
     };
 
-    public static OutlineData CHEAPEST_ROAD_OUTLINE = new OutlineData()
+    public static OutlineData CHEAPEST_ROUTE_OUTLINE = new OutlineData()
     {
         OutlineColor = new Color(0, 0, 0, 0),
         InnerColor = Color.green,
         TextureId = 1,
     };
 
-    public static OutlineData CHEAPEST_ROAD_OUTLINE_HOVERED = new OutlineData()
+    public static OutlineData CHEAPEST_ROUTE_OUTLINE_HOVERED = new OutlineData()
     {
         OutlineColor = Color.green,
         InnerColor = Color.green,
+        TextureId = 1,
+    };
+
+    public static OutlineData QUEUED_ROUTE_OUTLINE = new OutlineData()
+    {
+        OutlineColor = new Color(0, 0, 0, 0),
+        InnerColor = Color.yellow,
+        TextureId = 1,
+    };
+
+    public static OutlineData QUEUED_ROUTE_OUTLINE_HOVERED = new OutlineData()
+    {
+        OutlineColor = Color.yellow,
+        InnerColor = Color.yellow,
+        TextureId = 1,
+    };
+
+    public static OutlineData CURRENT_ROUTE_OUTLINE = new OutlineData()
+    {
+        OutlineColor = new Color(0, 0, 0, 0),
+        InnerColor = SELECTED_OUTLINE.OutlineColor,
+        TextureId = 1,
+    };
+
+    public static OutlineData CURRENT_ROUTE_OUTLINE_HOVERED = new OutlineData()
+    {
+        OutlineColor = SELECTED_OUTLINE.OutlineColor,
+        InnerColor = SELECTED_OUTLINE.OutlineColor,
         TextureId = 1,
     };
 }
