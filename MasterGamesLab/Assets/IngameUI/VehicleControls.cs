@@ -78,7 +78,7 @@ namespace UI
                 var cheapestProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckCheapestRoute : MovementProfileRegistry.FreighterCheapestRoute;
 
 
-                if(vehicle is Truck && destination.Type == Tile.TileType.Water)
+                if (vehicle is Truck && destination.Type == Tile.TileType.Water)
                 {
                     Predicate<Tile> condition = t => t.Structure?.Type == Structure.StructureType.Port && t.Neighbors.Contains(destination);
                     var fastestRoute = Pathfinding.FindPath(start, condition, fastestProfile);
@@ -318,7 +318,8 @@ namespace UI
             if (SelectedVehicle?.Route != null)
             {
                 currentRoute.SetRoute(SelectedVehicle, SelectedVehicle.Route.Select(t => t.Id).ToArray());
-            } else
+            }
+            else
             {
                 currentRoute.SetRoute(null, null);
             }
@@ -371,18 +372,24 @@ namespace UI
         public void BuildActionQueueGameObjects()
         {
             Debug.Log("Building action queue game objects");
+            IngameUI.Instance.setActionQueueVisible(true);
 
             foreach (var go in actionQueueGameObjects)
             {
-                if(go != null)
+                if (go != null)
                 {
                     Destroy(go);
                 }
             }
 
             actionQueueGameObjects.Clear();
+            IngameUI.Instance.ClearActionQueue();
 
-            if (SelectedVehicle == null) return;
+            if (SelectedVehicle == null || SelectedVehicle.ActionQueue.Count == 0)
+            {
+                IngameUI.Instance.setActionQueueVisible(false);
+                return;
+            }
 
             foreach (var action in SelectedVehicle.ActionQueue)
             {
@@ -397,6 +404,16 @@ namespace UI
                 {
                     actionQueueGameObjects.Add(null);
                 }
+
+                IngameUI.VehicleAction uiAction = action.Type switch
+                {
+                    VehicleAction.ActionType.LoadTruck => IngameUI.VehicleAction.LoadTruck,
+                    VehicleAction.ActionType.UnloadTruck => IngameUI.VehicleAction.UnloadTruck,
+                    VehicleAction.ActionType.WaitForTruck => IngameUI.VehicleAction.WaitFreighter,
+                    _ => SelectedVehicle.Type == Vehicle.VehicleType.Truck ?
+                        IngameUI.VehicleAction.DriveTruck : IngameUI.VehicleAction.DriveFreighter
+                };
+                IngameUI.Instance.AddItemToQueue(uiAction);
             }
         }
 

@@ -20,6 +20,25 @@ namespace UI
     [RequireComponent(typeof(VehicleControls))]
     public class IngameUI : Menu, IClickEventHandler
     {
+        public enum VehicleAction
+        {
+            DriveTruck,
+            LoadTruck,
+            UnloadTruck,
+            DriveFreighter,
+            WaitFreighter
+        }
+        [Serializable]
+        public struct VehicleActionImagePair
+        {
+            public VehicleAction VehicleActionType;
+            public Sprite ImageAsset;
+        }
+        [SerializeField]
+        private List<VehicleActionImagePair> vehicleActionConfiguration = new List<VehicleActionImagePair>();
+
+        public Dictionary<VehicleAction, Sprite> vehicleActionImages = new Dictionary<VehicleAction, Sprite>();
+
         [Serializable]
         public struct GoodImagePair
         {
@@ -72,6 +91,7 @@ namespace UI
 
         [SerializeField] private VisualTreeAsset actionQueueTemplate;
         private ScrollView actionQueueScrollView;
+        private VisualElement actionQueue;
 
         [SerializeField] public Sprite hide, hidden;
 
@@ -96,6 +116,14 @@ namespace UI
                 if (!goodsImages.ContainsKey(pair.GoodType))
                 {
                     goodsImages.Add(pair.GoodType, pair.ImageAsset);
+                }
+            }
+
+            foreach (var pair in vehicleActionConfiguration)
+            {
+                if (!vehicleActionImages.ContainsKey(pair.VehicleActionType))
+                {
+                    vehicleActionImages.Add(pair.VehicleActionType, pair.ImageAsset);
                 }
             }
 
@@ -187,11 +215,7 @@ namespace UI
 
 
             actionQueueScrollView = root.Q<ScrollView>("QueueScroll");
-
-            for (int i = 0; i < 20; i++)
-            {
-                AddItemToQueue();
-            }
+            actionQueue = root.Q<VisualElement>("ActionQueue");
 
             actionQueueScrollView.RegisterCallback<MouseEnterEvent>(evt => mainCamera.supressZoom = true);
 
@@ -288,12 +312,11 @@ namespace UI
 
         #endregion
 
-        #region Tab Menu Sorting Logic
-
-        public void AddItemToQueue()
+        #region Action Queue
+        public void AddItemToQueue(VehicleAction action)
         {
             VisualElement clone = actionQueueTemplate.Instantiate();
-
+            clone.Q<VisualElement>("Icon").style.backgroundImage = new StyleBackground(vehicleActionImages[action]);
 
             clone.AddToClassList("actionqueue-template-container");
 
@@ -301,6 +324,25 @@ namespace UI
             actionQueueScrollView.RegisterCallback<GeometryChangedEvent>(OnQueueGeometryChanged);
         }
 
+        public void ClearActionQueue()
+        {
+
+            actionQueueScrollView.UnregisterCallback<GeometryChangedEvent>(OnQueueGeometryChanged);
+            actionQueueScrollView.UnregisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
+            actionQueueScrollView.UnregisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
+
+            actionQueueScrollView.Clear();
+
+            actionQueueScrollView.scrollOffset = Vector2.zero;
+        }
+        public void setActionQueueVisible(bool visible)
+        {
+            Visibility style = visible ? Visibility.Visible : Visibility.Hidden;
+            actionQueue.style.visibility = style;
+        }
+        #endregion
+
+        #region Tab Menu Sorting Logic
         private void OnQueueGeometryChanged(GeometryChangedEvent evt)
         {
             float viewportWidth = actionQueueScrollView.contentViewport.layout.width;
