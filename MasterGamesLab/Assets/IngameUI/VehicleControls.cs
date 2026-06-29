@@ -72,7 +72,7 @@ namespace UI
                 var vehicle = controls.SelectedVehicle;
 
 
-                if (vehicle == null) return;
+                if (vehicle == null || start == destination) return;
 
                 var fastestProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckFastestRoute : MovementProfileRegistry.FreighterFastestRoute;
                 var cheapestProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckCheapestRoute : MovementProfileRegistry.FreighterCheapestRoute;
