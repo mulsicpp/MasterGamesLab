@@ -8,17 +8,25 @@ namespace UI
 {
     public class Route
     {
+        public enum RouteType
+        {
+            Cheapest = 0,
+            Fastest = 1,
+            Queued = 2,
+            Current = 3,
+        }
+
         private TileId[] tileids;
         public TileId[] TileIds => tileids;
 
-        public readonly RouteGeometry.RouteType Type;
+        public readonly RouteType Type;
 
         public float Duration { get; private set; }
         public int Cost { get; private set; }
 
         public RouteRenderer Renderer { get; private set; }
 
-        public Route(RouteGeometry.RouteType type)
+        public Route(RouteType type)
         {
             this.tileids = null;
             Type = type;
@@ -51,6 +59,7 @@ namespace UI
             if (tileIds != null)
             {
                 Renderer.Geometry = EdgeGeometryFactory.GenerateRoute(tileIds, Type);
+                Renderer.Geometry.transform.SetParent(Renderer.transform);
             }
         }
 

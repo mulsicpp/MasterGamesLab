@@ -11,6 +11,8 @@ using UnityEngine.UIElements;
 using Map.GeometryGeneration;
 using System.Collections.Generic;
 using static Unity.VectorGraphics.VectorUtils;
+using System;
+using System.Linq;
 
 namespace Map.Fleet
 {
@@ -188,6 +190,7 @@ namespace Map.Fleet
         public abstract bool IsIdle { get; }
         public LinkedList<VehicleAction> ActionQueue { get; private set; }
         public bool WaitingForActionResponse { get; private set; } = false;
+        public event Action OnActionQueueChanged;
 
         private Tile blueprintTile;
 
@@ -453,9 +456,13 @@ namespace Map.Fleet
                 if (ActionQueue.First.Value.Type == VehicleAction.ActionType.LoadTruck && this is Truck truck)
                 {
                     if (truck.Freighter?.ActionQueue.First?.Value.Type == VehicleAction.ActionType.WaitForTruck)
+                    {
                         truck.Freighter.ActionQueue.RemoveFirst();
+                        truck.Freighter.OnActionQueueChanged?.Invoke();
+                    }
                 }
                 ActionQueue.RemoveFirst();
+                OnActionQueueChanged?.Invoke();
             }
             WaitingForActionResponse = false;
         }
@@ -509,6 +516,8 @@ namespace Map.Fleet
             }
         }
 
+        public float VisualProgress => smoothDriving?.VisualProgress ?? RouteProgress;
+
         public virtual VehicleTransform Transform
         {
             get
@@ -522,7 +531,7 @@ namespace Map.Fleet
                 else if (IsDriving)
                 {
                     // float visualProgress = RouteProgress + SpeedTPS * (Time.time - Time.fixedTime);
-                    float visualProgress = smoothDriving?.VisualProgress ?? RouteProgress;
+                    float visualProgress = VisualProgress;
                     if (visualProgress <= 0.0f) return Route[0].ParkedVehicleTransform();
                     else if (visualProgress >= Route.Length - 1)
                         return Route[Route.Length - 1].ParkedVehicleTransform();
@@ -611,14 +620,14 @@ namespace Map.Fleet
             {
                 if (Renderer == null)
                 {
-                    var gameObject = Object.Instantiate(VehiclePrefab, Map.Instance.gameObject.transform);
+                    var gameObject = UnityEngine.Object.Instantiate(VehiclePrefab, Map.Instance.gameObject.transform);
                     Renderer = gameObject.GetComponent<VehicleRenderer>();
                     Renderer.Init(this);
                 }
             }
             else if (Renderer != null)
             {
-                Object.Destroy(Renderer.gameObject);
+                UnityEngine.Object.Destroy(Renderer.gameObject);
                 Renderer = null;
             }
         }
@@ -649,6 +658,16 @@ namespace Map.Fleet
         public void EnqueueAction(VehicleAction action)
         {
             ActionQueue.AddLast(action);
+            OnActionQueueChanged?.Invoke();
+        }
+
+        public void DeleteActionsAt(int index)
+        {
+            while (ActionQueue.Count > index)
+            {
+                ActionQueue.RemoveLast();
+            }
+            OnActionQueueChanged?.Invoke();
         }
     }
 }

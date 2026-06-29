@@ -39,14 +39,14 @@ public class RoutePin : Pin
 
     protected override void LateUpdate()
     {
-        if (routeRenderer == null || routeRenderer.Route.TileIds == null)
+        if (routeRenderer == null || !routeRenderer.PinVisible || routeRenderer.Route.TileIds == null)
         {
-            setActive(false);
+            SetShowing(false);
             return;
         }
         cost.text = routeRenderer.Route.Cost.ToString();
         duration.text = routeRenderer.Route.Duration.ToString();
-        setActive(true);
+        SetShowing(true);
         base.LateUpdate();
     }
 

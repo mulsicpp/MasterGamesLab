@@ -3,7 +3,9 @@ using Map.Fleet;
 using Map.GeometryGeneration.Edges;
 using Map.Hoverables;
 using Map.Infrastructure;
+using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -194,9 +196,9 @@ namespace UI
         {
             public override bool IsValid => true;
 
-            private RouteGeometry.RouteType Type;
+            private Route.RouteType Type;
 
-            public HoveredSelectRoute(VehicleControls controls, RouteGeometry.RouteType type) : base(controls)
+            public HoveredSelectRoute(VehicleControls controls, Route.RouteType type) : base(controls)
             {
                 Type = type;
             }
@@ -220,11 +222,18 @@ namespace UI
             {
                 if (selectedVehicle == value) return;
                 if (selectedVehicle != null)
-                    selectedVehicle?.ClearOutline();
+                {
+                    selectedVehicle.ClearOutline();
+                    selectedVehicle.OnActionQueueChanged -= ActionQueueChanged;
+                }
                 selectedVehicle = value;
                 RouteOptions.Clear();
 
-
+                if (selectedVehicle != null)
+                {
+                    selectedVehicle.OnActionQueueChanged += ActionQueueChanged;
+                }
+                BuildActionQueueGameObjects();
 
                 if (ControlsAreActive)
                 {
@@ -235,9 +244,15 @@ namespace UI
 
         public RouteOptions RouteOptions { get; private set; }
 
+        private List<GameObject> actionQueueGameObjects;
+        private Route currentRoute;
+
         public void Start()
         {
             RouteOptions = new();
+            actionQueueGameObjects = new();
+            currentRoute = new(Route.RouteType.Current);
+            currentRoute.Renderer.PinVisible = false;
         }
 
         public void DisableControls()
@@ -300,6 +315,13 @@ namespace UI
                 Map.Map.Instance.HoverOutliner.HoverState = hoveredAction?.IsValid ?? true ? HoverState.Valid : HoverState.Invalid;
 
             RouteOptions.UpdateFacingDirections();
+            if (SelectedVehicle?.Route != null)
+            {
+                currentRoute.SetRoute(SelectedVehicle, SelectedVehicle.Route.Select(t => t.Id).ToArray());
+            } else
+            {
+                currentRoute.SetRoute(null, null);
+            }
         }
 
 
@@ -319,13 +341,13 @@ namespace UI
             return false;
         }
 
-        public void ChooseRoute(RouteGeometry.RouteType type)
+        public void ChooseRoute(Route.RouteType type)
         {
             if (SelectedVehicle != null && RouteOptions.Destination != null)
             {
                 TileId[] routeIds = type switch
                 {
-                    RouteGeometry.RouteType.Cheapest => RouteOptions.CheapestRoute.TileIds ?? RouteOptions.FastestRoute.TileIds,
+                    Route.RouteType.Cheapest => RouteOptions.CheapestRoute.TileIds ?? RouteOptions.FastestRoute.TileIds,
                     _ => RouteOptions.FastestRoute.TileIds ?? RouteOptions.CheapestRoute.TileIds,
                 };
 
@@ -337,6 +359,43 @@ namespace UI
                         SelectedVehicle.EnqueueAction(new VehicleAction(VehicleAction.ActionType.LoadTruck, RouteOptions.LoadTile.Id));
                     }
                     RouteOptions.Clear();
+                }
+            }
+        }
+
+        private void ActionQueueChanged()
+        {
+            BuildActionQueueGameObjects();
+        }
+
+        public void BuildActionQueueGameObjects()
+        {
+            Debug.Log("Building action queue game objects");
+
+            foreach (var go in actionQueueGameObjects)
+            {
+                if(go != null)
+                {
+                    Destroy(go);
+                }
+            }
+
+            actionQueueGameObjects.Clear();
+
+            if (SelectedVehicle == null) return;
+
+            foreach (var action in SelectedVehicle.ActionQueue)
+            {
+                if (action.Type == VehicleAction.ActionType.DriveRoute)
+                {
+                    Route r = new(Route.RouteType.Queued);
+                    r.SetRoute(SelectedVehicle, action.RouteIds);
+                    r.Renderer.PinVisible = false;
+                    actionQueueGameObjects.Add(r.Renderer.gameObject);
+                }
+                else
+                {
+                    actionQueueGameObjects.Add(null);
                 }
             }
         }

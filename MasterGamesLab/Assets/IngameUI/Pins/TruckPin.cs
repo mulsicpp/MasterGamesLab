@@ -44,7 +44,7 @@ namespace UI
         {
             if (!vehicleRenderer.Vehicle.Exists || vehicleRenderer.Vehicle.Transform == null)
             {
-                setActive(false);
+                SetShowing(false);
                 return;
             }
             timeLabel.text = vehicleRenderer.Vehicle.RemainingDriveTime is float t ? ((int)Mathf.Ceil(t)).ToString() + "s" : "";

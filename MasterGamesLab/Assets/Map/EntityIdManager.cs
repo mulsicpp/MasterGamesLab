@@ -1,6 +1,7 @@
 using Map.GeometryGeneration.Edges;
 using System;
 using System.Collections.Generic;
+using UI;
 
 namespace Map
 {
@@ -19,7 +20,7 @@ namespace Map
         {
             var map = Map.Instance;
 
-            var selectableRouteCount = Enum.GetValues(typeof(RouteGeometry.RouteType)).Length;
+            var selectableRouteCount = Enum.GetValues(typeof(Route.RouteType)).Length;
 
             TileRange = 0..map.Tiles.Count;
             EdgeRange = TileRange.End..(TileRange.End.Value + map.Edges.Count);

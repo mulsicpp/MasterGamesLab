@@ -57,7 +57,7 @@ UI:
 - Outline pin when hovered/selected
 - Add depth (z-index) to pins
 - Better looking pins
-- Compass
+- Compass cunsumes mouse click
 - Time
 - Smooth camera movement when focusing object [done]
 - Change keyboard shortcuts
