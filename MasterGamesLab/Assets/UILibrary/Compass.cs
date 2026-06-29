@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 [UxmlElement]
-public partial class Compass : VisualElement
+public partial class Compass : Button
 {
     // === Arrow 1 Properties ===
     private float arrowAngle = 0f;

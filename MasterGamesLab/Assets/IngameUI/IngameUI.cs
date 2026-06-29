@@ -169,7 +169,7 @@ namespace UI
             confirmButton.clicked += OnConfirmPressed;
             cancelButton.clicked += OnCancelPressed;
             hideButton.clicked += OnHidePressed;
-
+            compass.clicked += OnCompassPressed;
             // 5. Initialize States & Loops
             blueprintCountContainer.style.display = DisplayStyle.None;
             // UpdateAllPlayerStats();
@@ -204,6 +204,8 @@ namespace UI
             confirmButton.clicked -= OnConfirmPressed;
             cancelButton.clicked -= OnCancelPressed;
             hideButton.clicked -= OnHidePressed;
+            compass.clicked -= OnCompassPressed;
+
         }
 
         private void BecameVisible()
@@ -229,8 +231,14 @@ namespace UI
 
         private void Update()
         {
-            //mainCamera.q
-            //compass.ArrowAngle = 
+            float signedAngle = Vector2.SignedAngle(Vector2.up, mainCamera.LocalNorth);
+
+            if (signedAngle < 0)
+            {
+                signedAngle += 360f;
+            }
+
+            compass.ArrowAngle = (630f - signedAngle) % 360f;
             if (IsHovered)
             {
                 Map.Map.Instance.CurrentlyHovered = null;
@@ -485,6 +493,7 @@ namespace UI
         public void OnConfirmPressed() => ConstructionControls.ConfirmConstruction();
         public void OnCancelPressed() => ConstructionControls.CancelConstruction();
         public void OnHidePressed() => ConstructionControls.ToggleHide();
+        public void OnCompassPressed() => mainCamera.TurnNorth();
 
         public void SelectNextVehicle()
         {
@@ -535,7 +544,7 @@ namespace UI
 
         public void ShowTabMenu(bool visible)
         {
-            if(visible)
+            if (visible)
             {
                 UpdateAllPlayerStats();
             }
