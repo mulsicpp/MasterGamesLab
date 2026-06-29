@@ -412,13 +412,23 @@ namespace UI
                     actionQueueGameObjects.Add(null);
                 }
 
-                IngameUI.VehicleAction uiAction = action.Type switch
+                IngameUI.VehicleAction uiAction = (action.Type, SelectedVehicle.Type, Map.Map.Instance.Tiles[action.TargetTileId].Structure ) switch
                 {
-                    VehicleAction.ActionType.LoadTruck => IngameUI.VehicleAction.LoadTruck,
-                    VehicleAction.ActionType.UnloadTruck => IngameUI.VehicleAction.UnloadTruck,
-                    VehicleAction.ActionType.WaitForTruck => IngameUI.VehicleAction.WaitFreighter,
-                    _ => SelectedVehicle.Type == Vehicle.VehicleType.Truck ?
-                        IngameUI.VehicleAction.DriveTruck : IngameUI.VehicleAction.DriveFreighter
+                    (VehicleAction.ActionType.LoadTruck, _, _) => IngameUI.VehicleAction.LoadTruck,
+                    (VehicleAction.ActionType.UnloadTruck, _, _) => IngameUI.VehicleAction.UnloadTruck,
+                    (VehicleAction.ActionType.WaitForTruck, _, _) => IngameUI.VehicleAction.WaitFreighter,
+
+                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Freighter, _) => IngameUI.VehicleAction.DriveFreighter,
+
+                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Producer{Good : Good.Common}) => IngameUI.VehicleAction.DriveTruckToCommon,
+                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Producer{Good : Good.Uncommon}) => IngameUI.VehicleAction.DriveTruckToUncommon,
+                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Producer{Good : Good.Rare}) => IngameUI.VehicleAction.DriveTruckToRare,
+                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Producer{Good : Good.Epic}) => IngameUI.VehicleAction.DriveTruckToEpic,
+                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Producer{Good : Good.Legendary}) => IngameUI.VehicleAction.DriveTruckToLegendary,
+                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Consumer) => IngameUI.VehicleAction.DriveTruckToConsumer,
+                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Port) => IngameUI.VehicleAction.DriveTruckToPort,
+
+                    _ => IngameUI.VehicleAction.DriveTruckToCommon
                 };
 
                 IngameUI.Instance.AddItemToQueue(uiAction, null);
