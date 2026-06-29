@@ -32,7 +32,7 @@ namespace Map.GeometryGeneration.Edges
         public void Init(RouteType newType)
         {
             Type = newType;
-            EntityId = new EntityId(Map.Instance.EntityIdManager.FullRoadRange.Start.Value + (int)Type);
+            EntityId = new EntityId(Map.Instance.EntityIdManager.SelectableRouteRange.Start.Value + (int)Type);
             Map.Instance.EntityIdManager[EntityId] = this;
             ClearOutline();
         }

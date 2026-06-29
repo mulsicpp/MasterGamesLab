@@ -50,7 +50,7 @@ namespace UI
 
             if (tileIds != null)
             {
-                Renderer.Geometry = EdgeGeometryFactory.GenerateFullRoad(tileIds, Type);
+                Renderer.Geometry = EdgeGeometryFactory.GenerateRoute(tileIds, Type);
             }
         }
 

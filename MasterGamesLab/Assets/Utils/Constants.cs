@@ -28,6 +28,8 @@ public static class Constants
     public const int TRUCK_LOADING_COST_ENEMY = 40;
     public const int TRUCK_UNLOADING_COST_ENEMY = 80;
 
+    public const int MAX_VEHICLE_ACTION_COUNT_PER_VEHICLE = 64;
+
 
     // ------------------- Structures -------------------
 

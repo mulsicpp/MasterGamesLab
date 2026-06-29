@@ -35,7 +35,7 @@ namespace Map.GeometryGeneration
         [SerializeField] private Mesh consumerMesh;
         [SerializeField] private Mesh portMesh;
         [SerializeField] private GameObject geometryPrefab;
-        [SerializeField] private GameObject fullRoadPrefab;
+        [SerializeField] private GameObject routePrefab;
 
         private void Awake()
         {
@@ -136,6 +136,6 @@ namespace Map.GeometryGeneration
             return fixedGeometry;
         }
 
-        public GameObject GetFullRoadGameObject() => Instantiate(fullRoadPrefab, transform);
+        public GameObject GetRouteGameObject() => Instantiate(routePrefab, transform);
     }
 }

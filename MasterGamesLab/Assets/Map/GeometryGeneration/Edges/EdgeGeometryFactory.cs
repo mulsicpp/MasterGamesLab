@@ -503,39 +503,41 @@ namespace Map.GeometryGeneration.Edges
             };
         }
 
-        public static RouteGeometry GenerateFullRoad(TileId[] tiles, RouteGeometry.RouteType type)
+        public static RouteGeometry GenerateRoute(TileId[] tiles, RouteGeometry.RouteType type)
         {
-            var go = GeometriesManager.Instance.GetFullRoadGameObject();
-            var fullRoadGeometry = go.GetComponent<RouteGeometry>();
-            fullRoadGeometry.Init(type);
-            fullRoadGeometry.ClearMeshData();
+            var go = GeometriesManager.Instance.GetRouteGameObject();
 
-            var uv1 = new Vector4(fullRoadGeometry.EntityId.Value + Map.ID_OFFSET, 0, 0, 0);
+            Debug.Log(go);
+            var routeGeometry = go.GetComponent<RouteGeometry>();
+            routeGeometry.Init(type);
+            routeGeometry.ClearMeshData();
+
+            var uv1 = new Vector4(routeGeometry.EntityId.Value + Map.ID_OFFSET, 0, 0, 0);
 
             if (tiles.Length <= 1)
             {
-                return fullRoadGeometry;
+                return routeGeometry;
             }
 
 
             var startCurve = ParametricCurve.FromTileToTileCenter(Map.Instance.Tiles[tiles[1]] as Tile,
                 Map.Instance.Tiles[tiles[0]] as Tile);
-            AddCurveData(startCurve, fullRoadGeometry, uv1, type);
+            AddCurveData(startCurve, routeGeometry, uv1, type);
 
             for (var i = 1; i < tiles.Length - 1; i++)
             {
                 var curve = ParametricCurve.FromTileToTileOverTile(Map.Instance.Tiles[tiles[i - 1]] as Tile,
                     Map.Instance.Tiles[tiles[i + 1]] as Tile, Map.Instance.Tiles[tiles[i]] as Tile);
-                AddCurveData(curve, fullRoadGeometry, uv1, type);
+                AddCurveData(curve, routeGeometry, uv1, type);
             }
 
             var endCurve = ParametricCurve.FromTileToTileCenter(Map.Instance.Tiles[tiles[^2]] as Tile,
                 Map.Instance.Tiles[tiles[^1]] as Tile);
-            AddCurveData(endCurve, fullRoadGeometry, uv1, type);
+            AddCurveData(endCurve, routeGeometry, uv1, type);
 
-            fullRoadGeometry.StoreMeshData();
-            fullRoadGeometry.ClearOutline();
-            return fullRoadGeometry;
+            routeGeometry.StoreMeshData();
+            routeGeometry.ClearOutline();
+            return routeGeometry;
         }
 
         private static void AddCurveData(ParametricCurve curve, RouteGeometry element, Vector4 uv1, RouteGeometry.RouteType type)
