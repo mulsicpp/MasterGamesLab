@@ -160,6 +160,8 @@ namespace Map
             foreach (var tile in tiles) tile.BuildGeometryData();
             foreach (var edge in edges) edge.ChangeVisualState();
             foreach (var structure in infrastructure.Structures) structure.RebuildRenderer();
+
+            foreach (var vehicle in Fleet.Vehicles) vehicle.EvaluateGameObjectPresence();
         }
 
         private void Update()
@@ -223,13 +225,16 @@ namespace Map
                 }
             }
 
+            foreach (var vehicle in Fleet.Vehicles)
+            {
+                vehicle.EvaluateGameObjectPresence();
+            }
+
             UpdateHovered();
             // MainCamera.Instance.PlanetControllerEnabled = Simu;
 
             // Update the projection
             UpdateProjectionUniforms();
-
-            ClientUpdate();
         }
 
         public void AddActiveTile(Tile tile) => activeTiles.Add(tile);
@@ -465,23 +470,12 @@ namespace Map
 
             spawnLogic = new SpawnLogic(this);
             spawnLogic.GenerateInitalState();
+
+            UpdateEntireMesh();
         }
 
-        private void ClientUpdate()
+        private void SimulationTick()
         {
-            if (SimulationIsRunning && IsClient)
-            {
-                foreach (var vehicle in Fleet.Vehicles)
-                {
-                    vehicle.EvaluateGameObjectPresence();
-                }
-            }
-        }
-
-        public void FixedUpdate()
-        {
-            if (!SimulationIsRunning) return;
-
             if (IsServer)
             {
                 spawnLogic.Tick(Time.fixedDeltaTime);
@@ -499,7 +493,7 @@ namespace Map
                 UpdateDirtyObjectsOnClient();
 
                 var player_stats = GetPlayerStats();
-                
+
                 foreach (var p in player_stats)
                 {
                     if (p.MarketCap > Constants.WINNING_MARKET_CAP)
@@ -516,6 +510,13 @@ namespace Map
                     vehicle.ClientTick(Time.fixedDeltaTime);
                 }
             }
+        }
+
+        public void FixedUpdate()
+        {
+            if (!SimulationIsRunning) return;
+
+            SimulationTick();
         }
 
         public void Tick()

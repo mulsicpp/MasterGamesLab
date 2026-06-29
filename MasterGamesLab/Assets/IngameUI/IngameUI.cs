@@ -21,7 +21,13 @@ namespace UI
     {
         public enum VehicleAction
         {
-            DriveTruck,
+            DriveTruckToCommon,
+            DriveTruckToUncommon,
+            DriveTruckToRare,
+            DriveTruckToEpic,
+            DriveTruckToLegendary,
+            DriveTruckToConsumer,
+            DriveTruckToPort,
             LoadTruck,
             UnloadTruck,
             DriveFreighter,
@@ -262,6 +268,11 @@ namespace UI
             // TODO enable ingame actions
 
             MainCamera.Instance.PlanetControllerEnabled = true;
+            FindAnyObjectByType<IngameInputs>().enabled = true;
+            SelectNextVehicle();
+
+            var planetCameraController = MainCamera.Instance.GetComponent<PlanetCameraController>();
+            planetCameraController.TurnNorth();
         }
 
         private void BecameHidden()
@@ -272,6 +283,7 @@ namespace UI
             // TODO disable ingame actions
 
             MainCamera.Instance.PlanetControllerEnabled = false;
+            FindAnyObjectByType<IngameInputs>().enabled = false;
         }
 
         private void Update()

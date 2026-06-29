@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using Map.GeometryGeneration.Edges;
+using System;
 
 public class IngameInputs : MonoBehaviour
 {
@@ -28,11 +29,15 @@ public class IngameInputs : MonoBehaviour
     private List<InputAction> truckHotkeyActions = new List<InputAction>();
     private List<InputAction> freighterHotkeyActions = new List<InputAction>();
 
+    private List<Action<InputAction.CallbackContext>> truckHotkeyCallbacks = new();
+    private List<Action<InputAction.CallbackContext>> freighterHotkeyCallbacks = new();
+
     [SerializeField] private ConstructionControls constructionControls;
 
     void Awake()
     {
         controlsActionMap = inputActions.FindActionMap("Controls");
+        controlsActionMap.Enable();
 
         selectClickAction = controlsActionMap.FindAction("LeftClick");
         buildRoadAction = controlsActionMap.FindAction("BuildRoad");
@@ -48,11 +53,15 @@ public class IngameInputs : MonoBehaviour
 
         for (int i = 0; i < 10; i++)
         {
+            var iCopy = i;
+
             var truckAct = controlsActionMap.FindAction($"Truck{i}");
             if (truckAct != null) truckHotkeyActions.Add(truckAct);
+            truckHotkeyCallbacks.Add(ctx => OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType.Truck, iCopy));
 
             var freighterAct = controlsActionMap.FindAction($"Freighter{i}");
             if (freighterAct != null) freighterHotkeyActions.Add(freighterAct);
+            freighterHotkeyCallbacks.Add(ctx => OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType.Freighter, iCopy));
         }
         chooseFastestRoute = controlsActionMap.FindAction("ChooseFastestRoute");
         chooseCheapestRoute = controlsActionMap.FindAction("ChooseCheapestRoute");
@@ -74,13 +83,13 @@ public class IngameInputs : MonoBehaviour
         for (int i = 0; i < truckHotkeyActions.Count; i++)
         {
             int slotIndex = i;
-            truckHotkeyActions[slotIndex].started += ctx => OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType.Truck, slotIndex);
+            truckHotkeyActions[slotIndex].started += truckHotkeyCallbacks[slotIndex];
         }
 
         for (int i = 0; i < freighterHotkeyActions.Count; i++)
         {
             int slotIndex = i;
-            freighterHotkeyActions[slotIndex].started += ctx => OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType.Freighter, slotIndex);
+            freighterHotkeyActions[slotIndex].started += freighterHotkeyCallbacks[slotIndex];
         }
         chooseFastestRoute.started += OnChooseFastestRoute;
         chooseCheapestRoute.started += OnChooseCheapestRoute;
@@ -103,13 +112,13 @@ public class IngameInputs : MonoBehaviour
         for (int i = 0; i < truckHotkeyActions.Count; i++)
         {
             int slotIndex = i;
-            truckHotkeyActions[slotIndex].started -= ctx => OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType.Truck, slotIndex);
+            truckHotkeyActions[slotIndex].started -= truckHotkeyCallbacks[slotIndex];
         }
 
         for (int i = 0; i < freighterHotkeyActions.Count; i++)
         {
             int slotIndex = i;
-            freighterHotkeyActions[slotIndex].started -= ctx => OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType.Freighter, slotIndex);
+            freighterHotkeyActions[slotIndex].started -= freighterHotkeyCallbacks[slotIndex];
         }
         chooseFastestRoute.started -= OnChooseFastestRoute;
         chooseCheapestRoute.started -= OnChooseCheapestRoute;
