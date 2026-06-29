@@ -11,6 +11,9 @@ public static class MovementProfileRegistry
 
     public static MovementProfile FindRoadBuildPath { get; private set; }
     public static MovementProfile FindCanalBuildPath { get; private set; }
+    public static MovementProfile ConsumerPayoutOwnContinent { get; private set; }
+    public static MovementProfile ConsumerPayoutForeignContinent { get; private set; }
+
 
 
     public static void Initialize()
@@ -29,7 +32,7 @@ public static class MovementProfileRegistry
         FreighterFastestRoute.CanPass = (s, t) => Vehicle.CanCross(s, t, Vehicle.VehicleType.Freighter);
         FreighterFastestRoute.AddPriorityRule(0, PathfindingRules.MinimizeDuration);
         FreighterFastestRoute.AddPriorityRule(1, PathfindingRules.MinimizeCost);
-        
+
         FreighterCheapestRoute = new MovementProfile();
         FreighterCheapestRoute.CanPass = (s, t) => Vehicle.CanCross(s, t, Vehicle.VehicleType.Freighter);
         FreighterCheapestRoute.AddPriorityRule(0, PathfindingRules.MinimizeCost);
@@ -47,5 +50,14 @@ public static class MovementProfileRegistry
         FindCanalBuildPath.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
         FindCanalBuildPath.AddPriorityRule(1, PathfindingRules.AvoidForest);
 
+        ConsumerPayoutOwnContinent = new MovementProfile();
+        ConsumerPayoutOwnContinent.CanPass = (s, t) => s.Type != Tile.TileType.Mountain && t.Type != Tile.TileType.Mountain;
+        ConsumerPayoutOwnContinent.AddPriorityRule(0, PathfindingRules.AvoidWater);
+        ConsumerPayoutOwnContinent.AddPriorityRule(1, PathfindingRules.MinimizeDistance);
+
+        ConsumerPayoutForeignContinent = new MovementProfile();
+        ConsumerPayoutForeignContinent.CanPass = (s, t) => s.Type != Tile.TileType.Mountain && t.Type != Tile.TileType.Mountain;
+        ConsumerPayoutForeignContinent.AddPriorityRule(0, PathfindingRules.MinimizeDistance);
+        ConsumerPayoutForeignContinent.AddPriorityRule(1, PathfindingRules.AvoidWater);
     }
 }

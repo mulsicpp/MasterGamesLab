@@ -45,11 +45,16 @@ public static class Constants
 
     // ------------------- Producer & Consumer Logic -------------------
 
-    public const int GOOD_COMMON_BASE_PAYOUT = 200;
-    public const int GOOD_UNCOMMON_BASE_PAYOUT = 210;
-    public const int GOOD_RARE_BASE_PAYOUT = 220;
-    public const int GOOD_EPIC_BASE_PAYOUT = 260;
-    public const int GOOD_LEGENDARY_BASE_PAYOUT = 300;
+    public const int GOOD_COMMON_BASE_PAYOUT = 0;
+    public const int GOOD_UNCOMMON_BASE_PAYOUT = 0;
+    public const int GOOD_RARE_BASE_PAYOUT = 0;
+    public const int GOOD_EPIC_BASE_PAYOUT = 0;
+    public const int GOOD_LEGENDARY_BASE_PAYOUT = 0;
+    public const int NORMAL_SHIPPING_COST = 10;
+    public const int WATER_SHIPPING_COST = 30;
+
+    public const int MIN_RANDOM_COST = 0;
+    public const int MAX_RANDOM_COST = 0;
 
     public const float FOREIGN_GOOD_PAYOUT_FACTOR = 3.0f;
 
