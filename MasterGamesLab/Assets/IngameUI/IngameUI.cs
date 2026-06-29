@@ -261,6 +261,8 @@ namespace UI
 
             // Map.Map.Instance.enabled = true;
             // TODO enable ingame actions
+
+            MainCamera.Instance.PlanetControllerEnabled = true;
         }
 
         private void BecameHidden()
@@ -269,6 +271,8 @@ namespace UI
                 Map.Map.Instance.Blueprint.OnChanged -= HandleBlueprintUpdate;
             // Map.Map.Instance.enabled = false;
             // TODO disable ingame actions
+
+            MainCamera.Instance.PlanetControllerEnabled = false;
         }
 
         private void Update()
