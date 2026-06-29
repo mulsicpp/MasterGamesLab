@@ -1,9 +1,8 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:Template name="ActionQueueItem" src="project://database/Assets/IngameUI/ActionQueueItem.uxml?fileID=9197481963319205126&amp;guid=102683850d6acc24288b6059039e2cab&amp;type=3#ActionQueueItem"/>
     <ui:Template name="BlueprintCount" src="project://database/Assets/IngameUI/BlueprintCount.uxml?fileID=9197481963319205126&amp;guid=8815f6fe27465df4bb0661e06bed9c0f&amp;type=3#BlueprintCount"/>
     <ui:Template name="TabMenu" src="project://database/Assets/IngameUI/TabMenu.uxml?fileID=9197481963319205126&amp;guid=1226372f1629f6c45a297bd9a0f823c2&amp;type=3#TabMenu"/>
     <Style src="project://database/Assets/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
-    <ui:VisualElement name="Root" class="unity-ui-document__root" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
+    <ui:VisualElement name="Root" picking-mode="Ignore" class="unity-ui-document__root" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
         <Compass arrow-thickness="1.34" arrow-length="1.05" name="Compass" arrow-angle="180.84" style="right: 1%; top: 8%; position: absolute; aspect-ratio: 1; width: 6%; background-image: url(&quot;project://database/Assets/IngameUI/Compass-Icon-with-an-Arrow-and-Scale-Graphics-14919432-1.jpg?fileID=-99974184&amp;guid=33e1344ae4f4a1d45bca58ccb3ed1afc&amp;type=3#Compass-Icon-with-an-Arrow-and-Scale-Graphics-14919432-1_0&quot;);"/>
         <ui:VisualElement class="element money-display" style="flex-direction: row-reverse; width: 21%; align-items: center; margin-top: 0.5%; margin-right: 1%;">
             <ui:VisualElement style="-unity-background-scale-mode: scale-to-fit; background-image: url(&quot;project://database/Assets/Icons/svg/cash.svg?fileID=7388822144124034973&amp;guid=3e75e502074cfd64691dbaf661d1c65e&amp;type=3#cash&quot;); height: 59%; aspect-ratio: 1;"/>
@@ -81,11 +80,8 @@
         <ui:VisualElement name="TabMenu" class="container tab-menu" style="visibility: hidden;">
             <ui:Instance template="TabMenu" style="width: 100%; height: 100%;"/>
         </ui:VisualElement>
-        <ui:VisualElement name="ActionQueue" class="element container" style="position: absolute; bottom: 5%; left: 44%; max-width: 60%; height: 12%; flex-direction: row; align-items: center; justify-content: center; translate: -50% 0; padding-top: 0.5%; padding-right: 0.5%; padding-bottom: 0.5%; padding-left: 0.5%;">
-            <ui:ScrollView name="QueueScroll" mode="Horizontal" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" focusable="false" class="element" style="height: 100%; flex-grow: 1; flex-shrink: 1;">
-                <ui:Instance template="ActionQueueItem" name="TemplateContainer" class="actionqueue-template-container element"/>
-                <ui:Instance template="ActionQueueItem" name="TemplateContainer" class="actionqueue-template-container element"/>
-            </ui:ScrollView>
+        <ui:VisualElement name="ActionQueue" class="element container" style="position: absolute; bottom: 5%; left: 44%; max-width: 60%; height: 12%; flex-direction: row; align-items: center; justify-content: center; translate: -50% 0; padding-top: 0.5%; padding-right: 0.5%; padding-bottom: 0.5%; padding-left: 0.5%; visibility: hidden;">
+            <ui:ScrollView name="QueueScroll" mode="Horizontal" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" focusable="false" class="element" style="height: 100%; flex-grow: 1; flex-shrink: 1;"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
