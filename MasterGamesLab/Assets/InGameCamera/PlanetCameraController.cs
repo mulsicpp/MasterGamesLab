@@ -145,28 +145,27 @@ namespace InGameCamera
 
                 currentPitch = Mathf.Clamp(currentPitch, minPitch, maxPitch);
             }
-            if (!supressZoom)
+
+            var scrollDelta = zoomAction.ReadValue<Vector2>();
+
+            // if (Mathf.Abs(scrollDelta.y) > 0.001f)
+            // {
+            //     var currentZoomSpeed =
+            //         ExponentialMapRange(CurrentDistance, minZoom, maxZoom, minZoomSpeed, maxZoomSpeed);
+            //     CurrentDistance -= scrollDelta.y * currentZoomSpeed;
+            //     CurrentDistance = Mathf.Clamp(CurrentDistance, minZoom, maxZoom);
+            // }
+
+            float minZoomExp = Mathf.Log((minZoom - zoomOffset) / zoomFactor, zoomBase);
+            float maxZoomExp = Mathf.Log((maxZoom - zoomOffset) / zoomFactor, zoomBase);
+
+            if (zoomExp - scrollDelta.y <= maxZoomExp && zoomExp - scrollDelta.y >= minZoomExp)
             {
-                var scrollDelta = zoomAction.ReadValue<Vector2>();
-
-                // if (Mathf.Abs(scrollDelta.y) > 0.001f)
-                // {
-                //     var currentZoomSpeed =
-                //         ExponentialMapRange(CurrentDistance, minZoom, maxZoom, minZoomSpeed, maxZoomSpeed);
-                //     CurrentDistance -= scrollDelta.y * currentZoomSpeed;
-                //     CurrentDistance = Mathf.Clamp(CurrentDistance, minZoom, maxZoom);
-                // }
-
-                float minZoomExp = Mathf.Log((minZoom - zoomOffset) / zoomFactor, zoomBase);
-                float maxZoomExp = Mathf.Log((maxZoom - zoomOffset) / zoomFactor, zoomBase);
-
-                if (zoomExp - scrollDelta.y <= maxZoomExp && zoomExp - scrollDelta.y >= minZoomExp)
-                {
-                    zoomExp -= scrollDelta.y;
-                    CurrentDistance = Mathf.Pow(zoomBase, zoomExp) * zoomFactor + zoomOffset;
-                }
+                zoomExp -= scrollDelta.y;
+                CurrentDistance = Mathf.Pow(zoomBase, zoomExp) * zoomFactor + zoomOffset;
             }
         }
+
 
         private void UpdateCameraTransform()
         {
@@ -197,26 +196,27 @@ namespace InGameCamera
 
                 AddRotationStepFromTo(currentVec, targetVec);
             }
-
-            var scrollDelta = zoomAction.ReadValue<Vector2>();
-
-            float minZoomExp = Mathf.Log((minZoom - zoomOffset) / zoomFactor, zoomBase);
-            float maxZoomExp = Mathf.Log((maxZoom - zoomOffset) / zoomFactor, zoomBase);
-
-            if (zoomExp - scrollDelta.y <= maxZoomExp && zoomExp - scrollDelta.y >= minZoomExp)
+            if (!supressZoom)
             {
-                zoomExp -= scrollDelta.y;
+                var scrollDelta = zoomAction.ReadValue<Vector2>();
+
+                float minZoomExp = Mathf.Log((minZoom - zoomOffset) / zoomFactor, zoomBase);
+                float maxZoomExp = Mathf.Log((maxZoom - zoomOffset) / zoomFactor, zoomBase);
+
+                if (zoomExp - scrollDelta.y <= maxZoomExp && zoomExp - scrollDelta.y >= minZoomExp)
+                {
+                    zoomExp -= scrollDelta.y;
+                }
+
+                var totalZoomDistanceAbs = Mathf.Abs(zoomExp - currentZoomExp);
+                if (totalZoomDistanceAbs > 0.001f)
+                {
+                    var zoomDistanceThisFrame = Mathf.Min((totalZoomDistanceAbs * zoomApproachFactor + zoomBaseSpeed) * Time.deltaTime, totalZoomDistanceAbs);
+
+                    currentZoomExp = Mathf.Lerp(currentZoomExp, zoomExp, zoomDistanceThisFrame / totalZoomDistanceAbs);
+                }
+                CurrentDistance = Mathf.Pow(zoomBase, currentZoomExp) * zoomFactor + zoomOffset;
             }
-
-            var totalZoomDistanceAbs = Mathf.Abs(zoomExp - currentZoomExp);
-            if (totalZoomDistanceAbs > 0.001f)
-            {
-                var zoomDistanceThisFrame = Mathf.Min((totalZoomDistanceAbs * zoomApproachFactor + zoomBaseSpeed) * Time.deltaTime, totalZoomDistanceAbs);
-
-                currentZoomExp = Mathf.Lerp(currentZoomExp, zoomExp, zoomDistanceThisFrame / totalZoomDistanceAbs);
-            }
-            CurrentDistance = Mathf.Pow(zoomBase, currentZoomExp) * zoomFactor + zoomOffset;
-
             var position = Target.position + transform.rotation * new Vector3(0f, 0f, -CurrentDistance);
             transform.position = position;
 

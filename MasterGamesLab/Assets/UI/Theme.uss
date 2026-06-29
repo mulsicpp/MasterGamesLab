@@ -533,6 +533,13 @@
 .actionqueue-template-container {
     height: 100%;
     aspect-ratio: 1;
+    box-sizing: border-box;
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding-left: 0.1%;
+    padding-right: 0.1%;
+    padding-top: 0.1%;
+    padding-bottom: 0.1%;
 }
 
 .remove-actionque-item {
@@ -541,9 +548,9 @@
     position: absolute;
     right: 0;
     top: 0;
-    translate: 50% -50%;
+    translate: 0% 0%;
     background-image: url("project://database/Assets/Icons/Cancel.png?fileID=-508303762&guid=1679241bb7d407e4c851cc60a4a66080&type=3#image47_0");
     -unity-background-image-tint-color: rgb(255, 0, 0);
     z-index: 10;
-    transform-origin: center center 116px;
+    transform-origin: center;
 }

@@ -2,6 +2,6 @@
     <Style src="project://database/Assets/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
     <ui:VisualElement name="root" style="flex-grow: 1; width: 100%; height: 100%; box-sizing: border-box; overflow: visible;">
         <ui:VisualElement name="Remove" class="element remove-actionque-item" style="z-index: 50;"/>
-        <ui:VisualElement name="Icon" class="element" style="background-image: url(&quot;project://database/Assets/Icons/Trucks/image40.png?fileID=2800000&amp;guid=85facc88d1f4b0f4ab7753caa8898e1d&amp;type=3#image40&quot;); width: 100%; height: 100%; -unity-background-scale-mode: scale-to-fit; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px;"/>
+        <ui:VisualElement name="Icon" class="element" style="background-image: url(&quot;project://database/Assets/Icons/Trucks/image40.png?fileID=2800000&amp;guid=85facc88d1f4b0f4ab7753caa8898e1d&amp;type=3#image40&quot;); width: 100%; height: 100%; -unity-background-scale-mode: scale-to-fit; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; translate: 0% 0%;"/>
     </ui:VisualElement>
 </ui:UXML>

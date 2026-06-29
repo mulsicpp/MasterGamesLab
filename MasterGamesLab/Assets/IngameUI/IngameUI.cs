@@ -188,15 +188,13 @@ namespace UI
 
             actionQueueScrollView = root.Q<ScrollView>("QueueScroll");
 
-            // Example: Add 5 items to the queue
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 20; i++)
             {
                 AddItemToQueue();
             }
 
             actionQueueScrollView.RegisterCallback<MouseEnterEvent>(evt => mainCamera.supressZoom = true);
 
-            // Set flag to false when mouse leaves the boundary
             actionQueueScrollView.RegisterCallback<MouseLeaveEvent>(evt => mainCamera.supressZoom = false);
         }
 
@@ -300,12 +298,42 @@ namespace UI
             clone.AddToClassList("actionqueue-template-container");
 
             actionQueueScrollView.Add(clone);
-            
+            actionQueueScrollView.RegisterCallback<GeometryChangedEvent>(OnQueueGeometryChanged);
         }
 
+        private void OnQueueGeometryChanged(GeometryChangedEvent evt)
+        {
+            float viewportWidth = actionQueueScrollView.contentViewport.layout.width;
+            float contentWidth = actionQueueScrollView.contentContainer.layout.width;
+
+            if (contentWidth <= viewportWidth)
+            {
+                actionQueueScrollView.scrollOffset = Vector2.zero;
+
+                actionQueueScrollView.UnregisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
+                actionQueueScrollView.UnregisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
+
+                actionQueueScrollView.RegisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
+                actionQueueScrollView.RegisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
+            }
+            else
+            {
+                actionQueueScrollView.UnregisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
+                actionQueueScrollView.UnregisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
+            }
+        }
+
+        private void BlockScrollPhysics(PointerDownEvent evt)
+        {
+            evt.StopImmediatePropagation();
+        }
+
+        private void BlockScrollWheel(WheelEvent evt)
+        {
+            evt.StopImmediatePropagation();
+        }
         private void HighliteHoveredColumn(SortColumn column)
         {
-            // First, strip old hover classes so columns don't stack highlights
             ClearHoveredColumns();
 
             string elementName = column switch
