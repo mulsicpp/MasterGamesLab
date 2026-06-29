@@ -7,6 +7,8 @@ using Map.Infrastructure;
 using Networking;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -24,9 +26,9 @@ namespace Map
         public static int VehicleLayer { get; private set; }
         public static int VehicleOutlineLayer { get; private set; }
         public static int VehicleOutlineTransparentLayer { get; private set; }
-        public static int FullRoadLayer { get; private set; }
-        public static int FullRoadOutlineLayer { get; private set; }
-        public static int FullRoadOutlineTransparentLayer { get; private set; }
+        public static int RouteLayer { get; private set; }
+        public static int RouteOutlineLayer { get; private set; }
+        public static int RouteOutlineTransparentLayer { get; private set; }
 
         private static readonly int PlanetRadius = Shader.PropertyToID("_PlanetRadius");
         private static readonly int ProjectionFactor = Shader.PropertyToID("_ProjectionFactor");
@@ -86,8 +88,9 @@ namespace Map
 
         public GameObject RoutePrefab;
 
-
+#pragma warning disable CS0414
         [SerializeField] private float fullSphereDistance = 2;
+#pragma warning disable CS0414
         [SerializeField] private float fullProjectionDistance = 1.5f;
         [SerializeField] private float projectionActivationDistance = 2.4f;
 
@@ -145,9 +148,9 @@ namespace Map
             VehicleLayer = LayerMask.NameToLayer("Vehicles");
             VehicleOutlineLayer = LayerMask.NameToLayer("Vehicles Outline");
             VehicleOutlineTransparentLayer = LayerMask.NameToLayer("Vehicles Outline Transparent");
-            FullRoadLayer = LayerMask.NameToLayer("Full Road");
-            FullRoadOutlineLayer = LayerMask.NameToLayer("Full Road Outline");
-            FullRoadOutlineTransparentLayer = LayerMask.NameToLayer("Full Road Outline Transparent");
+            RouteLayer = LayerMask.NameToLayer("Full Road");
+            RouteOutlineLayer = LayerMask.NameToLayer("Full Road Outline");
+            RouteOutlineTransparentLayer = LayerMask.NameToLayer("Full Road Outline Transparent");
         }
 
         private void UpdateEntireMesh()
@@ -660,6 +663,12 @@ namespace Map
         }
 
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
+        public void VehicleActionResponseClientRpc(int vehicleIndex, bool success, ClientRpcParams rpcParams = default)
+        {
+            Fleet.Vehicles[vehicleIndex].HandleActionResponse(success);
+        }
+
+        [ClientRpc(Delivery = RpcDelivery.Reliable)]
         public void GameFinishedClientRpc(ClientRpcParams rpcParams = default)
         {
             NetworkManager.Shutdown(false);
@@ -764,29 +773,7 @@ namespace Map
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void RequestNewVehicleServerRpc(Vehicle.VehicleType type, TileId parkedTileId,
-            RpcParams rpcParams = default)
-        {
-            var player =
-                Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-
-            if (player == null) return;
-
-            var vehicle = fleet.GetFirstWith(type, v => !v.Exists && v.Owner.Id == player.Id);
-
-            if (parkedTileId >= tiles.Count || parkedTileId < 0) return;
-
-            var tile = tiles[parkedTileId];
-            if (!tile.CanSpawnVehicle(type)) return;
-
-            vehicle.Exists = true;
-            vehicle.ParkedTile = tile;
-
-            UpdateDirtyObjectsOnClient();
-        }
-
-        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void RequestVehicleRouteServerRpc(int vehicleIndex, TileId[] routeIds, RpcParams rpcParams = default)
+        public void RequestVehicleActionServerRpc(int vehicleIndex, VehicleAction action, RpcParams rpcParams = default)
         {
             var player =
                 Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
@@ -796,82 +783,81 @@ namespace Map
 
             var vehicle = Fleet.Vehicles[vehicleIndex];
 
-            if (routeIds == null || routeIds.Length < 2) return;
-            Tile[] route = new Tile[routeIds.Length];
+            var success = ExecuteVehicleAction(player, vehicle, action);
 
-            for (int i = 0; i < routeIds.Length; i++)
+            var responseRpcParams = new ClientRpcParams
             {
-                if (routeIds[i] < 0 || routeIds[i] >= tiles.Count) return;
-                route[i] = tiles[routeIds[i]];
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds = new List<ulong> { rpcParams.Receive.SenderClientId },
+                }
+            };
+
+            UpdateDirtyObjectsOnClient();
+            VehicleActionResponseClientRpc(vehicleIndex, success, responseRpcParams);
+        }
+
+        private bool ExecuteVehicleAction(Player.Player player, Vehicle vehicle, VehicleAction action)
+        {
+            if (action.Type == VehicleAction.ActionType.DriveRoute)
+            {
+                var routeIds = action.RouteIds;
+
+                if (routeIds == null || routeIds.Length < 2) return false;
+                Tile[] route = new Tile[routeIds.Length];
+
+                for (int i = 0; i < routeIds.Length; i++)
+                {
+                    if (routeIds[i] < 0 || routeIds[i] >= tiles.Count) return false;
+                    route[i] = tiles[routeIds[i]];
+                }
+
+                if (vehicle.CanDriveRoute(player, route, out var publicCost, out var enemyCosts))
+                {
+                    vehicle.Route = route;
+                    vehicle.RouteProgress = 0;
+                    player.Pay(publicCost);
+                    foreach (var (p, c) in enemyCosts)
+                    {
+                        player.TransferMoneyTo(p, c);
+                    }
+                    return true;
+                }
+
+                return false;
             }
 
-            if (vehicle.CanDriveRoute(player, route, out var publicCost, out var enemyCosts))
+            var truck = vehicle as Truck;
+
+            if (truck == null) return false;
+
+            if (action.TargetTileId < 0 || action.TargetTileId >= Tiles.Count) return false;
+
+            var tile = Tiles[action.TargetTileId] as Tile;
+
+            if (action.Type is VehicleAction.ActionType.LoadTruck)
             {
-                vehicle.Route = route;
-                vehicle.RouteProgress = 0;
-                player.Pay(publicCost);
-                foreach (var (p, c) in enemyCosts)
+                if (truck.CanBeLoaded(player, tile, out Freighter freighter, out int cost))
                 {
-                    player.TransferMoneyTo(p, c);
+                    player.TransferMoneyTo(truck.ParkedTile.Structure.Owner, cost);
+
+                    truck.Freighter = freighter;
+                    return true;
                 }
             }
-
-
-            UpdateDirtyObjectsOnClient();
-        }
-
-
-        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void LoadTruckOnFreighterServerRpc(VehicleIndex truckIndex, VehicleIndex freighterIndex,
-            RpcParams rpcParams = default)
-        {
-            var player =
-                Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-
-            if (player == null) return;
-
-            if (truckIndex < 0 || truckIndex >= Fleet.Trucks.Count) return;
-            if (freighterIndex < 0 || freighterIndex >= Fleet.Freighters.Count) return;
-
-            var truck = Fleet.Trucks[truckIndex];
-            var freighter = Fleet.Freighters[freighterIndex];
-
-            if (freighter.CanLoadTruck(player, truck, out int cost))
+            else if (action.Type is VehicleAction.ActionType.UnloadTruck)
             {
-                player.TransferMoneyTo(truck.ParkedTile.Structure.Owner, cost);
+                if (truck.CanBeUnloaded(player, tile, out int cost))
+                {
+                    truck.Freighter = null;
+                    truck.ParkedTile = tile;
 
-                truck.Freighter = freighter;
+                    player.TransferMoneyTo(tile.Structure.Owner, cost);
+                    return true;
+                }
             }
-
-            UpdateDirtyObjectsOnClient();
+            return false;
         }
-
-        [Rpc(SendTo.Server, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Everyone)]
-        public void UnoadTruckOnPortServerRpc(VehicleIndex freighterIndex, TileId tileId, RpcParams rpcParams = default)
-        {
-            var player =
-                Player.PlayerManager.Instance.GetPlayerFromClientId(new ClientId(rpcParams.Receive.SenderClientId));
-
-            if (player == null) return;
-
-            if (freighterIndex < 0 || freighterIndex >= Fleet.Freighters.Count) return;
-            if (tileId < 0 || tileId >= Tiles.Count) return;
-
-            var freighter = Fleet.Freighters[freighterIndex];
-            var tile = Tiles[tileId] as Tile;
-
-            if (freighter.CanUnloadTruck(player, tile, out int cost))
-            {
-                var truck = freighter.Truck;
-                truck.Freighter = null;
-                truck.ParkedTile = tile;
-
-                player.TransferMoneyTo(tile.Structure.Owner, cost);
-            }
-
-            UpdateDirtyObjectsOnClient();
-        }
-
 
         public Vector3 GetProjectedPosition(Vector3 positionOnSphere, float heightOffsetFactor = 1.0f)
         {

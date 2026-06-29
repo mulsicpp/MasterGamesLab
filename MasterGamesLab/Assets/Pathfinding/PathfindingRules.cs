@@ -62,13 +62,24 @@ public static class PathfindingRules
     /// </summary>
     public static void MinimizeDuration(Tile current, Tile neighbor, ref PathScore score, int slot)
     {
-        score[slot] += (long)(100.0f / (current.FindEdgeTo(neighbor)?.GetSpeedMultiplier() ?? 1.0f)); // 1 standard physical tile step
+        score[slot] += (long)(100.0f / (current.FindEdgeTo(neighbor)?.GetSpeedMultiplier() ?? 1.0f));
+    }
+
+    public static void MinimizeDistance(Tile current, Tile neighbor, ref PathScore score, int slot)
+    {
+        score[slot] += 1; // 1 standard physical tile step
     }
 
     public static void MinimizeCost(Tile current, Tile neighbor, ref PathScore score, int slot)
     {
         PlayerId self = Player.Player.SelfId;
         score[slot] += current.FindEdgeTo(neighbor)?.GetTraversalCost(Player.Player.Self) ?? 0;
+    }
+
+    public static void PrioritizeStructures(Tile current, Tile neighbor, ref PathScore score, int slot)
+    {
+        PlayerId self = Player.Player.SelfId;
+        score[slot] += neighbor.Structure != null || neighbor.BlueprintStructure != null ? 0 : 1;
     }
 
 

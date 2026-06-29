@@ -235,6 +235,8 @@ namespace Map
             {
                 if (Type != EdgeType.None) return false;
 
+                if (StartTile.Structure != null || EndTile.Structure != null) return false;
+
                 //var startHasWater = StartTile.Type == Tile.TileType.Water || StartTile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0;
                 //var endHasWater = EndTile.Type == Tile.TileType.Water || EndTile.CountEdgesWith(e => e.Type == EdgeType.Canal || e.BlueprintType == EdgeType.Canal) > 0;
 

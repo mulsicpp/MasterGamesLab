@@ -41,7 +41,8 @@ namespace Map.Fleet
         {
             get
             {
-                return type switch {
+                return type switch
+                {
                     Vehicle.VehicleType.Truck => trucks,
                     Vehicle.VehicleType.Freighter => freighters,
                     _ => null

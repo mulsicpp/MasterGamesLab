@@ -319,7 +319,7 @@
 
 .host-crown {
     height: 100%;
-    background-image: url("project://database/Assets/Icons/svg/crown.svg?fileID=7388822144124034973&guid=527bd7333798a3145821f3c2d0a7dc5a&type=3#crown");
+    background-image: url("project://database/Assets/Icons/IMG_5649.PNG?fileID=1104398058&guid=bc62e803e93cba84fb575892f8b0cd9e&type=3#IMG_5649_0");
     -unity-background-image-tint-color: rgb(255, 255, 255);
     margin-right: 2%;
     -unity-background-scale-mode: scale-to-fit;
@@ -521,4 +521,36 @@
 
 #FreighterCount .template-icon-node {
     background-image: var(--icon-freighter);
+}
+
+#QueueScroll .unity-scroll-view__content-container {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.actionqueue-template-container {
+    height: 100%;
+    aspect-ratio: 1;
+    box-sizing: border-box;
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding-left: 0.1%;
+    padding-right: 0.1%;
+    padding-top: 0.1%;
+    padding-bottom: 0.1%;
+}
+
+.remove-actionque-item {
+    aspect-ratio: 1;
+    height: 30%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    translate: 0% 0%;
+    background-image: url("project://database/Assets/Icons/Cancel.png?fileID=-508303762&guid=1679241bb7d407e4c851cc60a4a66080&type=3#image47_0");
+    -unity-background-image-tint-color: rgb(255, 0, 0);
+    z-index: 10;
+    transform-origin: center;
 }

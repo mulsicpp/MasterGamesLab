@@ -34,7 +34,7 @@
 - Outline scaling
 - Canal tile black line artefact
 
-- Better pathfinding for roads/canals
+- Better pathfinding for roads/canals [done]
 - Show canal owner 
 - Compass
 
@@ -51,14 +51,18 @@ Visuals/3D:
 - Better outline textures
 - Better player colors
 - Biomes
+- Fix outline not showing properly in canals
 
 UI:
 - Outline pin when hovered/selected
+- Add depth (z-index) to pins
 - Better looking pins
-- Compass
+- Compass cunsumes mouse click
 - Time
 - Smooth camera movement when focusing object [done]
 - Change keyboard shortcuts
+- Enable actions only when ingame
+- Game Over UI
 - Audio
 
 Logic:
@@ -66,15 +70,15 @@ Logic:
 - Speedy canals [done]
 - Generate public roads at start
 - Destination queue
-- Find fastest affordable road
+- Parking visual for different structures
 
 Balancing:
 - Adjust prices for constructible objects
     - Increasing prices for consequtive elements [done]
 - Tolls (ports, roads, canals)
 - Consumer request payout increases more linear
-- Higher payout for foreign goods
+- Higher payout for foreign goods [done]
 - Change market cap calculation
 - More balanced spawn
-- Pick consumer for request at random (not from ready list)
+- Pick consumer for request at random (not from ready list) [done]
 - Change progress calculation

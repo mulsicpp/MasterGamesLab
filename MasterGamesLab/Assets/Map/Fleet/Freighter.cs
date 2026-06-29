@@ -6,6 +6,7 @@ using Networking;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using System.Linq;
+using System;
 
 namespace Map.Fleet
 {
@@ -52,6 +53,8 @@ namespace Map.Fleet
 
         public override float BaseSpeedTPS => Constants.FREIGHTER_BASE_SPEED_TPS;
 
+        public override bool IsIdle => IsParked;
+
         public Truck Truck;
 
         public FreighterState State
@@ -80,6 +83,15 @@ namespace Map.Fleet
         protected override void OnParked()
         {
             // TODO implement
+        }
+
+        public override bool CanDoAction(VehicleAction action)
+        {
+            if (action.Type == VehicleAction.ActionType.DriveRoute)
+            {
+                return CanDriveRoute(Player.Player.Self, action.RouteIds, out _, out _);
+            }
+            return false;
         }
 
         public bool CanLoadTruck(Player.Player player, Truck truck, out int cost)

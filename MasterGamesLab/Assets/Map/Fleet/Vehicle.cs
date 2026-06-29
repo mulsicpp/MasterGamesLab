@@ -11,6 +11,8 @@ using UnityEngine.UIElements;
 using Map.GeometryGeneration;
 using System.Collections.Generic;
 using static Unity.VectorGraphics.VectorUtils;
+using System;
+using System.Linq;
 
 namespace Map.Fleet
 {
@@ -185,6 +187,10 @@ namespace Map.Fleet
 
         public bool IsParked => parkedTile != null;
 
+        public abstract bool IsIdle { get; }
+        public LinkedList<VehicleAction> ActionQueue { get; private set; }
+        public bool WaitingForActionResponse { get; private set; } = false;
+        public event Action OnActionQueueChanged;
 
         private Tile blueprintTile;
 
@@ -373,6 +379,7 @@ namespace Map.Fleet
 
             Renderer = null;
 
+            ActionQueue = new();
             smoothDriving = new SmoothDrivingLinearSimulationInterpolation(this);
             Touch();
         }
@@ -404,6 +411,7 @@ namespace Map.Fleet
         public virtual void Tick(float tickDuration)
         {
             if (!Exists) return;
+
             if (IsDriving)
             {
                 if (Route.Length == 0)
@@ -437,12 +445,49 @@ namespace Map.Fleet
             }
         }
 
-        public virtual void ClientTick(float tickDuration)
+        public abstract bool CanDoAction(VehicleAction action);
+        public void SubmitAction(VehicleAction action)
         {
-            smoothDriving?.Tick(tickDuration);
+            WaitingForActionResponse = true;
+            Map.Instance.RequestVehicleActionServerRpc(IndexInVehicles, action);
+        }
+
+        public void HandleActionResponse(bool success)
+        {
+            if (success && ActionQueue.Count > 0)
+            {
+                if (ActionQueue.First.Value.Type == VehicleAction.ActionType.LoadTruck && this is Truck truck)
+                {
+                    if (truck.Freighter?.ActionQueue.First?.Value.Type == VehicleAction.ActionType.WaitForTruck)
+                    {
+                        truck.Freighter.ActionQueue.RemoveFirst();
+                        truck.Freighter.OnActionQueueChanged?.Invoke();
+                    }
+                }
+                ActionQueue.RemoveFirst();
+                OnActionQueueChanged?.Invoke();
+            }
+            WaitingForActionResponse = false;
         }
 
         protected abstract void OnParked();
+
+        public virtual void ClientTick(float tickDuration)
+        {
+            if (!Exists) return;
+
+            while (!WaitingForActionResponse && IsIdle && ActionQueue.Count > 0)
+            {
+                var nextAction = ActionQueue.First.Value;
+                if (CanDoAction(nextAction))
+                    SubmitAction(nextAction);
+                else
+                    break;
+            }
+
+            smoothDriving?.Tick(tickDuration);
+        }
+
 
         public float SpeedAt(float progress)
         {
@@ -478,6 +523,8 @@ namespace Map.Fleet
             }
         }
 
+        public float VisualProgress => smoothDriving?.VisualProgress ?? RouteProgress;
+
         public virtual VehicleTransform Transform
         {
             get
@@ -491,7 +538,7 @@ namespace Map.Fleet
                 else if (IsDriving)
                 {
                     // float visualProgress = RouteProgress + SpeedTPS * (Time.time - Time.fixedTime);
-                    float visualProgress = smoothDriving?.VisualProgress ?? RouteProgress;
+                    float visualProgress = VisualProgress;
                     if (visualProgress <= 0.0f) return Route[0].ParkedVehicleTransform();
                     else if (visualProgress >= Route.Length - 1)
                         return Route[Route.Length - 1].ParkedVehicleTransform();
@@ -544,20 +591,50 @@ namespace Map.Fleet
             }
         }
 
+        public Tile GetTileLocationAfterAction(LinkedListNode<VehicleAction> actionNode, out bool loaded)
+        {
+            loaded = false;
+            if (actionNode == null)
+            {
+                if (this is Truck t && t.Freighter != null)
+                {
+                    loaded = true;
+                    return t.Freighter.GetTileLocationAfterAction(t.Freighter.ActionQueue.First, out _);
+                }
+                if (IsParked) return ParkedTile;
+                if (IsDriving) return Route[^1];
+                return null;
+            } else
+            {
+                var action = actionNode.Value;
+                if(action.Type == VehicleAction.ActionType.WaitForTruck)
+                {
+                    return GetTileLocationAfterAction(actionNode.Previous, out _);
+                }
+                else
+                {
+                    loaded = action.Type == VehicleAction.ActionType.LoadTruck;
+                    return Map.Instance.Tiles[action.TargetTileId] as Tile;
+                }
+            }
+        }
+
+        public Tile GetTileLocationAfterAllActions(out bool loaded) => GetTileLocationAfterAction(ActionQueue.Last, out loaded);
+
         public void EvaluateGameObjectPresence()
         {
             if (Exists || BlueprintTile != null)
             {
                 if (Renderer == null)
                 {
-                    var gameObject = Object.Instantiate(VehiclePrefab, Map.Instance.gameObject.transform);
+                    var gameObject = UnityEngine.Object.Instantiate(VehiclePrefab, Map.Instance.gameObject.transform);
                     Renderer = gameObject.GetComponent<VehicleRenderer>();
                     Renderer.Init(this);
                 }
             }
             else if (Renderer != null)
             {
-                Object.Destroy(Renderer.gameObject);
+                UnityEngine.Object.Destroy(Renderer.gameObject);
                 Renderer = null;
             }
         }
@@ -583,6 +660,21 @@ namespace Map.Fleet
                 _ => Constants.HOVER_OUTLINE,
             };
             ShowOutline(outlineData);
+        }
+
+        public void EnqueueAction(VehicleAction action)
+        {
+            ActionQueue.AddLast(action);
+            OnActionQueueChanged?.Invoke();
+        }
+
+        public void DeleteActionsAt(int index)
+        {
+            while (ActionQueue.Count > index)
+            {
+                ActionQueue.RemoveLast();
+            }
+            OnActionQueueChanged?.Invoke();
         }
     }
 }

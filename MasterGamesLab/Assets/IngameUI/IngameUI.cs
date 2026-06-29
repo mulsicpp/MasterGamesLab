@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using InGameCamera;
+using Map;
 using Map.Blueprint;
 using Map.Fleet;
 using Map.Hoverables;
@@ -18,6 +19,25 @@ namespace UI
     [RequireComponent(typeof(VehicleControls))]
     public class IngameUI : Menu, IClickEventHandler
     {
+        public enum VehicleAction
+        {
+            DriveTruck,
+            LoadTruck,
+            UnloadTruck,
+            DriveFreighter,
+            WaitFreighter
+        }
+        [Serializable]
+        public struct VehicleActionImagePair
+        {
+            public VehicleAction VehicleActionType;
+            public Sprite ImageAsset;
+        }
+        [SerializeField]
+        private List<VehicleActionImagePair> vehicleActionConfiguration = new List<VehicleActionImagePair>();
+
+        public Dictionary<VehicleAction, Sprite> vehicleActionImages = new Dictionary<VehicleAction, Sprite>();
+
         [Serializable]
         public struct GoodImagePair
         {
@@ -66,6 +86,11 @@ namespace UI
         public Button hideButton;
         private Button currentActiveButton;
         private GroupBox buildCount;
+        private Compass compass;
+
+        [SerializeField] private VisualTreeAsset actionQueueTemplate;
+        private ScrollView actionQueueScrollView;
+        private VisualElement actionQueue;
 
         [SerializeField] public Sprite hide, hidden;
 
@@ -90,6 +115,14 @@ namespace UI
                 if (!goodsImages.ContainsKey(pair.GoodType))
                 {
                     goodsImages.Add(pair.GoodType, pair.ImageAsset);
+                }
+            }
+
+            foreach (var pair in vehicleActionConfiguration)
+            {
+                if (!vehicleActionImages.ContainsKey(pair.VehicleActionType))
+                {
+                    vehicleActionImages.Add(pair.VehicleActionType, pair.ImageAsset);
                 }
             }
 
@@ -130,6 +163,7 @@ namespace UI
             playersContainer = root.Q<VisualElement>("players-container");
             tabMenu = root.Q<VisualElement>("TabMenu");
             buildCount = root.Q<GroupBox>("BuildCount");
+            compass = root.Q<Compass>("Compass");
 
             // 3. Setup Sorting Header Events
             var headerRow = root.Q<VisualElement>("header-row");
@@ -165,7 +199,7 @@ namespace UI
             confirmButton.clicked += OnConfirmPressed;
             cancelButton.clicked += OnCancelPressed;
             hideButton.clicked += OnHidePressed;
-
+            compass.clicked += OnCompassPressed;
             // 5. Initialize States & Loops
             blueprintCountContainer.style.display = DisplayStyle.None;
             // UpdateAllPlayerStats();
@@ -177,7 +211,16 @@ namespace UI
             blueprintCountContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
             tabMenu.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
             tabMenu.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+
+
+            actionQueueScrollView = root.Q<ScrollView>("QueueScroll");
+            actionQueue = root.Q<VisualElement>("ActionQueue");
+
+            actionQueueScrollView.RegisterCallback<MouseEnterEvent>(evt => mainCamera.supressZoom = true);
+
+            actionQueueScrollView.RegisterCallback<MouseLeaveEvent>(evt => mainCamera.supressZoom = false);
         }
+
 
         void OnDisable()
         {
@@ -200,6 +243,10 @@ namespace UI
             confirmButton.clicked -= OnConfirmPressed;
             cancelButton.clicked -= OnCancelPressed;
             hideButton.clicked -= OnHidePressed;
+            compass.clicked -= OnCompassPressed;
+
+            mainCamera.supressZoom = false;
+
         }
 
         private void BecameVisible()
@@ -213,6 +260,8 @@ namespace UI
 
             // Map.Map.Instance.enabled = true;
             // TODO enable ingame actions
+
+            MainCamera.Instance.PlanetControllerEnabled = true;
         }
 
         private void BecameHidden()
@@ -221,10 +270,20 @@ namespace UI
                 Map.Map.Instance.Blueprint.OnChanged -= HandleBlueprintUpdate;
             // Map.Map.Instance.enabled = false;
             // TODO disable ingame actions
+
+            MainCamera.Instance.PlanetControllerEnabled = false;
         }
 
         private void Update()
         {
+            float signedAngle = Vector2.SignedAngle(Vector2.up, mainCamera.LocalNorth);
+
+            if (signedAngle < 0)
+            {
+                signedAngle += 360f;
+            }
+
+            compass.ArrowAngle = (630f - signedAngle) % 360f;
             if (IsHovered)
             {
                 Map.Map.Instance.CurrentlyHovered = null;
@@ -256,11 +315,72 @@ namespace UI
 
         #endregion
 
-        #region Tab Menu Sorting Logic
+        #region Action Queue
+        public void AddItemToQueue(VehicleAction action, IHoverable entity)
+        {
+            VisualElement clone = actionQueueTemplate.Instantiate();
+            clone.Q<VisualElement>("Icon").style.backgroundImage = new StyleBackground(vehicleActionImages[action]);
 
+            clone.AddToClassList("actionqueue-template-container");
+
+            actionQueueScrollView.Add(clone);
+            actionQueueScrollView.RegisterCallback<GeometryChangedEvent>(OnQueueGeometryChanged);
+            actionQueueScrollView.RegisterCallback<MouseEnterEvent>((evt) => Map.Map.Instance.CurrentlyHovered = entity);
+            actionQueueScrollView.RegisterCallback<MouseLeaveEvent>((evt) => Map.Map.Instance.CurrentlyHovered = null);
+        }
+
+        public void ClearActionQueue()
+        {
+
+            actionQueueScrollView.UnregisterCallback<GeometryChangedEvent>(OnQueueGeometryChanged);
+            actionQueueScrollView.UnregisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
+            actionQueueScrollView.UnregisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
+
+            actionQueueScrollView.Clear();
+
+            actionQueueScrollView.scrollOffset = Vector2.zero;
+        }
+        public void setActionQueueVisible(bool visible)
+        {
+            Visibility style = visible ? Visibility.Visible : Visibility.Hidden;
+            actionQueue.style.visibility = style;
+        }
+        #endregion
+
+        #region Tab Menu Sorting Logic
+        private void OnQueueGeometryChanged(GeometryChangedEvent evt)
+        {
+            float viewportWidth = actionQueueScrollView.contentViewport.layout.width;
+            float contentWidth = actionQueueScrollView.contentContainer.layout.width;
+
+            if (contentWidth <= viewportWidth)
+            {
+                actionQueueScrollView.scrollOffset = Vector2.zero;
+
+                actionQueueScrollView.UnregisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
+                actionQueueScrollView.UnregisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
+
+                actionQueueScrollView.RegisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
+                actionQueueScrollView.RegisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
+            }
+            else
+            {
+                actionQueueScrollView.UnregisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
+                actionQueueScrollView.UnregisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
+            }
+        }
+
+        private void BlockScrollPhysics(PointerDownEvent evt)
+        {
+            evt.StopImmediatePropagation();
+        }
+
+        private void BlockScrollWheel(WheelEvent evt)
+        {
+            evt.StopImmediatePropagation();
+        }
         private void HighliteHoveredColumn(SortColumn column)
         {
-            // First, strip old hover classes so columns don't stack highlights
             ClearHoveredColumns();
 
             string elementName = column switch
@@ -483,6 +603,7 @@ namespace UI
             ConstructionControls.ToggleHide();
             Map.Map.Instance.Blueprint.ToggleHide(ConstructionControls.Type != ConstructionControls.ConstructionType.Hidden );
         }
+        public void OnCompassPressed() => mainCamera.TurnNorth();
 
         public void SelectNextVehicle()
         {
@@ -533,7 +654,7 @@ namespace UI
 
         public void ShowTabMenu(bool visible)
         {
-            if(visible)
+            if (visible)
             {
                 UpdateAllPlayerStats();
             }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UI;
 using UnityEngine;
 
 namespace Map.GeometryGeneration.Edges
@@ -14,9 +15,12 @@ namespace Map.GeometryGeneration.Edges
         private const int EDGE_RESOLUTION = 5;
         private const float ROAD_RADIUS = 0.01f;
         private const float FULL_ROAD_RADIUS = ROAD_RADIUS * 0.9f;
-
-        private const float FASTEST_ROAD_NORMAL_DELTA = 0.0015f;
+        
+        private const float FASTEST_ROAD_NORMAL_DELTA = 0.0012f;
         private const float CHEAPEST_ROAD_NORMAL_DELTA = 0.001f;
+        private const float QUEUED_ROAD_NORMAL_DELTA = 0.0008f;
+        private const float QUEUED_ROAD_NORMAL_DELTA_PER_INDEX = 0.000005f;
+        private const float CURRENT_ROAD_NORMAL_DELTA = 0.0006f;
 
         public struct ProfileValue
         {
@@ -415,13 +419,53 @@ namespace Map.GeometryGeneration.Edges
             };
         }
 
-        private static void AddCurveData(ParametricCurve curve, FullRoadGeometry element, Vector4 uv1,
-            FullRoadGeometry.FullRoadType type)
+        public static RouteGeometry GenerateRoute(TileId[] tiles, Route.RouteType type, int index)
+        {
+            var go = GeometriesManager.Instance.GetRouteGameObject();
+
+            Debug.Log(go);
+            var routeGeometry = go.GetComponent<RouteGeometry>();
+            routeGeometry.Init(type, index);
+            routeGeometry.ClearMeshData();
+
+            var uv1 = new Vector4(routeGeometry.EntityId.Value + Map.ID_OFFSET, 0, 0, 0);
+
+            if (tiles.Length <= 1)
+            {
+                return routeGeometry;
+            }
+
+            var heightOffset = type switch
+            {
+                Route.RouteType.Cheapest => CHEAPEST_ROAD_NORMAL_DELTA,
+                Route.RouteType.Queued => QUEUED_ROAD_NORMAL_DELTA + index * QUEUED_ROAD_NORMAL_DELTA_PER_INDEX,
+                Route.RouteType.Current => CURRENT_ROAD_NORMAL_DELTA,
+                _ => FASTEST_ROAD_NORMAL_DELTA,
+            };
+
+            var startCurve = ParametricCurve.FromTileToTileCenter(Map.Instance.Tiles[tiles[1]] as Tile,
+                Map.Instance.Tiles[tiles[0]] as Tile);
+            AddCurveData(startCurve, routeGeometry, uv1, type, heightOffset);
+
+            for (var i = 1; i < tiles.Length - 1; i++)
+            {
+                var curve = ParametricCurve.FromTileToTileOverTile(Map.Instance.Tiles[tiles[i - 1]] as Tile,
+                    Map.Instance.Tiles[tiles[i + 1]] as Tile, Map.Instance.Tiles[tiles[i]] as Tile);
+                AddCurveData(curve, routeGeometry, uv1, type, heightOffset);
+            }
+
+            var endCurve = ParametricCurve.FromTileToTileCenter(Map.Instance.Tiles[tiles[^2]] as Tile,
+                Map.Instance.Tiles[tiles[^1]] as Tile);
+            AddCurveData(endCurve, routeGeometry, uv1, type, heightOffset);
+
+            routeGeometry.StoreMeshData();
+            routeGeometry.ClearOutline();
+            return routeGeometry;
+        }
+
+        private static void AddCurveData(ParametricCurve curve, RouteGeometry element, Vector4 uv1, Route.RouteType type, float heightOffset)
         {
             var vertexOffset = element.Vertices.Count;
-            var heightOffset = type == FullRoadGeometry.FullRoadType.Fastest
-                ? FASTEST_ROAD_NORMAL_DELTA
-                : CHEAPEST_ROAD_NORMAL_DELTA;
 
             for (var i = 0; i < EDGE_RESOLUTION; i++)
             {

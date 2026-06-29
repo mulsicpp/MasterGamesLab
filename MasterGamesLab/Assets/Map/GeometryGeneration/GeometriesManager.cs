@@ -48,7 +48,7 @@ namespace Map.GeometryGeneration
         [SerializeField] private Mesh dodecahedronMesh;
 
         [SerializeField] private GameObject geometryPrefab;
-        [SerializeField] private GameObject fullRoadPrefab;
+        [SerializeField] private GameObject routePrefab;
 
         [SerializeField] private Mesh buoyMesh;
 
@@ -192,7 +192,7 @@ namespace Map.GeometryGeneration
             return fixedGeometry;
         }
 
-        public GameObject GetFullRoadGameObject() => Instantiate(fullRoadPrefab, transform);
+        public GameObject GetRouteGameObject() => Instantiate(routePrefab, transform);
 
         public Mesh GetBuoyMesh() => buoyMesh;
 

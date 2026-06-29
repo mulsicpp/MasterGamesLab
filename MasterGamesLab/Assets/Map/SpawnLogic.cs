@@ -25,7 +25,7 @@ namespace Map
         private Dictionary<int, SortedSet<Good>> goodsPerContinent;
 
         private List<Consumer> readyConsumers;
-        private List<Consumer> busyConsumers;
+        // private List<Consumer> busyConsumers;
 
         private Distribution<int> consumerContinentDistribution;
 
@@ -87,7 +87,7 @@ namespace Map
             }
 
             readyConsumers = new();
-            busyConsumers = new();
+            // busyConsumers = new();
 
             consumerRequestCooldown = NextConsumerRequestCooldown();
 
@@ -162,7 +162,7 @@ namespace Map
 
             if((consumerRequestCooldown -= tickDuration) <= 0)
             {
-                Debug.Log("Generating consimer request! Available consumers: " + readyConsumers.Count + "  Available goods: " + availableGoods.Count);
+                Debug.Log("Generating consumer request! Available consumers: " + readyConsumers.Where(c => c.Request.Good == Good.None).Count() + "/" + readyConsumers.Count + "  Available goods: " + availableGoods.Count);
                 consumerRequestCooldown = NextConsumerRequestCooldown();
                 if (readyConsumers.Count > 0)
                 {
@@ -185,22 +185,27 @@ namespace Map
         {
             if (consumer == null) return;
             consumer.Request = new(Good.None, 0);
-            if (busyConsumers.Remove(consumer))
-                readyConsumers.Add(consumer);
         }
 
         public void GenerateConsumerRequest(Consumer consumer)
         {
-            if (consumer == null || availableGoods.Count == 0) return;
+            if (consumer == null || availableGoods.Count == 0 || consumer.Request.Good != Good.None) return;
 
             var good = availableGoods[UnityEngine.Random.Range(0, availableGoods.Count)];
 
-            if(readyConsumers.Remove(consumer))
+            consumer.Request = new(good, CalculatePayout(consumer, good));
+            consumer.SetupPayoutIncrease();
+        }
+
+        private int CalculatePayout(Consumer consumer, Good good)
+        {
+            var cost = GoodUtils.GoodBasePayout[good];
+
+            if (!goodsPerContinent[consumer.Tile.ContinentId].Contains(good))
             {
-                consumer.Request = new(good, GoodUtils.GoodBasePayout[good]);
-                consumer.SetupPayoutIncrease();
-                busyConsumers.Add(consumer);
+                cost = (int)(cost * Constants.FOREIGN_GOOD_PAYOUT_FACTOR);
             }
+            return cost;
         }
 
         private float NextConsumerRequestCooldown()
