@@ -327,6 +327,7 @@ namespace UI
 
         public bool HandleClick(ClickEventType type)
         {
+            var map = Map.Map.Instance;
             switch (type)
             {
                 case ClickEventType.Select:
@@ -335,6 +336,12 @@ namespace UI
                     return false;
                 case ClickEventType.CancelPressed:
                     if (!ControlsAreActive) return false;
+                    if (SelectedVehicle != null && map.CurrentlyHovered is RouteGeometry route && route.Type == Route.RouteType.Queued)
+                    {
+                        var index = route.EntityId - map.EntityIdManager.VehicleActionQueueRange.Start.Value;
+                        SelectedVehicle.DeleteActionsAt(index);
+                        return true;
+                    }
                     DisableControls();
                     return true;
             }
@@ -389,7 +396,7 @@ namespace UI
                 if (action.Type == VehicleAction.ActionType.DriveRoute)
                 {
                     Route r = new(Route.RouteType.Queued);
-                    r.SetRoute(SelectedVehicle, action.RouteIds);
+                    r.SetRoute(SelectedVehicle, action.RouteIds, actionQueueGameObjects.Count);
                     r.Renderer.PinVisible = false;
                     actionQueueGameObjects.Add(r.Renderer.gameObject);
                 }

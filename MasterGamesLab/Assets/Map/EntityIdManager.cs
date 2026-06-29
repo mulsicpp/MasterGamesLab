@@ -20,7 +20,7 @@ namespace Map
         {
             var map = Map.Instance;
 
-            var selectableRouteCount = Enum.GetValues(typeof(Route.RouteType)).Length;
+            var selectableRouteCount = 2;
 
             TileRange = 0..map.Tiles.Count;
             EdgeRange = TileRange.End..(TileRange.End.Value + map.Edges.Count);

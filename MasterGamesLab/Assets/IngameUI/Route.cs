@@ -36,15 +36,15 @@ namespace UI
             Renderer.Init(this);
         }
 
-        public void SetRoute(Vehicle vehicle, TileId[] tileIds)
+        public void SetRoute(Vehicle vehicle, TileId[] tileIds, int index = 0)
         {
             if (tileIds != null)
-                SetRoute(vehicle, tileIds, GetRouteMidpoint(tileIds, 0, tileIds.Length - 1));
+                SetRoute(vehicle, tileIds, GetRouteMidpoint(tileIds, 0, tileIds.Length - 1), index);
             else
-                SetRoute(vehicle, null, Vector3.zero);
+                SetRoute(vehicle, null, Vector3.zero, index);
         }
 
-        public void SetRoute(Vehicle vehicle, TileId[] tileIds, Vector3 pinPosition)
+        public void SetRoute(Vehicle vehicle, TileId[] tileIds, Vector3 pinPosition, int index = 0)
         {
             this.tileids = tileIds;
             EvaluateDurationAndCost(vehicle);
@@ -58,7 +58,7 @@ namespace UI
 
             if (tileIds != null)
             {
-                Renderer.Geometry = EdgeGeometryFactory.GenerateRoute(tileIds, Type);
+                Renderer.Geometry = EdgeGeometryFactory.GenerateRoute(tileIds, Type, index);
                 Renderer.Geometry.transform.SetParent(Renderer.transform);
             }
         }

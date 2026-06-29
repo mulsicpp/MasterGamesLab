@@ -24,11 +24,24 @@ namespace Map.GeometryGeneration.Edges
             ClearOutline();
         }
 
-        public void Init(Route.RouteType newType)
+        public void Init(Route.RouteType newType, int index)
         {
             Type = newType;
-            EntityId = new EntityId(Map.Instance.EntityIdManager.SelectableRouteRange.Start.Value + (int)Type);
-            Map.Instance.EntityIdManager[EntityId] = this;
+            switch (Type)
+            {
+                case Route.RouteType.Cheapest:
+                case Route.RouteType.Fastest:
+                    EntityId = new EntityId(Map.Instance.EntityIdManager.SelectableRouteRange.Start.Value + (int)Type);
+                    Map.Instance.EntityIdManager[EntityId] = this;
+                    break;
+                case Route.RouteType.Queued:
+                    EntityId = new EntityId(Map.Instance.EntityIdManager.VehicleActionQueueRange.Start.Value + index);
+                    Map.Instance.EntityIdManager[EntityId] = this;
+                    break;
+                default:
+                    EntityId = new EntityId(-1);
+                    break;
+            }
             ClearOutline();
         }
 
