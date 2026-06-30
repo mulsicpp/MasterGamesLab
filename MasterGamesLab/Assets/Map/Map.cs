@@ -447,6 +447,7 @@ namespace Map
             UpdateEntireMesh();
 
             Debug.Log($"Generated {tiles.Count} tiles");
+            Debug.Log("TileScale: " + TileScale);
 
             // Pre-allocate tracking arrays using the total tile capacity count
             Pathfinding.InitBuffers(tiles.Count);
