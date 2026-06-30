@@ -101,22 +101,14 @@ namespace InGameCamera
             zoomAction = sphereNavigationActionMap.FindAction("Zoom");
 
             camera = gameObject.GetComponent<Camera>();
+
+            zoomExp = 0.0f;
+            currentZoomExp = zoomExp;
         }
 
         private void OnEnable()
         {
             sphereNavigationActionMap.Enable();
-
-        }
-
-        private void Start()
-        {
-            var angles = transform.eulerAngles;
-            currentPitch = angles.x;
-            currentYaw = angles.y;
-
-            zoomExp = 0.0f;
-            currentZoomExp = zoomExp;
         }
 
         private void LateUpdate()
@@ -294,11 +286,26 @@ namespace InGameCamera
         {
             if (FocusedObject != null)
             {
-                transform.rotation = Quaternion.FromToRotation(transform.position - Target.position, FocusedObject.transform.position - Target.position) * transform.rotation;
+                transform.rotation = Quaternion.FromToRotation(-transform.forward, (FocusedObject.transform.position - Target.transform.position).normalized) * transform.rotation;
 
-                var position = Target.position + transform.rotation * new Vector3(0f, 0f, -CurrentDistance);
-                transform.position = position;
+                transform.position = Target.position + transform.rotation * new Vector3(0f, 0f, -CurrentDistance);
+
+                Debug.Log("Snapping to focused object: position is now: " + transform.position + " target is: " + Target.transform.position);
             }
+        }
+
+        public void SetForGameStart()
+        {
+            SnapToFocusedObject();
+            SnapNorth();
+
+            zoomExp = 0.0f;
+            currentZoomExp = zoomExp;
+
+            CurrentDistance = Mathf.Pow(zoomBase, currentZoomExp) * zoomFactor + zoomOffset;
+            transform.position = Target.transform.position - transform.forward * CurrentDistance;
+
+            Map.Map.Instance.UpdateProjectionUniforms(false);
         }
 
 
