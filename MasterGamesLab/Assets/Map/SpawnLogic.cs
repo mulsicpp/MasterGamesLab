@@ -148,10 +148,11 @@ namespace Map
             List<(float, Action)> newProgressEvents = new();
             foreach (var (p, e) in progressEvents)
             {
-                if(p <= Progress)
+                if (p <= Progress)
                 {
                     e.Invoke();
-                } else
+                }
+                else
                 {
                     newProgressEvents.Add((p, e));
                 }
@@ -160,7 +161,7 @@ namespace Map
             progressEvents = newProgressEvents;
 
 
-            if((consumerRequestCooldown -= tickDuration) <= 0)
+            if ((consumerRequestCooldown -= tickDuration) <= 0)
             {
                 Debug.Log("Generating consumer request! Available consumers: " + readyConsumers.Where(c => c.Request.Good == Good.None).Count() + "/" + readyConsumers.Count + "  Available goods: " + availableGoods.Count);
                 consumerRequestCooldown = NextConsumerRequestCooldown();
@@ -199,13 +200,23 @@ namespace Map
 
         private int CalculatePayout(Consumer consumer, Good good)
         {
-            var cost = GoodUtils.GoodBasePayout[good];
+            var basecost = GoodUtils.GoodBasePayout[good];
 
-            if (!goodsPerContinent[consumer.Tile.ContinentId].Contains(good))
+            var movementProfile = goodsPerContinent[consumer.Tile.ContinentId].Contains(good) ? MovementProfileRegistry.ConsumerPayoutOwnContinent : MovementProfileRegistry.ConsumerPayoutForeignContinent;
+            var path = Pathfinding.FindPath(consumer.Tile, tile => tile.Structure is Producer p && p.Good == good, movementProfile);
+
+            int distancecost = 0;
+            foreach (var tile in path)
             {
-                cost = (int)(cost * Constants.FOREIGN_GOOD_PAYOUT_FACTOR);
+                distancecost += Map.Instance.Tiles[tile].Type switch
+                {
+                    Tile.TileType.Water => Constants.WATER_SHIPPING_COST,
+                    _ => Constants.NORMAL_SHIPPING_COST,
+                };
             }
-            return cost;
+
+            int randomCost = UnityEngine.Random.Range(Constants.MIN_RANDOM_COST, Constants.MAX_RANDOM_COST + 1);
+            return basecost + distancecost + randomCost -10;
         }
 
         private float NextConsumerRequestCooldown()
