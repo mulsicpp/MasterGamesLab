@@ -37,7 +37,6 @@ public class IngameInputs : MonoBehaviour
     void Awake()
     {
         controlsActionMap = inputActions.FindActionMap("Controls");
-        controlsActionMap.Enable();
 
         selectClickAction = controlsActionMap.FindAction("LeftClick");
         buildRoadAction = controlsActionMap.FindAction("BuildRoad");

@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using UI;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -242,7 +243,7 @@ namespace Map
 
         public GameObject GetEdgeGeometryPrefab() => edgeGeometryPrefab;
 
-        private void UpdateProjectionUniforms()
+        public void UpdateProjectionUniforms(bool smooth = true)
         {
             var projectionCenter = (MainCamera.Instance.CurrentPosition - transform.position).normalized;
             var currentDistance = MainCamera.Instance.CurrentDistance;
@@ -250,15 +251,23 @@ namespace Map
             //                        (fullProjectionDistance - fullSphereDistance);
             // projectionFactor = Mathf.Clamp01(projectionFactor);
 
-            var projectionFactor = oldProjectionFactor;
-            var targetProjectionFactor = currentDistance < projectionActivationDistance ? 1.0f : 0.0f;
-
-            var distanceAbs = Mathf.Abs(targetProjectionFactor - oldProjectionFactor);
-            if (distanceAbs > 0.001f)
+            float projectionFactor;
+            if (smooth)
             {
-                var distanceThisFrame = Mathf.Min((distanceAbs * projectionApproachFactor + projectionBaseSpeed) * Time.deltaTime, distanceAbs);
+                projectionFactor = oldProjectionFactor;
+                var targetProjectionFactor = currentDistance < projectionActivationDistance ? 1.0f : 0.0f;
 
-                projectionFactor = Mathf.Lerp(oldProjectionFactor, targetProjectionFactor, distanceThisFrame / distanceAbs);
+                var distanceAbs = Mathf.Abs(targetProjectionFactor - oldProjectionFactor);
+                if (distanceAbs > 0.001f)
+                {
+                    var distanceThisFrame = Mathf.Min((distanceAbs * projectionApproachFactor + projectionBaseSpeed) * Time.deltaTime, distanceAbs);
+
+                    projectionFactor = Mathf.Lerp(oldProjectionFactor, targetProjectionFactor, distanceThisFrame / distanceAbs);
+                }
+            }
+            else
+            {
+                projectionFactor = currentDistance < projectionActivationDistance ? 1.0f : 0.0f;
             }
 
 

@@ -269,10 +269,6 @@ namespace UI
 
             MainCamera.Instance.PlanetControllerEnabled = true;
             FindAnyObjectByType<IngameInputs>().enabled = true;
-            SelectNextVehicle();
-
-            var planetCameraController = MainCamera.Instance.GetComponent<PlanetCameraController>();
-            planetCameraController.TurnNorth();
         }
 
         private void BecameHidden()
