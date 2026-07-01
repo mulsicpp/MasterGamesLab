@@ -32,13 +32,10 @@ namespace Map.Fleet
                 transform.localRotation = Quaternion.identity;
                 transform.localScale = Vector3.one;
 
-                // Geometry.UpdateId(Truck.Freighter.EntityId.Value);
-                // SetVisibleOutline(Truck.Freighter.Outline);
+                SetVisibleOutline(Truck.Outline);
 
                 return;
             }
-
-            Geometry.UpdateId(Truck.EntityId.Value);
             transform.parent = Map.Instance.transform;
 
             base.Update();

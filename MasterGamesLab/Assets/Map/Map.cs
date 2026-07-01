@@ -89,6 +89,7 @@ namespace Map
         public GameObject PortPrefab;
 
         public GameObject RoutePrefab;
+        public GameObject VehicleActionPrefab;
 
 #pragma warning disable CS0414
         [SerializeField] private float fullSphereDistance = 2;
@@ -448,6 +449,7 @@ namespace Map
             UpdateEntireMesh();
 
             Debug.Log($"Generated {tiles.Count} tiles");
+            Debug.Log("TileScale: " + TileScale);
 
             // Pre-allocate tracking arrays using the total tile capacity count
             Pathfinding.InitBuffers(tiles.Count);

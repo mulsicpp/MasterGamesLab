@@ -664,8 +664,10 @@ namespace Map.Fleet
 
         public void EnqueueAction(VehicleAction action)
         {
-            ActionQueue.AddLast(action);
-            OnActionQueueChanged?.Invoke();
+            if (ActionQueue.Count < Constants.MAX_VEHICLE_ACTION_COUNT_PER_VEHICLE) {
+                ActionQueue.AddLast(action);
+                OnActionQueueChanged?.Invoke();
+            }
         }
 
         public void DeleteActionsAt(int index)

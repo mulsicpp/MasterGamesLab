@@ -108,7 +108,7 @@ namespace InGameCamera
 
         private void OnEnable()
         {
-            sphereNavigationActionMap.Enable();
+            // sphereNavigationActionMap.Enable();
         }
 
         private void LateUpdate()
@@ -120,7 +120,7 @@ namespace InGameCamera
 
         private void OnDisable()
         {
-            sphereNavigationActionMap.Disable();
+            // sphereNavigationActionMap.Disable();
         }
 
         private void HandleInput()

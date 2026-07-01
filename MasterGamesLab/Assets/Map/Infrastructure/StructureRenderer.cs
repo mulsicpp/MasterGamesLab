@@ -19,7 +19,7 @@ namespace Map.Infrastructure
 
             var position = tile.PositionOnSphere;
             var up = position.normalized;
-            var forward = tile.NeighborTiles[0].LeftVertex.normalized;
+            var forward = (tile.NeighborTiles[0].LeftVertex - tile.PositionOnSphere).normalized;
 
             transform.position = position;
             transform.rotation = Quaternion.LookRotation(forward, up);

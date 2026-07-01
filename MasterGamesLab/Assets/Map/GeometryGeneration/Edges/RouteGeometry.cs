@@ -36,7 +36,6 @@ namespace Map.GeometryGeneration.Edges
                     break;
                 case Route.RouteType.Queued:
                     EntityId = new EntityId(Map.Instance.EntityIdManager.VehicleActionQueueRange.Start.Value + index);
-                    Map.Instance.EntityIdManager[EntityId] = this;
                     break;
                 default:
                     EntityId = new EntityId(-1);

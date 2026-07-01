@@ -583,11 +583,7 @@ namespace UI
         private void OnFreighterClicked() => ConstructionControls.Type = ConstructionControls.ConstructionType.Freighter;
         public void OnConfirmPressed() => ConstructionControls.ConfirmConstruction();
         public void OnCancelPressed() => ConstructionControls.CancelConstruction();
-        public void OnHidePressed()
-        {
-            ConstructionControls.ToggleHide();
-            Map.Map.Instance.Blueprint.ToggleHide(ConstructionControls.Type != ConstructionControls.ConstructionType.Hidden);
-        }
+        public void OnHidePressed() => ConstructionControls.ToggleHide();
         public void OnCompassPressed() => mainCamera.TurnNorth();
 
         public void SelectNextVehicle()

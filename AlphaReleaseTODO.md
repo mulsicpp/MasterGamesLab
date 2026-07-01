@@ -42,16 +42,20 @@
 - Fix bug: Consumer/Producer spawn on canals [done]
 
 Visuals/3D:
-- Hide elements in blueprint
+- Hide elements in blueprint [done]
 - Introduce scale factor based on tile size
-- Visualize canal owner
+- Visualize canal owner [done]
 - Dynamically make independent objects hoverable with predicate (edges, vehicles, structures)
 - Display good on trucks
-- More detailed/textured road
-- Better outline textures
+- More detailed/textured road [done]
+- Better outline textures [done]
 - Better player colors
 - Biomes
-- Fix outline not showing properly in canals
+- Fix outline not showing properly in canals [done]
+- Geometry for vehicle actions: 
+    - LoadTruck
+    - UnloadTruck
+    - WaitForTruck
 
 UI:
 - Outline pin when hovered/selected
