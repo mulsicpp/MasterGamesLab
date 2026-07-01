@@ -103,6 +103,8 @@ namespace UI
 
         protected PlanetCameraController mainCamera;
 
+        private IHoverable currentActionHoveredInUI = null;
+
 
         private IControls[] controls;
 
@@ -296,6 +298,10 @@ namespace UI
             {
                 Map.Map.Instance.CurrentlyHovered = null;
                 HoverablePicker.Instance.DenyPick = true;
+            } else if (currentActionHoveredInUI != null)
+            {
+                Map.Map.Instance.CurrentlyHovered = currentActionHoveredInUI;
+                HoverablePicker.Instance.DenyPick = true;
             }
 
             Map.Map.Instance.HoverLayers = controls.FirstOrDefault(c => c.ControlsAreActive)?.SelectHoverableLayers() ?? DEFAULT_HOVERABLE_LAYERS;
@@ -330,10 +336,10 @@ namespace UI
             clone.Q<VisualElement>("Icon").style.backgroundImage = new StyleBackground(vehicleActionImages[action]);
 
             clone.AddToClassList("actionqueue-template-container");
+            clone.RegisterCallback<MouseEnterEvent>((evt) => currentActionHoveredInUI = entity);
+            clone.RegisterCallback<MouseLeaveEvent>((evt) => currentActionHoveredInUI = null);
 
             actionQueueScrollView.Add(clone);
-            actionQueueScrollView.RegisterCallback<MouseEnterEvent>((evt) => Map.Map.Instance.CurrentlyHovered = entity);
-            actionQueueScrollView.RegisterCallback<MouseLeaveEvent>((evt) => Map.Map.Instance.CurrentlyHovered = null);
         }
 
         public void ClearActionQueue()

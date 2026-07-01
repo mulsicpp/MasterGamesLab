@@ -463,7 +463,7 @@ namespace UI
                     _ => IngameUI.VehicleAction.DriveTruckToCommon
                 };
 
-                IngameUI.Instance.AddItemToQueue(uiAction, null);
+                IngameUI.Instance.AddItemToQueue(uiAction, vehicleActionRenderer);
             }
         }
 
