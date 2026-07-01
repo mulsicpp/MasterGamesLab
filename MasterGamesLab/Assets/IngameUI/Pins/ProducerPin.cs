@@ -9,13 +9,24 @@ namespace UI
 {
     public class ProducerPin : Pin
     {
-       
+
+        [Serializable]
+        private struct ProducerGoodImagePair
+        {
+            public Good GoodType;
+            public Sprite ImageAsset;
+        }
+
+        [SerializeField]
+        private List<ProducerGoodImagePair> producerGoodsConfiguration = new List<ProducerGoodImagePair>();
+
+        private Dictionary<Good, Sprite> producerGoodsImages = new Dictionary<Good, Sprite>();
 
         private StructureRenderer structureRenderer;
         private VisualElement goodIcon;
 
         protected override float pinHeightPercent => 6f;
-        protected override float pinAspectRatio => 0.55f;
+        protected override float pinAspectRatio => 1f;
 
         public void OnEnable()
         {
@@ -24,8 +35,14 @@ namespace UI
 
         protected override void Start()
         {
-
             base.Start();
+            foreach (var pair in producerGoodsConfiguration)
+            {
+                if (!producerGoodsImages.ContainsKey(pair.GoodType))
+                {
+                    producerGoodsImages.Add(pair.GoodType, pair.ImageAsset);
+                }
+            }
         }
 
         public void Update()
@@ -43,7 +60,7 @@ namespace UI
             {
                 var Good = producer.Good;
 
-                if (Good != Good.None && IngameUI.Instance.goodsImages.TryGetValue(Good, out Sprite img))
+                if (Good != Good.None && producerGoodsImages.TryGetValue(Good, out Sprite img))
                 {
                     SetShowing(true);
                     goodIcon.style.backgroundImage = new StyleBackground(img);
@@ -73,7 +90,7 @@ namespace UI
             if (structureRenderer?.Structure is Producer producer)
             {
                 var requestedGood = producer.Good;
-                if (requestedGood != Good.None && IngameUI.Instance.goodsImages.TryGetValue(requestedGood, out Sprite img))
+                if (requestedGood != Good.None && producerGoodsImages.TryGetValue(requestedGood, out Sprite img))
                 {
                     goodIcon.style.backgroundImage = new StyleBackground(img);
                 }
