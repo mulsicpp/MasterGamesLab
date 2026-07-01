@@ -332,7 +332,6 @@ namespace UI
             clone.AddToClassList("actionqueue-template-container");
 
             actionQueueScrollView.Add(clone);
-            actionQueueScrollView.RegisterCallback<GeometryChangedEvent>(OnQueueGeometryChanged);
             actionQueueScrollView.RegisterCallback<MouseEnterEvent>((evt) => Map.Map.Instance.CurrentlyHovered = entity);
             actionQueueScrollView.RegisterCallback<MouseLeaveEvent>((evt) => Map.Map.Instance.CurrentlyHovered = null);
         }
@@ -340,7 +339,6 @@ namespace UI
         public void ClearActionQueue()
         {
 
-            actionQueueScrollView.UnregisterCallback<GeometryChangedEvent>(OnQueueGeometryChanged);
             actionQueueScrollView.UnregisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
             actionQueueScrollView.UnregisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
 
@@ -356,27 +354,6 @@ namespace UI
         #endregion
 
         #region Tab Menu Sorting Logic
-        private void OnQueueGeometryChanged(GeometryChangedEvent evt)
-        {
-            float viewportWidth = actionQueueScrollView.contentViewport.layout.width;
-            float contentWidth = actionQueueScrollView.contentContainer.layout.width;
-
-            if (contentWidth <= viewportWidth)
-            {
-                actionQueueScrollView.scrollOffset = Vector2.zero;
-
-                actionQueueScrollView.UnregisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
-                actionQueueScrollView.UnregisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
-
-                actionQueueScrollView.RegisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
-                actionQueueScrollView.RegisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
-            }
-            else
-            {
-                actionQueueScrollView.UnregisterCallback<PointerDownEvent>(BlockScrollPhysics, TrickleDown.TrickleDown);
-                actionQueueScrollView.UnregisterCallback<WheelEvent>(BlockScrollWheel, TrickleDown.TrickleDown);
-            }
-        }
 
         private void BlockScrollPhysics(PointerDownEvent evt)
         {
