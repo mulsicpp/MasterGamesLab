@@ -35,6 +35,7 @@ namespace UI
 
         protected override void Start()
         {
+            hoverable = UiElement.Q<VisualElement>("Icon");
             base.Start();
             foreach (var pair in producerGoodsConfiguration)
             {
@@ -43,6 +44,7 @@ namespace UI
                     producerGoodsImages.Add(pair.GoodType, pair.ImageAsset);
                 }
             }
+            UiElement.SendToBack();
         }
 
         public void Update()

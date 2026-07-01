@@ -14,6 +14,13 @@ public class RoutePin : Pin
 
     public bool FacingLeft = false;
 
+    protected override void Start()
+    {
+        hoverable = UiElement.Q<VisualElement>("Pickable");
+        base.Start();
+        hoverable.BringToFront();
+    }
+
     public void OnEnable()
     {
         routeRenderer = GetComponentInParent<RouteRenderer>();
