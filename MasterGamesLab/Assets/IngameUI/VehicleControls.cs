@@ -72,7 +72,7 @@ namespace UI
                 var vehicle = controls.SelectedVehicle;
 
 
-                if (vehicle == null || start == destination) return;
+                if (vehicle == null || start == destination || !vehicle.DriveDestinationCondition(destination)) return;
 
                 var fastestProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckFastestRoute : MovementProfileRegistry.FreighterFastestRoute;
                 var cheapestProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckCheapestRoute : MovementProfileRegistry.FreighterCheapestRoute;
@@ -244,13 +244,13 @@ namespace UI
 
         public RouteOptions RouteOptions { get; private set; }
 
-        private List<GameObject> actionQueueGameObjects;
+        private List<VehicleActionRenderer> vehicleActionRenderers;
         private Route currentRoute;
 
         public void Start()
         {
             RouteOptions = new();
-            actionQueueGameObjects = new();
+            vehicleActionRenderers = new();
             currentRoute = new(Route.RouteType.Current);
             currentRoute.Renderer.PinVisible = false;
         }
@@ -341,10 +341,10 @@ namespace UI
                     return false;
                 case ClickEventType.CancelPressed:
                     if (!ControlsAreActive) return false;
-                    if (SelectedVehicle != null && map.CurrentlyHovered is RouteGeometry route && route.Type == Route.RouteType.Queued)
+                    if (SelectedVehicle != null && map.CurrentlyHovered is VehicleActionRenderer actionRenderer)
                     {
-                        var index = route.EntityId - map.EntityIdManager.VehicleActionQueueRange.Start.Value;
-                        SelectedVehicle.DeleteActionsAt(index);
+                        SelectedVehicle.DeleteActionsAt(actionRenderer.ActionIndex);
+                        RouteOptions.Clear();
                         return true;
                     }
                     DisableControls();
@@ -385,16 +385,17 @@ namespace UI
             Debug.Log("Building action queue game objects");
             IngameUI.Instance.setActionQueueVisible(true);
 
-            foreach (var go in actionQueueGameObjects)
+            foreach (var renderer in vehicleActionRenderers)
             {
-                if (go != null)
+                if (renderer != null)
                 {
-                    Destroy(go);
+                    renderer.UnregisterFromEntities();
+                    Destroy(renderer.gameObject);
                 }
             }
 
 
-            actionQueueGameObjects.Clear();
+            vehicleActionRenderers.Clear();
             IngameUI.Instance.ClearActionQueue();
 
             if (SelectedVehicle == null || (SelectedVehicle.ActionQueue.Count == 0 && SelectedVehicle.Route == null))
@@ -422,19 +423,26 @@ namespace UI
                 IngameUI.Instance.AddItemToQueue(uiAction, null);
             }
 
-            foreach (var action in SelectedVehicle.ActionQueue)
+            for (var actionNode = SelectedVehicle.ActionQueue.First; actionNode != null; actionNode = actionNode.Next)
             {
-                if (action.Type == VehicleAction.ActionType.DriveRoute)
-                {
-                    Route r = new(Route.RouteType.Queued);
-                    r.SetRoute(SelectedVehicle, action.RouteIds, actionQueueGameObjects.Count);
-                    r.Renderer.PinVisible = false;
-                    actionQueueGameObjects.Add(r.Renderer.gameObject);
-                }
-                else
-                {
-                    actionQueueGameObjects.Add(null);
-                }
+                var action = actionNode.Value;
+
+                VehicleActionRenderer vehicleActionRenderer = Instantiate(Map.Map.Instance.VehicleActionPrefab, Map.Map.Instance.transform).GetComponent<VehicleActionRenderer>();
+                vehicleActionRenderer.Init(vehicleActionRenderers.Count, SelectedVehicle, actionNode);
+
+                vehicleActionRenderers.Add(vehicleActionRenderer);
+
+                // if (action.Type == VehicleAction.ActionType.DriveRoute)
+                // {
+                //     Route r = new(Route.RouteType.Queued);
+                //     r.SetRoute(SelectedVehicle, action.RouteIds, actionQueueGameObjects.Count);
+                //     r.Renderer.PinVisible = false;
+                //     actionQueueGameObjects.Add(r.Renderer.gameObject);
+                // }
+                // else
+                // {
+                //     actionQueueGameObjects.Add(null);
+                // }
 
                 IngameUI.VehicleAction uiAction = (action.Type, SelectedVehicle.Type, Map.Map.Instance.Tiles[action.TargetTileId].Structure) switch
                 {
@@ -455,7 +463,7 @@ namespace UI
                     _ => IngameUI.VehicleAction.DriveTruckToCommon
                 };
 
-                IngameUI.Instance.AddItemToQueue(uiAction, null);
+                IngameUI.Instance.AddItemToQueue(uiAction, vehicleActionRenderer);
             }
         }
 

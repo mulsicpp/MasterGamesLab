@@ -384,9 +384,16 @@ namespace Map.GeometryGeneration.Edges
             };
         }
 
-        public static RouteGeometry GenerateRoute(TileId[] tiles, Route.RouteType type, int index)
+        public static RouteGeometry GenerateRoute(TileId[] tileIds, Route.RouteType type, int index, ParametricCurve.CurveData? curveData)
         {
             var go = GeometriesManager.Instance.GetRouteGameObject();
+
+            var tiles = new Tile[tileIds.Length];
+
+            for(int i = 0; i < tiles.Length; i++)
+            {
+                tiles[i] = Map.Instance.Tiles[tileIds[i]] as Tile;
+            }
 
             Debug.Log(go);
             var routeGeometry = go.GetComponent<RouteGeometry>();
@@ -408,19 +415,16 @@ namespace Map.GeometryGeneration.Edges
                 _ => FASTEST_ROAD_NORMAL_DELTA,
             };
 
-            var startCurve = ParametricCurve.FromTileToTileCenter(Map.Instance.Tiles[tiles[1]] as Tile,
-                Map.Instance.Tiles[tiles[0]] as Tile);
+            var startCurve = ParametricCurve.FromTileToTileCenter(tiles[1], tiles[0], curveData);
             AddCurveData(startCurve, routeGeometry, uv1, type, heightOffset);
 
             for (var i = 1; i < tiles.Length - 1; i++)
             {
-                var curve = ParametricCurve.FromTileToTileOverTile(Map.Instance.Tiles[tiles[i - 1]] as Tile,
-                    Map.Instance.Tiles[tiles[i + 1]] as Tile, Map.Instance.Tiles[tiles[i]] as Tile);
+                var curve = ParametricCurve.FromTileToTileOverTile(tiles[i - 1], tiles[i + 1], tiles[i], curveData);
                 AddCurveData(curve, routeGeometry, uv1, type, heightOffset);
             }
 
-            var endCurve = ParametricCurve.FromTileToTileCenter(Map.Instance.Tiles[tiles[^2]] as Tile,
-                Map.Instance.Tiles[tiles[^1]] as Tile);
+            var endCurve = ParametricCurve.FromTileToTileCenter(tiles[^2], tiles[^1], curveData);
             AddCurveData(endCurve, routeGeometry, uv1, type, heightOffset);
 
             routeGeometry.StoreMeshData();

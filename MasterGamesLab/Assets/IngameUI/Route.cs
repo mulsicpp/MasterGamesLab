@@ -1,8 +1,10 @@
 using Map;
 using Map.Fleet;
+using Map.GeometryGeneration;
 using Map.GeometryGeneration.Edges;
 using System.Linq;
 using UnityEngine;
+using static Map.Fleet.Vehicle;
 
 namespace UI
 {
@@ -36,15 +38,15 @@ namespace UI
             Renderer.Init(this);
         }
 
-        public void SetRoute(Vehicle vehicle, TileId[] tileIds, int index = 0)
+        public void SetRoute(Vehicle vehicle, TileId[] tileIds)
         {
             if (tileIds != null)
-                SetRoute(vehicle, tileIds, GetRouteMidpoint(tileIds, 0, tileIds.Length - 1), index);
+                SetRoute(vehicle, tileIds, GetRouteMidpoint(tileIds, 0, tileIds.Length - 1));
             else
-                SetRoute(vehicle, null, Vector3.zero, index);
+                SetRoute(vehicle, null, Vector3.zero);
         }
 
-        public void SetRoute(Vehicle vehicle, TileId[] tileIds, Vector3 pinPosition, int index = 0)
+        public void SetRoute(Vehicle vehicle, TileId[] tileIds, Vector3 pinPosition)
         {
             this.tileids = tileIds;
             EvaluateDurationAndCost(vehicle);
@@ -56,9 +58,17 @@ namespace UI
                 Renderer.Geometry = null;
             }
 
+
+
             if (tileIds != null)
             {
-                Renderer.Geometry = EdgeGeometryFactory.GenerateRoute(tileIds, Type, index);
+                ParametricCurve.CurveData curveData = vehicle.Type switch
+                {
+                    VehicleType.Freighter => ParametricCurve.CurveData.DefaultWaterCurve,
+                    _ => ParametricCurve.CurveData.DefaultRoadCurve,
+                };
+
+                Renderer.Geometry = EdgeGeometryFactory.GenerateRoute(tileIds, Type, -1, curveData);
                 Renderer.Geometry.transform.SetParent(Renderer.transform);
             }
         }

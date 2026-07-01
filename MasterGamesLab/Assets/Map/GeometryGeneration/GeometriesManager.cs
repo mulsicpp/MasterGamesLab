@@ -70,7 +70,7 @@ namespace Map.GeometryGeneration
             var defaultLayerName = "Default";
             string outlineLayerName;
             string outlineTransparentLayerName;
-            Quaternion localRotation;
+            var localRotation = Quaternion.identity;
             Vector3 localScale;
             var localPosition = Vector3.zero;
 
@@ -103,79 +103,66 @@ namespace Map.GeometryGeneration
                     mesh = producerTetrahedronMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.ProducerCube:
                     mesh = producerCubeMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.ProducerOctahedron:
                     mesh = producerOctahedronMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.ProducerIcosahedron:
                     mesh = producerIcosahedronMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.ProducerDodecahedron:
                     mesh = producerDodecahedronMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.Consumer:
                     mesh = consumerMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.Port:
                     mesh = portMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.ParkingLot:
                     mesh = parkingLotMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.Tetrahedron:
                     mesh = tetrahedronMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.Cube:
                     mesh = cubeMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.Octahedron:
                     mesh = octahedronMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.Icosahedron:
                     mesh = icosahedronMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 case GeometryType.Dodecahedron:
                     mesh = dodecahedronMesh;
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
-                    localRotation = Quaternion.Euler(90, 0, 0);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);

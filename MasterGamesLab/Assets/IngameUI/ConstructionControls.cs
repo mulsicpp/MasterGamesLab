@@ -64,6 +64,9 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
             OnConstructionTypeChanged?.Invoke(type);
             Map.Map.Instance.Blueprint.ClearPreview();
 
+
+            Map.Map.Instance.Blueprint.ToggleHide(type != ConstructionType.Hidden);
+
             if (ControlsAreActive)
             {
                 IngameUI.Instance.VehicleControls.DisableControls();

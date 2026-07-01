@@ -5,6 +5,7 @@ using Map.GeometryGeneration;
 using Map.Hoverables;
 using Map.Infrastructure;
 using Networking;
+using Player;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,6 +89,7 @@ namespace Map
         public GameObject PortPrefab;
 
         public GameObject RoutePrefab;
+        public GameObject VehicleActionPrefab;
 
 #pragma warning disable CS0414
         [SerializeField] private float fullSphereDistance = 2;
@@ -447,6 +449,7 @@ namespace Map
             UpdateEntireMesh();
 
             Debug.Log($"Generated {tiles.Count} tiles");
+            Debug.Log("TileScale: " + TileScale);
 
             // Pre-allocate tracking arrays using the total tile capacity count
             Pathfinding.InitBuffers(tiles.Count);
@@ -681,7 +684,15 @@ namespace Map
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
         public void GameFinishedClientRpc(ClientRpcParams rpcParams = default)
         {
+            PlayerStats[] finalStats = Instance.GetPlayerStats();
+            bool hasWon = finalStats[Player.Player.SelfId].MarketCap >= Constants.WINNING_MARKET_CAP;
+
             NetworkManager.Shutdown(false);
+
+            var gameFinishedMenu = UIManager.Instance.gameFinishedsUI;
+            gameFinishedMenu.SetFinalStats(finalStats, hasWon);
+
+
             UIManager.Instance.CurrentMenu = UI.Menu.MenuId.GameFinished;
         }
 

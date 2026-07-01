@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 3505875555781201393}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 4}
+  m_LocalPosition: {x: 0, y: 4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -48,6 +48,17 @@ MonoBehaviour:
   invisibleThreshold: -0.1
   pivotDirection: 1
   PinTemplate: {fileID: 9197481963319205126, guid: 4b828ba5ffa83d543be7e33aa168b45c, type: 3}
+  producerGoodsConfiguration:
+  - GoodType: 1
+    ImageAsset: {fileID: 21300000, guid: 4e90ff2fe21786b499ed56b59e4acb84, type: 3}
+  - GoodType: 2
+    ImageAsset: {fileID: 21300000, guid: b193c387dcfaefc4ebf1788bcc0220c0, type: 3}
+  - GoodType: 3
+    ImageAsset: {fileID: 21300000, guid: 592f75bbb77dcf84f80361ee98315d17, type: 3}
+  - GoodType: 4
+    ImageAsset: {fileID: 21300000, guid: e3332fe0599d78c438f1fced8191a900, type: 3}
+  - GoodType: 5
+    ImageAsset: {fileID: 21300000, guid: 4ebcfa961dee2fb49b6eb11f629879b9, type: 3}
 --- !u!1 &4004374116097416254
 GameObject:
   m_ObjectHideFlags: 0
