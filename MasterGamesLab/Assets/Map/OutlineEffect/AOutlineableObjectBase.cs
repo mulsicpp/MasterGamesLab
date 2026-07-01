@@ -9,6 +9,7 @@ namespace Map.OutlineEffect
         private static readonly int InnerColor = Shader.PropertyToID("_InnerColor");
         private static readonly int TextureId = Shader.PropertyToID("_TextureId");
         private static readonly int PlayerColor = Shader.PropertyToID("_PlayerColor");
+        private static readonly int CustomColorId = Shader.PropertyToID("_CustomColor");
 
         protected abstract string DefaultLayerName();
         protected abstract string OutlineLayerName();
@@ -25,6 +26,7 @@ namespace Map.OutlineEffect
         private Color innerColor;
         private int textureId;
         private Color playerColor;
+        private Color customColor;
 
         protected void Init()
         {
@@ -42,6 +44,12 @@ namespace Map.OutlineEffect
         public void SetPlayerColor(Color color)
         {
             playerColor = color;
+            SetMaterialPropertyBlock();
+        }
+
+        public void SetCustomColor(Color color)
+        {
+            customColor = color;
             SetMaterialPropertyBlock();
         }
 
@@ -87,6 +95,7 @@ namespace Map.OutlineEffect
             mpb.SetColor(PlayerColor, playerColor);
             mpb.SetColor(OutlineColor, outlineColor);
             mpb.SetColor(InnerColor, innerColor);
+            mpb.SetColor(CustomColorId, customColor);
             mpb.SetFloat(TextureId, textureId);
             objRenderer.SetPropertyBlock(mpb);
         }
