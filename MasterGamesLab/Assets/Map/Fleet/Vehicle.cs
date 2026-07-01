@@ -331,6 +331,8 @@ namespace Map.Fleet
             return CanDriveRoute(player, route, out publicCost, out enemyCosts);
         }
 
+        public abstract bool DriveDestinationCondition(Tile destination);
+
         public bool CanDriveRoute(Player.Player player, Tile[] route, out int publicCost,
             out Dictionary<Player.Player, int> enemyCosts)
         {
@@ -339,6 +341,8 @@ namespace Map.Fleet
 
             if (!Exists || !IsParked || Owner != player) return false;
             if (route == null || route.Length < 2) return false;
+
+            if (!DriveDestinationCondition(route[^1])) return false;
 
             foreach (var p in Map.Instance.Players)
             {

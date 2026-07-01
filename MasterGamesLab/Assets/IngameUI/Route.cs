@@ -1,8 +1,10 @@
 using Map;
 using Map.Fleet;
+using Map.GeometryGeneration;
 using Map.GeometryGeneration.Edges;
 using System.Linq;
 using UnityEngine;
+using static Map.Fleet.Vehicle;
 
 namespace UI
 {
@@ -56,9 +58,17 @@ namespace UI
                 Renderer.Geometry = null;
             }
 
+
+
             if (tileIds != null)
             {
-                Renderer.Geometry = EdgeGeometryFactory.GenerateRoute(tileIds, Type, -1);
+                ParametricCurve.CurveData curveData = vehicle.Type switch
+                {
+                    VehicleType.Freighter => ParametricCurve.CurveData.DefaultWaterCurve,
+                    _ => ParametricCurve.CurveData.DefaultRoadCurve,
+                };
+
+                Renderer.Geometry = EdgeGeometryFactory.GenerateRoute(tileIds, Type, -1, curveData);
                 Renderer.Geometry.transform.SetParent(Renderer.transform);
             }
         }
