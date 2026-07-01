@@ -22,6 +22,9 @@ namespace Map.GeometryGeneration
             Octahedron,
             Icosahedron,
             Dodecahedron,
+            ActionWait,
+            ActionLoad,
+            ActionUnload,
         }
 
         private const float SCALE_VALUE = 0.008f;
@@ -46,6 +49,9 @@ namespace Map.GeometryGeneration
         [SerializeField] private Mesh octahedronMesh;
         [SerializeField] private Mesh icosahedronMesh;
         [SerializeField] private Mesh dodecahedronMesh;
+        [SerializeField] private Mesh actionWaitMesh;
+        [SerializeField] private Mesh actionLoadMesh;
+        [SerializeField] private Mesh actionUnloadMesh;
 
         [SerializeField] private GameObject geometryPrefab;
         [SerializeField] private GameObject routePrefab;
@@ -57,6 +63,8 @@ namespace Map.GeometryGeneration
         [SerializeField] private Material previewMaterial;
         [SerializeField] private Material blueprintMaterial;
         [SerializeField] private Material buoyMaterial;
+
+        [SerializeField] private Material actionMaterial;
 
         private void Awake()
         {
@@ -164,6 +172,21 @@ namespace Map.GeometryGeneration
                     outlineLayerName = "Outline";
                     outlineTransparentLayerName = "Outline Transparent";
                     break;
+                case GeometryType.ActionWait:
+                    mesh = actionWaitMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    break;
+                case GeometryType.ActionLoad:
+                    mesh = actionLoadMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    break;
+                case GeometryType.ActionUnload:
+                    mesh = actionUnloadMesh;
+                    outlineLayerName = "Outline";
+                    outlineTransparentLayerName = "Outline Transparent";
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
@@ -176,6 +199,12 @@ namespace Map.GeometryGeneration
             var fixedGeometry = gO.GetComponent<ObjectWithFixedGeometry>();
             fixedGeometry.Init(mesh, defaultLayerName, outlineLayerName, outlineTransparentLayerName, id,
                 owner?.Color ?? Color.black);
+
+            if (type is GeometryType.ActionWait or GeometryType.ActionLoad or GeometryType.ActionUnload)
+            {
+                fixedGeometry.SetMaterial(actionMaterial);
+            }
+
             return fixedGeometry;
         }
 
@@ -184,7 +213,7 @@ namespace Map.GeometryGeneration
         public Mesh GetBuoyMesh() => buoyMesh;
 
         public Material GetEdgeMaterial() => defaultEdgeMaterial;
-        
+
         public Material GetFixedGeometryMaterial() => defaultFixedGeometryMaterial;
 
         public Material GetPreviewMaterial() => previewMaterial;
