@@ -2,11 +2,26 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Map.Fleet;
 using Map.Hoverables;
+using System;
+using Map.Infrastructure;
+using System.Collections.Generic;
 
 namespace UI
 {
     public class TruckPin : Pin
     {
+
+        [Serializable]
+        public struct GoodImagePair
+        {
+            public Good GoodType;
+            public Sprite ImageAsset;
+        }
+
+        [SerializeField]
+        private List<GoodImagePair> goodsConfiguration = new List<GoodImagePair>();
+
+        public Dictionary<Good, Sprite> goodsImages = new Dictionary<Good, Sprite>();
 
         private VehicleRenderer vehicleRenderer;
 
@@ -14,7 +29,19 @@ namespace UI
         private VisualElement icon, good, time;
 
         protected override float pinHeightPercent => 8f;
-        protected override float pinAspectRatio => 0.4f;
+        protected override float pinAspectRatio => 0.6666666f;
+
+        protected override void Start()
+        {
+            base.Start();
+            foreach (var pair in goodsConfiguration)
+            {
+                if (!goodsImages.ContainsKey(pair.GoodType))
+                {
+                    goodsImages.Add(pair.GoodType, pair.ImageAsset);
+                }
+            }
+        }
 
         public void OnEnable()
         {
@@ -24,7 +51,7 @@ namespace UI
         private void Update()
         {
             var loadedgood = (vehicleRenderer.Vehicle as Truck).Good;
-            good.style.backgroundImage = loadedgood != Map.Infrastructure.Good.None ? new StyleBackground(IngameUI.Instance.goodsImages[loadedgood]) : null;
+            good.style.backgroundImage = loadedgood != Map.Infrastructure.Good.None ? new StyleBackground(goodsImages[loadedgood]) : null;
             if (IsHovered && Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Vehicles))
             {
                 Map.Map.Instance.CurrentlyHovered = vehicleRenderer.Vehicle;

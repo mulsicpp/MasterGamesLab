@@ -42,7 +42,7 @@ namespace UI
                     break;
                 case VehicleAction.ActionType.LoadTruck:
                 case VehicleAction.ActionType.WaitForTruck:
-                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Truck, EntityId, transform, Player.Player.Self);
+                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.ActionWait, EntityId, transform, Player.Player.Self);
                     startTile = vehicle.GetTileLocationAfterAction(actionNode.Previous, out _);
                     targetTile = map.Tiles[action.TargetTileId] as Tile;
 
@@ -51,7 +51,7 @@ namespace UI
                     break;
 
                 case VehicleAction.ActionType.UnloadTruck:
-                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.Truck, EntityId, transform, Player.Player.Self);
+                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.ActionUnload, EntityId, transform, Player.Player.Self);
                     startTile = map.Tiles[action.TargetTileId] as Tile;
 
                     transform.localPosition = startTile.PositionOnSphere * 1.05f;

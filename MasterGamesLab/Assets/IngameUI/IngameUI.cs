@@ -44,18 +44,6 @@ namespace UI
 
         public Dictionary<VehicleAction, Sprite> vehicleActionImages = new Dictionary<VehicleAction, Sprite>();
 
-        [Serializable]
-        public struct GoodImagePair
-        {
-            public Good GoodType;
-            public Sprite ImageAsset;
-        }
-
-        [SerializeField]
-        private List<GoodImagePair> goodsConfiguration = new List<GoodImagePair>();
-
-        public Dictionary<Good, Sprite> goodsImages = new Dictionary<Good, Sprite>();
-
         public static IngameUI Instance { get; private set; }
         public override MenuId Id => MenuId.Ingame;
         public bool IsHovered = false;
@@ -118,14 +106,6 @@ namespace UI
         }
         private void Start()
         {
-            foreach (var pair in goodsConfiguration)
-            {
-                if (!goodsImages.ContainsKey(pair.GoodType))
-                {
-                    goodsImages.Add(pair.GoodType, pair.ImageAsset);
-                }
-            }
-
             foreach (var pair in vehicleActionConfiguration)
             {
                 if (!vehicleActionImages.ContainsKey(pair.VehicleActionType))

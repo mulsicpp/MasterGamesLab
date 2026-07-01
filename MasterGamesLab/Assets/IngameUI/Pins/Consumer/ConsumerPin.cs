@@ -9,14 +9,26 @@ namespace UI
 {
     public class ConsumerPin : Pin
     {
-       
+
+        [Serializable]
+        public struct GoodImagePair
+        {
+            public Good GoodType;
+            public Sprite ImageAsset;
+        }
+
+        [SerializeField]
+        private List<GoodImagePair> goodsConfiguration = new List<GoodImagePair>();
+
+        public Dictionary<Good, Sprite> goodsImages = new Dictionary<Good, Sprite>();
+
 
         private StructureRenderer structureRenderer;
         private Label payout;
         private VisualElement goodIcon;
 
         protected override float pinHeightPercent => 6f;
-        protected override float pinAspectRatio => 0.55f;
+        protected override float pinAspectRatio => 1f;
 
         public void OnEnable()
         {
@@ -25,8 +37,14 @@ namespace UI
 
         protected override void Start()
         {
-
             base.Start();
+            foreach (var pair in goodsConfiguration)
+            {
+                if (!goodsImages.ContainsKey(pair.GoodType))
+                {
+                    goodsImages.Add(pair.GoodType, pair.ImageAsset);
+                }
+            }
         }
 
         public void Update()
@@ -45,7 +63,7 @@ namespace UI
                 payout.text = consumer.Request.Payout.ToString();
                 var requestedGood = consumer.Request.Good;
 
-                if (requestedGood != Good.None && IngameUI.Instance.goodsImages.TryGetValue(requestedGood, out Sprite img))
+                if (requestedGood != Good.None && goodsImages.TryGetValue(requestedGood, out Sprite img))
                 {
                     SetShowing(true);
                     goodIcon.style.backgroundImage = new StyleBackground(img);
@@ -77,7 +95,7 @@ namespace UI
             if (structureRenderer?.Structure is Consumer consumer)
             {
                 var requestedGood = consumer.Request.Good;
-                if (requestedGood != Good.None && IngameUI.Instance.goodsImages.TryGetValue(requestedGood, out Sprite img))
+                if (requestedGood != Good.None && goodsImages.TryGetValue(requestedGood, out Sprite img))
                 {
                     goodIcon.style.backgroundImage = new StyleBackground(img);
                 }
