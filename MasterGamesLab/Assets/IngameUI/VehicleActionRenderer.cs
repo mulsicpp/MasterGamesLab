@@ -6,6 +6,7 @@ using Map.GeometryGeneration.Edges;
 using Map.Hoverables;
 using System.Collections.Generic;
 using UnityEngine;
+using static Map.Fleet.Vehicle;
 
 namespace UI
 {
@@ -29,7 +30,14 @@ namespace UI
             switch (action.Type)
             {
                 case VehicleAction.ActionType.DriveRoute:
-                    RouteGeometry = EdgeGeometryFactory.GenerateRoute(action.RouteIds, Route.RouteType.Queued, ActionIndex);
+
+                    ParametricCurve.CurveData curveData = vehicle.Type switch
+                    {
+                        VehicleType.Freighter => ParametricCurve.CurveData.DefaultWaterCurve,
+                        _ => ParametricCurve.CurveData.DefaultRoadCurve,
+                    };
+
+                    RouteGeometry = EdgeGeometryFactory.GenerateRoute(action.RouteIds, Route.RouteType.Queued, ActionIndex, curveData);
                     RouteGeometry.transform.parent = transform;
                     break;
                 case VehicleAction.ActionType.LoadTruck:
