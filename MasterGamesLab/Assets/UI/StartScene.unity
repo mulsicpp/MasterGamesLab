@@ -328,6 +328,10 @@ PrefabInstance:
       value: 2.6
       objectReference: {fileID: 0}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: VehicleActionPrefab
+      value: 
+      objectReference: {fileID: 6751543133198729253, guid: b7c050eb09e91e64da2cfdfabd14ac22, type: 3}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: projectionBaseSpeed
       value: 1
       objectReference: {fileID: 0}

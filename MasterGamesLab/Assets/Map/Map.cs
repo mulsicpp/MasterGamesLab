@@ -88,6 +88,7 @@ namespace Map
         public GameObject PortPrefab;
 
         public GameObject RoutePrefab;
+        public GameObject VehicleActionPrefab;
 
 #pragma warning disable CS0414
         [SerializeField] private float fullSphereDistance = 2;
