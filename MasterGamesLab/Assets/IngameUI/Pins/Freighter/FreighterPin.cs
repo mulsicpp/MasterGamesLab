@@ -2,12 +2,26 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Map.Fleet;
 using Map.Hoverables;
+using Map.Infrastructure;
+using System;
+using System.Collections.Generic;
 
 namespace UI
 {
     public class FreighterPin : Pin
     {
 
+        [Serializable]
+        public struct GoodImagePair
+        {
+            public Good GoodType;
+            public Sprite ImageAsset;
+        }
+
+        [SerializeField]
+        private List<GoodImagePair> goodsConfiguration = new List<GoodImagePair>();
+
+        public Dictionary<Good, Sprite> goodsImages = new Dictionary<Good, Sprite>();
         private VehicleRenderer vehicleRenderer;
 
         private Label timeLabel;
@@ -19,6 +33,19 @@ namespace UI
         public void OnEnable()
         {
             vehicleRenderer = GetComponentInParent<VehicleRenderer>();
+        }
+
+        protected override void Start()
+        {
+            var hoverable = UiElement.Q<VisualElement>("Pickable");
+            base.Start();
+            foreach (var pair in goodsConfiguration)
+            {
+                if (!goodsImages.ContainsKey(pair.GoodType))
+                {
+                    goodsImages.Add(pair.GoodType, pair.ImageAsset);
+                }
+            }
         }
 
         private void Update()

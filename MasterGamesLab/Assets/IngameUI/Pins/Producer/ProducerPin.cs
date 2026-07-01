@@ -35,6 +35,7 @@ namespace UI
 
         protected override void Start()
         {
+            hoverable = UiElement.Q<VisualElement>("Icon");
             base.Start();
             foreach (var pair in producerGoodsConfiguration)
             {

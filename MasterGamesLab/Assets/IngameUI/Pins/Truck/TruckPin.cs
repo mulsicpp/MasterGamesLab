@@ -5,6 +5,7 @@ using Map.Hoverables;
 using System;
 using Map.Infrastructure;
 using System.Collections.Generic;
+using GLTFast.Schema;
 
 namespace UI
 {
@@ -33,6 +34,7 @@ namespace UI
 
         protected override void Start()
         {
+            hoverable = UiElement.Q<VisualElement>("Pickable");
             base.Start();
             foreach (var pair in goodsConfiguration)
             {
