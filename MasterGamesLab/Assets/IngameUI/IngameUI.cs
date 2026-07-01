@@ -595,7 +595,7 @@ namespace UI
             var current = VehicleControls.SelectedVehicle;
             Vehicle nextVehicle = null;
 
-            Func<Vehicle, bool> condition = v => v.Exists && v.Owner.IsSelf && (v as Truck)?.Freighter == null;
+            Func<Vehicle, bool> condition = v => v.Exists && v.Owner.IsSelf;
 
             if (current != null)
             {
@@ -615,8 +615,8 @@ namespace UI
             if (type == Vehicle.VehicleType.Truck)
             {
                 v = Map.Map.Instance.Fleet.Trucks[Player.Player.SelfId * Constants.MAX_TRUCKS_PER_PLAYER + slotIndex];
-                if ((v as Truck).Freighter != null)
-                    v = (v as Truck).Freighter;
+                // if ((v as Truck).Freighter != null)
+                //     v = (v as Truck).Freighter;
             }
             else
                 v = Map.Map.Instance.Fleet.Freighters[Player.Player.SelfId * Constants.MAX_FREIGHTERS_PER_PLAYER + slotIndex];
@@ -626,10 +626,7 @@ namespace UI
             {
                 VehicleControls.SelectedVehicle = v;
 
-                if (v.Transform != null)
-                {
-                    mainCamera.FocusedObject = v.Renderer.transform;
-                }
+                mainCamera.FocusedObject = v.Renderer.transform;
             }
         }
 
