@@ -6,6 +6,7 @@ using Networking;
 using UnityEngine;
 using System.Linq;
 using System;
+using System.Collections.Generic;
 
 namespace Map.Fleet
 {
@@ -206,5 +207,7 @@ namespace Map.Fleet
             
             return Freighter?.CanUnloadTruck(player, tile, out cost) ?? false;
         }
+
+        public override bool DriveDestinationCondition(Tile destination) => destination.Structure != null;
     }
 }

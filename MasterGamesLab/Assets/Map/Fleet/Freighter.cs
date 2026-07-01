@@ -7,6 +7,7 @@ using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using System.Linq;
 using System;
+using System.Collections.Generic;
 
 namespace Map.Fleet
 {
@@ -127,5 +128,7 @@ namespace Map.Fleet
 
             return true;
         }
+
+        public override bool DriveDestinationCondition(Tile destination) => destination.Neighbors.FirstOrDefault(t => t.Structure?.Type == Structure.StructureType.Port) != null;
     }
 }
