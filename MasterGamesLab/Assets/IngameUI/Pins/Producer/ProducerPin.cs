@@ -44,6 +44,7 @@ namespace UI
                     producerGoodsImages.Add(pair.GoodType, pair.ImageAsset);
                 }
             }
+            UiElement.SendToBack();
         }
 
         public void Update()

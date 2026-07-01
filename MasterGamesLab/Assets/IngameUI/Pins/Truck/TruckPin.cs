@@ -43,6 +43,7 @@ namespace UI
                     goodsImages.Add(pair.GoodType, pair.ImageAsset);
                 }
             }
+            hoverable.BringToFront();
         }
 
         public void OnEnable()

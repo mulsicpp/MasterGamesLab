@@ -46,6 +46,7 @@ namespace UI
                     goodsImages.Add(pair.GoodType, pair.ImageAsset);
                 }
             }
+            UiElement.SendToBack();
         }
 
         public void Update()
