@@ -175,7 +175,7 @@ namespace UI
 
             public HoveredWaitForTruck(VehicleControls controls, Tile start, Tile destination) : base(controls)
             {
-                if (controls.SelectedVehicle is not Freighter) return;
+                if (controls.SelectedVehicle is not Freighter f || (f.ActionQueue.Last != null && f.ActionQueue.Last.Value.Type == VehicleAction.ActionType.WaitForTruck)) return;
 
                 if (start == null || destination == null) return;
 
