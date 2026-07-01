@@ -1,0 +1,12 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
+    <ui:VisualElement name="Root" class="unity-ui-document__root element">
+        <ui:VisualElement name="Time" class="element" style="flex-grow: 0; width: 100%; aspect-ratio: 2; flex-shrink: 0; flex-direction: row; align-items: center; justify-content: center;">
+            <ResponsiveLabel name="TimeLabel" text="1:23" height-percentage="1" class="element label" style="height: 100%; width: auto; -unity-font-style: normal; -unity-text-align: middle-right;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="VisualElement" class="element" style="position: relative; height: auto; width: 100%; aspect-ratio: 1; background-image: url(&quot;project://database/Assets/IngameUI/Pins/Truck/truck%20pins/tp.png?fileID=21300000&amp;guid=d258b4b1c3128c74cb4f9bcc87704c8e&amp;type=3#tp&quot;); flex-shrink: 0;">
+            <ui:VisualElement name="Recource" class="element" style="width: 100%; height: 100%; background-image: url(&quot;project://database/Assets/IngameUI/Pins/Truck/truck%20pins/t1.png?fileID=21300000&amp;guid=8c675b56c4818b043bcaaf627719a479&amp;type=3#t1&quot;); display: flex; visibility: visible; position: absolute;"/>
+            <ui:VisualElement name="Icon" class="element" style="flex-grow: 0; width: 100%; height: 100%; background-image: url(&quot;project://database/Assets/IngameUI/Pins/Truck/truck%20pins/tu.png?fileID=21300000&amp;guid=08150f2d4bb453449bb0353e4567c54b&amp;type=3#tu&quot;); -unity-background-image-tint-color: rgb(255, 255, 255); -unity-background-scale-mode: scale-to-fit; position: absolute;"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
