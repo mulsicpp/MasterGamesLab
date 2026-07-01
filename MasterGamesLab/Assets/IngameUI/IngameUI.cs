@@ -91,6 +91,8 @@ namespace UI
 
         protected PlanetCameraController mainCamera;
 
+        private IHoverable currentHoveredInUI = null;
+
 
         private IControls[] controls;
 
@@ -274,7 +276,7 @@ namespace UI
             compass.ArrowAngle = (630f - signedAngle) % 360f;
             if (IsHovered)
             {
-                Map.Map.Instance.CurrentlyHovered = null;
+                Map.Map.Instance.CurrentlyHovered = currentHoveredInUI;
                 HoverablePicker.Instance.DenyPick = true;
             }
 
@@ -310,10 +312,10 @@ namespace UI
             clone.Q<VisualElement>("Icon").style.backgroundImage = new StyleBackground(vehicleActionImages[action]);
 
             clone.AddToClassList("actionqueue-template-container");
+            clone.RegisterCallback<MouseEnterEvent>((evt) => { IsHovered = true; currentHoveredInUI = entity; });
+            clone.RegisterCallback<MouseLeaveEvent>((evt) => IsHovered = false);
 
             actionQueueScrollView.Add(clone);
-            actionQueueScrollView.RegisterCallback<MouseEnterEvent>((evt) => Map.Map.Instance.CurrentlyHovered = entity);
-            actionQueueScrollView.RegisterCallback<MouseLeaveEvent>((evt) => Map.Map.Instance.CurrentlyHovered = null);
         }
 
         public void ClearActionQueue()
@@ -328,6 +330,8 @@ namespace UI
         }
         public void setActionQueueVisible(bool visible)
         {
+            if (!visible) mainCamera.supressZoom = false;
+
             Visibility style = visible ? Visibility.Visible : Visibility.Hidden;
             actionQueue.style.visibility = style;
         }
@@ -571,7 +575,7 @@ namespace UI
             var current = VehicleControls.SelectedVehicle;
             Vehicle nextVehicle = null;
 
-            Func<Vehicle, bool> condition = v => v.Exists && v.Owner.IsSelf && (v as Truck)?.Freighter == null;
+            Func<Vehicle, bool> condition = v => v.Exists && v.Owner.IsSelf;
 
             if (current != null)
             {
@@ -591,8 +595,8 @@ namespace UI
             if (type == Vehicle.VehicleType.Truck)
             {
                 v = Map.Map.Instance.Fleet.Trucks[Player.Player.SelfId * Constants.MAX_TRUCKS_PER_PLAYER + slotIndex];
-                if ((v as Truck).Freighter != null)
-                    v = (v as Truck).Freighter;
+                // if ((v as Truck).Freighter != null)
+                //     v = (v as Truck).Freighter;
             }
             else
                 v = Map.Map.Instance.Fleet.Freighters[Player.Player.SelfId * Constants.MAX_FREIGHTERS_PER_PLAYER + slotIndex];
@@ -602,10 +606,7 @@ namespace UI
             {
                 VehicleControls.SelectedVehicle = v;
 
-                if (v.Transform != null)
-                {
-                    mainCamera.FocusedObject = v.Renderer.transform;
-                }
+                mainCamera.FocusedObject = v.Renderer.transform;
             }
         }
 
@@ -688,8 +689,7 @@ namespace UI
         private void OnMouseEnterElement(MouseEnterEvent evt)
         {
             IsHovered = true;
-            Map.Map.Instance.CurrentlyHovered = null;
-            HoverablePicker.Instance.DenyPick = true;
+            currentHoveredInUI = null;
         }
 
         private void OnMouseLeaveElement(MouseLeaveEvent evt)
