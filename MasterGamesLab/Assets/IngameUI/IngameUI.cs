@@ -103,7 +103,7 @@ namespace UI
 
         protected PlanetCameraController mainCamera;
 
-        private IHoverable currentActionHoveredInUI = null;
+        private IHoverable currentHoveredInUI = null;
 
 
         private IControls[] controls;
@@ -296,11 +296,7 @@ namespace UI
             compass.ArrowAngle = (630f - signedAngle) % 360f;
             if (IsHovered)
             {
-                Map.Map.Instance.CurrentlyHovered = null;
-                HoverablePicker.Instance.DenyPick = true;
-            } else if (currentActionHoveredInUI != null)
-            {
-                Map.Map.Instance.CurrentlyHovered = currentActionHoveredInUI;
+                Map.Map.Instance.CurrentlyHovered = currentHoveredInUI;
                 HoverablePicker.Instance.DenyPick = true;
             }
 
@@ -336,8 +332,8 @@ namespace UI
             clone.Q<VisualElement>("Icon").style.backgroundImage = new StyleBackground(vehicleActionImages[action]);
 
             clone.AddToClassList("actionqueue-template-container");
-            clone.RegisterCallback<MouseEnterEvent>((evt) => currentActionHoveredInUI = entity);
-            clone.RegisterCallback<MouseLeaveEvent>((evt) => currentActionHoveredInUI = null);
+            clone.RegisterCallback<MouseEnterEvent>((evt) => { IsHovered = true; currentHoveredInUI = entity; });
+            clone.RegisterCallback<MouseLeaveEvent>((evt) => IsHovered = false);
 
             actionQueueScrollView.Add(clone);
         }
@@ -354,6 +350,8 @@ namespace UI
         }
         public void setActionQueueVisible(bool visible)
         {
+            if (!visible) mainCamera.supressZoom = false;
+
             Visibility style = visible ? Visibility.Visible : Visibility.Hidden;
             actionQueue.style.visibility = style;
         }
@@ -714,8 +712,7 @@ namespace UI
         private void OnMouseEnterElement(MouseEnterEvent evt)
         {
             IsHovered = true;
-            Map.Map.Instance.CurrentlyHovered = null;
-            HoverablePicker.Instance.DenyPick = true;
+            currentHoveredInUI = null;
         }
 
         private void OnMouseLeaveElement(MouseLeaveEvent evt)
