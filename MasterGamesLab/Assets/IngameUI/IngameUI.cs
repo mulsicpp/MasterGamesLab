@@ -68,7 +68,7 @@ namespace UI
         public const HoverablePicker.HoverableLayer DEFAULT_HOVERABLE_LAYERS = HoverablePicker.HoverableLayer.All;
 
         // --- Sorting Enums & Variables ---
-        private enum SortColumn { Name, MarketCap, Cash, Trucks, Freighters, Roads, Canals, Ports }
+        public enum SortColumn { Name, MarketCap, Cash, Trucks, Freighters, Roads, Canals, Ports }
         private SortColumn currentSortColumn = SortColumn.Name;
 
         // --- Dependencies & Coroutines ---
@@ -351,9 +351,6 @@ namespace UI
             Visibility style = visible ? Visibility.Visible : Visibility.Hidden;
             actionQueue.style.visibility = style;
         }
-        #endregion
-
-        #region Tab Menu Sorting Logic
 
         private void BlockScrollPhysics(PointerDownEvent evt)
         {
@@ -364,6 +361,9 @@ namespace UI
         {
             evt.StopImmediatePropagation();
         }
+        #endregion
+
+        #region Tab Menu Sorting Logic
         private void HighliteHoveredColumn(SortColumn column)
         {
             ClearHoveredColumns();
@@ -586,7 +586,7 @@ namespace UI
         public void OnHidePressed()
         {
             ConstructionControls.ToggleHide();
-            Map.Map.Instance.Blueprint.ToggleHide(ConstructionControls.Type != ConstructionControls.ConstructionType.Hidden );
+            Map.Map.Instance.Blueprint.ToggleHide(ConstructionControls.Type != ConstructionControls.ConstructionType.Hidden);
         }
         public void OnCompassPressed() => mainCamera.TurnNorth();
 
