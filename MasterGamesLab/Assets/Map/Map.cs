@@ -5,6 +5,7 @@ using Map.GeometryGeneration;
 using Map.Hoverables;
 using Map.Infrastructure;
 using Networking;
+using Player;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -683,7 +684,15 @@ namespace Map
         [ClientRpc(Delivery = RpcDelivery.Reliable)]
         public void GameFinishedClientRpc(ClientRpcParams rpcParams = default)
         {
+            PlayerStats[] finalStats = Instance.GetPlayerStats();
+            bool hasWon = finalStats[Player.Player.SelfId].MarketCap >= Constants.WINNING_MARKET_CAP;
+
             NetworkManager.Shutdown(false);
+
+            var gameFinishedMenu = UIManager.Instance.gameFinishedsUI;
+            gameFinishedMenu.SetFinalStats(finalStats, hasWon);
+
+
             UIManager.Instance.CurrentMenu = UI.Menu.MenuId.GameFinished;
         }
 

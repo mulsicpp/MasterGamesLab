@@ -319,7 +319,7 @@
 
 .host-crown {
     height: 100%;
-    background-image: url("project://database/Assets/Icons/IMG_5649.PNG?fileID=1104398058&guid=bc62e803e93cba84fb575892f8b0cd9e&type=3#IMG_5649_0");
+    background-image: url("project://database/Assets/Icons/Crown.PNG?fileID=2800000&guid=83513da86da421840a56de8df71109f1&type=3#Crown");
     -unity-background-image-tint-color: rgb(255, 255, 255);
     margin-right: 2%;
     -unity-background-scale-mode: scale-to-fit;

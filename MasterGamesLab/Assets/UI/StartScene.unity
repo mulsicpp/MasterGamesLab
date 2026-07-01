@@ -497,6 +497,7 @@ MonoBehaviour:
   PlayerName: 
   joinUI: {fileID: 1118779277}
   lobbyUI: {fileID: 1877013772}
+  gameFinishedsUI: {fileID: 986386888}
   suppressReconnect: 0
 --- !u!4 &747665313
 Transform:
