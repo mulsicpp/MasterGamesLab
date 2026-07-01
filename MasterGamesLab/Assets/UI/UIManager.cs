@@ -36,6 +36,8 @@ public class UIManager : MonoBehaviour
     private UI.JoinUI joinUI;
     [SerializeField]
     private UI.LobbyUI lobbyUI;
+    [SerializeField]
+    public UI.GameFinishedUI gameFinishedsUI;
 
     private UI.Menu[] menus;
 
@@ -333,7 +335,7 @@ public class UIManager : MonoBehaviour
         var updateTask = LobbyService.Instance.UpdateLobbyAsync(Lobby.Id, options);
         yield return new WaitUntil(() => updateTask.IsCompleted);
 
-        if(NetworkManager.Singleton.IsListening)
+        if (NetworkManager.Singleton.IsListening)
             Map.Map.Instance.GameFinishedClientRpc();
         yield break;
     }
@@ -435,7 +437,7 @@ public class UIManager : MonoBehaviour
 
             changes.ApplyToLobby(Lobby);
 
-            if(lobbyWasLocked && !IsHost())
+            if (lobbyWasLocked && !IsHost())
             {
                 int mapSeed = int.Parse(Lobby.Data?["MapSeed"]?.Value ?? "0");
                 Map.Map.Instance.Generate(mapSeed);
