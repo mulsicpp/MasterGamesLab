@@ -4,13 +4,11 @@ using UnityEngine.UIElements;
 using System.Collections.Generic;
 using Map.Infrastructure;
 using Map.Hoverables;
-using System.Linq;
 
 namespace UI
 {
     public class ProducerPin : Pin
     {
-
         [Serializable]
         private struct ProducerGoodImagePair
         {
@@ -29,15 +27,21 @@ namespace UI
         protected override float pinHeightPercent => 6f;
         protected override float pinAspectRatio => 1f;
 
-        public void OnEnable()
+        // MANAGER HOOKS: Identify this as a fixed building anchored to a specific tile
+        public override object CurrentTile => (structureRenderer?.Structure is Producer producer) ? producer.Tile : null;
+        public override bool IsStructure => true;
+
+        protected override void OnEnable()
         {
             structureRenderer = GetComponentInParent<StructureRenderer>();
+            base.OnEnable(); // Registers to the central layout pool
         }
 
         protected override void Start()
         {
             hoverable = UiElement.Q<VisualElement>("Icon");
             base.Start();
+            
             foreach (var pair in producerGoodsConfiguration)
             {
                 if (!producerGoodsImages.ContainsKey(pair.GoodType))
@@ -50,17 +54,14 @@ namespace UI
 
         public void Update()
         {
+            if (structureRenderer?.Structure == null) return;
+
             if (IsHovered && Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Tiles))
             {
                 Map.Map.Instance.CurrentlyHovered = structureRenderer.Structure.Tile;
                 HoverablePicker.Instance.DenyPick = true;
             }
         }
-
-        private Vector2 _currentLayoutOffset = Vector2.zero;
-
-
-        [SerializeField] private float verticalLiftPercentage = 0.5f;
 
         protected override void LateUpdate()
         {
@@ -79,37 +80,15 @@ namespace UI
                     SetShowing(false);
                     return;
                 }
-
-                var myTile = producer.Tile;
-
-                bool hasTruck = false;
-                var trucks = Map.Map.Instance.Fleet.Trucks;
-                for (int i = 0; i < trucks.Count; i++)
-                {
-                    if (trucks[i].ParkedTile == myTile)
-                    {
-                        hasTruck = true;
-                        break;
-                    }
-                }
-
-                if (hasTruck)
-                {
-                    float liftPixels = UiElement.layout.height * verticalLiftPercentage;
-                    _currentLayoutOffset = new Vector2(0f, -liftPixels);
-                }
-                else
-                {
-                    _currentLayoutOffset = Vector2.zero;
-                }
+            }
+            else
+            {
+                SetShowing(false);
+                return;
             }
 
+            // Stacking lift calculations are now fully handled by the central PinboardUi pass!
             base.LateUpdate();
-        }
-
-        protected override Vector2 GetCustomOffset()
-        {
-            return _currentLayoutOffset;
         }
 
         protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)

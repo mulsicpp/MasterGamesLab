@@ -272,7 +272,7 @@ namespace UI
             mousePos.y = Screen.height - mousePos.y;
             Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(root.panel, mousePos);
             VisualElement visualElement = root.panel.Pick(panelPos);
-            Debug.Log(visualElement);
+            //Debug.Log(visualElement);
 
 
             float signedAngle = Vector2.SignedAngle(Vector2.up, mainCamera.LocalNorth);

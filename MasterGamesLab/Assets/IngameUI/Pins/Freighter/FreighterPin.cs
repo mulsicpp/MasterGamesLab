@@ -10,7 +10,6 @@ namespace UI
 {
     public class FreighterPin : Pin
     {
-
         [Serializable]
         public struct GoodImagePair
         {
@@ -18,27 +17,34 @@ namespace UI
             public Sprite ImageAsset;
         }
 
-        [SerializeField]
-        private List<GoodImagePair> goodsConfiguration = new List<GoodImagePair>();
-
+        [SerializeField] private List<GoodImagePair> goodsConfiguration = new List<GoodImagePair>();
         public Dictionary<Good, Sprite> goodsImages = new Dictionary<Good, Sprite>();
-        private VehicleRenderer vehicleRenderer;
 
+        private VehicleRenderer vehicleRenderer;
         private Label timeLabel;
         private VisualElement icon, time;
 
         protected override float pinHeightPercent => 8f;
-        protected override float pinAspectRatio => 0.4f;
+        protected override float pinAspectRatio => 0.6666666f;
 
-        public void OnEnable()
+        // MANAGER HOOKS: Let PinboardUi read the entity configuration natively
+        public override object CurrentTile => vehicleRenderer?.Vehicle?.IsParked == true ? vehicleRenderer.Vehicle.ParkedTile : null;
+        public override bool IsStructure => false;
+
+        // Expose linked truck's UI pin directly to the central layout calculator
+        public Pin LinkedTruckPin => (vehicleRenderer?.Vehicle as Freighter)?.Truck?.Renderer is TruckRenderer tr ? tr.Pin : null;
+
+        protected override void OnEnable()
         {
             vehicleRenderer = GetComponentInParent<VehicleRenderer>();
+            base.OnEnable();
         }
 
         protected override void Start()
         {
             var hoverable = UiElement.Q<VisualElement>("Pickable");
             base.Start();
+
             foreach (var pair in goodsConfiguration)
             {
                 if (!goodsImages.ContainsKey(pair.GoodType))
@@ -51,29 +57,29 @@ namespace UI
 
         private void Update()
         {
+            if (vehicleRenderer?.Vehicle == null) return;
+
             if (IsHovered && Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Vehicles))
             {
                 Map.Map.Instance.CurrentlyHovered = vehicleRenderer.Vehicle;
                 HoverablePicker.Instance.DenyPick = true;
             }
-            if (vehicleRenderer.Vehicle.IsParked)
-            {
-                time.style.visibility = Visibility.Hidden;
-            }
-            else
-            {
-                time.style.visibility = Visibility.Visible;
-            }
+
+            time.style.visibility = vehicleRenderer.Vehicle.IsParked ? Visibility.Hidden : Visibility.Visible;
         }
 
         protected override void LateUpdate()
         {
-            if (!vehicleRenderer.Vehicle.Exists || vehicleRenderer.Vehicle.Transform == null)
+            Freighter vehicle = vehicleRenderer.Vehicle as Freighter;
+            if (vehicle == null || !vehicle.Exists || vehicle.Transform == null)
             {
                 SetShowing(false);
                 return;
             }
-            timeLabel.text = vehicleRenderer.Vehicle.RemainingDriveTime is float t ? ((int)Mathf.Ceil(t)).ToString() + "s" : "";
+
+            SetShowing(true);
+            timeLabel.text = vehicle.RemainingDriveTime is float t ? ((int)Mathf.Ceil(t)).ToString() + "s" : "";
+
             base.LateUpdate();
         }
 
@@ -81,7 +87,7 @@ namespace UI
         {
             Vector3 rawPosition = gameObject.transform.position;
             Vector3 projectedPosition = Map.Map.Instance.GetProjectedPosition(rawPosition);
-            upVector = Map.Map.Instance.GetProjectedVehicleTransform(vehicleRenderer.Vehicle.Transform).Up;
+            upVector = (Map.Map.Instance.GetProjectedPosition(rawPosition * 1.01f) - projectedPosition).normalized;
             return projectedPosition;
         }
 
@@ -92,12 +98,5 @@ namespace UI
             timeLabel = UiElement.Q<Label>("TimeLabel");
             icon.style.unityBackgroundImageTintColor = vehicleRenderer.Vehicle.Owner.Color;
         }
-
-        // override protected void OnMouseEnterElement(MouseEnterEvent evt)
-        // {
-        //     if (!Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Vehicles)) return;
-        //     Map.Map.Instance.isOverUI = true;
-        //     Map.Map.Instance.CurrentlyHovered = vehicleRenderer.Vehicle;
-        // }
     }
 }
