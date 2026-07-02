@@ -10,6 +10,8 @@ using Map.Hoverables;
 using Map.Infrastructure;
 using Player;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 namespace UI
@@ -266,6 +268,13 @@ namespace UI
 
         private void Update()
         {
+            Vector2 mousePos = Mouse.current.position.ReadValue();
+            mousePos.y = Screen.height - mousePos.y;
+            Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(root.panel, mousePos);
+            VisualElement visualElement = root.panel.Pick(panelPos);
+            Debug.Log(visualElement);
+
+
             float signedAngle = Vector2.SignedAngle(Vector2.up, mainCamera.LocalNorth);
 
             if (signedAngle < 0)
