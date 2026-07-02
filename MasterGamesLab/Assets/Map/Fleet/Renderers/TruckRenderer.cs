@@ -16,7 +16,7 @@ namespace Map.Fleet
 
         protected override void InitVehicle(Vehicle vehicle)
         {
-            Pin = gameObject.GetComponent<TruckPin>();
+            Pin = gameObject.GetComponentInChildren<TruckPin>();
 
             base.InitVehicle(vehicle);
             currentGoodMesh = Good.None;

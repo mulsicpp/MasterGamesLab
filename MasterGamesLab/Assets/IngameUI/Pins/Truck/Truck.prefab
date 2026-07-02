@@ -97,15 +97,16 @@ MonoBehaviour:
   PinTemplate: {fileID: 9197481963319205126, guid: 9a1ddb4d40110f84797b46dc87907635, type: 3}
   goodsConfiguration:
   - GoodType: 1
-    ImageAsset: {fileID: 21300000, guid: 8c675b56c4818b043bcaaf627719a479, type: 3}
+    ImageAsset: {fileID: 21300000, guid: f5e1cdef8ff914d4b883749afc5637f0, type: 3}
   - GoodType: 2
-    ImageAsset: {fileID: 21300000, guid: d5f683d8dbba4a84394507198525ba93, type: 3}
+    ImageAsset: {fileID: 21300000, guid: c92cd5c3700783b4a9053a66613bd7ab, type: 3}
   - GoodType: 3
-    ImageAsset: {fileID: 21300000, guid: 206ec33c9f2b8f142b0d4244e9f9803f, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 356336df8ddffe14f82abec8c64be0be, type: 3}
   - GoodType: 4
-    ImageAsset: {fileID: 21300000, guid: 81b498f1928d6644b8c1f0d465d306b9, type: 3}
+    ImageAsset: {fileID: 21300000, guid: ea9d7e7b9ac962d4aa079e68c0b4c4e0, type: 3}
   - GoodType: 5
-    ImageAsset: {fileID: 21300000, guid: 2d994e4844712884bb58d98017942c2b, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 9ca6bc748483c3745a716d0ed3e6900e, type: 3}
+  vehicleRenderer: {fileID: 0}
 --- !u!1 &6933318389239052457
 GameObject:
   m_ObjectHideFlags: 0
