@@ -8,20 +8,11 @@ namespace UI
     {
         public enum PinDirection
         {
-            Center,
-            Bottom,
-            Top,
-            Left,
-            Right,
-            BottomLeft,
-            BottomRight,
-            TopLeft,
-            TopRight
+            Center, Bottom, Top, Left, Right, BottomLeft, BottomRight, TopLeft, TopRight
         }
 
         [SerializeField] private float panelOffset = 10f;
         [SerializeField] private float invisibleThreshold = -0.1f;
-
         [SerializeField] protected PinDirection pivotDirection = PinDirection.Bottom;
 
         protected abstract float pinHeightPercent { get; }
@@ -32,13 +23,16 @@ namespace UI
         protected PinboardUi pinboard;
 
         public VisualElement UiElement { get; private set; }
-
         protected VisualElement hoverable;
-        private Vector2 lastAppliedPosition = new Vector2(-9999f, -9999f);
-
         public bool IsHovered { get; private set; }
 
         [SerializeField] protected VisualTreeAsset PinTemplate;
+        
+        public float UnscaledWidth { get; private set; }
+        public float UnscaledHeight { get; private set; }
+
+        private Vector2 _managedOffset = Vector2.zero;
+        private bool _isShowing = true;
 
         protected abstract Vector3 GetTargetWorldPosition(out Vector3 upVector);
         protected abstract void InitializeUiComponents();
@@ -47,9 +41,18 @@ namespace UI
         {
             mainCamera = MainCamera.Instance.GetComponentInChildren<Camera>();
             cameraController = MainCamera.Instance.GetComponentInChildren<PlanetCameraController>();
-
             pinboard = FindAnyObjectByType<PinboardUi>();
             UiElement = pinboard.CreatePinElement(PinTemplate, pinHeightPercent, pinAspectRatio);
+        }
+
+        protected virtual void OnEnable()
+        {
+            if (pinboard != null) pinboard.RegisterPin(this);
+        }
+
+        protected virtual void OnDisable()
+        {
+            if (pinboard != null) pinboard.UnregisterPin(this);
         }
 
         protected virtual void Start()
@@ -61,13 +64,31 @@ namespace UI
             }
             ApplyLayoutPivots();
             InitializeUiComponents();
+            CalculateUnscaledDimensions();
         }
+
+        private void CalculateUnscaledDimensions()
+        {
+            float containerHeight = pinboard.root.layout.height;
+            if (float.IsNaN(containerHeight) || containerHeight <= 0) containerHeight = Screen.height;
+
+            UnscaledHeight = containerHeight * (pinHeightPercent / 100f);
+            UnscaledWidth = UnscaledHeight * pinAspectRatio;
+        }
+
+        public void SetManagedOffset(Vector2 offset)
+        {
+            _managedOffset = offset;
+        }
+
+        public bool IsShowing() => _isShowing;
 
         protected virtual void LateUpdate()
         {
+            if (!_isShowing) return;
+
             Vector3 worldPos = GetTargetWorldPosition(out Vector3 upVector);
             Vector3 screenPos = mainCamera.WorldToScreenPoint(worldPos);
-
             bool facingAway = Vector3.Dot((mainCamera.transform.position - worldPos).normalized, upVector) < invisibleThreshold;
 
             if (screenPos.z < 0 || facingAway)
@@ -76,24 +97,16 @@ namespace UI
                 return;
             }
 
-            Vector2 panelPosition = RuntimePanelUtils.CameraTransformWorldToPanel(
-                pinboard.root.panel,
-                worldPos,
-                mainCamera
-            );
-
+            Vector2 panelPosition = RuntimePanelUtils.CameraTransformWorldToPanel(pinboard.root.panel, worldPos, mainCamera);
             float scaleFactor = cameraController.ScalingFactor;
 
             ApplyLayoutPivots();
+            Vector2 pivotOffset = GetPivotOffset();
 
-            Vector2 offset = GetPivotOffset(scaleFactor);
-
-            // CLEAN ADDITION: Grab any extra layout offsets from overriding classes
-            Vector2 customOffset = GetCustomOffset();
-
-            // Combine standard pivot offset with our custom modifier scaled by UI scale
-            float finalXPixels = panelPosition.x + offset.x + (customOffset.x * scaleFactor);
-            float finalYPixels = panelPosition.y + offset.y + (customOffset.y * scaleFactor);
+            // ZOOM BUG FIX: By keeping our layout offsets clean inside the unscaled pixel calculations,
+            // multiplying everything uniformly by scaleFactor guarantees perfectly locked layouts on zoom.
+            float finalXPixels = panelPosition.x + pivotOffset.x + (_managedOffset.x * scaleFactor);
+            float finalYPixels = panelPosition.y + pivotOffset.y + (_managedOffset.y * scaleFactor);
 
             UiElement.style.translate = new StyleTranslate(new Translate(
                 new Length(finalXPixels, LengthUnit.Pixel),
@@ -102,45 +115,21 @@ namespace UI
 
             UiElement.style.scale = new StyleScale(new Scale(new Vector3(scaleFactor, scaleFactor, 1f)));
             UiElement.style.display = DisplayStyle.Flex;
-
-            lastAppliedPosition = panelPosition;
         }
 
-        // Default implementation returns zero. Override this in child classes!
-        protected virtual Vector2 GetCustomOffset()
+        private Vector2 GetPivotOffset()
         {
-            return Vector2.zero;
-        }
-
-        /// <summary>
-        /// Calculates matching layout displacement shifts safely using 
-        /// the raw unscaled pixel sizes of your percentage layouts.
-        /// </summary>
-        private Vector2 GetPivotOffset(float currentScaleFactor)
-        {
-            // 1. Get the real unscaled pixel height of the canvas container
-            float containerHeight = pinboard.root.layout.height;
-            if (float.IsNaN(containerHeight) || containerHeight <= 0)
-                containerHeight = Screen.height;
-
-            // 2. Reconstruct raw dimensions before visual scale is applied
-            float unscaledHeight = containerHeight * (pinHeightPercent / 100f);
-            float unscaledWidth = unscaledHeight * pinAspectRatio;
-
-            // 3. Calculate shifts based on raw dimensions.
-            // Notice how we DO NOT multiply width/height by currentScaleFactor here.
-            // The scale transform handles this automatically relative to the transformOrigin.
             return pivotDirection switch
             {
-                PinDirection.Bottom => new Vector2(-(unscaledWidth * 0.5f), -unscaledHeight - panelOffset),
-                PinDirection.Center => new Vector2(-(unscaledWidth * 0.5f), -(unscaledHeight * 0.5f)),
-                PinDirection.Top => new Vector2(-(unscaledWidth * 0.5f), panelOffset),
-                PinDirection.Left => new Vector2(panelOffset, -(unscaledHeight * 0.5f)),
-                PinDirection.Right => new Vector2(-unscaledWidth - panelOffset, -(unscaledHeight * 0.5f)),
-                PinDirection.BottomLeft => new Vector2(panelOffset, -unscaledHeight - panelOffset),
-                PinDirection.BottomRight => new Vector2(-unscaledWidth - panelOffset, -unscaledHeight - panelOffset),
+                PinDirection.Bottom => new Vector2(-(UnscaledWidth * 0.5f), -UnscaledHeight - panelOffset),
+                PinDirection.Center => new Vector2(-(UnscaledWidth * 0.5f), -(UnscaledHeight * 0.5f)),
+                PinDirection.Top => new Vector2(-(UnscaledWidth * 0.5f), panelOffset),
+                PinDirection.Left => new Vector2(panelOffset, -(UnscaledHeight * 0.5f)),
+                PinDirection.Right => new Vector2(-UnscaledWidth - panelOffset, -(UnscaledHeight * 0.5f)),
+                PinDirection.BottomLeft => new Vector2(panelOffset, -UnscaledHeight - panelOffset),
+                PinDirection.BottomRight => new Vector2(-UnscaledWidth - panelOffset, -UnscaledHeight - panelOffset),
                 PinDirection.TopLeft => new Vector2(panelOffset, panelOffset),
-                PinDirection.TopRight => new Vector2(-unscaledWidth - panelOffset, panelOffset),
+                PinDirection.TopRight => new Vector2(-UnscaledWidth - panelOffset, panelOffset),
                 _ => Vector2.zero
             };
         }
@@ -172,7 +161,17 @@ namespace UI
 
         protected virtual void OnPointerEnterElement(PointerEnterEvent evt) => IsHovered = true;
         protected virtual void OnPointerLeaveElement(PointerLeaveEvent evt) => IsHovered = false;
-        protected virtual void SetShowing(bool active) => UiElement.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
-        protected virtual void OnDestroy() => UiElement?.RemoveFromHierarchy();
+        
+        protected virtual void SetShowing(bool active)
+        {
+            _isShowing = active;
+            UiElement.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        protected virtual void OnDestroy()
+        {
+            if (pinboard != null) pinboard.UnregisterPin(this);
+            UiElement?.RemoveFromHierarchy();
+        }
     }
 }

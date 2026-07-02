@@ -265,7 +265,7 @@ PrefabInstance:
       objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: resolution
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: RoutePrefab
@@ -594,38 +594,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UI.IngameUI
   vehicleActionConfiguration:
   - VehicleActionType: 0
-    ImageAsset: {fileID: -508303762, guid: 1679241bb7d407e4c851cc60a4a66080, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
   - VehicleActionType: 1
-    ImageAsset: {fileID: -508303762, guid: 1679241bb7d407e4c851cc60a4a66080, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
   - VehicleActionType: 2
-    ImageAsset: {fileID: -508303762, guid: 1679241bb7d407e4c851cc60a4a66080, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
   - VehicleActionType: 3
-    ImageAsset: {fileID: -508303762, guid: 1679241bb7d407e4c851cc60a4a66080, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
   - VehicleActionType: 4
-    ImageAsset: {fileID: -508303762, guid: 1679241bb7d407e4c851cc60a4a66080, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
   - VehicleActionType: 5
-    ImageAsset: {fileID: -508303762, guid: 1679241bb7d407e4c851cc60a4a66080, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
   - VehicleActionType: 6
-    ImageAsset: {fileID: -508303762, guid: 1679241bb7d407e4c851cc60a4a66080, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
   - VehicleActionType: 7
-    ImageAsset: {fileID: -508303762, guid: 1679241bb7d407e4c851cc60a4a66080, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 6d891ab223ed5364fa71a649861ddb7f, type: 3}
   - VehicleActionType: 8
-    ImageAsset: {fileID: -508303762, guid: 1679241bb7d407e4c851cc60a4a66080, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 084b1883231998f4aaac09074b26b393, type: 3}
   - VehicleActionType: 9
-    ImageAsset: {fileID: -508303762, guid: 1679241bb7d407e4c851cc60a4a66080, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 840b578123c845c41a654da7eaab9d4b, type: 3}
   - VehicleActionType: 10
-    ImageAsset: {fileID: -508303762, guid: 1679241bb7d407e4c851cc60a4a66080, type: 3}
-  goodsConfiguration:
-  - GoodType: 1
-    ImageAsset: {fileID: 1622455931, guid: d35b304fceb0655409de4861d79bb644, type: 3}
-  - GoodType: 2
-    ImageAsset: {fileID: -642459099, guid: 9e3b519e9da0fed4d9443cba6a2fbc40, type: 3}
-  - GoodType: 3
-    ImageAsset: {fileID: -1230515884, guid: b2962de4b09307a44b3c8397a05fa466, type: 3}
-  - GoodType: 4
-    ImageAsset: {fileID: 1125310662, guid: 943501dfff5631c42a64f0f6313fc90b, type: 3}
-  - GoodType: 5
-    ImageAsset: {fileID: 725648652, guid: 93835b88ef5bec34cae8d9a7ee1f2a2a, type: 3}
+    ImageAsset: {fileID: 21300000, guid: da223b64aeed1354e932673545ff2a22, type: 3}
   IsHovered: 0
   actionQueueTemplate: {fileID: 9197481963319205126, guid: 102683850d6acc24288b6059039e2cab, type: 3}
   hide: {fileID: -1844845555, guid: 8a648cac76db10b42a0f3492ee5ff516, type: 3}

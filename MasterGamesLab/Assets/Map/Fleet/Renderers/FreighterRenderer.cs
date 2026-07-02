@@ -10,7 +10,7 @@ namespace Map.Fleet
         public FreighterPin Pin { get; private set; }
         protected override void InitVehicle(Vehicle vehicle)
         {
-            Pin = gameObject.GetComponent<FreighterPin>();
+            Pin = gameObject.GetComponentInChildren<FreighterPin>();
 
             base.InitVehicle(vehicle);
         }
