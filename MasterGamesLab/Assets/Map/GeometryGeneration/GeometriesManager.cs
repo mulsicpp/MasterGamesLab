@@ -5,11 +5,26 @@ namespace Map.GeometryGeneration
 {
     public class GeometriesManager : MonoBehaviour
     {
+        const int PREFIX_MASK = 0xff00;
+
+        public enum GeometryTypePrefix
+        {
+            Good = 0x0000,
+            Vehicle = 0x0100,
+            Structure = 0x0200,
+            Action = 0x300,
+        }
+
         public enum GeometryType
         {
-            Truck,
+            Tetrahedron = GeometryTypePrefix.Good,
+            Cube,
+            Octahedron,
+            Icosahedron,
+            Dodecahedron,
+            Truck = GeometryTypePrefix.Vehicle,
             Freighter,
-            ProducerTetrahedron,
+            ProducerTetrahedron = GeometryTypePrefix.Structure,
             ProducerCube,
             ProducerOctahedron,
             ProducerIcosahedron,
@@ -17,12 +32,7 @@ namespace Map.GeometryGeneration
             Consumer,
             Port,
             ParkingLot,
-            Tetrahedron,
-            Cube,
-            Octahedron,
-            Icosahedron,
-            Dodecahedron,
-            ActionWait,
+            ActionWait = GeometryTypePrefix.Action,
             ActionLoad,
             ActionUnload,
         }
@@ -76,120 +86,62 @@ namespace Map.GeometryGeneration
         {
             Mesh mesh;
             var defaultLayerName = "Default";
-            string outlineLayerName;
-            string outlineTransparentLayerName;
+            var outlineLayerName = "Outline";
+            var outlineTransparentLayerName = "Outline Transparent";
             var localRotation = Quaternion.identity;
-            Vector3 localScale;
+            var localScale = Vector3.one;
             var localPosition = Vector3.zero;
 
-            if (type is GeometryType.Truck or GeometryType.Freighter)
+            GeometryTypePrefix prefix = (GeometryTypePrefix)((int)type & PREFIX_MASK);
+
+            switch (prefix)
             {
-                localScale = Vector3.one;
-            }
-            else
-            {
-                localScale = Vector3.one * 1.4f;
+                case GeometryTypePrefix.Good:
+                case GeometryTypePrefix.Vehicle:
+                    defaultLayerName = "Vehicles";
+                    outlineLayerName = "Vehicles Outline";
+                    outlineTransparentLayerName = "Vehicles Outline Transparent";
+                    break;
+                case GeometryTypePrefix.Structure:
+                    localScale = Vector3.one * 1.4f;
+                    break;
+                case GeometryTypePrefix.Action:
+                    defaultLayerName = "Full Road";
+                    outlineLayerName = "Full Road Outline";
+                    outlineTransparentLayerName = "Full Road Outline Transparent";
+                    localRotation = Quaternion.Euler(0, 90, 0);
+                    localScale = Vector3.one * 0.5f;
+                    localPosition = type switch
+                    {
+                        GeometryType.ActionWait => new(0, 1, 1),
+                        GeometryType.ActionLoad => new(0, 1, 3),
+                        _ => new(0, 3, 0),
+                    };
+                    break;
             }
 
-            switch (type)
+            mesh = type switch
             {
-                case GeometryType.Truck:
-                    mesh = truckMesh;
-                    defaultLayerName = "Vehicles";
-                    outlineLayerName = "Vehicles Outline";
-                    outlineTransparentLayerName = "Vehicles Outline Transparent";
-                    localRotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
-                    break;
-                case GeometryType.Freighter:
-                    mesh = freighterMesh;
-                    defaultLayerName = "Vehicles";
-                    outlineLayerName = "Vehicles Outline";
-                    outlineTransparentLayerName = "Vehicles Outline Transparent";
-                    localRotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
-                    break;
-                case GeometryType.ProducerTetrahedron:
-                    mesh = producerTetrahedronMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.ProducerCube:
-                    mesh = producerCubeMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.ProducerOctahedron:
-                    mesh = producerOctahedronMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.ProducerIcosahedron:
-                    mesh = producerIcosahedronMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.ProducerDodecahedron:
-                    mesh = producerDodecahedronMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.Consumer:
-                    mesh = consumerMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.Port:
-                    mesh = portMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.ParkingLot:
-                    mesh = parkingLotMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.Tetrahedron:
-                    mesh = tetrahedronMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.Cube:
-                    mesh = cubeMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.Octahedron:
-                    mesh = octahedronMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.Icosahedron:
-                    mesh = icosahedronMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.Dodecahedron:
-                    mesh = dodecahedronMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.ActionWait:
-                    mesh = actionWaitMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.ActionLoad:
-                    mesh = actionLoadMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                case GeometryType.ActionUnload:
-                    mesh = actionUnloadMesh;
-                    outlineLayerName = "Outline";
-                    outlineTransparentLayerName = "Outline Transparent";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
+                GeometryType.Tetrahedron => tetrahedronMesh,
+                GeometryType.Cube => cubeMesh,
+                GeometryType.Octahedron => octahedronMesh,
+                GeometryType.Icosahedron => icosahedronMesh,
+                GeometryType.Dodecahedron => dodecahedronMesh,
+                GeometryType.Truck => truckMesh,
+                GeometryType.Freighter => freighterMesh,
+                GeometryType.ProducerTetrahedron => producerTetrahedronMesh,
+                GeometryType.ProducerCube => producerCubeMesh,
+                GeometryType.ProducerOctahedron => producerOctahedronMesh,
+                GeometryType.ProducerIcosahedron => producerIcosahedronMesh,
+                GeometryType.ProducerDodecahedron => producerDodecahedronMesh,
+                GeometryType.Consumer => consumerMesh,
+                GeometryType.Port => portMesh,
+                GeometryType.ParkingLot => parkingLotMesh,
+                GeometryType.ActionWait => actionWaitMesh,
+                GeometryType.ActionLoad => actionLoadMesh,
+                GeometryType.ActionUnload => actionUnloadMesh,
+                _ => null,
+            };
 
             parent.localScale = Scale;
             var gO = Instantiate(geometryPrefab, parent);
@@ -200,7 +152,7 @@ namespace Map.GeometryGeneration
             fixedGeometry.Init(mesh, defaultLayerName, outlineLayerName, outlineTransparentLayerName, id,
                 owner?.Color ?? Color.black);
 
-            if (type is GeometryType.ActionWait or GeometryType.ActionLoad or GeometryType.ActionUnload)
+            if (prefix == GeometryTypePrefix.Action)
             {
                 fixedGeometry.SetMaterial(actionMaterial);
             }

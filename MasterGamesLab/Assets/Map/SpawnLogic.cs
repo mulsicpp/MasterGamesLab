@@ -16,7 +16,7 @@ namespace Map
         private Map map;
         private ProducerConsumerSpawnPoint spawnPointGenerator;
 
-        private List<Good> availableGoods;
+        private SortedSet<Good> availableGoods;
 
         private float progress;
         public float Progress => Mathf.Clamp01(progress);
@@ -50,6 +50,8 @@ namespace Map
                 goodsPerContinent.Add(1 + i, new());
 
             goodsPerContinent[1].Add(Good.Common);
+            goodsPerContinent[1].Add(Good.Uncommon);
+            goodsPerContinent[1].Add(Good.Rare);
 
             //Dictionary<int, Distribution<Good>> continentDistributions = new();
 
@@ -132,13 +134,15 @@ namespace Map
                     }, map.Players[i]);
             }
 
-            EnableGood(Good.Common);
+            foreach (var good in goodsPerContinent[1])
+                SpawnProducer(1, good);
+
             for (int i = 0; i < Constants.StartConsumerCount; i++)
                 SpawnConsumer((float)i / Constants.TotalConsumerCount);
 
-            for (int i = 0; i < map.Players.Count; i++)
+            foreach (var consumer in readyConsumers)
             {
-                GenerateConsumerRequest(FindRandomConsumer());
+                GenerateConsumerRequest(consumer);
             }
         }
 
@@ -192,7 +196,7 @@ namespace Map
         {
             if (consumer == null || availableGoods.Count == 0 || consumer.Request.Good != Good.None) return;
 
-            var good = availableGoods[UnityEngine.Random.Range(0, availableGoods.Count)];
+            var good = availableGoods.ToArray()[UnityEngine.Random.Range(0, availableGoods.Count)];
 
             consumer.Request = new(good, CalculatePayout(consumer, good));
             consumer.SetupPayoutIncrease();
@@ -226,24 +230,27 @@ namespace Map
 
         private void EnableGood(Good good)
         {
-            availableGoods.Add(good);
-
             foreach (var (continentId, goods) in goodsPerContinent)
             {
-                if (goods.Contains(good))
+                if (continentId > 1 && goods.Contains(good))
                 {
-                    var prodTile = spawnPointGenerator.GetSpawnableTile(Structure.StructureType.Producer, continentId, good);
-                    if (prodTile != null)
-                    {
-                        map.Infrastructure.SpawnLocal(new Producer.ProducerState
-                        {
-                            Common = { TileId = prodTile.Id },
-                            Good = good
-                        });
-                        spawnPointGenerator.RegisterSpawnedTile(Structure.StructureType.Producer, prodTile);
-                        // producersPerGood[good].Add(producer as Producer);
-                    }
+                    SpawnProducer(continentId, good);
                 }
+            }
+        }
+
+        private void SpawnProducer(int continentId, Good good)
+        {
+            var prodTile = spawnPointGenerator.GetSpawnableTile(Structure.StructureType.Producer, continentId, good);
+            if (prodTile != null)
+            {
+                map.Infrastructure.SpawnLocal(new Producer.ProducerState
+                {
+                    Common = { TileId = prodTile.Id },
+                    Good = good
+                });
+                spawnPointGenerator.RegisterSpawnedTile(Structure.StructureType.Producer, prodTile);
+                availableGoods.Add(good);
             }
         }
 

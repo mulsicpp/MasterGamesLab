@@ -2,6 +2,7 @@ using Map.GeometryGeneration;
 using UnityEngine;
 using UI;
 using UnityEngine.UIElements;
+using Map.Infrastructure;
 
 namespace Map.Fleet
 {
@@ -11,11 +12,15 @@ namespace Map.Fleet
         public Truck Truck { get; private set; }
         public TruckPin Pin { get; private set; }
 
+        private Good currentGoodMesh;
+
         protected override void InitVehicle(Vehicle vehicle)
         {
             Pin = gameObject.GetComponent<TruckPin>();
 
             base.InitVehicle(vehicle);
+            currentGoodMesh = Good.None;
+
             if (Vehicle is Truck t)
                 Truck = t;
             else
@@ -25,6 +30,32 @@ namespace Map.Fleet
 
         public override void Update()
         {
+            if (currentGoodMesh != Truck.Good)
+            {
+                if (CargoGeometry != null)
+                {
+                    Destroy(CargoGeometry.gameObject);
+                    CargoGeometry = null;
+                }
+
+                if (Truck.Good != Good.None)
+                {
+                    var geometryType = Truck.Good switch
+                    {
+                        Good.Common => GeometriesManager.GeometryType.Tetrahedron,
+                        Good.Uncommon => GeometriesManager.GeometryType.Cube,
+                        Good.Rare => GeometriesManager.GeometryType.Octahedron,
+                        Good.Epic => GeometriesManager.GeometryType.Icosahedron,
+                        _ => GeometriesManager.GeometryType.Dodecahedron,
+                    };
+
+                    var scale = CargoTransform.localScale;
+                    CargoGeometry = GeometriesManager.Instance.GetGameObjectGeometry(geometryType, Truck.EntityId, CargoTransform);
+                    CargoTransform.localScale = scale;
+                }
+                currentGoodMesh = Truck.Good;
+            }
+
             if (Truck.Freighter != null)
             {
                 transform.parent = Truck.Freighter.Renderer.CargoTransform;

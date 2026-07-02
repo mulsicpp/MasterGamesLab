@@ -42,11 +42,12 @@ namespace UI
                     break;
                 case VehicleAction.ActionType.LoadTruck:
                 case VehicleAction.ActionType.WaitForTruck:
-                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.ActionWait, EntityId, transform, Player.Player.Self);
+                    var geometryType = action.Type == VehicleAction.ActionType.LoadTruck ? GeometriesManager.GeometryType.ActionLoad : GeometriesManager.GeometryType.ActionWait;
+                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(geometryType, EntityId, transform, Player.Player.Self);
                     startTile = vehicle.GetTileLocationAfterAction(actionNode.Previous, out _);
                     targetTile = map.Tiles[action.TargetTileId] as Tile;
 
-                    transform.localPosition = (startTile.PositionOnSphere + targetTile.PositionOnSphere) * 0.5f * 1.02f;
+                    transform.localPosition = startTile.PositionOnSphere;
                     transform.localRotation = Quaternion.LookRotation((targetTile.PositionOnSphere - startTile.PositionOnSphere).normalized, transform.localPosition.normalized);
                     break;
 
@@ -54,10 +55,11 @@ namespace UI
                     FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.ActionUnload, EntityId, transform, Player.Player.Self);
                     startTile = map.Tiles[action.TargetTileId] as Tile;
 
-                    transform.localPosition = startTile.PositionOnSphere * 1.05f;
+                    transform.localPosition = startTile.PositionOnSphere;
                     transform.localRotation = Quaternion.LookRotation((startTile.NeighborTiles[0].LeftVertex - startTile.PositionOnSphere).normalized, transform.localPosition.normalized);
                     break;
             }
+            FixedGeometry?.SetCustomColor(Color.yellow);
 
             map.EntityIdManager[EntityId] = this;
         }

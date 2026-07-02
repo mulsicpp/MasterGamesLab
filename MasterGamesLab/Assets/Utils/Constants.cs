@@ -107,10 +107,10 @@ public static class Constants
     public static int RoadBuildCost(int n) => 10 + (n / 40) * 5;
     public static int CanalBuildCost(int n) => 20 + (n / 10) * 5;
 
-    public static int PortBuildCost(int n) => 300 + n * 150;
+    public static int PortBuildCost(int n) => 200 + n * 100;
 
-    public static int TruckBuildCost(int n) => 100 * n;
-    public static int FreighterBuildCost(int n) => 200 + n * 200;
+    public static int TruckBuildCost(int n) => 75 * n;
+    public static int FreighterBuildCost(int n) => 100 + n * 50;
 
 
     // ------------------- Market Cap -------------------
