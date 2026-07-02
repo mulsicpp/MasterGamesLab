@@ -32,6 +32,8 @@ namespace UI
         protected PinboardUi pinboard;
 
         public VisualElement UiElement { get; private set; }
+
+        protected VisualElement hoverable;
         private Vector2 lastAppliedPosition = new Vector2(-9999f, -9999f);
 
         public bool IsHovered { get; private set; }
@@ -41,16 +43,22 @@ namespace UI
         protected abstract Vector3 GetTargetWorldPosition(out Vector3 upVector);
         protected abstract void InitializeUiComponents();
 
-        protected virtual void Start()
+        private void Awake()
         {
             mainCamera = MainCamera.Instance.GetComponentInChildren<Camera>();
             cameraController = MainCamera.Instance.GetComponentInChildren<PlanetCameraController>();
+
             pinboard = FindAnyObjectByType<PinboardUi>();
             UiElement = pinboard.CreatePinElement(PinTemplate, pinHeightPercent, pinAspectRatio);
+        }
 
-            UiElement.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
-            UiElement.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
-
+        protected virtual void Start()
+        {
+            if (hoverable != null)
+            {
+                hoverable.RegisterCallback<PointerEnterEvent>(OnPointerEnterElement);
+                hoverable.RegisterCallback<PointerLeaveEvent>(OnPointerLeaveElement);
+            }
             ApplyLayoutPivots();
             InitializeUiComponents();
         }
@@ -76,15 +84,16 @@ namespace UI
 
             float scaleFactor = cameraController.ScalingFactor;
 
-            // Update transform origins dynamically if direction shifts at runtime
             ApplyLayoutPivots();
 
-            // 1. Get the cleanly calculated layout displacement offset
             Vector2 offset = GetPivotOffset(scaleFactor);
 
-            // 2. Combine panelPosition with the exact pixel displacements
-            float finalXPixels = panelPosition.x + offset.x;
-            float finalYPixels = panelPosition.y + offset.y;
+            // CLEAN ADDITION: Grab any extra layout offsets from overriding classes
+            Vector2 customOffset = GetCustomOffset();
+
+            // Combine standard pivot offset with our custom modifier scaled by UI scale
+            float finalXPixels = panelPosition.x + offset.x + (customOffset.x * scaleFactor);
+            float finalYPixels = panelPosition.y + offset.y + (customOffset.y * scaleFactor);
 
             UiElement.style.translate = new StyleTranslate(new Translate(
                 new Length(finalXPixels, LengthUnit.Pixel),
@@ -95,6 +104,12 @@ namespace UI
             UiElement.style.display = DisplayStyle.Flex;
 
             lastAppliedPosition = panelPosition;
+        }
+
+        // Default implementation returns zero. Override this in child classes!
+        protected virtual Vector2 GetCustomOffset()
+        {
+            return Vector2.zero;
         }
 
         /// <summary>
@@ -155,8 +170,8 @@ namespace UI
             UiElement.style.transformOrigin = new StyleTransformOrigin(new TransformOrigin(x, y));
         }
 
-        protected virtual void OnMouseEnterElement(MouseEnterEvent evt) => IsHovered = true;
-        protected virtual void OnMouseLeaveElement(MouseLeaveEvent evt) => IsHovered = false;
+        protected virtual void OnPointerEnterElement(PointerEnterEvent evt) => IsHovered = true;
+        protected virtual void OnPointerLeaveElement(PointerLeaveEvent evt) => IsHovered = false;
         protected virtual void SetShowing(bool active) => UiElement.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
         protected virtual void OnDestroy() => UiElement?.RemoveFromHierarchy();
     }

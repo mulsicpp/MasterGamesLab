@@ -85,7 +85,7 @@ namespace Map.Infrastructure
         public void SetupPayoutIncrease()
         {
             payoutIncreaseCooldown = NextPayoutIncreaseCooldown();
-            nextPayout = (int)(Request.Payout * NextPayoutIncreaseFactor());
+            nextPayout = NextPayout(Request.Payout);
         }
 
         public void FulfillRequest(Truck truck)
@@ -100,9 +100,15 @@ namespace Map.Infrastructure
             return Random.Range(Constants.MIN_CONSUMER_PAYOUT_INCREASE_COOLDOWN, Constants.MAX_CONSUMER_PAYOUT_INCREASE_COOLDOWN);
         }
 
-        private float NextPayoutIncreaseFactor()
+        private int NextPayout(int currentPayout)
         {
-            return Random.Range(Constants.MIN_CONSUMER_PAYOUT_INCREASE_FACTOR, Constants.MAX_CONSUMER_PAYOUT_INCREASE_FACTOR);
+            var factor =  Random.Range(Constants.MIN_CONSUMER_PAYOUT_INCREASE_FACTOR, Constants.MAX_CONSUMER_PAYOUT_INCREASE_FACTOR);
+            var baseIncrease = Random.Range(Constants.MIN_CONSUMER_PAYOUT_INCREASE_BASE, Constants.MAX_CONSUMER_PAYOUT_INCREASE_BASE);
+
+            float nextPayoutRaw = currentPayout * factor + baseIncrease;
+
+
+            return Mathf.Min((int)Mathf.Ceil(nextPayoutRaw / 10.0f) * 10, Constants.MAX_PAYOUT);
         }
     }
 }

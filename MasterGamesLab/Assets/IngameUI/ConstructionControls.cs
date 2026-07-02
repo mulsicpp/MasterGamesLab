@@ -162,13 +162,9 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
                 case Tile t:
                     if (t.BlueprintStructure != null)
                         Map.Map.Instance.Blueprint.RemoveStructure(t.BlueprintStructure);
-                    var removeList = new List<Vehicle>();
-                    foreach (var vehicle in Map.Map.Instance.Blueprint.Vehicles)
-                    {
-                        if (vehicle.BlueprintTile == t)
-                            removeList.Add(vehicle);
-                    }
-                    foreach (var vehicle in removeList)
+                    break;
+                case Vehicle vehicle:
+                    if (vehicle.BlueprintTile != null)
                         Map.Map.Instance.Blueprint.RemoveVehicle(vehicle);
                     break;
                 case Edge e:
