@@ -72,7 +72,7 @@ namespace UI
                 var vehicle = controls.SelectedVehicle;
 
 
-                if (vehicle == null || start == destination || !vehicle.DriveDestinationCondition(destination)) return;
+                if (vehicle == null || start == destination) return;
 
                 var fastestProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckFastestRoute : MovementProfileRegistry.FreighterFastestRoute;
                 var cheapestProfile = vehicle.Type == Vehicle.VehicleType.Truck ? MovementProfileRegistry.TruckCheapestRoute : MovementProfileRegistry.FreighterCheapestRoute;
@@ -95,6 +95,8 @@ namespace UI
                 }
                 else
                 {
+                    if (!vehicle.DriveDestinationCondition(destination)) return;
+
                     var fastestRoute = Pathfinding.FindPath(start, destination, fastestProfile);
                     var cheapestRoute = Pathfinding.FindPath(start, destination, cheapestProfile);
 
