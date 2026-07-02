@@ -18,8 +18,6 @@ namespace UI
 
         // MANAGER HOOKS: Routes span across tiles, so returning null 
         // bypasses the side-by-side stacking layout logic entirely.
-        public override object CurrentTile => null;
-        public override bool IsStructure => false;
 
         protected override void OnEnable()
         {

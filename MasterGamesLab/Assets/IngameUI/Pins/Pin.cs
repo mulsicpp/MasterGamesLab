@@ -27,10 +27,6 @@ namespace UI
         public bool IsHovered { get; private set; }
 
         [SerializeField] protected VisualTreeAsset PinTemplate;
-
-        // VIRTUAL EXTENSIONS FOR MANAGER LAYOUT PROCESSING
-        public abstract object CurrentTile { get; }
-        public virtual bool IsStructure => false;
         
         public float UnscaledWidth { get; private set; }
         public float UnscaledHeight { get; private set; }

@@ -20,17 +20,14 @@ namespace UI
         [SerializeField] private List<GoodImagePair> goodsConfiguration = new List<GoodImagePair>();
         public Dictionary<Good, Sprite> goodsImages = new Dictionary<Good, Sprite>();
 
-        private VehicleRenderer vehicleRenderer;
+        public VehicleRenderer vehicleRenderer;
         private Label timeLabel;
         private VisualElement icon, good, time;
 
         protected override float pinHeightPercent => 8f;
         protected override float pinAspectRatio => 0.6666666f;
 
-        // MANAGER HOOKS: Hand over data context seamlessly to the manager pass
-        public override object CurrentTile => vehicleRenderer?.Vehicle?.IsParked == true ? vehicleRenderer.Vehicle.ParkedTile : null;
-        public override bool IsStructure => false;
-
+        // MANAGER HOOKS: Hand over data context seamlessly to the manager pa
         protected override void OnEnable()
         {
             vehicleRenderer = GetComponentInParent<VehicleRenderer>();

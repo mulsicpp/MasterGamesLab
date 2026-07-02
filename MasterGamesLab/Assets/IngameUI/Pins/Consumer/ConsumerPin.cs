@@ -21,7 +21,7 @@ namespace UI
 
         public Dictionary<Good, Sprite> goodsImages = new Dictionary<Good, Sprite>();
 
-        private StructureRenderer structureRenderer;
+        public StructureRenderer structureRenderer;
         private Label payout;
         private VisualElement goodIcon;
 
@@ -29,8 +29,6 @@ namespace UI
         protected override float pinAspectRatio => 1f;
 
         // MANAGER HOOKS: Wire this structure cleanly into the central PinboardUi loop
-        public override object CurrentTile => (structureRenderer?.Structure is Consumer consumer) ? consumer.Tile : null;
-        public override bool IsStructure => true;
 
         protected override void OnEnable()
         {

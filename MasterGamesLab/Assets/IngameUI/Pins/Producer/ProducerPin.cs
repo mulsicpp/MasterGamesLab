@@ -21,15 +21,13 @@ namespace UI
 
         private Dictionary<Good, Sprite> producerGoodsImages = new Dictionary<Good, Sprite>();
 
-        private StructureRenderer structureRenderer;
+        public StructureRenderer structureRenderer;
         private VisualElement goodIcon;
 
         protected override float pinHeightPercent => 6f;
         protected override float pinAspectRatio => 1f;
 
         // MANAGER HOOKS: Identify this as a fixed building anchored to a specific tile
-        public override object CurrentTile => (structureRenderer?.Structure is Producer producer) ? producer.Tile : null;
-        public override bool IsStructure => true;
 
         protected override void OnEnable()
         {
