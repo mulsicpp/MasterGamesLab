@@ -4,6 +4,7 @@ using UnityEngine.UIElements;
 using System.Collections.Generic;
 using Map.Infrastructure;
 using Map.Hoverables;
+using System.Linq;
 
 namespace UI
 {
@@ -56,6 +57,11 @@ namespace UI
             }
         }
 
+        private Vector2 _currentLayoutOffset = Vector2.zero;
+
+
+        [SerializeField] private float verticalLiftPercentage = 0.5f;
+
         protected override void LateUpdate()
         {
             if (structureRenderer?.Structure is Producer producer)
@@ -73,9 +79,37 @@ namespace UI
                     SetShowing(false);
                     return;
                 }
+
+                var myTile = producer.Tile;
+
+                bool hasTruck = false;
+                var trucks = Map.Map.Instance.Fleet.Trucks;
+                for (int i = 0; i < trucks.Count; i++)
+                {
+                    if (trucks[i].ParkedTile == myTile)
+                    {
+                        hasTruck = true;
+                        break;
+                    }
+                }
+
+                if (hasTruck)
+                {
+                    float liftPixels = UiElement.layout.height * verticalLiftPercentage;
+                    _currentLayoutOffset = new Vector2(0f, -liftPixels);
+                }
+                else
+                {
+                    _currentLayoutOffset = Vector2.zero;
+                }
             }
 
             base.LateUpdate();
+        }
+
+        protected override Vector2 GetCustomOffset()
+        {
+            return _currentLayoutOffset;
         }
 
         protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)

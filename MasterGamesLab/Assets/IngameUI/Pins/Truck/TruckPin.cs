@@ -6,6 +6,7 @@ using System;
 using Map.Infrastructure;
 using System.Collections.Generic;
 using GLTFast.Schema;
+using System.Linq;
 
 namespace UI
 {
@@ -70,15 +71,56 @@ namespace UI
             }
         }
 
+        private Vector2 _currentLayoutOffset = Vector2.zero;
+
         protected override void LateUpdate()
         {
-            if (!vehicleRenderer.Vehicle.Exists || vehicleRenderer.Vehicle.Transform == null)
+            Truck Vehicle = vehicleRenderer.Vehicle as Truck;
+            if (!Vehicle.Exists || Vehicle.Transform == null)
             {
                 SetShowing(false);
                 return;
             }
-            timeLabel.text = vehicleRenderer.Vehicle.RemainingDriveTime is float t ? ((int)Mathf.Ceil(t)).ToString() + "s" : "";
+
+            timeLabel.text = Vehicle.RemainingDriveTime is float t
+                ? ((int)Mathf.Ceil(t)).ToString() + "s"
+                : "";
+
+            if (Vehicle.IsParked)
+            {
+                var parkedTile = Vehicle.ParkedTile;
+
+                var trucks = Map.Map.Instance.Fleet.Trucks
+                    .Where(t => t.ParkedTile == parkedTile)
+                    .ToList();
+
+                int totalCount = trucks.Count;
+                int myIndex = trucks.IndexOf(Vehicle);
+
+                if (totalCount > 1 && myIndex >= 0)
+                {
+                    float shiftMultiplier = myIndex - ((totalCount - 1) / 2f);
+
+                    float pinWidth = UiElement.layout.width;
+
+                    _currentLayoutOffset = new Vector2(shiftMultiplier * pinWidth, 0f);
+                }
+                else
+                {
+                    _currentLayoutOffset = Vector2.zero;
+                }
+            }
+            else
+            {
+                _currentLayoutOffset = Vector2.zero;
+            }
+
             base.LateUpdate();
+        }
+
+        protected override Vector2 GetCustomOffset()
+        {
+            return _currentLayoutOffset;
         }
 
         protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)

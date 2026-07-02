@@ -84,15 +84,16 @@ namespace UI
 
             float scaleFactor = cameraController.ScalingFactor;
 
-            // Update transform origins dynamically if direction shifts at runtime
             ApplyLayoutPivots();
 
-            // 1. Get the cleanly calculated layout displacement offset
             Vector2 offset = GetPivotOffset(scaleFactor);
 
-            // 2. Combine panelPosition with the exact pixel displacements
-            float finalXPixels = panelPosition.x + offset.x;
-            float finalYPixels = panelPosition.y + offset.y;
+            // CLEAN ADDITION: Grab any extra layout offsets from overriding classes
+            Vector2 customOffset = GetCustomOffset();
+
+            // Combine standard pivot offset with our custom modifier scaled by UI scale
+            float finalXPixels = panelPosition.x + offset.x + (customOffset.x * scaleFactor);
+            float finalYPixels = panelPosition.y + offset.y + (customOffset.y * scaleFactor);
 
             UiElement.style.translate = new StyleTranslate(new Translate(
                 new Length(finalXPixels, LengthUnit.Pixel),
@@ -103,6 +104,12 @@ namespace UI
             UiElement.style.display = DisplayStyle.Flex;
 
             lastAppliedPosition = panelPosition;
+        }
+
+        // Default implementation returns zero. Override this in child classes!
+        protected virtual Vector2 GetCustomOffset()
+        {
+            return Vector2.zero;
         }
 
         /// <summary>

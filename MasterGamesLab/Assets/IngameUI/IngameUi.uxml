@@ -80,7 +80,7 @@
         <ui:VisualElement name="TabMenu" class="container tab-menu" style="visibility: hidden;">
             <ui:Instance template="TabMenu" style="width: 100%; height: 100%;"/>
         </ui:VisualElement>
-        <ui:VisualElement name="ActionQueuePosition" class="element" style="height: 12%; bottom: 6%; right: auto; left: 13%; position: absolute; width: 60%; align-items: center;">
+        <ui:VisualElement name="ActionQueuePosition" picking-mode="Ignore" class="element" style="height: 12%; bottom: 6%; right: auto; left: 13%; position: absolute; width: 60%; align-items: center;">
             <ui:VisualElement name="ActionQueue" class="element container" style="position: absolute; height: 100%; flex-direction: row; align-items: center; justify-content: center; padding-top: 0.5%; padding-right: 0.5%; padding-bottom: 0.5%; padding-left: 0.5%; visibility: hidden; max-width: 100%;">
                 <ui:ScrollView name="QueueScroll" mode="Horizontal" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" focusable="false" class="element" style="height: 100%; flex-grow: 1; flex-shrink: 1;"/>
             </ui:VisualElement>
