@@ -152,6 +152,15 @@ public static class Constants
 
 
     // ------------------- Rendering -------------------
+    public enum OutlineTextures
+    {
+        Clear = 0,
+        Full = 1,
+        Checkerboard = 2,
+        Diagonal = 3,
+        DiagonalMirrored = 4,
+        Hatching = 5,
+    }
 
     public static readonly Color ROAD_BLUEPRINT_COLOR = Color.orange;
     public static readonly Color ROAD_BLUEPRINT_PREVIEW_COLOR = Color.yellow;
@@ -178,14 +187,14 @@ public static class Constants
     {
         OutlineColor = new Color(1f, 0.92f, 0.016f, 0.6f),
         InnerColor = new Color(0, 0, 0, 0),
-        TextureId = 0,
+        TextureId = (int)OutlineTextures.Hatching,
     };
 
     public static OutlineData HOVER_OUTLINE_FILLED_IN = new OutlineData()
     {
         OutlineColor = HOVER_OUTLINE.OutlineColor,
         InnerColor = new Color(1f, 0.92f, 0.016f, 0.5f),
-        TextureId = 1,
+        TextureId = 1
     };
 
     public static OutlineData SELECTED_OUTLINE = new OutlineData()
@@ -241,14 +250,14 @@ public static class Constants
     {
         OutlineColor = Color.grey,
         InnerColor = new Color(0, 0, 0, 0.2f),
-        TextureId = 2,
+        TextureId = (int)OutlineTextures.Diagonal,
     };
 
     public static OutlineData ROAD_BLUEPRINT_OVERLAPPING_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.black,
         InnerColor = new Color(0, 0, 0, 1f),
-        TextureId = 1,
+        TextureId = (int)OutlineTextures.Checkerboard,
     };
 
     public static readonly Color ROAD_BLUEPRINT_INVALID_COLOR = Color.orange;

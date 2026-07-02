@@ -102,9 +102,11 @@ namespace Map.OutlineEffect
                         builder.SetGlobalTextureAfterPass(depthRt, Shader.PropertyToID(OUTLINE_DEPTH_NAME));
 
                     var sortingSettings = new SortingSettings(cameraData.camera)
-                        { criteria = SortingCriteria.CommonOpaque };
+                        { criteria = SortingCriteria.CommonOpaque | SortingCriteria.CommonTransparent };
                     var drawingSettings = new DrawingSettings(new ShaderTagId("UniversalForward"), sortingSettings)
                         { overrideMaterial = overrideMat };
+                    drawingSettings.SetShaderPassName(1, new ShaderTagId("SRPDefaultUnlit"));
+                    drawingSettings.SetShaderPassName(2, new ShaderTagId("Universal2D"));
                     var filteringSettings = new FilteringSettings(RenderQueueRange.all, layerMask);
 
                     var rlParams =

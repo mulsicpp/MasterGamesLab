@@ -105,13 +105,14 @@ namespace Map.Hoverables
             TextureHandle idDepth =
                 UniversalRenderer.CreateRenderGraphTexture(renderGraph, depthDesc, "TileIDDepth", false);
 
-            var sortFlags = SortingCriteria.CommonOpaque;
+            var sortFlags = SortingCriteria.CommonOpaque | SortingCriteria.CommonTransparent;
             var drawSettings = new DrawingSettings(shaderTagIds[0],
                 new SortingSettings(cameraData.camera) { criteria = sortFlags });
             drawSettings.SetShaderPassName(1, shaderTagIds[1]);
+            drawSettings.SetShaderPassName(2, new ShaderTagId("Universal2D"));
             if (settings.overrideMaterial != null) drawSettings.overrideMaterial = settings.overrideMaterial;
 
-            var filterSettings = new FilteringSettings(RenderQueueRange.opaque, HoverablePicker.Instance.LayerMask);
+            var filterSettings = new FilteringSettings(RenderQueueRange.all, HoverablePicker.Instance.LayerMask);
             RendererListHandle rendererList =
                 renderGraph.CreateRendererList(new RendererListParams(renderingData.cullResults, drawSettings,
                     filterSettings));
