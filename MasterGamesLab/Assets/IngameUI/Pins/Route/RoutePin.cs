@@ -11,7 +11,7 @@ namespace UI
         private VisualElement arrow, element;
         private RouteRenderer routeRenderer;
 
-        protected override float pinHeightPercent => 6f;
+        protected override float pinHeightPercent => 3f;
         protected override float pinAspectRatio => 4.5f;
 
         public bool FacingLeft = false;
@@ -27,14 +27,12 @@ namespace UI
 
         protected override void Start()
         {
-            hoverable = UiElement.Q<VisualElement>("Pickable");
+            hoverable = UiElement.Q<VisualElement>("Arrow");
             base.Start();
-            hoverable.BringToFront();
         }
 
         private void Update()
         {
-            // Dynamically update pivot directions safely; Pin.LateUpdate will read this instantly
             pivotDirection = FacingLeft ? PinDirection.Right : PinDirection.Left;
 
             if (IsHovered)
@@ -77,7 +75,6 @@ namespace UI
         {
             cost = UiElement.Q<Label>("CostLabel");
             duration = UiElement.Q<Label>("DurationLabel");
-            arrow = UiElement.Q<VisualElement>("Arrow");
             element = UiElement.Q<VisualElement>("Element");
         }
     }

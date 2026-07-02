@@ -26,7 +26,7 @@ namespace UI
         private VisualElement icon, time;
 
         protected override float pinHeightPercent => 8f;
-        protected override float pinAspectRatio => 0.6666666f;
+        protected override float pinAspectRatio => 0.5618f;
 
         protected override void OnEnable()
         {

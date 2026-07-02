@@ -4,7 +4,7 @@
         <ui:VisualElement name="Time" picking-mode="Ignore" class="element" style="flex-grow: 0; width: 100%; aspect-ratio: 2; flex-shrink: 0; flex-direction: row; align-items: center; justify-content: center;">
             <ResponsiveLabel name="TimeLabel" text="1:23" height-percentage="1" picking-mode="Ignore" class="element label" style="height: 100%; width: auto; -unity-font-style: normal; -unity-text-align: middle-right;"/>
         </ui:VisualElement>
-        <AlphaPickableElement name="Pickable" picking-mode="Position" class="element" style="position: relative; height: auto; width: 100%; aspect-ratio: 1; background-image: url(&quot;project://database/Assets/IngameUI/Pins/Truck/truck%20pins/tp.png?fileID=21300000&amp;guid=d258b4b1c3128c74cb4f9bcc87704c8e&amp;type=3#tp&quot;); flex-shrink: 0;">
+        <AlphaPickableElement name="Pickable" picking-mode="Position" class="element" style="position: relative; height: auto; width: 100%; aspect-ratio: 0.78125; background-image: url(&quot;project://database/Assets/Icons/pins%20&amp;%20action/pins%20&amp;%20action/VehiclePin.PNG?fileID=21300000&amp;guid=2c6df7ff3f1f1cc4baa31be1e7575d47&amp;type=3#VehiclePin&quot;); flex-shrink: 0;">
             <ui:VisualElement name="Icon" picking-mode="Ignore" class="element" style="flex-grow: 0; width: 100%; height: 100%; background-image: none; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-background-scale-mode: scale-to-fit; position: absolute;"/>
         </AlphaPickableElement>
     </ui:VisualElement>
