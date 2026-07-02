@@ -16,8 +16,10 @@ namespace Map.GeometryGeneration.Edges
         private const float ROAD_RADIUS = 0.01f;
         private const float FULL_ROAD_RADIUS = ROAD_RADIUS * 0.9f;
 
-        private const float FASTEST_ROAD_NORMAL_DELTA = 0.0012f;
-        private const float CHEAPEST_ROAD_NORMAL_DELTA = 0.001f;
+        private const float FASTEST_ROAD_NORMAL_DELTA = 0.0013f;
+        private const float CHEAPEST_ROAD_NORMAL_DELTA = 0.0012f;
+        private const float FASTEST_ROAD_PREVIEW_NORMAL_DELTA = 0.0011f;
+        private const float CHEAPEST_ROAD_PREVIEW_NORMAL_DELTA = 0.001f;
         private const float QUEUED_ROAD_NORMAL_DELTA = 0.0008f;
         private const float QUEUED_ROAD_NORMAL_DELTA_PER_INDEX = 0.000005f;
         private const float CURRENT_ROAD_NORMAL_DELTA = 0.0006f;
@@ -412,6 +414,8 @@ namespace Map.GeometryGeneration.Edges
                 Route.RouteType.Cheapest => CHEAPEST_ROAD_NORMAL_DELTA,
                 Route.RouteType.Queued => QUEUED_ROAD_NORMAL_DELTA + index * QUEUED_ROAD_NORMAL_DELTA_PER_INDEX,
                 Route.RouteType.Current => CURRENT_ROAD_NORMAL_DELTA,
+                Route.RouteType.CheapestPreview => CHEAPEST_ROAD_PREVIEW_NORMAL_DELTA,
+                Route.RouteType.FastestPreview => FASTEST_ROAD_PREVIEW_NORMAL_DELTA,
                 _ => FASTEST_ROAD_NORMAL_DELTA,
             };
 

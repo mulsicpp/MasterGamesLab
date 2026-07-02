@@ -61,5 +61,14 @@ namespace Map.GeometryGeneration
 
             meshFilter.mesh.SetUVs(1, uv1);
         }
+
+        public void UpdateLayers(string defaultName, string outlineName, string outlineTransparentName)
+        {
+            defaultLayerName = defaultName;
+            outlineLayerName = outlineName;
+            outlineTransparentLayerName = outlineTransparentName;
+
+            base.Init();
+        }
     }
 }

@@ -330,7 +330,10 @@ namespace UI
         }
         public void setActionQueueVisible(bool visible)
         {
-            if (!visible) mainCamera.supressZoom = false;
+            if (!visible)
+            {
+                mainCamera.supressZoom = false;
+            }
 
             Visibility style = visible ? Visibility.Visible : Visibility.Hidden;
             actionQueue.style.visibility = style;

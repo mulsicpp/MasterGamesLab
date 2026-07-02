@@ -58,6 +58,8 @@ namespace Map.GeometryGeneration.Edges
                 Route.RouteType.Fastest => Constants.FASTEST_ROUTE_OUTLINE,
                 Route.RouteType.Queued => Constants.QUEUED_ROUTE_OUTLINE,
                 Route.RouteType.Current => Constants.CURRENT_ROUTE_OUTLINE,
+                Route.RouteType.CheapestPreview => Constants.CHEAPEST_ROUTE_PREVIEW_OUTLINE,
+                Route.RouteType.FastestPreview => Constants.FASTEST_ROUTE_PREVIEW_OUTLINE,
                 _ => Constants.TRANSPARENT_OUTLINE,
             };
 
@@ -79,6 +81,8 @@ namespace Map.GeometryGeneration.Edges
                 Route.RouteType.Fastest => Constants.FASTEST_ROUTE_OUTLINE_HOVERED,
                 Route.RouteType.Queued => Constants.QUEUED_ROUTE_OUTLINE_HOVERED,
                 Route.RouteType.Current => Constants.CURRENT_ROUTE_OUTLINE_HOVERED,
+                Route.RouteType.CheapestPreview => Constants.CHEAPEST_ROUTE_PREVIEW_OUTLINE_HOVERED,
+                Route.RouteType.FastestPreview => Constants.FASTEST_ROUTE_PREVIEW_OUTLINE_HOVERED,
                 _ => Constants.TRANSPARENT_OUTLINE,
             };
 

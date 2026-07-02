@@ -156,6 +156,10 @@ public static class Constants
     public static readonly Color ROAD_BLUEPRINT_COLOR = Color.orange;
     public static readonly Color ROAD_BLUEPRINT_PREVIEW_COLOR = Color.yellow;
 
+    public static readonly Color VEHICLE_ACTION_COLOR = Color.yellow;
+    public static readonly Color VEHICLE_ACTION_COLOR_INVALID = Color.red;
+    public static readonly Color VEHICLE_ACTION_COLOR_PREVIEW = Color.orange;
+
     public struct OutlineData
     {
         public Color OutlineColor;
@@ -284,17 +288,45 @@ public static class Constants
         TextureId = 1,
     };
 
+    public static OutlineData FASTEST_ROUTE_PREVIEW_OUTLINE = new OutlineData()
+    {
+        OutlineColor = new Color(0, 0, 0, 0),
+        InnerColor = Color.darkOrange,
+        TextureId = 1,
+    };
+
+    public static OutlineData FASTEST_ROUTE_PREVIEW_OUTLINE_HOVERED = new OutlineData()
+    {
+        OutlineColor = Color.darkOrange,
+        InnerColor = Color.darkOrange,
+        TextureId = 1,
+    };
+
+    public static OutlineData CHEAPEST_ROUTE_PREVIEW_OUTLINE = new OutlineData()
+    {
+        OutlineColor = new Color(0, 0, 0, 0),
+        InnerColor = Color.darkGreen,
+        TextureId = 1,
+    };
+
+    public static OutlineData CHEAPEST_ROUTE_PREVIEW_OUTLINE_HOVERED = new OutlineData()
+    {
+        OutlineColor = Color.darkGreen,
+        InnerColor = Color.darkGreen,
+        TextureId = 1,
+    };
+
     public static OutlineData QUEUED_ROUTE_OUTLINE = new OutlineData()
     {
         OutlineColor = new Color(0, 0, 0, 0),
-        InnerColor = Color.yellow,
+        InnerColor = VEHICLE_ACTION_COLOR,
         TextureId = 1,
     };
 
     public static OutlineData QUEUED_ROUTE_OUTLINE_HOVERED = new OutlineData()
     {
-        OutlineColor = Color.yellow,
-        InnerColor = Color.yellow,
+        OutlineColor = VEHICLE_ACTION_COLOR,
+        InnerColor = VEHICLE_ACTION_COLOR,
         TextureId = 1,
     };
 
