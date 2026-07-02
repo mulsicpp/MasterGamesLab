@@ -3,6 +3,7 @@ using Map.Fleet;
 using Map.GeometryGeneration.Edges;
 using Map.Hoverables;
 using Map.Infrastructure;
+using Map.OutlineEffect;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -249,12 +250,15 @@ namespace UI
         private List<VehicleActionRenderer> vehicleActionRenderers;
         private Route currentRoute;
 
+        private List<IOutlinable> outlinedTargets;
+
         public void Start()
         {
             RouteOptions = new();
             vehicleActionRenderers = new();
             currentRoute = new(Route.RouteType.Current);
             currentRoute.Renderer.PinVisible = false;
+            outlinedTargets = new();
         }
 
         public void DisableControls()
@@ -268,6 +272,12 @@ namespace UI
 
         public void UpdateControls()
         {
+            foreach (var t in outlinedTargets)
+            {
+                t?.ClearOutline();
+            }
+            outlinedTargets.Clear();
+
             if (selectedVehicle == null || SelectedVehicle.ActionQueue.Count == 0 && SelectedVehicle.Route == null)
             {
                 IngameUI.Instance.setActionQueueVisible(false);
@@ -287,6 +297,68 @@ namespace UI
                 SelectedVehicle.ShowOutline(Constants.SELECTED_OUTLINE);
                 var start = SelectedVehicle.GetTileLocationAfterAllActions(out bool loaded);
                 RouteOptions.VisualDestination?.ShowOutline(Constants.SELECTED_OUTLINE);
+
+                if (SelectedVehicle is Truck truck)
+                {
+                    if (loaded)
+                    {
+                        Func<Tile, Tile, bool> canPass = (s, t) => Vehicle.CanCross(s, t, Vehicle.VehicleType.Freighter) || t.Structure?.Type == Structure.StructureType.Port;
+                        var driveTargets = Pathfinding.FindAllReachable(start, t => t.Structure?.Type == Structure.StructureType.Port, canPass);
+
+                        foreach (var t in driveTargets)
+                        {
+                            // t.Structure.ShowOutline(Constants.UNLOAD_TARGET_OUTLINE);
+                            outlinedTargets.Add(t.Structure);
+                        }
+                    }
+                    else
+                    {
+                        var driveTargets = Pathfinding.FindAllReachable(start, t => truck.DriveDestinationCondition(t) && t != start, (s, t) => Vehicle.CanCross(s, t, Vehicle.VehicleType.Truck));
+
+                        foreach (var t in driveTargets)
+                        {
+                            // t.Structure.ShowOutline(Constants.TRUCK_DRIVE_TARGET_OUTLINE);
+                            outlinedTargets.Add(t.Structure);
+                            if (t.Structure?.Type == Structure.StructureType.Port)
+                            {
+                                foreach (var n in t.Neighbors)
+                                    if (n.Type == Tile.TileType.Water)
+                                    {
+                                        // n.ShowOutline(Constants.LOAD_TARGET_OUTLINE);
+                                        outlinedTargets.Add(n);
+                                    }
+                            }
+                        }
+
+                        if (start.Structure?.Type == Structure.StructureType.Port)
+                        {
+                            foreach (var n in start.Neighbors)
+                                if (n.Type == Tile.TileType.Water)
+                                {
+                                    // n.ShowOutline(Constants.LOAD_TARGET_OUTLINE);
+                                    outlinedTargets.Add(n);
+                                }
+                        }
+                    }
+                } else if (SelectedVehicle is Freighter freighter)
+                {
+                    var driveTargets = Pathfinding.FindAllReachable(start, t => freighter.DriveDestinationCondition(t) && t != start, (s, t) => Vehicle.CanCross(s, t, Vehicle.VehicleType.Freighter));
+
+                    foreach (var t in driveTargets)
+                    {
+                        // t.ShowOutline(Constants.TRUCK_DRIVE_TARGET_OUTLINE);
+                        outlinedTargets.Add(t);
+                    }
+
+                    foreach (var n in start.Neighbors)
+                    {
+                        if (n.Structure?.Type == Structure.StructureType.Port)
+                        {
+                            // n.Structure.ShowOutline(Constants.WAIT_TARGET_OUTLINE);
+                            outlinedTargets.Add(n.Structure);
+                        }
+                    }
+                }
 
                 switch (Map.Map.Instance.CurrentlyHovered)
                 {
@@ -384,7 +456,6 @@ namespace UI
 
         public void BuildActionQueueGameObjects()
         {
-            Debug.Log("Building action queue game objects");
             IngameUI.Instance.setActionQueueVisible(true);
 
             foreach (var renderer in vehicleActionRenderers)

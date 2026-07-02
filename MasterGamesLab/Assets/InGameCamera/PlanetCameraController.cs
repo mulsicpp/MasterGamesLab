@@ -289,8 +289,6 @@ namespace InGameCamera
                 transform.rotation = Quaternion.FromToRotation(-transform.forward, (FocusedObject.transform.position - Target.transform.position).normalized) * transform.rotation;
 
                 transform.position = Target.position + transform.rotation * new Vector3(0f, 0f, -CurrentDistance);
-
-                Debug.Log("Snapping to focused object: position is now: " + transform.position + " target is: " + Target.transform.position);
             }
         }
 

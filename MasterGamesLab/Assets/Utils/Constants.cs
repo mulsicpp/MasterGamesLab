@@ -56,6 +56,8 @@ public static class Constants
     public const int MIN_RANDOM_COST = 0;
     public const int MAX_RANDOM_COST = 0;
 
+    public const int MAX_PAYOUT = 1000;
+
     public const float FOREIGN_GOOD_PAYOUT_FACTOR = 3.0f;
 
     public static readonly float[,] GOOD_SPAWN_CHANCE_PER_CONTINENT = new float[4, 5]
@@ -80,8 +82,11 @@ public static class Constants
     public const float MIN_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 20f;
     public const float MAX_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 50f;
 
-    public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.08f;
-    public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.15f;
+    public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.02f;
+    public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.05f;
+
+    public const int MIN_CONSUMER_PAYOUT_INCREASE_BASE = 10;
+    public const int MAX_CONSUMER_PAYOUT_INCREASE_BASE = 50;
 
 
     public const float MIN_CONSUMER_SPAWN_COOLDOWN = 5f;
@@ -192,6 +197,27 @@ public static class Constants
         InnerColor = new Color(0f, 0.5f, 1.0f, 0.5f),
         TextureId = 0,
     };
+
+
+    public static OutlineData TRUCK_DRIVE_TARGET_OUTLINE = new OutlineData()
+    {
+        OutlineColor = Color.magenta,
+        InnerColor = new Color(0, 0, 0, 0),
+        TextureId = 0,
+    };
+
+    public static OutlineData FREIGHTER_DRIVE_TARGET_OUTLINE = TRUCK_DRIVE_TARGET_OUTLINE;
+
+    public static OutlineData LOAD_TARGET_OUTLINE = new OutlineData()
+    {
+        OutlineColor = Color.magenta,
+        InnerColor = new Color(0, 0, 0, 0),
+        TextureId = 0,
+    };
+
+    public static OutlineData UNLOAD_TARGET_OUTLINE = LOAD_TARGET_OUTLINE;
+    public static OutlineData WAIT_TARGET_OUTLINE = LOAD_TARGET_OUTLINE;
+
 
     public static OutlineData ROAD_BLUEPRINT_VALID_OUTLINE = new OutlineData()
     {

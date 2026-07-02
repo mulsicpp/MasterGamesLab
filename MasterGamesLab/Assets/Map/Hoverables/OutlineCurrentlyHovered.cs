@@ -28,7 +28,6 @@ namespace Map.Hoverables
 
         private void LateUpdate()
         {
-            if (previouslyHovered == Map.Instance.CurrentlyHovered) return;
             UpdateOutline(HoverState);
         }
 

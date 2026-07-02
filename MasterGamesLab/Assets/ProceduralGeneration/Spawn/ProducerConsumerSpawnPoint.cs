@@ -91,7 +91,7 @@ public class ProducerConsumerSpawnPoint
             }
         }
 
-        Debug.Log("Found " + candidates.Count + " spawn tiles on continent " + continentId);
+        // Debug.Log("Found " + candidates.Count + " spawn tiles on continent " + continentId);
 
         if (candidates.Count == 0)
         {
