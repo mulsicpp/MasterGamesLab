@@ -36,7 +36,7 @@ namespace UI
             wrapper.style.marginTop = StyleKeyword.Null;
 
             wrapper.style.transformOrigin = new TransformOrigin(Length.Percent(50f), Length.Percent(100f));
-            Debug.Log(template);
+            // Debug.Log(template);
 
             VisualElement visualContent = template.Instantiate();
             wrapper.Add(visualContent);

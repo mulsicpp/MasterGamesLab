@@ -384,7 +384,6 @@ namespace UI
 
         public void BuildActionQueueGameObjects()
         {
-            Debug.Log("Building action queue game objects");
             IngameUI.Instance.setActionQueueVisible(true);
 
             foreach (var renderer in vehicleActionRenderers)

@@ -395,7 +395,7 @@ namespace Map.GeometryGeneration.Edges
                 tiles[i] = Map.Instance.Tiles[tileIds[i]] as Tile;
             }
 
-            Debug.Log(go);
+            // Debug.Log(go);
             var routeGeometry = go.GetComponent<RouteGeometry>();
             routeGeometry.Init(type, index);
             routeGeometry.ClearMeshData();

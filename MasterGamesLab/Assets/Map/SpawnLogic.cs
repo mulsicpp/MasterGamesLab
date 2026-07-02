@@ -167,7 +167,7 @@ namespace Map
 
             if ((consumerRequestCooldown -= tickDuration) <= 0)
             {
-                Debug.Log("Generating consumer request! Available consumers: " + readyConsumers.Where(c => c.Request.Good == Good.None).Count() + "/" + readyConsumers.Count + "  Available goods: " + availableGoods.Count);
+                // Debug.Log("Generating consumer request! Available consumers: " + readyConsumers.Where(c => c.Request.Good == Good.None).Count() + "/" + readyConsumers.Count + "  Available goods: " + availableGoods.Count);
                 consumerRequestCooldown = NextConsumerRequestCooldown();
                 if (readyConsumers.Count > 0)
                 {
@@ -257,8 +257,6 @@ namespace Map
         private void SpawnConsumer(float value)
         {
             int cont = consumerContinentDistribution.GetFromValue(value);
-
-            Debug.Log("Spawning consumer on " + cont);
             var consTile = spawnPointGenerator.GetSpawnableTile(Structure.StructureType.Consumer, cont);
             if (consTile != null)
             {

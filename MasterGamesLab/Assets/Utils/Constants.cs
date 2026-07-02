@@ -56,6 +56,8 @@ public static class Constants
     public const int MIN_RANDOM_COST = 0;
     public const int MAX_RANDOM_COST = 0;
 
+    public const int MAX_PAYOUT = 1000;
+
     public const float FOREIGN_GOOD_PAYOUT_FACTOR = 3.0f;
 
     public static readonly float[,] GOOD_SPAWN_CHANCE_PER_CONTINENT = new float[4, 5]
@@ -80,8 +82,11 @@ public static class Constants
     public const float MIN_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 20f;
     public const float MAX_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 50f;
 
-    public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.08f;
-    public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.15f;
+    public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.02f;
+    public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.05f;
+
+    public const int MIN_CONSUMER_PAYOUT_INCREASE_BASE = 10;
+    public const int MAX_CONSUMER_PAYOUT_INCREASE_BASE = 50;
 
 
     public const float MIN_CONSUMER_SPAWN_COOLDOWN = 5f;

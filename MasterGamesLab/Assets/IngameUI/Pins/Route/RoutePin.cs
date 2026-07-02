@@ -52,7 +52,7 @@ public class RoutePin : Pin
             return;
         }
         cost.text = routeRenderer.Route.Cost.ToString();
-        duration.text = routeRenderer.Route.Duration.ToString();
+        duration.text = ((int)Mathf.Ceil(routeRenderer.Route.Duration)).ToString();
         SetShowing(true);
         base.LateUpdate();
     }
