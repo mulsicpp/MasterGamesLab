@@ -121,17 +121,17 @@ public static class Pathfinding
     /// Floods outward from a start tile to find all interconnected tiles matching a target condition.
     /// Uses a pure binary transition check to determine if a neighbor can be entered.
     /// </summary>
-    public static TileId[] FindAllReachable(
+    public static Tile[] FindAllReachable(
         Tile start,
         Predicate<Tile> targetCondition,
         Func<Tile, Tile, bool> canPass)
     {
-        if (start == null || targetCondition == null || canPass == null) return Array.Empty<TileId>();
+        if (start == null || targetCondition == null || canPass == null) return Array.Empty<Tile>();
 
         Array.Clear(visitedTilesBuffer, 0, visitedTilesBuffer.Length);
         reachabilityQueue.Clear();
 
-        List<TileId> matchingTargets = new List<TileId>();
+        List<Tile> matchingTargets = new List<Tile>();
 
         TileId startId = start.Id;
         visitedTilesBuffer[startId] = true;
@@ -143,7 +143,7 @@ public static class Pathfinding
 
             if (targetCondition(current))
             {
-                matchingTargets.Add(current.Id);
+                matchingTargets.Add(current);
             }
 
             foreach (Tile neighborTile in current.Neighbors)

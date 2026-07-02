@@ -198,6 +198,27 @@ public static class Constants
         TextureId = 0,
     };
 
+
+    public static OutlineData TRUCK_DRIVE_TARGET_OUTLINE = new OutlineData()
+    {
+        OutlineColor = Color.magenta,
+        InnerColor = new Color(0, 0, 0, 0),
+        TextureId = 0,
+    };
+
+    public static OutlineData FREIGHTER_DRIVE_TARGET_OUTLINE = TRUCK_DRIVE_TARGET_OUTLINE;
+
+    public static OutlineData LOAD_TARGET_OUTLINE = new OutlineData()
+    {
+        OutlineColor = Color.magenta,
+        InnerColor = new Color(0, 0, 0, 0),
+        TextureId = 0,
+    };
+
+    public static OutlineData UNLOAD_TARGET_OUTLINE = LOAD_TARGET_OUTLINE;
+    public static OutlineData WAIT_TARGET_OUTLINE = LOAD_TARGET_OUTLINE;
+
+
     public static OutlineData ROAD_BLUEPRINT_VALID_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.black,
