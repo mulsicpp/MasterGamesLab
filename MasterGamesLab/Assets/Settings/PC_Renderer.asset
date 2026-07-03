@@ -19,7 +19,7 @@ MonoBehaviour:
     layerMask:
       serializedVersion: 2
       m_Bits: 28800
-    showDebugOnScreen: 1
+    showDebugOnScreen: 0
     debugBlitMaterial: {fileID: 2100000, guid: ea7ec7fdcc0529c44822f2290b0b33de, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
