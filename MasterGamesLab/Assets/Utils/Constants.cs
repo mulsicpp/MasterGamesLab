@@ -306,28 +306,28 @@ public static class Constants
     {
         OutlineColor = new Color(0, 0, 0, 0),
         InnerColor = Color.darkOrange,
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData FASTEST_ROUTE_PREVIEW_OUTLINE_HOVERED = new OutlineData()
     {
         OutlineColor = Color.darkOrange,
         InnerColor = Color.darkOrange,
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData CHEAPEST_ROUTE_PREVIEW_OUTLINE = new OutlineData()
     {
         OutlineColor = new Color(0, 0, 0, 0),
         InnerColor = Color.darkGreen,
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData CHEAPEST_ROUTE_PREVIEW_OUTLINE_HOVERED = new OutlineData()
     {
         OutlineColor = Color.darkGreen,
         InnerColor = Color.darkGreen,
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData QUEUED_ROUTE_OUTLINE = new OutlineData()
