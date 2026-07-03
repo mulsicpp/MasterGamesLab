@@ -67,6 +67,12 @@ namespace Map.Fleet
                         case VisualState.Invalid:
                             Geometry.SetAsBluePrintInvalid();
                             break;
+                        case VisualState.Overlapping:
+                            Geometry.SetAsBluePrintOverlapping();
+                            break;
+                        case VisualState.PreviewOverlapping:
+                            Geometry.SetAsPreviewOverlapping();
+                            break;
                         default:
                             Geometry.SetBaseLayer();
                             break;
