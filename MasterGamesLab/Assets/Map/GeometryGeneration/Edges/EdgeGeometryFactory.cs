@@ -6,15 +6,13 @@ namespace Map.GeometryGeneration.Edges
 {
     public static class EdgeGeometryFactory
     {
-        private const float EDGE_WIDTH = 0.01f;
-        private const float EDGE_HEIGHT = 0.005f;
-        private const float BUOY_SCALE = 0.0055f;
+        private static float BuoyScale => 0.007f * Map.Instance.TileScale;
 
-        private const float EDGE_HANDLE_DISTANCE = 0.025f;
-        private const float ROAD_HEIGHT = 0.01f;
         private const int EDGE_RESOLUTION = 5;
-        private const float ROAD_RADIUS = 0.01f;
-        private const float FULL_ROAD_RADIUS = ROAD_RADIUS * 0.9f;
+
+        private static float RoadRadius => 0.016f * Map.Instance.TileScale;
+
+        private static float FullRoadRadius => RoadRadius * 0.95f * Map.Instance.TileScale;
 
         private const float FASTEST_ROAD_NORMAL_DELTA = 0.0012f;
         private const float CHEAPEST_ROAD_NORMAL_DELTA = 0.001f;
@@ -384,13 +382,14 @@ namespace Map.GeometryGeneration.Edges
             };
         }
 
-        public static RouteGeometry GenerateRoute(TileId[] tileIds, Route.RouteType type, int index, ParametricCurve.CurveData? curveData)
+        public static RouteGeometry GenerateRoute(TileId[] tileIds, Route.RouteType type, int index,
+            ParametricCurve.CurveData? curveData)
         {
             var go = GeometriesManager.Instance.GetRouteGameObject();
 
             var tiles = new Tile[tileIds.Length];
 
-            for(int i = 0; i < tiles.Length; i++)
+            for (int i = 0; i < tiles.Length; i++)
             {
                 tiles[i] = Map.Instance.Tiles[tileIds[i]] as Tile;
             }
@@ -444,8 +443,8 @@ namespace Map.GeometryGeneration.Edges
                 var (p, normal) = GetPosAndNormal(curve, t);
                 p += p.normalized * heightOffset;
 
-                var leftPoint = p + normal * FULL_ROAD_RADIUS;
-                var rightPoint = p - normal * FULL_ROAD_RADIUS;
+                var leftPoint = p + normal * FullRoadRadius;
+                var rightPoint = p - normal * FullRoadRadius;
 
                 element.AddVertex(leftPoint, uv1);
                 element.AddVertex(rightPoint, uv1);
@@ -470,8 +469,8 @@ namespace Map.GeometryGeneration.Edges
             for (var i = 0; i < profile.Length; i++)
             {
                 var profileValue = profile[i];
-                var horizontalPos = center + normal * (profileValue.t * ROAD_RADIUS);
-                var pos = horizontalPos + horizontalPos.normalized * (profileValue.height * ROAD_RADIUS);
+                var horizontalPos = center + normal * (profileValue.t * RoadRadius);
+                var pos = horizontalPos + horizontalPos.normalized * (profileValue.height * RoadRadius);
 
                 data.z = profile[i].uvXValue;
 
@@ -517,7 +516,7 @@ namespace Map.GeometryGeneration.Edges
             var data = edge.GetEdgeData();
             data.z = 1.5f;
 
-            AddGeometryAtPosWithNormal(geometry, pos, normal, BUOY_SCALE, buoyMesh, data);
+            AddGeometryAtPosWithNormal(geometry, pos, normal, BuoyScale, buoyMesh, data);
 
             return geometry;
         }

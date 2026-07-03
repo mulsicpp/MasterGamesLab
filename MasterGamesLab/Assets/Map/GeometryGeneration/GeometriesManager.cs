@@ -37,9 +37,9 @@ namespace Map.GeometryGeneration
             ActionUnload,
         }
 
-        private const float SCALE_VALUE = 0.008f;
+        private static float ScaleValue => 0.0095f * Map.Instance.TileScale;
 
-        public static Vector3 Scale => new Vector3(SCALE_VALUE, SCALE_VALUE, SCALE_VALUE);
+        public static Vector3 Scale => new Vector3(ScaleValue, ScaleValue, ScaleValue);
         public static GeometriesManager Instance { get; private set; }
 
         [SerializeField] private Mesh truckMesh;

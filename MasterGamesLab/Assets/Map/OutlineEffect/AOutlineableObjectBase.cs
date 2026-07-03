@@ -101,7 +101,7 @@ namespace Map.OutlineEffect
         {
             outlineColor = outlineData.OutlineColor;
             innerColor = outlineData.InnerColor;
-            textureId = outlineData.TextureId;
+            textureId = (int)outlineData.TextureId;
             SetMaterialPropertyBlock();
         }
 

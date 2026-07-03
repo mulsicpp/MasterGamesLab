@@ -77,15 +77,15 @@ namespace Map.GeometryGeneration
         private static readonly Vector2 TextureSize = new(8700, 2500);
         private static readonly Vector2 InvTextureSize = new(1f / TextureSize.x, 1f / TextureSize.y);
 
-        public const float WATER_HEIGHT = 0.99f;
+        public const float WATER_HEIGHT = 0.995f;
         public const float LAND_HEIGHT = 1f;
-        public const float MOUNTAIN_HEIGHT = 1.04f;
+        public const float MOUNTAIN_HEIGHT = 1.025f;
         private static readonly float BorderHeight = Math.Min(WATER_HEIGHT, Math.Min(LAND_HEIGHT, MOUNTAIN_HEIGHT));
 
         private const int MIN_TREES_PER_TRIANGLE = 1;
         private const int MAX_TREES_PER_TRIANGLE = 2;
-        private const float MIN_TREE_SCALE = 0.019f;
-        private const float MAX_TREE_SCALE = 0.023f;
+        private static float MinTreeScale => 0.019f * Map.Instance.TileScale;
+        private static float MaxTreeScale => 0.023f * Map.Instance.TileScale;
 
         private static float canalInsetLand;
         private static float canalInsetWater;
@@ -114,7 +114,7 @@ namespace Map.GeometryGeneration
         {
             canalInsetLand = insetLand;
             canalInsetWater = insetWater;
-            canalRandomStrength = random;
+            canalRandomStrength = random * Map.Instance.TileScale;
 
             var bTick = (1 - insetLand) / SIN_30;
             var percentageAlongVertexToCenter = 1f - bTick;
@@ -393,8 +393,8 @@ namespace Map.GeometryGeneration
                     {
                         Position = pos,
                         Normal = pos.normalized,
-                        Scale = (float)prng.NextDouble() * (MAX_TREE_SCALE - MIN_TREE_SCALE) +
-                                MIN_TREE_SCALE,
+                        Scale = (float)prng.NextDouble() * (MaxTreeScale - MinTreeScale) +
+                                MinTreeScale,
                         Yaw = (float)prng.NextDouble() * 360f,
                         Random = (float)prng.NextDouble(),
                         Active = tile.Active ? 1 : 0,

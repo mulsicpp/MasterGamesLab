@@ -162,15 +162,20 @@ public static class Constants
         Hatching = 5,
     }
 
-    public static readonly Color ROAD_BLUEPRINT_COLOR = Color.orange;
-    public static readonly Color ROAD_BLUEPRINT_PREVIEW_COLOR = Color.yellow;
-
     public struct OutlineData
     {
         public Color OutlineColor;
         public Color InnerColor;
-        public int TextureId;
+        public OutlineTextures TextureId;
     }
+
+    public static OutlineData BlueprintPreviewOutline = new OutlineData()
+    {
+        OutlineColor = new Color(0, 0, 0, 0),
+        InnerColor = new Color(0, 0, 0, 0),
+        TextureId = OutlineTextures.Clear,
+    };
+
 
     public static OutlineData TRANSPARENT_OUTLINE = new OutlineData()
     {
@@ -183,14 +188,14 @@ public static class Constants
     {
         OutlineColor = new Color(1f, 0.92f, 0.016f, 0.6f),
         InnerColor = new Color(0, 0, 0, 0),
-        TextureId = (int)OutlineTextures.Hatching,
+        TextureId = OutlineTextures.Hatching,
     };
 
     public static OutlineData HOVER_OUTLINE_FILLED_IN = new OutlineData()
     {
         OutlineColor = HOVER_OUTLINE.OutlineColor,
         InnerColor = new Color(1f, 0.92f, 0.016f, 0.5f),
-        TextureId = 1
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData SELECTED_OUTLINE = new OutlineData()
@@ -232,28 +237,28 @@ public static class Constants
     {
         OutlineColor = Color.black,
         InnerColor = new Color(0.5f, 0.5f, 1f, 0.2f),
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData CANAL_BLUEPRINT_VALID_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.blue,
         InnerColor = new Color(0, 1, 1, 0.5f),
-        TextureId = 1,
+        TextureId = OutlineTextures.Clear,
     };
 
     public static OutlineData ROAD_BLUEPRINT_PREVIEW_OVERLAPPING_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.grey,
         InnerColor = new Color(0, 0, 0, 0.2f),
-        TextureId = (int)OutlineTextures.Diagonal,
+        TextureId = OutlineTextures.Diagonal,
     };
 
     public static OutlineData ROAD_BLUEPRINT_OVERLAPPING_OUTLINE = new OutlineData()
     {
         OutlineColor = Color.black,
         InnerColor = new Color(0, 0, 0, 1f),
-        TextureId = (int)OutlineTextures.Checkerboard,
+        TextureId = OutlineTextures.Checkerboard,
     };
 
     public static readonly Color ROAD_BLUEPRINT_INVALID_COLOR = Color.orange;
@@ -262,62 +267,62 @@ public static class Constants
     {
         OutlineColor = Color.red,
         InnerColor = new Color(255, 0, 0, 0.5f),
-        TextureId = 1,
+        TextureId = OutlineTextures.Clear,
     };
 
     public static OutlineData FASTEST_ROUTE_OUTLINE = new OutlineData()
     {
         OutlineColor = new Color(0, 0, 0, 0),
         InnerColor = Color.orange,
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData FASTEST_ROUTE_OUTLINE_HOVERED = new OutlineData()
     {
         OutlineColor = Color.orange,
         InnerColor = Color.orange,
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData CHEAPEST_ROUTE_OUTLINE = new OutlineData()
     {
         OutlineColor = new Color(0, 0, 0, 0),
         InnerColor = Color.green,
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData CHEAPEST_ROUTE_OUTLINE_HOVERED = new OutlineData()
     {
         OutlineColor = Color.green,
         InnerColor = Color.green,
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData QUEUED_ROUTE_OUTLINE = new OutlineData()
     {
         OutlineColor = new Color(0, 0, 0, 0),
         InnerColor = Color.yellow,
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData QUEUED_ROUTE_OUTLINE_HOVERED = new OutlineData()
     {
         OutlineColor = Color.yellow,
         InnerColor = Color.yellow,
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData CURRENT_ROUTE_OUTLINE = new OutlineData()
     {
         OutlineColor = new Color(0, 0, 0, 0),
         InnerColor = SELECTED_OUTLINE.OutlineColor,
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 
     public static OutlineData CURRENT_ROUTE_OUTLINE_HOVERED = new OutlineData()
     {
         OutlineColor = SELECTED_OUTLINE.OutlineColor,
         InnerColor = SELECTED_OUTLINE.OutlineColor,
-        TextureId = 1,
+        TextureId = OutlineTextures.Full,
     };
 }
