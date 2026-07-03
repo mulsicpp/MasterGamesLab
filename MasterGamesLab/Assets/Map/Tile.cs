@@ -493,6 +493,11 @@ namespace Map
             ShowOutline(outlineData);
         }
 
+        public void SetHoverableStatus(bool isHoverable)
+        {
+            // tiles are always hoverable (they are rejected in Map.Map.OnReadbackComplete)
+        }
+        
         public void TriggerGeometryChange()
         {
             GeometryChanged = true;

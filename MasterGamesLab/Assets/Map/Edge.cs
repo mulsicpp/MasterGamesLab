@@ -281,7 +281,6 @@ namespace Map
             if (geometry == null)
             {
                 geometry = sender.Chunk.RequestNewEdgeGeometry();
-                geometry.SetLayerNames("Default", "Outline", "Outline Transparent");
             }
 
             if (sender.Id == StartTile.Id)
@@ -369,7 +368,7 @@ namespace Map
             {
                 geometry.SetMaterial(GeometriesManager.Instance.GetBuoyMaterial());
             }
-            
+
             geometry.SetBaseLayer();
         }
 
@@ -467,6 +466,12 @@ namespace Map
                 _ => Constants.HOVER_OUTLINE_FILLED_IN,
             };
             ShowOutline(outlineData);
+        }
+
+        public void SetHoverableStatus(bool isHoverable)
+        {
+            blueprintGeometry.CurrentlyHoverable = isHoverable;
+            geometry.CurrentlyHoverable = isHoverable;
         }
     }
 }

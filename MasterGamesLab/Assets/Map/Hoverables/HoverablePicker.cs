@@ -29,7 +29,6 @@ namespace Map.Hoverables
 
         public bool RequestPending { get; private set; }
         public Vector2Int MousePosition { get; private set; }
-        public int LayerMask { get; private set; }
         public Action<AsyncGPUReadbackRequest> Callback { get; private set; }
         public RTHandle Persistent1X1RT { get; private set; }
 
@@ -45,7 +44,6 @@ namespace Map.Hoverables
             }
 
             MousePosition = screenPos;
-            SetLayerMask();
             Callback = callback;
             RequestPending = true;
 
@@ -65,37 +63,6 @@ namespace Map.Hoverables
         {
             Persistent1X1RT?.Release();
             Persistent1X1RT = null;
-        }
-
-        private void SetLayerMask()
-        {
-            LayerMask = 0;
-
-            var layers = Map.Instance.HoverLayers;
-            var isAll = layers.HasFlag(HoverableLayer.All);
-
-            LayerMask |= 1 << Map.RouteLayer;
-            LayerMask |= 1 << Map.RouteOutlineLayer;
-            LayerMask |= 1 << Map.RouteOutlineTransparentLayer;
-
-            if (isAll || layers.HasFlag(HoverableLayer.Tiles))
-            {
-                LayerMask |= 1 << Map.TileLayer;
-            }
-
-            if (isAll || layers.HasFlag(HoverableLayer.Edges))
-            {
-                LayerMask |= 1 << Map.EdgeLayer;
-                LayerMask |= 1 << Map.EdgeOutlineLayer;
-                LayerMask |= 1 << Map.EdgeOutlineTransparentLayer;
-            }
-
-            if (isAll || layers.HasFlag(HoverableLayer.Vehicles))
-            {
-                LayerMask |= 1 << Map.VehicleLayer;
-                LayerMask |= 1 << Map.VehicleOutlineLayer;
-                LayerMask |= 1 << Map.VehicleOutlineTransparentLayer;
-            }
         }
 
 #if UNITY_EDITOR

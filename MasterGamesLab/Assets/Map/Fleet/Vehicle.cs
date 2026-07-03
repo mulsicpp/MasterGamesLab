@@ -450,6 +450,7 @@ namespace Map.Fleet
         }
 
         public abstract bool CanDoAction(VehicleAction action);
+
         public void SubmitAction(VehicleAction action)
         {
             WaitingForActionResponse = true;
@@ -468,9 +469,11 @@ namespace Map.Fleet
                         truck.Freighter.OnActionQueueChanged?.Invoke();
                     }
                 }
+
                 ActionQueue.RemoveFirst();
                 OnActionQueueChanged?.Invoke();
             }
+
             WaitingForActionResponse = false;
         }
 
@@ -605,13 +608,15 @@ namespace Map.Fleet
                     loaded = true;
                     return t.Freighter.GetTileLocationAfterAction(t.Freighter.ActionQueue.First, out _);
                 }
+
                 if (IsParked) return ParkedTile;
                 if (IsDriving) return Route[^1];
                 return null;
-            } else
+            }
+            else
             {
                 var action = actionNode.Value;
-                if(action.Type == VehicleAction.ActionType.WaitForTruck)
+                if (action.Type == VehicleAction.ActionType.WaitForTruck)
                 {
                     return GetTileLocationAfterAction(actionNode.Previous, out _);
                 }
@@ -623,7 +628,8 @@ namespace Map.Fleet
             }
         }
 
-        public Tile GetTileLocationAfterAllActions(out bool loaded) => GetTileLocationAfterAction(ActionQueue.Last, out loaded);
+        public Tile GetTileLocationAfterAllActions(out bool loaded) =>
+            GetTileLocationAfterAction(ActionQueue.Last, out loaded);
 
         public void EvaluateGameObjectPresence()
         {
@@ -666,9 +672,18 @@ namespace Map.Fleet
             ShowOutline(outlineData);
         }
 
+        public void SetHoverableStatus(bool isHoverable)
+        {
+            if (Renderer && Renderer.Geometry)
+            {
+                Renderer.Geometry.CurrentlyHoverable = isHoverable;
+            }
+        }
+
         public void EnqueueAction(VehicleAction action)
         {
-            if (ActionQueue.Count < Constants.MAX_VEHICLE_ACTION_COUNT_PER_VEHICLE) {
+            if (ActionQueue.Count < Constants.MAX_VEHICLE_ACTION_COUNT_PER_VEHICLE)
+            {
                 ActionQueue.AddLast(action);
                 OnActionQueueChanged?.Invoke();
             }
@@ -680,6 +695,7 @@ namespace Map.Fleet
             {
                 ActionQueue.RemoveLast();
             }
+
             OnActionQueueChanged?.Invoke();
         }
     }
