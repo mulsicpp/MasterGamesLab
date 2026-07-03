@@ -91,9 +91,11 @@ namespace Map
         [SerializeField] private float projectionBaseSpeed = 2f;
         [SerializeField] private float projectionApproachFactor = 4f;
 
-        public HoverablePicker.HoverableLayer HoverLayers = HoverablePicker.HoverableLayer.All;
+        // public HoverablePicker.HoverableLayer HoverLayers = HoverablePicker.HoverableLayer.All;
 
-        public Predicate<IHoverable> ShouldBeHoverablePredicate = (_) => true;
+        public static readonly Predicate<IHoverable> DefaultHoverablePredicate = _ => true;
+
+        public Predicate<IHoverable> ShouldBeHoverablePredicate = DefaultHoverablePredicate;
 
         //debug
         private ITile[] debugSpawnPoints;
@@ -222,16 +224,12 @@ namespace Map
 
         private void UpdateHoverables()
         {
-            foreach (var edge in edges)
+            foreach (var entity in EntityIdManager.Entities)
             {
-                var hoverable = ShouldBeHoverablePredicate(edge);
-                edge.SetHoverableStatus(hoverable);
-            }
-
-            foreach (var vehicle in Fleet.Vehicles)
-            {
-                var hoverable = ShouldBeHoverablePredicate(vehicle);
-                vehicle.SetHoverableStatus(hoverable);
+                if (entity is IHoverable hoverable)
+                {
+                    hoverable.SetHoverableStatus(ShouldBeHoverablePredicate(hoverable));
+                }
             }
         }
 

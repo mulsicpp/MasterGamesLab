@@ -54,7 +54,7 @@ namespace UI
             var loadedgood = (vehicleRenderer.Vehicle as Truck).Good;
             good.style.backgroundImage = loadedgood != Good.None ? new StyleBackground(goodsImages[loadedgood]) : null;
 
-            if (IsHovered && Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Vehicles))
+            if (IsHovered && Map.Map.Instance.ShouldBeHoverablePredicate(vehicleRenderer.Vehicle))
             {
                 Map.Map.Instance.CurrentlyHovered = vehicleRenderer.Vehicle;
                 HoverablePicker.Instance.DenyPick = true;

@@ -164,6 +164,10 @@ public static class Constants
         Hatching = 5,
     }
 
+    public static readonly Color VEHICLE_ACTION_COLOR = Color.yellow;
+    public static readonly Color VEHICLE_ACTION_COLOR_INVALID = Color.red;
+    public static readonly Color VEHICLE_ACTION_COLOR_PREVIEW = Color.orange;
+
     [Serializable]
     public struct OutlineData
     {
@@ -300,17 +304,45 @@ public static class Constants
         textureId = OutlineTextures.Full,
     };
 
+    public static OutlineData FASTEST_ROUTE_PREVIEW_OUTLINE = new OutlineData()
+    {
+        OutlineColor = new Color(0, 0, 0, 0),
+        InnerColor = Color.darkOrange,
+        TextureId = OutlineTextures.Full,
+    };
+
+    public static OutlineData FASTEST_ROUTE_PREVIEW_OUTLINE_HOVERED = new OutlineData()
+    {
+        OutlineColor = Color.darkOrange,
+        InnerColor = Color.darkOrange,
+        TextureId = OutlineTextures.Full,
+    };
+
+    public static OutlineData CHEAPEST_ROUTE_PREVIEW_OUTLINE = new OutlineData()
+    {
+        OutlineColor = new Color(0, 0, 0, 0),
+        InnerColor = Color.darkGreen,
+        TextureId = OutlineTextures.Full,
+    };
+
+    public static OutlineData CHEAPEST_ROUTE_PREVIEW_OUTLINE_HOVERED = new OutlineData()
+    {
+        OutlineColor = Color.darkGreen,
+        InnerColor = Color.darkGreen,
+        TextureId = OutlineTextures.Full,
+    };
+
     public static OutlineData QUEUED_ROUTE_OUTLINE = new OutlineData()
     {
         outlineColor = new Color(0, 0, 0, 0),
-        innerColor = Color.yellow,
+        innerColor = VEHICLE_ACTION_COLOR,
         textureId = OutlineTextures.Full,
     };
 
     public static OutlineData QUEUED_ROUTE_OUTLINE_HOVERED = new OutlineData()
     {
-        outlineColor = Color.yellow,
-        innerColor = Color.yellow,
+        outlineColor = VEHICLE_ACTION_COLOR,
+        innerColor = VEHICLE_ACTION_COLOR,
         textureId = OutlineTextures.Full,
     };
 

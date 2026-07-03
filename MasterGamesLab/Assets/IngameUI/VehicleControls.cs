@@ -25,10 +25,12 @@ namespace UI
             protected VehicleControls controls;
 
             public abstract bool Commit();
+            public VehicleAction? VehicleActionPreview;
 
             public HoveredAction(VehicleControls controls)
             {
                 this.controls = controls;
+                VehicleActionPreview = null;
             }
         }
 
@@ -109,6 +111,8 @@ namespace UI
                         this.destination = destination;
                     }
                 }
+
+                controls.PreviewRouteOptions.Set(controls.SelectedVehicle, this.destination, fastestRoute, cheapestRoute, loadTile);
             }
 
             public override bool Commit()
@@ -134,6 +138,8 @@ namespace UI
                 if (destination.Type != Tile.TileType.Water || !destination.Neighbors.Contains(start)) return;
 
                 this.destination = destination;
+
+                VehicleActionPreview = new VehicleAction(VehicleAction.ActionType.LoadTruck, destination.Id);
             }
 
             public override bool Commit()
@@ -160,6 +166,7 @@ namespace UI
                 if (path != null)
                 {
                     this.destination = destination;
+                    VehicleActionPreview = new VehicleAction(VehicleAction.ActionType.UnloadTruck, destination.Id);
                 }
             }
 
@@ -186,6 +193,8 @@ namespace UI
                 if (start.Type != Tile.TileType.Water || !start.Neighbors.Contains(destination)) return;
 
                 this.destination = destination;
+
+                VehicleActionPreview = new VehicleAction(VehicleAction.ActionType.WaitForTruck, destination.Id);
             }
 
             public override bool Commit()
@@ -250,14 +259,22 @@ namespace UI
         private List<VehicleActionRenderer> vehicleActionRenderers;
         private Route currentRoute;
 
+        public RouteOptions PreviewRouteOptions { get; private set; }
+        private VehicleActionRenderer previewVehicleAction;
+
         private List<IOutlinable> outlinedTargets;
 
         public void Start()
         {
-            RouteOptions = new();
+            RouteOptions = new(false);
             vehicleActionRenderers = new();
             currentRoute = new(Route.RouteType.Current);
             currentRoute.Renderer.PinVisible = false;
+
+            PreviewRouteOptions = new(true);
+            previewVehicleAction = Instantiate(Map.Map.Instance.VehicleActionPrefab).GetComponent<VehicleActionRenderer>();
+            previewVehicleAction.gameObject.SetActive(false);
+
             outlinedTargets = new();
         }
 
@@ -266,12 +283,16 @@ namespace UI
             hoveredAction = null;
             SelectedVehicle = null;
             RouteOptions.Clear();
+            PreviewRouteOptions.Clear();
         }
 
-        public HoverablePicker.HoverableLayer SelectHoverableLayers() => HoverablePicker.HoverableLayer.All;
+        public Predicate<IHoverable> GetHoverablePredicate() => Map.Map.DefaultHoverablePredicate;
 
         public void UpdateControls()
         {
+            PreviewRouteOptions.Clear();
+            previewVehicleAction.gameObject.SetActive(false);
+
             foreach (var t in outlinedTargets)
             {
                 t?.ClearOutline();
@@ -386,6 +407,22 @@ namespace UI
                         if (SelectedVehicle.Owner.IsSelf)
                             hoveredAction = new HoveredSelectRoute(this, r.Type);
                         break;
+                }
+
+                if (RouteOptions.LoadTile != null)
+                {
+                    previewVehicleAction.gameObject.SetActive(true);
+                    previewVehicleAction.InitPreview(new(VehicleAction.ActionType.LoadTruck, RouteOptions.LoadTile.Id), RouteOptions.Destination);
+                }
+                else if (PreviewRouteOptions.LoadTile != null)
+                {
+                    previewVehicleAction.gameObject.SetActive(true);
+                    previewVehicleAction.InitPreview(new(VehicleAction.ActionType.LoadTruck, PreviewRouteOptions.LoadTile.Id), PreviewRouteOptions.Destination);
+                }
+                else if (hoveredAction?.VehicleActionPreview is VehicleAction a)
+                {
+                    previewVehicleAction.gameObject.SetActive(true);
+                    previewVehicleAction.InitPreview(a, start);
                 }
             }
 

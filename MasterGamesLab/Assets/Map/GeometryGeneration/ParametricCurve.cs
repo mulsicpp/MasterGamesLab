@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.AppUI.UI;
+using UnityEngine;
 
 namespace Map.GeometryGeneration
 {
@@ -36,15 +37,15 @@ namespace Map.GeometryGeneration
             {
                 if (n.Tile == startTile)
                 {
-                    rStart = new Ray((n.LeftVertex + n.RightVertex) / 2f,
-                        Vector3.Cross(n.LeftVertex, n.RightVertex).normalized);
+                    var pos = (n.LeftVertex + n.RightVertex) / 2f;
+                    rStart = new Ray(pos, (tile.PositionOnSphere - pos).normalized);
                     foundStart = true;
                 }
 
                 if (n.Tile == endTile)
                 {
-                    rEnd = new Ray((n.LeftVertex + n.RightVertex) / 2f,
-                        Vector3.Cross(n.LeftVertex, n.RightVertex).normalized);
+                    var pos = (n.LeftVertex + n.RightVertex) / 2f;
+                    rEnd = new Ray(pos, (tile.PositionOnSphere - pos).normalized);
                     foundEnd = true;
                 }
             }
@@ -66,8 +67,8 @@ namespace Map.GeometryGeneration
             {
                 if (n.Tile == startTile)
                 {
-                    ray = new Ray((n.LeftVertex + n.RightVertex) / 2f,
-                        Vector3.Cross(n.LeftVertex, n.RightVertex).normalized);
+                    var pos = (n.LeftVertex + n.RightVertex) / 2f;
+                    ray = new Ray(pos, (endTile.PositionOnSphere - pos).normalized);
                     found = true;
                 }
             }
@@ -83,10 +84,12 @@ namespace Map.GeometryGeneration
         public static ParametricCurve FromEdgeToEdge(Edge start, Edge end, Tile tile, CurveData? type = null)
         {
             var p0 = (start.VertexA + start.VertexB) / 2f;
-            var dir0 = Vector3.Cross(start.VertexA, start.VertexB).normalized;
+            // var dir0 = Vector3.Cross(start.VertexA, start.VertexB).normalized;
+            var dir0 = (tile.PositionOnSphere - p0).normalized;
 
             var p3 = (end.VertexA + end.VertexB) / 2f;
-            var dir3 = Vector3.Cross(end.VertexA, end.VertexB).normalized;
+            //var dir3 = Vector3.Cross(end.VertexA, end.VertexB).normalized;
+            var dir3 = (tile.PositionOnSphere - p3).normalized;
 
             if (Vector3.Dot(dir0, p3 - p0) < 0) dir0 = -dir0;
             if (Vector3.Dot(dir3, p0 - p3) < 0) dir3 = -dir3;
@@ -97,7 +100,8 @@ namespace Map.GeometryGeneration
         public static ParametricCurve FromEdgeToTileCenter(Edge edge, Tile tile, CurveData? type = null)
         {
             var p0 = (edge.VertexA + edge.VertexB) / 2f;
-            var dir0 = Vector3.Cross(edge.VertexA, edge.VertexB).normalized;
+            // var dir0 = Vector3.Cross(edge.VertexA, edge.VertexB).normalized;
+            var dir0 = (tile.PositionOnSphere - p0).normalized;
 
             var dir3 = -dir0;
             var p3 = tile.PositionOnSphere;

@@ -4,6 +4,7 @@ using UnityEngine.UIElements;
 using System.Collections.Generic;
 using Map.Infrastructure;
 using Map.Hoverables;
+using Map.Fleet;
 
 namespace UI
 {
@@ -54,7 +55,7 @@ namespace UI
         {
             if (structureRenderer?.Structure == null) return;
 
-            if (IsHovered && Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Tiles))
+            if (IsHovered && Map.Map.Instance.ShouldBeHoverablePredicate(structureRenderer.Structure.Tile))
             {
                 Map.Map.Instance.CurrentlyHovered = structureRenderer.Structure.Tile;
                 HoverablePicker.Instance.DenyPick = true;

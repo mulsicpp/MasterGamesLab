@@ -87,7 +87,7 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
             Type = ConstructionType.None;
     }
 
-    public HoverablePicker.HoverableLayer SelectHoverableLayers() => HoverablePicker.HoverableLayer.Tiles;
+    public Predicate<IHoverable> GetHoverablePredicate() => h => h is Tile;
 
     public void UpdateControls()
     {

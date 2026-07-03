@@ -75,6 +75,50 @@ namespace UI
             map.EntityIdManager[EntityId] = this;
         }
 
+        public void InitPreview(VehicleAction action, Tile startTile)
+        {
+            GameObject[] children = new GameObject[transform.childCount];
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                children[i] = transform.GetChild(i).gameObject;
+            }
+
+            transform.DetachChildren();
+
+            foreach (GameObject child in children)
+            {
+                Destroy(child);
+            }
+
+            var map = Map.Map.Instance;
+
+            Tile targetTile;
+
+
+            switch (action.Type)
+            {
+                case VehicleAction.ActionType.LoadTruck:
+                case VehicleAction.ActionType.WaitForTruck:
+                    var geometryType = action.Type == VehicleAction.ActionType.LoadTruck ? GeometriesManager.GeometryType.ActionLoad : GeometriesManager.GeometryType.ActionWait;
+                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(geometryType, -1, transform, Player.Player.Self);
+                    targetTile = map.Tiles[action.TargetTileId] as Tile;
+
+                    transform.localPosition = startTile.PositionOnSphere;
+                    transform.localRotation = Quaternion.LookRotation((targetTile.PositionOnSphere - startTile.PositionOnSphere).normalized, transform.localPosition.normalized);
+                    break;
+
+                case VehicleAction.ActionType.UnloadTruck:
+                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.ActionUnload, -1, transform, Player.Player.Self);
+                    targetTile = map.Tiles[action.TargetTileId] as Tile;
+
+                    transform.localPosition = targetTile.PositionOnSphere;
+                    transform.localRotation = Quaternion.LookRotation((targetTile.NeighborTiles[0].LeftVertex - targetTile.PositionOnSphere).normalized, transform.localPosition.normalized);
+                    break;
+            }
+            FixedGeometry.SetCustomColor(Constants.VEHICLE_ACTION_COLOR_PREVIEW);
+            FixedGeometry.CurrentlyHoverable = false;
+        }
+
         public void UnregisterFromEntities()
         {
             Map.Map.Instance.EntityIdManager[EntityId] = null;
@@ -119,6 +163,11 @@ namespace UI
             if (FixedGeometry != null)
             {
                 FixedGeometry.CurrentlyHoverable = isHoverable;
+            }
+
+            if (RouteGeometry != null)
+            {
+                RouteGeometry.CurrentlyHoverable = isHoverable;
             }
         }
     }

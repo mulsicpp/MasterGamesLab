@@ -9,7 +9,6 @@ namespace Map.GeometryGeneration
         private MeshFilter meshFilter;
         private List<Vector4> uv1 = new List<Vector4>();
 
-
         public void Init(Mesh mesh, int id, Color playerColor)
         {
             base.Init();

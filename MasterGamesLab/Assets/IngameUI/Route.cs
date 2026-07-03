@@ -16,6 +16,8 @@ namespace UI
             Fastest = 1,
             Queued = 2,
             Current = 3,
+            CheapestPreview = 4,
+            FastestPreview = 5,
         }
 
         private TileId[] tileids;

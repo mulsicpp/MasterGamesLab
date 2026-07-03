@@ -15,10 +15,20 @@ namespace UI
 
         public Tile VisualDestination => LoadTile ?? Destination;
 
-        public RouteOptions()
+        public RouteOptions(bool preview)
         {
-            FastestRoute = new(Route.RouteType.Fastest);
-            CheapestRoute = new(Route.RouteType.Cheapest);
+            if (preview)
+            {
+                FastestRoute = new(Route.RouteType.FastestPreview);
+                FastestRoute.Renderer.PinVisible = false;
+                CheapestRoute = new(Route.RouteType.CheapestPreview);
+                CheapestRoute.Renderer.PinVisible = false;
+            }
+            else
+            {
+                FastestRoute = new(Route.RouteType.Fastest);
+                CheapestRoute = new(Route.RouteType.Cheapest);
+            }
         }
 
         public void Set(Vehicle vehicle, Tile destination, TileId[] fastestRoute, TileId[] cheapestRoute = null, Tile loadTile = null)
