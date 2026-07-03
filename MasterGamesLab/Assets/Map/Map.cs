@@ -919,6 +919,7 @@ namespace Map
                 Position = projPos,
                 Up = (projPosAbove - projPos).normalized,
                 Forward = (projPosInfront - projPosBehind).normalized,
+                Scale = transform.Scale,
             };
         }
 

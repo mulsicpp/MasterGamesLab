@@ -81,6 +81,28 @@ namespace Map.GeometryGeneration
                 type ?? CurveData.DefaultRoadCurve, 0.5f);
         }
 
+        public static ParametricCurve FromTileToParkingPosition(Tile startTile, Tile endTile, Ray parkingRay, CurveData? type = null)
+        {
+            Ray ray = default;
+            var found = false;
+            foreach (var n in endTile.NeighborTiles)
+            {
+                if (n.Tile == startTile)
+                {
+                    var pos = (n.LeftVertex + n.RightVertex) / 2f;
+                    ray = new Ray(pos, (endTile.PositionOnSphere - pos).normalized);
+                    found = true;
+                }
+            }
+
+            if (!found) return null;
+
+            if (Vector3.Dot(ray.direction, endTile.PositionOnSphere - ray.origin) < 0) ray.direction = -ray.direction;
+            if (Vector3.Dot(ray.direction, ray.origin - parkingRay.origin) < 0) parkingRay.direction = -parkingRay.direction;
+
+            return FromRaysWithType(ray, parkingRay, type ?? CurveData.DefaultRoadCurve, 0.5f);
+        }
+
         public static ParametricCurve FromEdgeToEdge(Edge start, Edge end, Tile tile, CurveData? type = null)
         {
             var p0 = (start.VertexA + start.VertexB) / 2f;
