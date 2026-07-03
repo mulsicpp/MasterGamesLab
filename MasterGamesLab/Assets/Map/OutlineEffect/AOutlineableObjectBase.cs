@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Map.GeometryGeneration;
+using UnityEngine;
 
 namespace Map.OutlineEffect
 {
@@ -115,6 +116,19 @@ namespace Map.OutlineEffect
         {
             gameObject.layer = currentlyHoverable ? hoverOutlineLayer : outlineLayer;
             state = State.Outline;
+        }
+
+        public void SetAsPreview()
+        {
+            SetBaseLayer();
+            SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
+        }
+
+        public void SetAsBlueprint()
+        {
+            SetOutlineLayer();
+            SetOutlineParameters(GeometriesManager.Instance.blueprintOutline);
+            SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
         }
 
         public void SetOutlineTransparentLayer()

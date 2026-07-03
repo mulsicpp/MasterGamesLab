@@ -169,6 +169,9 @@ namespace Map.GeometryGeneration.Edges
                 validEdges.Add(e);
             }
 
+            var curveData = new ParametricCurve.CurveData(TileGeometryFactory.LAND_HEIGHT + 0.001f,
+                TileGeometryFactory.LAND_HEIGHT + 0.001f);
+
             Vector3 center;
             if (blueprint && tile.EdgesCenterBlueprint != Vector3.zero)
             {
@@ -188,7 +191,7 @@ namespace Map.GeometryGeneration.Edges
                     {
                         var e1 = validEdges[i];
                         var e2 = validEdges[j];
-                        var curve = ParametricCurve.FromEdgeToEdge(e1, e2, tile);
+                        var curve = ParametricCurve.FromEdgeToEdge(e1, e2, tile, curveData);
                         var t = curve.Evaluate(0.5f);
                         center += t;
                         numAdded++;
@@ -212,11 +215,11 @@ namespace Map.GeometryGeneration.Edges
 
             var curveToPrevious =
                 validEdges.Count > 1
-                    ? ParametricCurve.FromEdgeToEdge(edge, validEdges[prevIdx], tile)
-                    : ParametricCurve.FromEdgeToTileCenter(edge, tile);
+                    ? ParametricCurve.FromEdgeToEdge(edge, validEdges[prevIdx], tile, curveData)
+                    : ParametricCurve.FromEdgeToTileCenter(edge, tile, curveData);
             var curveToNext = validEdges.Count > 1
-                ? ParametricCurve.FromEdgeToEdge(edge, validEdges[nextIdx], tile)
-                : ParametricCurve.FromEdgeToTileCenter(edge, tile);
+                ? ParametricCurve.FromEdgeToEdge(edge, validEdges[nextIdx], tile, curveData)
+                : ParametricCurve.FromEdgeToTileCenter(edge, tile, curveData);
 
             var factor = validEdges.Count > 1 ? 0.5f : 1f;
             var includeCenter = validEdges.Count > 2;

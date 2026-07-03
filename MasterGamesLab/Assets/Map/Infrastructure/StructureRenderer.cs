@@ -6,6 +6,7 @@ namespace Map.Infrastructure
     public class StructureRenderer : MonoBehaviour
     {
         public Structure Structure { get; private set; }
+
         // public PinUI Pin { get; private set; }
         public ObjectWithFixedGeometry Geometry { get; private set; }
 
@@ -31,7 +32,7 @@ namespace Map.Infrastructure
         {
             if (Structure.BlueprintPreview || Structure.BlueprintTile != null)
             {
-                Geometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
+                Geometry.SetAsBlueprint();
             }
             else
             {

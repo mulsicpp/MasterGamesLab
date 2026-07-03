@@ -183,7 +183,7 @@ namespace Map.Blueprint
                 previewStructure = structure;
                 if (previewStructure.Renderer && previewStructure.Renderer.Geometry)
                 {
-                    previewStructure.Renderer.Geometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
+                    previewStructure.Renderer.Geometry.SetAsPreview();
                 }
 
                 return true;
@@ -217,7 +217,7 @@ namespace Map.Blueprint
                 previewVehicle = vehicle;
                 if (previewVehicle.Renderer && previewVehicle.Renderer.Geometry)
                 {
-                    previewVehicle.Renderer.Geometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
+                    previewVehicle.Renderer.Geometry.SetAsPreview();
                 }
 
                 return true;
@@ -292,7 +292,7 @@ namespace Map.Blueprint
 
             previewVehicle.BlueprintPreview = false;
 
-            previewVehicle.Renderer.Geometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
+            previewVehicle.Renderer.Geometry.SetAsBlueprint();
             vehicles.Add(previewVehicle);
             previewVehicle = null;
 

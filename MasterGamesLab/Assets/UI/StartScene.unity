@@ -1237,6 +1237,70 @@ PrefabInstance:
       propertyPath: parkingLotMesh
       value: 
       objectReference: {fileID: -2432090755550338912, guid: 1d9abc1cf16ffcd459a902e314992922, type: 3}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.textureId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.innerColor.a
+      value: 0.16862746
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.innerColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.innerColor.g
+      value: 0.17575288
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.innerColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.outlineColor.a
+      value: 0.78431374
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.outlineColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.outlineColor.g
+      value: 0.9860738
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.outlineColor.r
+      value: 0.28975737
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.innerColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.innerColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.innerColor.g
+      value: 0.950421
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.innerColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.outlineColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.outlineColor.g
+      value: 0.9872599
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.outlineColor.r
+      value: 0.57547164
+      objectReference: {fileID: 0}
     - target: {fileID: 5965362561141683518, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: m_Name
       value: GeometriesManager

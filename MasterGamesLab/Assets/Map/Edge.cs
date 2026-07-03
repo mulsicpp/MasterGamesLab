@@ -377,41 +377,37 @@ namespace Map
             switch (BlueprintVisualState)
             {
                 case Blueprint.VisualState.Valid:
-
                     switch (BlueprintType)
                     {
                         case EdgeType.Road:
-                            blueprintGeometry.SetOutlineLayer();
-                            blueprintGeometry.SetOutlineParameters(GeometriesManager.Instance.BlueprintPreviewOutline);
+                            blueprintGeometry.SetAsBlueprint();
                             break;
                         case EdgeType.Canal:
-                            blueprintGeometry.SetOutlineTransparentLayer();
-                            blueprintGeometry.SetOutlineParameters(Constants.BlueprintPreviewOutline);
+                            blueprintGeometry.SetAsBlueprint();
+                            var waveOutline = GeometriesManager.Instance.blueprintOutline;
+                            waveOutline.textureId = Constants.OutlineTextures.Waves;
+                            waveOutline.innerColor.a = 0.75f;
+                            blueprintGeometry.SetOutlineParameters(waveOutline);
                             break;
                         default:
                             blueprintGeometry.SetBaseLayer();
                             break;
                     }
 
-                    if (GeometriesManager.Instance)
-                    {
-                        blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
-                    }
-
                     break;
                 case Blueprint.VisualState.Preview:
-                    blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
-                    blueprintGeometry.SetBaseLayer();
+                    blueprintGeometry.SetAsPreview();
                     break;
                 case Blueprint.VisualState.PreviewOverlapping:
+                    blueprintGeometry.SetAsPreview();
+                    /*
                     blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
                     blueprintGeometry.SetOutlineTransparentLayer();
                     blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_PREVIEW_OVERLAPPING_OUTLINE);
+                    */
                     break;
                 case Blueprint.VisualState.Overlapping:
-                    blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
-                    blueprintGeometry.SetOutlineTransparentLayer();
-                    blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
+                    blueprintGeometry.SetAsBlueprint();
                     break;
                 case Blueprint.VisualState.Invalid:
                     blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());

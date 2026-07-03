@@ -160,12 +160,12 @@ namespace UI
 
         public void SetHoverableStatus(bool isHoverable)
         {
-            if (FixedGeometry != null)
+            if (FixedGeometry)
             {
                 FixedGeometry.CurrentlyHoverable = isHoverable;
             }
 
-            if (RouteGeometry != null)
+            if (RouteGeometry)
             {
                 RouteGeometry.CurrentlyHoverable = isHoverable;
             }
