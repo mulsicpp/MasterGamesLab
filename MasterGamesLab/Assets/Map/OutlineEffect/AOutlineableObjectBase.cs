@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Rendering.Universal;
 
 namespace Map.OutlineEffect
 {
@@ -11,13 +10,45 @@ namespace Map.OutlineEffect
         private static readonly int PlayerColor = Shader.PropertyToID("_PlayerColor");
         private static readonly int CustomColorId = Shader.PropertyToID("_CustomColor");
 
-        protected abstract string DefaultLayerName();
-        protected abstract string OutlineLayerName();
-        protected abstract string OutlineTransparentLayerName();
+        public bool CurrentlyHoverable
+        {
+            get => currentlyHoverable;
+            set
+            {
+                currentlyHoverable = value;
+                switch (state)
+                {
+                    case State.None:
+                        SetBaseLayer();
+                        break;
+                    case State.Outline:
+                        SetOutlineLayer();
+                        break;
+                    case State.OutlineTransparent:
+                        SetOutlineTransparentLayer();
+                        break;
+                }
+            }
+        }
+
+        private enum State
+        {
+            None,
+            Outline,
+            OutlineTransparent,
+        }
+
+        private State state;
+
+        private bool currentlyHoverable = true;
 
         private int defaultLayer = -1;
         private int outlineLayer;
         private int outlineTransparentLayer;
+
+        private int hoverBaseLayer;
+        private int hoverOutlineLayer;
+        private int hoverOutlineTransparentLayer;
 
         private Renderer objRenderer;
         private MaterialPropertyBlock mpb;
@@ -30,15 +61,20 @@ namespace Map.OutlineEffect
 
         protected void Init()
         {
-            defaultLayer = LayerMask.NameToLayer(DefaultLayerName());
-            outlineLayer = LayerMask.NameToLayer(OutlineLayerName());
-            outlineTransparentLayer = LayerMask.NameToLayer(OutlineTransparentLayerName());
+            defaultLayer = LayerMask.NameToLayer("Default");
+            outlineLayer = LayerMask.NameToLayer("Outline");
+            outlineTransparentLayer = LayerMask.NameToLayer("Outline Transparent");
+
+            hoverBaseLayer = LayerMask.NameToLayer("Hoverable");
+            hoverOutlineLayer = LayerMask.NameToLayer("Hoverable Outline");
+            hoverOutlineTransparentLayer = LayerMask.NameToLayer("Hoverable Outline Transparent");
 
             objRenderer = GetComponent<Renderer>();
 
             // Apply initial material properties
             SetMaterialPropertyBlock();
             SetBaseLayer();
+            state = State.None;
         }
 
         public void SetPlayerColor(Color color)
@@ -69,11 +105,23 @@ namespace Map.OutlineEffect
             SetMaterialPropertyBlock();
         }
 
-        public void SetBaseLayer() => gameObject.layer = defaultLayer;
+        public void SetBaseLayer()
+        {
+            gameObject.layer = currentlyHoverable ? hoverBaseLayer : defaultLayer;
+            state = State.None;
+        }
 
-        public void SetOutlineLayer() => gameObject.layer = outlineLayer;
+        public void SetOutlineLayer()
+        {
+            gameObject.layer = currentlyHoverable ? hoverOutlineLayer : outlineLayer;
+            state = State.Outline;
+        }
 
-        public void SetOutlineTransparentLayer() => gameObject.layer = outlineTransparentLayer;
+        public void SetOutlineTransparentLayer()
+        {
+            gameObject.layer = currentlyHoverable ? hoverOutlineTransparentLayer : outlineTransparentLayer;
+            state = State.OutlineTransparent;
+        }
 
         public void SetMaterial(Material material)
         {

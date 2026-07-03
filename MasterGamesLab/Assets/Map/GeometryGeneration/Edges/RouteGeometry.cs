@@ -7,10 +7,6 @@ namespace Map.GeometryGeneration.Edges
 {
     public class RouteGeometry : AObjectWithProcedualGeometry, IHoverable
     {
-        protected override string DefaultLayerName() => "Full Road";
-        protected override string OutlineLayerName() => "Full Road Outline";
-        protected override string OutlineTransparentLayerName() => "Full Road Outline Transparent";
-
         public EntityId EntityId { get; private set; }
 
         public Route.RouteType Type { get; private set; }
@@ -41,6 +37,7 @@ namespace Map.GeometryGeneration.Edges
                     EntityId = new EntityId(-1);
                     break;
             }
+
             ClearOutline();
         }
 
@@ -85,5 +82,7 @@ namespace Map.GeometryGeneration.Edges
             SetOutlineParameters(outlineData);
             hovered = true;
         }
+
+        public void SetHoverableStatus(bool isHoverable) => CurrentlyHoverable = isHoverable;
     }
 }

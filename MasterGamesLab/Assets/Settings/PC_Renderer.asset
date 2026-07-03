@@ -16,7 +16,10 @@ MonoBehaviour:
   settings:
     overrideMaterial: {fileID: 2100000, guid: 47c749dad1adbd74581bed0581d90521, type: 2}
     flipY: 0
-    showDebugOnScreen: 0
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 28800
+    showDebugOnScreen: 1
     debugBlitMaterial: {fileID: 2100000, guid: ea7ec7fdcc0529c44822f2290b0b33de, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
@@ -57,10 +60,10 @@ MonoBehaviour:
     m_Bits: 4294967295
   m_OpaqueLayerMask:
     serializedVersion: 2
-    m_Bits: 6449079
+    m_Bits: 6435767
   m_TransparentLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 12983
   m_DefaultStencilState:
     overrideStencilState: 0
     stencilReference: 1
@@ -94,7 +97,7 @@ MonoBehaviour:
   expandMaterialDepth: {fileID: 2100000, guid: 0f292494fdc2e614bb6346400adef4d7, type: 2}
   outlineLayer:
     serializedVersion: 2
-    m_Bits: 13032448
+    m_Bits: 13037056
 --- !u!114 &6123390037938076137
 MonoBehaviour:
   m_ObjectHideFlags: 0

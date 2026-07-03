@@ -85,30 +85,21 @@ namespace Map.GeometryGeneration
             Player.Player owner = null)
         {
             Mesh mesh;
-            var defaultLayerName = "Default";
-            var outlineLayerName = "Outline";
-            var outlineTransparentLayerName = "Outline Transparent";
             var localRotation = Quaternion.identity;
             var localScale = Vector3.one;
             var localPosition = Vector3.zero;
 
-            GeometryTypePrefix prefix = (GeometryTypePrefix)((int)type & PREFIX_MASK);
+            var prefix = (GeometryTypePrefix)((int)type & PREFIX_MASK);
 
             switch (prefix)
             {
                 case GeometryTypePrefix.Good:
                 case GeometryTypePrefix.Vehicle:
-                    defaultLayerName = "Vehicles";
-                    outlineLayerName = "Vehicles Outline";
-                    outlineTransparentLayerName = "Vehicles Outline Transparent";
                     break;
                 case GeometryTypePrefix.Structure:
                     localScale = Vector3.one * 1.4f;
                     break;
                 case GeometryTypePrefix.Action:
-                    defaultLayerName = "Full Road";
-                    outlineLayerName = "Full Road Outline";
-                    outlineTransparentLayerName = "Full Road Outline Transparent";
                     localRotation = Quaternion.Euler(0, 90, 0);
                     localScale = Vector3.one * 0.5f;
                     localPosition = type switch
@@ -149,8 +140,7 @@ namespace Map.GeometryGeneration
             gO.transform.localRotation = localRotation;
             gO.transform.localScale = localScale;
             var fixedGeometry = gO.GetComponent<ObjectWithFixedGeometry>();
-            fixedGeometry.Init(mesh, defaultLayerName, outlineLayerName, outlineTransparentLayerName, id,
-                owner?.Color ?? Color.black);
+            fixedGeometry.Init(mesh, id, owner?.Color ?? Color.black);
 
             if (prefix == GeometryTypePrefix.Action)
             {

@@ -1,4 +1,3 @@
-
 using Map;
 using Map.Fleet;
 using Map.GeometryGeneration;
@@ -16,7 +15,8 @@ namespace UI
         public ObjectWithFixedGeometry FixedGeometry { get; private set; } = null;
         public RouteGeometry RouteGeometry { get; private set; } = null;
 
-        public EntityId EntityId => new(Map.Map.Instance.EntityIdManager.VehicleActionQueueRange.Start.Value + ActionIndex);
+        public EntityId EntityId =>
+            new(Map.Map.Instance.EntityIdManager.VehicleActionQueueRange.Start.Value + ActionIndex);
 
         public void Init(int actionIndex, Vehicle vehicle, LinkedListNode<VehicleAction> actionNode)
         {
@@ -37,28 +37,39 @@ namespace UI
                         _ => ParametricCurve.CurveData.DefaultRoadCurve,
                     };
 
-                    RouteGeometry = EdgeGeometryFactory.GenerateRoute(action.RouteIds, Route.RouteType.Queued, ActionIndex, curveData);
+                    RouteGeometry = EdgeGeometryFactory.GenerateRoute(action.RouteIds, Route.RouteType.Queued,
+                        ActionIndex, curveData);
                     RouteGeometry.transform.parent = transform;
                     break;
                 case VehicleAction.ActionType.LoadTruck:
                 case VehicleAction.ActionType.WaitForTruck:
-                    var geometryType = action.Type == VehicleAction.ActionType.LoadTruck ? GeometriesManager.GeometryType.ActionLoad : GeometriesManager.GeometryType.ActionWait;
-                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(geometryType, EntityId, transform, Player.Player.Self);
+                    var geometryType = action.Type == VehicleAction.ActionType.LoadTruck
+                        ? GeometriesManager.GeometryType.ActionLoad
+                        : GeometriesManager.GeometryType.ActionWait;
+                    FixedGeometry =
+                        GeometriesManager.Instance.GetGameObjectGeometry(geometryType, EntityId, transform,
+                            Player.Player.Self);
                     startTile = vehicle.GetTileLocationAfterAction(actionNode.Previous, out _);
                     targetTile = map.Tiles[action.TargetTileId] as Tile;
 
                     transform.localPosition = startTile.PositionOnSphere;
-                    transform.localRotation = Quaternion.LookRotation((targetTile.PositionOnSphere - startTile.PositionOnSphere).normalized, transform.localPosition.normalized);
+                    transform.localRotation = Quaternion.LookRotation(
+                        (targetTile.PositionOnSphere - startTile.PositionOnSphere).normalized,
+                        transform.localPosition.normalized);
                     break;
 
                 case VehicleAction.ActionType.UnloadTruck:
-                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.ActionUnload, EntityId, transform, Player.Player.Self);
+                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(
+                        GeometriesManager.GeometryType.ActionUnload, EntityId, transform, Player.Player.Self);
                     startTile = map.Tiles[action.TargetTileId] as Tile;
 
                     transform.localPosition = startTile.PositionOnSphere;
-                    transform.localRotation = Quaternion.LookRotation((startTile.NeighborTiles[0].LeftVertex - startTile.PositionOnSphere).normalized, transform.localPosition.normalized);
+                    transform.localRotation = Quaternion.LookRotation(
+                        (startTile.NeighborTiles[0].LeftVertex - startTile.PositionOnSphere).normalized,
+                        transform.localPosition.normalized);
                     break;
             }
+
             FixedGeometry?.SetCustomColor(Color.yellow);
 
             map.EntityIdManager[EntityId] = this;
@@ -101,6 +112,14 @@ namespace UI
             FixedGeometry?.SetOutlineParameters(outlineData);
 
             RouteGeometry?.ShowHoverOutline(hoverState);
+        }
+
+        public void SetHoverableStatus(bool isHoverable)
+        {
+            if (FixedGeometry != null)
+            {
+                FixedGeometry.CurrentlyHoverable = isHoverable;
+            }
         }
     }
 }

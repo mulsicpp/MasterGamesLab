@@ -12,17 +12,19 @@ namespace Map.Hoverables
         {
             public Material overrideMaterial;
             public bool flipY = true; // Set to true for Direct3D/Vulkan/Metal
+            public LayerMask layerMask;
 
             [Header("Debug")] public bool showDebugOnScreen = false;
             public Material debugBlitMaterial; // Assign Mat_TileIdDebug here!
         }
 
+        
         public Settings settings = new Settings();
         private TileIdPickerPass pickPass;
 
         public override void Create()
         {
-            pickPass = new TileIdPickerPass(settings)
+            pickPass = new TileIdPickerPass(settings, settings.layerMask)
             {
                 // Execute after Opaques to reuse the active Depth Buffer.
                 // This prevents picking tiles that are hidden behind other objects!
@@ -51,13 +53,15 @@ namespace Map.Hoverables
     public class TileIdPickerPass : ScriptableRenderPass
     {
         private HoverableIdPickerFeature.Settings settings;
+        private readonly LayerMask layerMask;
 
         private ShaderTagId[] shaderTagIds =
             { new ShaderTagId("UniversalForward"), new ShaderTagId("SRPDefaultUnlit") };
 
-        public TileIdPickerPass(HoverableIdPickerFeature.Settings settings)
+        public TileIdPickerPass(HoverableIdPickerFeature.Settings settings, LayerMask layerMask)
         {
             this.settings = settings;
+            this.layerMask = layerMask;
         }
 
         private class RenderPassData
@@ -112,7 +116,7 @@ namespace Map.Hoverables
             drawSettings.SetShaderPassName(2, new ShaderTagId("Universal2D"));
             if (settings.overrideMaterial != null) drawSettings.overrideMaterial = settings.overrideMaterial;
 
-            var filterSettings = new FilteringSettings(RenderQueueRange.all, HoverablePicker.Instance.LayerMask);
+            var filterSettings = new FilteringSettings(RenderQueueRange.all, layerMask);
             RendererListHandle rendererList =
                 renderGraph.CreateRendererList(new RendererListParams(renderingData.cullResults, drawSettings,
                     filterSettings));

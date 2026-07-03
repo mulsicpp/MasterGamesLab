@@ -9,9 +9,6 @@ namespace Map.GeometryGeneration
     public class MapChunk : AObjectWithProcedualGeometry
     {
         private static readonly int TreeBuffer = Shader.PropertyToID("_TreeBuffer");
-        protected override string DefaultLayerName() => "";
-        protected override string OutlineLayerName() => "";
-        protected override string OutlineTransparentLayerName() => "";
 
         public struct ChunkGeometry
         {
