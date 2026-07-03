@@ -264,15 +264,6 @@ public static class Constants
         textureId = OutlineTextures.Checkerboard,
     };
 
-    public static readonly Color ROAD_BLUEPRINT_INVALID_COLOR = Color.orange;
-
-    public static OutlineData ROAD_BLUEPRINT_INVALID_OUTLINE = new OutlineData()
-    {
-        outlineColor = Color.red,
-        innerColor = new Color(255, 0, 0, 0.5f),
-        textureId = OutlineTextures.Clear,
-    };
-
     public static OutlineData FASTEST_ROUTE_OUTLINE = new OutlineData()
     {
         outlineColor = new Color(0, 0, 0, 0),

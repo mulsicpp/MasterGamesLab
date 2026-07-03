@@ -1,3 +1,5 @@
+using System;
+using Map.Blueprint;
 using Map.GeometryGeneration;
 using UnityEngine;
 using UI;
@@ -52,7 +54,28 @@ namespace Map.Fleet
             }
             else
             {
-                Geometry.SetBaseLayer();
+                if (Vehicle.BlueprintTile != null)
+                {
+                    switch (Vehicle.BlueprintVisualState)
+                    {
+                        case VisualState.Preview:
+                            Geometry.SetAsPreview();
+                            break;
+                        case VisualState.Valid:
+                            Geometry.SetAsBlueprint();
+                            break;
+                        case VisualState.Invalid:
+                            Geometry.SetAsBluePrintInvalid();
+                            break;
+                        default:
+                            Geometry.SetBaseLayer();
+                            break;
+                    }
+                }
+                else
+                {
+                    Geometry.SetBaseLayer();
+                }
             }
         }
     }

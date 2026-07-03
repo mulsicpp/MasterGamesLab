@@ -76,7 +76,13 @@ namespace Map.GeometryGeneration
 
         [SerializeField] private Material actionMaterial;
 
+        public Material overlappingMaterial;
+        public Material invalidMaterial;
+        
         public Constants.OutlineData blueprintOutline;
+        public Constants.OutlineData invalid;
+        public Constants.OutlineData blueprintOverlapping;
+        public Constants.OutlineData previewOverlapping;
         
         private void Awake()
         {

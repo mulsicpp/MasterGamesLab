@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PreviewMaterial
-  m_Shader: {fileID: -6465566751694194690, guid: 5f52c3438ee9d1d4c932fee3f538bb4c, type: 3}
+  m_Name: InvalidMaterial
+  m_Shader: {fileID: -6465566751694194690, guid: 92a1acf3458188045b4f0f5921e8d1b9, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -16,7 +16,7 @@ Material:
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3001
+  m_CustomRenderQueue: 2999
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
@@ -43,7 +43,7 @@ Material:
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &8313704747463220730
+--- !u!114 &4286171155240768323
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}

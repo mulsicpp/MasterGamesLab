@@ -1238,8 +1238,68 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -2432090755550338912, guid: 1d9abc1cf16ffcd459a902e314992922, type: 3}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.textureId
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.innerColor.a
+      value: 0.8235294
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.innerColor.b
+      value: 0.077148914
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.innerColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.innerColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.outlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.outlineColor.b
+      value: 0.19256043
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.outlineColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.outlineColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.textureId
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: blueprintOutline.textureId
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.textureId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.innerColor.a
+      value: 0.68235296
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.innerColor.b
+      value: 0.043309677
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.innerColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.innerColor.r
+      value: 0.84905654
       objectReference: {fileID: 0}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: blueprintOutline.innerColor.a
@@ -1258,6 +1318,26 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.textureId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.outlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.outlineColor.b
+      value: 0.19101727
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.outlineColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.outlineColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: blueprintOutline.outlineColor.a
       value: 0.78431374
       objectReference: {fileID: 0}
@@ -1272,6 +1352,70 @@ PrefabInstance:
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: blueprintOutline.outlineColor.r
       value: 0.28975737
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.innerColor.a
+      value: 0.89411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.innerColor.b
+      value: 0.15902954
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.innerColor.g
+      value: 0.15902954
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.innerColor.r
+      value: 0.15902954
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.innerColor.a
+      value: 0.84705883
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.innerColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.innerColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.innerColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.outlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.outlineColor.b
+      value: 0.13746631
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.outlineColor.g
+      value: 0.13746631
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.outlineColor.r
+      value: 0.13746631
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.outlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.outlineColor.b
+      value: 0.029649556
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.outlineColor.g
+      value: 0.029649556
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.outlineColor.r
+      value: 0.029649556
       objectReference: {fileID: 0}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: blueprintPreviewOutline.innerColor.a

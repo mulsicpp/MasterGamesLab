@@ -71,3 +71,21 @@ MonoBehaviour:
   blueprintMaterial: {fileID: 2100000, guid: 0ba95f94aeddc20499f57a803851bda3, type: 2}
   buoyMaterial: {fileID: 2100000, guid: 091f595dab4f0fe43861fd59f5180afa, type: 2}
   actionMaterial: {fileID: 2100000, guid: 95cb7c95cfd7dc842a2c86341dc31708, type: 2}
+  overlappingMaterial: {fileID: 2100000, guid: 2a160eac3710d7d469d5840cb182d7d7, type: 2}
+  invalidMaterial: {fileID: 2100000, guid: 12ff57ccdafead941831617c1920f3d7, type: 2}
+  blueprintOutline:
+    outlineColor: {r: 0, g: 0, b: 0, a: 0}
+    innerColor: {r: 0, g: 0, b: 0, a: 0}
+    textureId: 0
+  invalid:
+    outlineColor: {r: 0, g: 0, b: 0, a: 0}
+    innerColor: {r: 0, g: 0, b: 0, a: 0}
+    textureId: 0
+  blueprintOverlapping:
+    outlineColor: {r: 0, g: 0, b: 0, a: 0}
+    innerColor: {r: 0, g: 0, b: 0, a: 0}
+    textureId: 0
+  previewOverlapping:
+    outlineColor: {r: 0, g: 0, b: 0, a: 0}
+    innerColor: {r: 0, g: 0, b: 0, a: 0}
+    textureId: 0

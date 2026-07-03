@@ -399,7 +399,7 @@ namespace Map
                     blueprintGeometry.SetAsPreview();
                     break;
                 case Blueprint.VisualState.PreviewOverlapping:
-                    blueprintGeometry.SetAsPreview();
+                    blueprintGeometry.SetAsPreviewOverlapping();
                     /*
                     blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
                     blueprintGeometry.SetOutlineTransparentLayer();
@@ -407,13 +407,16 @@ namespace Map
                     */
                     break;
                 case Blueprint.VisualState.Overlapping:
-                    blueprintGeometry.SetAsBlueprint();
+                    blueprintGeometry.SetAsBluePrintOverlapping();
                     break;
                 case Blueprint.VisualState.Invalid:
+                    blueprintGeometry.SetAsBluePrintInvalid();
+                    /*
                     blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
                     blueprintGeometry.SetOutlineLayer();
                     blueprintGeometry.SetPlayerColor(Constants.ROAD_BLUEPRINT_INVALID_COLOR);
                     blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_INVALID_OUTLINE);
+                    */
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -456,7 +459,7 @@ namespace Map
         {
             var outlineData = hoverState switch
             {
-                HoverState.Invalid => Constants.ROAD_BLUEPRINT_INVALID_OUTLINE,
+                HoverState.Invalid => GeometriesManager.Instance.invalid,
                 _ => Constants.HOVER_OUTLINE_FILLED_IN,
             };
             ShowOutline(outlineData);

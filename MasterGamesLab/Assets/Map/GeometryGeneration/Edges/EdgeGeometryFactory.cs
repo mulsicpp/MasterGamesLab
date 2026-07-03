@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Map.Blueprint;
 using UI;
 using UnityEngine;
 
@@ -169,8 +171,10 @@ namespace Map.GeometryGeneration.Edges
                 validEdges.Add(e);
             }
 
-            var curveData = new ParametricCurve.CurveData(TileGeometryFactory.LAND_HEIGHT + 0.001f,
-                TileGeometryFactory.LAND_HEIGHT + 0.001f);
+            var offset = blueprint ? 0.0015f : 0f;
+
+            var curveData = new ParametricCurve.CurveData(TileGeometryFactory.LAND_HEIGHT + offset,
+                TileGeometryFactory.LAND_HEIGHT + offset);
 
             Vector3 center;
             if (blueprint && tile.EdgesCenterBlueprint != Vector3.zero)

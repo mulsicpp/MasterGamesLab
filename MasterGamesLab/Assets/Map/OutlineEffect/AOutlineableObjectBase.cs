@@ -117,6 +117,12 @@ namespace Map.OutlineEffect
             gameObject.layer = currentlyHoverable ? hoverOutlineLayer : outlineLayer;
             state = State.Outline;
         }
+        
+        public void SetOutlineTransparentLayer()
+        {
+            gameObject.layer = currentlyHoverable ? hoverOutlineTransparentLayer : outlineTransparentLayer;
+            state = State.OutlineTransparent;
+        }
 
         public void SetAsPreview()
         {
@@ -131,10 +137,25 @@ namespace Map.OutlineEffect
             SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
         }
 
-        public void SetOutlineTransparentLayer()
+        public void SetAsPreviewOverlapping()
         {
-            gameObject.layer = currentlyHoverable ? hoverOutlineTransparentLayer : outlineTransparentLayer;
-            state = State.OutlineTransparent;
+            SetOutlineLayer();
+            SetOutlineParameters(GeometriesManager.Instance.previewOverlapping);
+            SetMaterial(GeometriesManager.Instance.overlappingMaterial);
+        }
+
+        public void SetAsBluePrintOverlapping()
+        {
+            SetOutlineLayer();
+            SetOutlineParameters(GeometriesManager.Instance.blueprintOverlapping);
+            SetMaterial(GeometriesManager.Instance.overlappingMaterial);
+        }
+
+        public void SetAsBluePrintInvalid()
+        {
+            SetOutlineLayer();
+            SetOutlineParameters(GeometriesManager.Instance.invalid);
+            SetMaterial(GeometriesManager.Instance.invalidMaterial);
         }
 
         public void SetMaterial(Material material)

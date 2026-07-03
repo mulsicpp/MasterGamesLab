@@ -292,7 +292,7 @@ namespace Map.Blueprint
 
             previewVehicle.BlueprintPreview = false;
 
-            previewVehicle.Renderer.Geometry.SetAsBlueprint();
+            // previewVehicle.Renderer.Geometry.SetAsBlueprint();
             vehicles.Add(previewVehicle);
             previewVehicle = null;
 
