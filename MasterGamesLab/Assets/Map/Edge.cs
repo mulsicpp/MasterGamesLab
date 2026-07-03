@@ -382,11 +382,11 @@ namespace Map
                     {
                         case EdgeType.Road:
                             blueprintGeometry.SetOutlineLayer();
-                            blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_VALID_OUTLINE);
+                            blueprintGeometry.SetOutlineParameters(GeometriesManager.Instance.BlueprintPreviewOutline);
                             break;
                         case EdgeType.Canal:
                             blueprintGeometry.SetOutlineTransparentLayer();
-                            blueprintGeometry.SetOutlineParameters(Constants.CANAL_BLUEPRINT_VALID_OUTLINE);
+                            blueprintGeometry.SetOutlineParameters(Constants.BlueprintPreviewOutline);
                             break;
                         default:
                             blueprintGeometry.SetBaseLayer();

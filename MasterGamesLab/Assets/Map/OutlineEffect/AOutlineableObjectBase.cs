@@ -99,9 +99,9 @@ namespace Map.OutlineEffect
 
         public void SetOutlineParameters(Constants.OutlineData outlineData)
         {
-            outlineColor = outlineData.OutlineColor;
-            innerColor = outlineData.InnerColor;
-            textureId = (int)outlineData.TextureId;
+            outlineColor = outlineData.outlineColor;
+            innerColor = outlineData.innerColor;
+            textureId = (int)outlineData.textureId;
             SetMaterialPropertyBlock();
         }
 

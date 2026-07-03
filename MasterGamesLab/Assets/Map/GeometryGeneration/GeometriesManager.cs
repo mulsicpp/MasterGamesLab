@@ -76,6 +76,11 @@ namespace Map.GeometryGeneration
 
         [SerializeField] private Material actionMaterial;
 
+        public Color previewOutlineColor = Color.deepSkyBlue;
+        public Color previewFillColor = Color.deepSkyBlue;
+
+        public Constants.OutlineData BlueprintPreviewOutline;
+        
         private void Awake()
         {
             Instance = this;
