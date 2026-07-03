@@ -32,7 +32,8 @@ namespace Map
         public IReadOnlyList<ITile> ActiveTiles => activeTiles;
         public float Radius => radius;
         public int Resolution => resolution;
-        public float TileScale => (Radius / (Resolution + 1)) * 0.3524163807f;
+        private float TileScale15 => (Radius / (15 + 1)) * 0.3524163807f;
+        public float TileScale => ((Radius / (Resolution + 1)) * 0.3524163807f) / TileScale15;
 
         public float TEST_ROAD_HANDLE_DISTANCE = 0.025f;
         public float TEST_ROAD_HEIGHT = 0.01f;

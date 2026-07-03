@@ -120,8 +120,8 @@ namespace Map.GeometryGeneration
             p0 = p0.normalized * (type.StartHeight + Map.Instance.TEST_ROAD_HEIGHT);
             p3 = p3.normalized * (type.EndHeight + Map.Instance.TEST_ROAD_HEIGHT);
 
-            var p1 = p0 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * handleDistanceScale * dir0;
-            var p2 = p3 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * handleDistanceScale * dir3;
+            var p1 = p0 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * Map.Instance.TileScale * handleDistanceScale * dir0;
+            var p2 = p3 + Map.Instance.TEST_ROAD_HANDLE_DISTANCE * Map.Instance.TileScale * handleDistanceScale * dir3;
 
             return FromBezierPoints(p0, p1, p2, p3);
         }

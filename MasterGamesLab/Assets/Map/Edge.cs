@@ -382,7 +382,6 @@ namespace Map
                     {
                         case EdgeType.Road:
                             blueprintGeometry.SetOutlineLayer();
-                            blueprintGeometry.SetPlayerColor(Constants.ROAD_BLUEPRINT_COLOR);
                             blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_VALID_OUTLINE);
                             break;
                         case EdgeType.Canal:
@@ -403,7 +402,6 @@ namespace Map
                 case Blueprint.VisualState.Preview:
                     blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
                     blueprintGeometry.SetBaseLayer();
-                    blueprintGeometry.SetPlayerColor(Constants.ROAD_BLUEPRINT_PREVIEW_COLOR);
                     break;
                 case Blueprint.VisualState.PreviewOverlapping:
                     blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
