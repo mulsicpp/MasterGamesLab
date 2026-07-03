@@ -316,14 +316,39 @@ namespace Map
         }
 
 
-        public VehicleTransform ParkedVehicleTransform()
+        public VehicleTransform ParkedVehicleTransform(Vehicle vehicle)
         {
+            var transformMatrix = GetTransformMatrix();
+
+            var offsetScale = 0.016f;
+            var vehicleScale = 0.75f;
+
+            if (Structure != null)
+            {
+                offsetScale = Structure.Type switch
+                {
+                    Structure.StructureType.CarPark => 0.032f,
+                    Structure.StructureType.Port => 0.024f,
+                    _ => 0.0f,
+                };
+            }
+
+            var position = transformMatrix.MultiplyPoint(vehicle.ParkingOffset * Map.Instance.TileScale * offsetScale);
+            var forward = transformMatrix.MultiplyVector(new Vector3(vehicle.ParkingTangent.x, 0, vehicle.ParkingTangent.y));
+            // var position = GetTransformMatrix().MultiplyPoint(Vector3.zero);
+
             return new VehicleTransform
             {
-                Position = PositionOnSphere,
+                Position = position,
                 Up = PositionOnSphere.normalized,
-                Forward = Neighbors[0].PositionOnSphere.normalized
+                Forward = forward,
+                Scale = vehicleScale,
             }.AdjustForwardVector();
+        }
+
+        public Matrix4x4 GetTransformMatrix()
+        {
+            return Matrix4x4.LookAt(PositionOnSphere, NeighborTiles[0].LeftVertex, PositionOnSphere.normalized);
         }
 
 

@@ -42,7 +42,7 @@ namespace Map.Fleet
             var tProj = t; // Map.Instance.GetProjectedVehicleTransform(t);
             transform.localPosition = tProj.Position;
             transform.localRotation = Quaternion.LookRotation(tProj.Forward, tProj.Up);
-            transform.localScale = GeometriesManager.Scale;
+            transform.localScale = GeometriesManager.Scale * tProj.Scale;
         }
 
         public virtual void SetVisibleOutline(Constants.OutlineData? outline)
