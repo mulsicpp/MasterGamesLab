@@ -111,7 +111,7 @@ MonoBehaviour:
   m_Name: OutlineFullscreen
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.FullScreenPassRendererFeature
   m_Active: 1
-  injectionPoint: 450
+  injectionPoint: 550
   fetchColorBuffer: 1
   requirements: 0
   passMaterial: {fileID: 2100000, guid: fa49dc0c590ad3243b9d5f78039873cd, type: 2}

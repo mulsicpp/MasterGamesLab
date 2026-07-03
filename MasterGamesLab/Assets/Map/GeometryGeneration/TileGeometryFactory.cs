@@ -83,7 +83,7 @@ namespace Map.GeometryGeneration
         private static readonly float BorderHeight = Math.Min(WATER_HEIGHT, Math.Min(LAND_HEIGHT, MOUNTAIN_HEIGHT));
 
         private const int MIN_TREES_PER_TRIANGLE = 1;
-        private const int MAX_TREES_PER_TRIANGLE = 2;
+        private const int MAX_TREES_PER_TRIANGLE = 3;
         private static float MinTreeScale => 0.019f * Map.Instance.TileScale;
         private static float MaxTreeScale => 0.023f * Map.Instance.TileScale;
 

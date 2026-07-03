@@ -76,6 +76,8 @@ namespace Map.GeometryGeneration
 
         [SerializeField] private Material actionMaterial;
 
+        public Constants.OutlineData blueprintOutline;
+        
         private void Awake()
         {
             Instance = this;
