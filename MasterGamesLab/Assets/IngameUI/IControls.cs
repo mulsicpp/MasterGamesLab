@@ -1,4 +1,5 @@
 using Map.Hoverables;
+using System;
 
 namespace UI
 {
@@ -6,7 +7,7 @@ namespace UI
     {
         public bool ControlsAreActive { get; }
         public void DisableControls();
-        public HoverablePicker.HoverableLayer SelectHoverableLayers();
+        public Predicate<IHoverable> GetHoverablePredicate();
 
         public void UpdateControls();
     }

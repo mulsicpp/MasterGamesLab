@@ -35,6 +35,7 @@ namespace Map.GeometryGeneration.Edges
                     break;
                 default:
                     EntityId = new EntityId(-1);
+                    CurrentlyHoverable = false;
                     break;
             }
 
@@ -87,6 +88,14 @@ namespace Map.GeometryGeneration.Edges
             hovered = true;
         }
 
-        public void SetHoverableStatus(bool isHoverable) => CurrentlyHoverable = isHoverable;
+        public void SetHoverableStatus(bool isHoverable)
+        {
+            // if (Type is Route.RouteType.Current or Route.RouteType.CheapestPreview or Route.RouteType.FastestPreview)
+            // {
+            //     CurrentlyHoverable = false;
+            //     return;
+            // }
+            // CurrentlyHoverable = isHoverable;
+        }
     }
 }

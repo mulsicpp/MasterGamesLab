@@ -471,7 +471,7 @@ namespace Map
         public void SetHoverableStatus(bool isHoverable)
         {
             blueprintGeometry.CurrentlyHoverable = isHoverable;
-            geometry.CurrentlyHoverable = isHoverable;
+            geometry.CurrentlyHoverable = false;
         }
     }
 }

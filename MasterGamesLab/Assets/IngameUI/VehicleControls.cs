@@ -286,7 +286,7 @@ namespace UI
             PreviewRouteOptions.Clear();
         }
 
-        public HoverablePicker.HoverableLayer SelectHoverableLayers() => HoverablePicker.HoverableLayer.All;
+        public Predicate<IHoverable> GetHoverablePredicate() => Map.Map.DefaultHoverablePredicate;
 
         public void UpdateControls()
         {

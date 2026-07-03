@@ -289,7 +289,7 @@ namespace UI
                 HoverablePicker.Instance.DenyPick = true;
             }
 
-            Map.Map.Instance.HoverLayers = controls.FirstOrDefault(c => c.ControlsAreActive)?.SelectHoverableLayers() ?? DEFAULT_HOVERABLE_LAYERS;
+            Map.Map.Instance.ShouldBeHoverablePredicate = controls.FirstOrDefault(c => c.ControlsAreActive)?.GetHoverablePredicate() ?? Map.Map.DefaultHoverablePredicate;
 
             Map.Map.Instance.HoverOutliner.HoverState = HoverState.Valid;
             foreach (var c in controls)

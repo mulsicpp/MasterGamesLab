@@ -9,7 +9,6 @@ namespace Map.GeometryGeneration
         private MeshFilter meshFilter;
         private List<Vector4> uv1 = new List<Vector4>();
 
-
         public void Init(Mesh mesh, int id, Color playerColor)
         {
             base.Init();
@@ -48,15 +47,6 @@ namespace Map.GeometryGeneration
             }
 
             meshFilter.mesh.SetUVs(1, uv1);
-        }
-
-        public void UpdateLayers(string defaultName, string outlineName, string outlineTransparentName)
-        {
-            defaultLayerName = defaultName;
-            outlineLayerName = outlineName;
-            outlineTransparentLayerName = outlineTransparentName;
-
-            base.Init();
         }
     }
 }

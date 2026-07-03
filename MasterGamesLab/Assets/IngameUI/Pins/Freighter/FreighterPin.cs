@@ -53,7 +53,7 @@ namespace UI
         {
             if (VehicleRenderer?.Vehicle == null) return;
 
-            if (IsHovered && Map.Map.Instance.HoverLayers.HasFlag(HoverablePicker.HoverableLayer.Vehicles))
+            if (IsHovered && Map.Map.Instance.ShouldBeHoverablePredicate(VehicleRenderer.Vehicle))
             {
                 Map.Map.Instance.CurrentlyHovered = VehicleRenderer.Vehicle;
                 HoverablePicker.Instance.DenyPick = true;

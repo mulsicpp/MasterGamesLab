@@ -116,7 +116,7 @@ namespace UI
                     break;
             }
             FixedGeometry.SetCustomColor(Constants.VEHICLE_ACTION_COLOR_PREVIEW);
-            FixedGeometry.UpdateLayers("Default", "Outline", "Outline Transparent");
+            FixedGeometry.CurrentlyHoverable = false;
         }
 
         public void UnregisterFromEntities()
@@ -163,6 +163,11 @@ namespace UI
             if (FixedGeometry != null)
             {
                 FixedGeometry.CurrentlyHoverable = isHoverable;
+            }
+
+            if (RouteGeometry != null)
+            {
+                RouteGeometry.CurrentlyHoverable = isHoverable;
             }
         }
     }
