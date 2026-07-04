@@ -265,7 +265,7 @@ PrefabInstance:
       objectReference: {fileID: 4004374116097416254, guid: 1d2a9ef88fca6a64a9b86fae9380b1a1, type: 3}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: resolution
-      value: 30
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: RoutePrefab

@@ -12,18 +12,18 @@ public static class Constants
 
     public static readonly Color[] PLAYER_COLORS = { Color.red, Color.blue, Color.yellow, Color.green };
 
-    public const int PLAYER_INITIAL_CASH = 300;
-    public const int WINNING_MARKET_CAP = 10000;
+    public const int PLAYER_INITIAL_CASH = 2000;
+    public const int WINNING_MARKET_CAP = 100000;
 
     // ------------------- Vehicles -------------------
 
-    public const byte MAX_TRUCKS_PER_PLAYER = 16;
+    public const byte MAX_TRUCKS_PER_PLAYER = 5;
     public const byte MAX_TRUCK_COUNT = MAX_TRUCKS_PER_PLAYER * MAX_PLAYER_COUNT;
-    public const float TRUCK_BASE_SPEED_TPS = 1.0f;
+    public const float TRUCK_BASE_SPEED_TPS = 0.5f;
 
     public const byte MAX_FREIGHTERS_PER_PLAYER = 8;
     public const byte MAX_FREIGHTER_COUNT = MAX_FREIGHTERS_PER_PLAYER * MAX_PLAYER_COUNT;
-    public const float FREIGHTER_BASE_SPEED_TPS = 0.6f;
+    public const float FREIGHTER_BASE_SPEED_TPS = 0.3f;
 
     public const int TRUCK_LOADING_COST_ENEMY = 40;
     public const int TRUCK_UNLOADING_COST_ENEMY = 80;
@@ -50,8 +50,8 @@ public static class Constants
     public const int GOOD_RARE_BASE_PAYOUT = 0;
     public const int GOOD_EPIC_BASE_PAYOUT = 0;
     public const int GOOD_LEGENDARY_BASE_PAYOUT = 0;
-    public const int NORMAL_SHIPPING_COST = 10;
-    public const int WATER_SHIPPING_COST = 30;
+    public const int NORMAL_SHIPPING_COST = 60;
+    public const int WATER_SHIPPING_COST = 100;
 
     public const int MIN_RANDOM_COST = 0;
     public const int MAX_RANDOM_COST = 0;
@@ -79,8 +79,8 @@ public static class Constants
     public const float MIN_CONSUMER_REQUEST_COOLDOWN = 15f;
     public const float MAX_CONSUMER_REQUEST_COOLDOWN = 40f;
 
-    public const float MIN_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 20f;
-    public const float MAX_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 50f;
+    public const float MIN_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 120f;
+    public const float MAX_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 120f;
 
     public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.02f;
     public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.05f;
@@ -109,13 +109,30 @@ public static class Constants
     public const int TRUCK_BUILD_COST = 150;
     public const int FREIGHTER_BUILD_COST = 300;
 
-    public static int RoadBuildCost(int n) => 10 + (n / 40) * 5;
+    public static int RoadBuildCost(int n) => 50;
     public static int CanalBuildCost(int n) => 20 + (n / 10) * 5;
 
-    public static int PortBuildCost(int n) => 200 + n * 100;
+    public static int PortBuildCost(int n) =>  n switch
+    {
+        0 => 1000,
+        _ => 1000 + 1000 * (n-1),
+    };
 
-    public static int TruckBuildCost(int n) => 75 * n;
-    public static int FreighterBuildCost(int n) => 100 + n * 50;
+    public static int TruckBuildCost(int n) => n switch
+    {
+        0 => 0,
+        1 => 3000,
+        2 => 5000,
+        3 => 10000,
+        4 => 20000,
+    };
+    public static int FreighterBuildCost(int n) => n switch
+    {
+        0 => 3000,
+        1 => 7500,
+        2 => 10000,
+        3 => 20000,
+    };
 
 
     // ------------------- Market Cap -------------------
