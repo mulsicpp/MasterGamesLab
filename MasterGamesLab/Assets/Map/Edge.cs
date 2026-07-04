@@ -281,7 +281,6 @@ namespace Map
             if (geometry == null)
             {
                 geometry = sender.Chunk.RequestNewEdgeGeometry();
-                geometry.SetLayerNames("Default", "Outline", "Outline Transparent");
             }
 
             if (sender.Id == StartTile.Id)
@@ -369,7 +368,7 @@ namespace Map
             {
                 geometry.SetMaterial(GeometriesManager.Instance.GetBuoyMaterial());
             }
-            
+
             geometry.SetBaseLayer();
         }
 
@@ -378,49 +377,46 @@ namespace Map
             switch (BlueprintVisualState)
             {
                 case Blueprint.VisualState.Valid:
-
                     switch (BlueprintType)
                     {
                         case EdgeType.Road:
-                            blueprintGeometry.SetOutlineLayer();
-                            blueprintGeometry.SetPlayerColor(Constants.ROAD_BLUEPRINT_COLOR);
-                            blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_VALID_OUTLINE);
+                            blueprintGeometry.SetAsBlueprint();
                             break;
                         case EdgeType.Canal:
-                            blueprintGeometry.SetOutlineTransparentLayer();
-                            blueprintGeometry.SetOutlineParameters(Constants.CANAL_BLUEPRINT_VALID_OUTLINE);
+                            blueprintGeometry.SetAsBlueprint();
+                            var waveOutline = GeometriesManager.Instance.blueprintOutline;
+                            waveOutline.textureId = Constants.OutlineTextures.Waves;
+                            waveOutline.innerColor.a = 0.75f;
+                            blueprintGeometry.SetOutlineParameters(waveOutline);
                             break;
                         default:
                             blueprintGeometry.SetBaseLayer();
                             break;
                     }
 
-                    if (GeometriesManager.Instance)
-                    {
-                        blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
-                    }
-
                     break;
                 case Blueprint.VisualState.Preview:
-                    blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
-                    blueprintGeometry.SetBaseLayer();
-                    blueprintGeometry.SetPlayerColor(Constants.ROAD_BLUEPRINT_PREVIEW_COLOR);
+                    blueprintGeometry.SetAsPreview();
                     break;
                 case Blueprint.VisualState.PreviewOverlapping:
+                    blueprintGeometry.SetAsPreviewOverlapping();
+                    /*
                     blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetPreviewMaterial());
                     blueprintGeometry.SetOutlineTransparentLayer();
                     blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_PREVIEW_OVERLAPPING_OUTLINE);
+                    */
                     break;
                 case Blueprint.VisualState.Overlapping:
-                    blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
-                    blueprintGeometry.SetOutlineTransparentLayer();
-                    blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_OVERLAPPING_OUTLINE);
+                    blueprintGeometry.SetAsBluePrintOverlapping();
                     break;
                 case Blueprint.VisualState.Invalid:
+                    blueprintGeometry.SetAsBluePrintInvalid();
+                    /*
                     blueprintGeometry.SetMaterial(GeometriesManager.Instance.GetBlueprintMaterial());
                     blueprintGeometry.SetOutlineLayer();
                     blueprintGeometry.SetPlayerColor(Constants.ROAD_BLUEPRINT_INVALID_COLOR);
                     blueprintGeometry.SetOutlineParameters(Constants.ROAD_BLUEPRINT_INVALID_OUTLINE);
+                    */
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -461,12 +457,47 @@ namespace Map
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
         {
-            var outlineData = hoverState switch
+            var outlineData = GeometriesManager.Instance.invalid;
+
+            if (hoverState == HoverState.Valid)
             {
-                HoverState.Invalid => Constants.ROAD_BLUEPRINT_INVALID_OUTLINE,
-                _ => Constants.HOVER_OUTLINE_FILLED_IN,
-            };
+                switch (BlueprintVisualState)
+                {
+                    case Blueprint.VisualState.Valid:
+                        outlineData = GeometriesManager.Instance.blueprintOutline;
+                        if (BlueprintType == EdgeType.Canal)
+                        {
+                            outlineData.textureId = Constants.OutlineTextures.Waves;
+                        }
+
+                        break;
+                    case Blueprint.VisualState.Preview:
+                        outlineData = Constants.HoverOutlineClear;
+                        break;
+                    case Blueprint.VisualState.PreviewOverlapping:
+                        outlineData = GeometriesManager.Instance.previewOverlapping;
+                        break;
+                    case Blueprint.VisualState.Overlapping:
+                        outlineData = GeometriesManager.Instance.blueprintOverlapping;
+                        break;
+                    case Blueprint.VisualState.Invalid:
+                        outlineData = GeometriesManager.Instance.invalid;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                outlineData.outlineColor = GeometriesManager.Instance.hoverOutlineColor;
+                outlineData.innerColor = GeometriesManager.Instance.hoverInnerColor;
+            }
+
             ShowOutline(outlineData);
+        }
+
+        public void SetHoverableStatus(bool isHoverable)
+        {
+            blueprintGeometry.CurrentlyHoverable = isHoverable;
+            geometry.CurrentlyHoverable = false;
         }
     }
 }

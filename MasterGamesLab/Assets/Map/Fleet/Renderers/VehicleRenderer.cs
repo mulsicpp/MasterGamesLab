@@ -1,3 +1,5 @@
+using System;
+using Map.Blueprint;
 using Map.GeometryGeneration;
 using UnityEngine;
 using UI;
@@ -40,7 +42,7 @@ namespace Map.Fleet
             var tProj = t; // Map.Instance.GetProjectedVehicleTransform(t);
             transform.localPosition = tProj.Position;
             transform.localRotation = Quaternion.LookRotation(tProj.Forward, tProj.Up);
-            transform.localScale = GeometriesManager.Scale;
+            transform.localScale = GeometriesManager.Scale * tProj.Scale;
         }
 
         public virtual void SetVisibleOutline(Constants.OutlineData? outline)
@@ -52,7 +54,34 @@ namespace Map.Fleet
             }
             else
             {
-                Geometry.SetBaseLayer();
+                if (Vehicle.BlueprintTile != null)
+                {
+                    switch (Vehicle.BlueprintVisualState)
+                    {
+                        case VisualState.Preview:
+                            Geometry.SetAsPreview();
+                            break;
+                        case VisualState.Valid:
+                            Geometry.SetAsBlueprint();
+                            break;
+                        case VisualState.Invalid:
+                            Geometry.SetAsBluePrintInvalid();
+                            break;
+                        case VisualState.Overlapping:
+                            Geometry.SetAsBluePrintOverlapping();
+                            break;
+                        case VisualState.PreviewOverlapping:
+                            Geometry.SetAsPreviewOverlapping();
+                            break;
+                        default:
+                            Geometry.SetBaseLayer();
+                            break;
+                    }
+                }
+                else
+                {
+                    Geometry.SetBaseLayer();
+                }
             }
         }
     }

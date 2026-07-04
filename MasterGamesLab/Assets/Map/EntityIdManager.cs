@@ -1,6 +1,8 @@
 using Map.GeometryGeneration.Edges;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UI;
 
 namespace Map
@@ -15,6 +17,8 @@ namespace Map
         public readonly Range VehicleActionQueueRange;
 
         private IMapEntity[] entities;
+
+        public IReadOnlyList<IMapEntity> Entities => entities;
 
         public EntityIdManager()
         {

@@ -352,6 +352,10 @@ PrefabInstance:
       value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
+      propertyPath: TEST_ROAD_HANDLE_DISTANCE
+      value: 0.024
+      objectReference: {fileID: 0}
+    - target: {fileID: 8451971929559792631, guid: 13fbaea6e2cc637438b95a8fd0caa202, type: 3}
       propertyPath: projectionActivationDistance
       value: 2.48
       objectReference: {fileID: 0}
@@ -948,6 +952,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1292364102
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1292364104}
+  - component: {fileID: 1292364103}
+  m_Layer: 0
+  m_Name: PP-Volume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1292364103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1292364102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
+  m_IsGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: f8d39afa5fd1e36478d11e81ef3c2f6f, type: 2}
+--- !u!4 &1292364104
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1292364102}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.392412, y: 1.0434241, z: -0.2549069}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1740609991
 GameObject:
   m_ObjectHideFlags: 0
@@ -1097,12 +1150,24 @@ PrefabInstance:
       value: Camera
       objectReference: {fileID: 0}
     - target: {fileID: 6831849078529806540, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
+      propertyPath: minZoom
+      value: 1.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 6831849078529806540, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
+      propertyPath: zoomBase
+      value: 1.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 6831849078529806540, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
       propertyPath: rotationBaseSpeed
       value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 6831849078529806540, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
       propertyPath: rotationApproachFactor
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7893602521411810879, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
+      propertyPath: m_RenderPostProcessing
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8619474705160191104, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1177,9 +1242,605 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1656574153691020000, guid: a0c329c131d7c8c4cae9f255306af9bb, type: 3}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: actionColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: actionColor.g
+      value: 0.98232996
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: actionColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: parkingLotMesh
       value: 
       objectReference: {fileID: -2432090755550338912, guid: 1d9abc1cf16ffcd459a902e314992922, type: 3}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: hoverInnerColor.a
+      value: 0.61960787
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: hoverInnerColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: hoverInnerColor.g
+      value: 0.8284874
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: hoverInnerColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.textureId
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: hoverOutlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: hoverOutlineColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: hoverOutlineColor.g
+      value: 0.79091406
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: hoverOutlineColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: actionInvalidColor.g
+      value: 0.12190881
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: actionInvalidColor.r
+      value: 0.9838275
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: actionPreviewColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: actionPreviewColor.g
+      value: 0.72148836
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: actionPreviewColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.innerColor.a
+      value: 0.8235294
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.innerColor.b
+      value: 0.077148914
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.innerColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.innerColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.outlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.outlineColor.b
+      value: 0.19256043
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.outlineColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: invalid.outlineColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: selectedOutline.textureId
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.textureId
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.textureId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.textureId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedOutline.textureId
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: selectedOutline.innerColor.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: selectedOutline.innerColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: selectedOutline.innerColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: selectedOutline.innerColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.innerColor.a
+      value: 0.68235296
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.innerColor.b
+      value: 0.043309677
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.innerColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.innerColor.r
+      value: 0.84905654
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.innerColor.a
+      value: 0.16862746
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.innerColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.innerColor.g
+      value: 0.17575288
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.innerColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCurrentOutline.textureId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestOutline.textureId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.textureId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestOutline.textureId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: selectedOutline.outlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: selectedOutline.outlineColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: selectedOutline.outlineColor.g
+      value: 0.40096474
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: selectedOutline.outlineColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.outlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.outlineColor.b
+      value: 0.19101727
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.outlineColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintInvalid.outlineColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.outlineColor.a
+      value: 0.78431374
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.outlineColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.outlineColor.g
+      value: 0.9860738
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOutline.outlineColor.r
+      value: 0.28975737
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.innerColor.a
+      value: 0.89411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.innerColor.b
+      value: 0.15902954
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.innerColor.g
+      value: 0.15902954
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.innerColor.r
+      value: 0.15902954
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedOutline.innerColor.a
+      value: 0.78431374
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedOutline.innerColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedOutline.innerColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedOutline.innerColor.r
+      value: 0.99383855
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCurrentOutline.innerColor.a
+      value: 0.9019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCurrentOutline.innerColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCurrentOutline.innerColor.g
+      value: 0.49612737
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCurrentOutline.innerColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestOutline.innerColor.a
+      value: 0.9019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestOutline.innerColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestOutline.innerColor.g
+      value: 0.6164666
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestOutline.innerColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.innerColor.a
+      value: 0.84705883
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.innerColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.innerColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.innerColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.outlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.outlineColor.b
+      value: 0.13746631
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.outlineColor.g
+      value: 0.13746631
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: previewOverlapping.outlineColor.r
+      value: 0.13746631
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestOutline.innerColor.a
+      value: 0.9019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestOutline.innerColor.b
+      value: 0.19649129
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestOutline.innerColor.g
+      value: 0.6819406
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestOutline.innerColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedOutline.outlineColor.g
+      value: 0.9974128
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedOutline.outlineColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCurrentOutline.outlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCurrentOutline.outlineColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCurrentOutline.outlineColor.g
+      value: 0.8639505
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCurrentOutline.outlineColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestOutline.outlineColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestOutline.outlineColor.g
+      value: 0.86539775
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestOutline.outlineColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.outlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.outlineColor.b
+      value: 0.029649556
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.outlineColor.g
+      value: 0.029649556
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintOverlapping.outlineColor.r
+      value: 0.029649556
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestOutline.outlineColor.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestOutline.outlineColor.b
+      value: 0.023757815
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestOutline.outlineColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestOutline.outlineColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedHoveredOutline.textureId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.innerColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.innerColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.innerColor.g
+      value: 0.950421
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.innerColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestHoveredOutline.textureId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestPreviewOutline.textureId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestHoveredOutline.textureId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestPreviewOutline.textureId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.outlineColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.outlineColor.g
+      value: 0.9872599
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: blueprintPreviewOutline.outlineColor.r
+      value: 0.57547164
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedHoveredOutline.innerColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedHoveredOutline.innerColor.g
+      value: 0.819613
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedHoveredOutline.innerColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestHoveredOutline.innerColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestHoveredOutline.innerColor.g
+      value: 0.40392157
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestHoveredOutline.innerColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestPreviewOutline.innerColor.a
+      value: 0.47843137
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestPreviewOutline.innerColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestPreviewOutline.innerColor.g
+      value: 0.7716352
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestPreviewOutline.innerColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestHoveredOutline.innerColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestHoveredOutline.innerColor.b
+      value: 0.21960784
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestHoveredOutline.innerColor.g
+      value: 0.5058824
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestPreviewOutline.innerColor.a
+      value: 0.49803922
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestPreviewOutline.innerColor.b
+      value: 0.14901961
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestPreviewOutline.innerColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestPreviewOutline.innerColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedHoveredOutline.outlineColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedHoveredOutline.outlineColor.g
+      value: 0.92033947
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeQueuedHoveredOutline.outlineColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestHoveredOutline.outlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestHoveredOutline.outlineColor.g
+      value: 0.5019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestHoveredOutline.outlineColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestPreviewOutline.outlineColor.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestPreviewOutline.outlineColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestPreviewOutline.outlineColor.g
+      value: 0.7767668
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeFastestPreviewOutline.outlineColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestHoveredOutline.outlineColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestHoveredOutline.outlineColor.b
+      value: 0.06666667
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestHoveredOutline.outlineColor.g
+      value: 0.69411767
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestPreviewOutline.outlineColor.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestPreviewOutline.outlineColor.b
+      value: 0.14901961
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestPreviewOutline.outlineColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: routeCheapestPreviewOutline.outlineColor.r
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5965362561141683518, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: m_Name
       value: GeometriesManager
@@ -1293,3 +1954,4 @@ SceneRoots:
   - {fileID: 264134038}
   - {fileID: 615409478525799809}
   - {fileID: 1286418471}
+  - {fileID: 1292364104}

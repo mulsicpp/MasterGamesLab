@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Map.OutlineEffect
 {
-    public class TileOutliner : AOutlinableObject
+    public class TileOutliner : AObjectWithProcedualGeometry
     {
         private const float MIN_DELTA = 0.0001f;
         private const float MAX_DELTA = 0.012f;
@@ -15,6 +15,7 @@ namespace Map.OutlineEffect
         private void Awake()
         {
             Init();
+            CurrentlyHoverable = false;
             SetOutlineTransparentLayer();
         }
 

@@ -21,16 +21,6 @@ namespace Map
     public class Map : NetworkBehaviour, IMap
     {
         public const int ID_OFFSET = 1;
-        public static int TileLayer { get; private set; }
-        public static int EdgeLayer { get; private set; }
-        public static int EdgeOutlineLayer { get; private set; }
-        public static int EdgeOutlineTransparentLayer { get; private set; }
-        public static int VehicleLayer { get; private set; }
-        public static int VehicleOutlineLayer { get; private set; }
-        public static int VehicleOutlineTransparentLayer { get; private set; }
-        public static int RouteLayer { get; private set; }
-        public static int RouteOutlineLayer { get; private set; }
-        public static int RouteOutlineTransparentLayer { get; private set; }
 
         private static readonly int PlanetRadius = Shader.PropertyToID("_PlanetRadius");
         private static readonly int ProjectionFactor = Shader.PropertyToID("_ProjectionFactor");
@@ -42,7 +32,8 @@ namespace Map
         public IReadOnlyList<ITile> ActiveTiles => activeTiles;
         public float Radius => radius;
         public int Resolution => resolution;
-        public float TileScale => (Radius / (Resolution + 1)) * 0.3524163807f;
+        private float TileScale15 => (Radius / (15 + 1)) * 0.3524163807f;
+        public float TileScale => ((Radius / (Resolution + 1)) * 0.3524163807f) / TileScale15;
 
         public float TEST_ROAD_HANDLE_DISTANCE = 0.025f;
         public float TEST_ROAD_HEIGHT = 0.01f;
@@ -100,7 +91,11 @@ namespace Map
         [SerializeField] private float projectionBaseSpeed = 2f;
         [SerializeField] private float projectionApproachFactor = 4f;
 
-        public HoverablePicker.HoverableLayer HoverLayers = HoverablePicker.HoverableLayer.All;
+        // public HoverablePicker.HoverableLayer HoverLayers = HoverablePicker.HoverableLayer.All;
+
+        public static readonly Predicate<IHoverable> DefaultHoverablePredicate = _ => true;
+
+        public Predicate<IHoverable> ShouldBeHoverablePredicate = DefaultHoverablePredicate;
 
         //debug
         private ITile[] debugSpawnPoints;
@@ -140,20 +135,6 @@ namespace Map
         {
             Instance = this;
             Generate(GenerationSeed ?? 0);
-        }
-
-        private void OnEnable()
-        {
-            TileLayer = LayerMask.NameToLayer("Tiles");
-            EdgeLayer = LayerMask.NameToLayer("Edge");
-            EdgeOutlineLayer = LayerMask.NameToLayer("Edge Outline");
-            EdgeOutlineTransparentLayer = LayerMask.NameToLayer("Edge Outline Transparent");
-            VehicleLayer = LayerMask.NameToLayer("Vehicles");
-            VehicleOutlineLayer = LayerMask.NameToLayer("Vehicles Outline");
-            VehicleOutlineTransparentLayer = LayerMask.NameToLayer("Vehicles Outline Transparent");
-            RouteLayer = LayerMask.NameToLayer("Full Road");
-            RouteOutlineLayer = LayerMask.NameToLayer("Full Road Outline");
-            RouteOutlineTransparentLayer = LayerMask.NameToLayer("Full Road Outline Transparent");
         }
 
         private void UpdateEntireMesh()
@@ -233,11 +214,23 @@ namespace Map
                 vehicle.EvaluateGameObjectPresence();
             }
 
-            UpdateHovered();
+            UpdateHoverables();
+            UpdateCurrentlyHovered();
             // MainCamera.Instance.PlanetControllerEnabled = Simu;
 
             // Update the projection
             UpdateProjectionUniforms();
+        }
+
+        private void UpdateHoverables()
+        {
+            foreach (var entity in EntityIdManager.Entities)
+            {
+                if (entity is IHoverable hoverable)
+                {
+                    hoverable.SetHoverableStatus(ShouldBeHoverablePredicate(hoverable));
+                }
+            }
         }
 
         public void AddActiveTile(Tile tile) => activeTiles.Add(tile);
@@ -262,9 +255,12 @@ namespace Map
                 var distanceAbs = Mathf.Abs(targetProjectionFactor - oldProjectionFactor);
                 if (distanceAbs > 0.001f)
                 {
-                    var distanceThisFrame = Mathf.Min((distanceAbs * projectionApproachFactor + projectionBaseSpeed) * Time.deltaTime, distanceAbs);
+                    var distanceThisFrame =
+                        Mathf.Min((distanceAbs * projectionApproachFactor + projectionBaseSpeed) * Time.deltaTime,
+                            distanceAbs);
 
-                    projectionFactor = Mathf.Lerp(oldProjectionFactor, targetProjectionFactor, distanceThisFrame / distanceAbs);
+                    projectionFactor = Mathf.Lerp(oldProjectionFactor, targetProjectionFactor,
+                        distanceThisFrame / distanceAbs);
                 }
             }
             else
@@ -285,7 +281,7 @@ namespace Map
             oldProjectionFactor = projectionFactor;
         }
 
-        private void UpdateHovered()
+        private void UpdateCurrentlyHovered()
         {
             var mousePos = Mouse.current.position.ReadValue();
             var mX = (int)mousePos.x;
@@ -321,20 +317,9 @@ namespace Map
                 return;
             }
 
-            CurrentlyHovered = EntityIdManager[new EntityId(currentlyHoveredId)] as IHoverable;
+            var hoverable = EntityIdManager[new EntityId(currentlyHoveredId)] as IHoverable;
 
-            // if (currentlyHoveredId < tiles.Count)
-            // {
-            //     CurrentlyHovered = tiles[currentlyHoveredId];
-            // }
-            // else if (currentlyHoveredId < GetTileAndEdgeCount())
-            // {
-            //     CurrentlyHovered = edges[currentlyHoveredId - tiles.Count];
-            // }
-            // else if (currentlyHoveredId < GetTileAndEdgeCount() + 100)
-            // {
-            //     CurrentlyHovered = Fleet.Vehicles[currentlyHoveredId - GetTileAndEdgeCount()];
-            // }
+            CurrentlyHovered = ShouldBeHoverablePredicate(hoverable) ? hoverable : null;
         }
 
         public int GetTileAndEdgeCount() => tiles.Count + edges.Length;
@@ -842,6 +827,7 @@ namespace Map
                     {
                         player.TransferMoneyTo(p, c);
                     }
+
                     return true;
                 }
 
@@ -877,6 +863,7 @@ namespace Map
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -932,6 +919,7 @@ namespace Map
                 Position = projPos,
                 Up = (projPosAbove - projPos).normalized,
                 Forward = (projPosInfront - projPosBehind).normalized,
+                Scale = transform.Scale,
             };
         }
 

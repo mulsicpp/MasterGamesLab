@@ -7,6 +7,7 @@ namespace Map.Fleet
         public Vector3 Position;
         public Vector3 Up;
         public Vector3 Forward;
+        public float Scale = 1.0f;
 
         public VehicleTransform AdjustUpVector()
         {

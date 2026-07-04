@@ -132,7 +132,7 @@ Material:
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
-    - _color_variation_amount: 0.6
+    - _color_variation_amount: 1.25
     - _strech: 1.15
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}

@@ -226,8 +226,8 @@ namespace Map.Infrastructure
         {
             var outlineData = hoverState switch
             {
-                HoverState.Invalid => Constants.ROAD_BLUEPRINT_INVALID_OUTLINE,
-                _ => Constants.HOVER_OUTLINE,
+                HoverState.Invalid => GeometriesManager.Instance.invalid,
+                _ => Constants.HoverOutlineHatching,
             };
             ShowOutline(outlineData);
         }

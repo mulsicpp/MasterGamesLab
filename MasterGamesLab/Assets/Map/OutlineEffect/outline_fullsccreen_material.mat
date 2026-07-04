@@ -54,7 +54,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _PatternTextures:
-        m_Texture: {fileID: 18700000, guid: 4f2ab4c3163e85f41a8efac22c144031, type: 2}
+        m_Texture: {fileID: 18700000, guid: 832dd8328cf6bf2489e64a8c48079fbb, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_746269d4822447c1967fae98e4529742_Texture_1_Texture2D:
@@ -84,7 +84,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _SampleCount: 3
-    - _TextureScale: 0.05
+    - _TextureScale: 0.04
     m_Colors:
     - _Vector3: {r: 0.08, g: 0.37, b: 0.05, a: 0}
   m_BuildTextureStacks: []

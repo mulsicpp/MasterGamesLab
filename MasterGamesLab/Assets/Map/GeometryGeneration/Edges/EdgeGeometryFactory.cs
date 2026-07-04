@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Map.Blueprint;
 using UI;
 using UnityEngine;
 
@@ -6,18 +8,18 @@ namespace Map.GeometryGeneration.Edges
 {
     public static class EdgeGeometryFactory
     {
-        private const float EDGE_WIDTH = 0.01f;
-        private const float EDGE_HEIGHT = 0.005f;
-        private const float BUOY_SCALE = 0.0055f;
+        private static float BuoyScale => 0.007f * Map.Instance.TileScale;
 
-        private const float EDGE_HANDLE_DISTANCE = 0.025f;
-        private const float ROAD_HEIGHT = 0.01f;
         private const int EDGE_RESOLUTION = 5;
-        private const float ROAD_RADIUS = 0.01f;
-        private const float FULL_ROAD_RADIUS = ROAD_RADIUS * 0.9f;
 
-        private const float FASTEST_ROAD_NORMAL_DELTA = 0.0012f;
-        private const float CHEAPEST_ROAD_NORMAL_DELTA = 0.001f;
+        private static float RoadRadius => 0.016f * Map.Instance.TileScale;
+
+        private static float FullRoadRadius => RoadRadius * 0.95f * Map.Instance.TileScale;
+
+        private const float FASTEST_ROAD_NORMAL_DELTA = 0.0013f;
+        private const float CHEAPEST_ROAD_NORMAL_DELTA = 0.0012f;
+        private const float FASTEST_ROAD_PREVIEW_NORMAL_DELTA = 0.0011f;
+        private const float CHEAPEST_ROAD_PREVIEW_NORMAL_DELTA = 0.001f;
         private const float QUEUED_ROAD_NORMAL_DELTA = 0.0008f;
         private const float QUEUED_ROAD_NORMAL_DELTA_PER_INDEX = 0.000005f;
         private const float CURRENT_ROAD_NORMAL_DELTA = 0.0006f;
@@ -169,6 +171,11 @@ namespace Map.GeometryGeneration.Edges
                 validEdges.Add(e);
             }
 
+            var offset = blueprint ? 0.0015f : 0f;
+
+            var curveData = new ParametricCurve.CurveData(TileGeometryFactory.LAND_HEIGHT + offset,
+                TileGeometryFactory.LAND_HEIGHT + offset);
+
             Vector3 center;
             if (blueprint && tile.EdgesCenterBlueprint != Vector3.zero)
             {
@@ -188,7 +195,7 @@ namespace Map.GeometryGeneration.Edges
                     {
                         var e1 = validEdges[i];
                         var e2 = validEdges[j];
-                        var curve = ParametricCurve.FromEdgeToEdge(e1, e2, tile);
+                        var curve = ParametricCurve.FromEdgeToEdge(e1, e2, tile, curveData);
                         var t = curve.Evaluate(0.5f);
                         center += t;
                         numAdded++;
@@ -212,11 +219,11 @@ namespace Map.GeometryGeneration.Edges
 
             var curveToPrevious =
                 validEdges.Count > 1
-                    ? ParametricCurve.FromEdgeToEdge(edge, validEdges[prevIdx], tile)
-                    : ParametricCurve.FromEdgeToTileCenter(edge, tile);
+                    ? ParametricCurve.FromEdgeToEdge(edge, validEdges[prevIdx], tile, curveData)
+                    : ParametricCurve.FromEdgeToTileCenter(edge, tile, curveData);
             var curveToNext = validEdges.Count > 1
-                ? ParametricCurve.FromEdgeToEdge(edge, validEdges[nextIdx], tile)
-                : ParametricCurve.FromEdgeToTileCenter(edge, tile);
+                ? ParametricCurve.FromEdgeToEdge(edge, validEdges[nextIdx], tile, curveData)
+                : ParametricCurve.FromEdgeToTileCenter(edge, tile, curveData);
 
             var factor = validEdges.Count > 1 ? 0.5f : 1f;
             var includeCenter = validEdges.Count > 2;
@@ -384,13 +391,14 @@ namespace Map.GeometryGeneration.Edges
             };
         }
 
-        public static RouteGeometry GenerateRoute(TileId[] tileIds, Route.RouteType type, int index, ParametricCurve.CurveData? curveData)
+        public static RouteGeometry GenerateRoute(TileId[] tileIds, Route.RouteType type, int index,
+            ParametricCurve.CurveData? curveData)
         {
             var go = GeometriesManager.Instance.GetRouteGameObject();
 
             var tiles = new Tile[tileIds.Length];
 
-            for(int i = 0; i < tiles.Length; i++)
+            for (int i = 0; i < tiles.Length; i++)
             {
                 tiles[i] = Map.Instance.Tiles[tileIds[i]] as Tile;
             }
@@ -412,6 +420,8 @@ namespace Map.GeometryGeneration.Edges
                 Route.RouteType.Cheapest => CHEAPEST_ROAD_NORMAL_DELTA,
                 Route.RouteType.Queued => QUEUED_ROAD_NORMAL_DELTA + index * QUEUED_ROAD_NORMAL_DELTA_PER_INDEX,
                 Route.RouteType.Current => CURRENT_ROAD_NORMAL_DELTA,
+                Route.RouteType.CheapestPreview => CHEAPEST_ROAD_PREVIEW_NORMAL_DELTA,
+                Route.RouteType.FastestPreview => FASTEST_ROAD_PREVIEW_NORMAL_DELTA,
                 _ => FASTEST_ROAD_NORMAL_DELTA,
             };
 
@@ -444,8 +454,8 @@ namespace Map.GeometryGeneration.Edges
                 var (p, normal) = GetPosAndNormal(curve, t);
                 p += p.normalized * heightOffset;
 
-                var leftPoint = p + normal * FULL_ROAD_RADIUS;
-                var rightPoint = p - normal * FULL_ROAD_RADIUS;
+                var leftPoint = p + normal * FullRoadRadius;
+                var rightPoint = p - normal * FullRoadRadius;
 
                 element.AddVertex(leftPoint, uv1);
                 element.AddVertex(rightPoint, uv1);
@@ -470,8 +480,8 @@ namespace Map.GeometryGeneration.Edges
             for (var i = 0; i < profile.Length; i++)
             {
                 var profileValue = profile[i];
-                var horizontalPos = center + normal * (profileValue.t * ROAD_RADIUS);
-                var pos = horizontalPos + horizontalPos.normalized * (profileValue.height * ROAD_RADIUS);
+                var horizontalPos = center + normal * (profileValue.t * RoadRadius);
+                var pos = horizontalPos + horizontalPos.normalized * (profileValue.height * RoadRadius);
 
                 data.z = profile[i].uvXValue;
 
@@ -517,7 +527,7 @@ namespace Map.GeometryGeneration.Edges
             var data = edge.GetEdgeData();
             data.z = 1.5f;
 
-            AddGeometryAtPosWithNormal(geometry, pos, normal, BUOY_SCALE, buoyMesh, data);
+            AddGeometryAtPosWithNormal(geometry, pos, normal, BuoyScale, buoyMesh, data);
 
             return geometry;
         }

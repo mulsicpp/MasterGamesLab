@@ -9,21 +9,8 @@ namespace Map.GeometryGeneration
         private MeshFilter meshFilter;
         private List<Vector4> uv1 = new List<Vector4>();
 
-        protected override string DefaultLayerName() => defaultLayerName;
-        protected override string OutlineLayerName() => outlineLayerName;
-        protected override string OutlineTransparentLayerName() => outlineTransparentLayerName;
-
-        private string defaultLayerName;
-        private string outlineLayerName;
-        private string outlineTransparentLayerName;
-
-        public void Init(Mesh mesh, string defaultName, string outlineName, string outlineTransparentName, int id,
-            Color playerColor)
+        public void Init(Mesh mesh, int id, Color playerColor)
         {
-            defaultLayerName = defaultName;
-            outlineLayerName = outlineName;
-            outlineTransparentLayerName = outlineTransparentName;
-
             base.Init();
 
             meshFilter = GetComponent<MeshFilter>();
