@@ -227,7 +227,7 @@ namespace Map.Infrastructure
             var outlineData = hoverState switch
             {
                 HoverState.Invalid => GeometriesManager.Instance.invalid,
-                _ => Constants.HOVER_OUTLINE,
+                _ => Constants.HoverOutlineHatching,
             };
             ShowOutline(outlineData);
         }

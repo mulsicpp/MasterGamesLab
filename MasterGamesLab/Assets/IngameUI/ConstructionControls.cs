@@ -9,6 +9,7 @@ using Map.OutlineEffect;
 using Map.Fleet;
 using System.Collections.Generic;
 using System.Linq;
+using Map.GeometryGeneration;
 using UnityEngine.Rendering.Universal;
 using UI;
 using UnityEngine.UIElements;
@@ -176,7 +177,7 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
 
         if (ControlsAreActive)
             Map.Map.Instance.HoverOutliner.HoverState = hoverState;
-        StartTile?.ShowOutline(Constants.SELECTED_OUTLINE);
+        StartTile?.ShowOutline(GeometriesManager.Instance.selectedOutline);
     }
 
     public bool HandleClick(ClickEventType type)

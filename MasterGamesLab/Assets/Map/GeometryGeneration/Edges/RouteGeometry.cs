@@ -52,13 +52,13 @@ namespace Map.GeometryGeneration.Edges
         {
             var outline = Type switch
             {
-                Route.RouteType.Cheapest => Constants.CHEAPEST_ROUTE_OUTLINE,
-                Route.RouteType.Fastest => Constants.FASTEST_ROUTE_OUTLINE,
-                Route.RouteType.Queued => Constants.QUEUED_ROUTE_OUTLINE,
-                Route.RouteType.Current => Constants.CURRENT_ROUTE_OUTLINE,
-                Route.RouteType.CheapestPreview => Constants.CHEAPEST_ROUTE_PREVIEW_OUTLINE,
-                Route.RouteType.FastestPreview => Constants.FASTEST_ROUTE_PREVIEW_OUTLINE,
-                _ => Constants.TRANSPARENT_OUTLINE,
+                Route.RouteType.Cheapest => GeometriesManager.Instance.routeCheapestOutline,
+                Route.RouteType.Fastest => GeometriesManager.Instance.routeFastestOutline,
+                Route.RouteType.Queued => GeometriesManager.Instance.routeQueuedOutline,
+                Route.RouteType.Current => GeometriesManager.Instance.routeCurrentOutline,
+                Route.RouteType.CheapestPreview => GeometriesManager.Instance.routeCheapestPreviewOutline,
+                Route.RouteType.FastestPreview => GeometriesManager.Instance.routeFastestPreviewOutline,
+                _ => Constants.TransparentOutline,
             };
 
             SetOutlineParameters(outline);
@@ -73,18 +73,20 @@ namespace Map.GeometryGeneration.Edges
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
         {
-            var outlineData = Type switch
+            var outline = Type switch
             {
-                Route.RouteType.Cheapest => Constants.CHEAPEST_ROUTE_OUTLINE_HOVERED,
-                Route.RouteType.Fastest => Constants.FASTEST_ROUTE_OUTLINE_HOVERED,
-                Route.RouteType.Queued => Constants.QUEUED_ROUTE_OUTLINE_HOVERED,
-                Route.RouteType.Current => Constants.CURRENT_ROUTE_OUTLINE_HOVERED,
-                Route.RouteType.CheapestPreview => Constants.CHEAPEST_ROUTE_PREVIEW_OUTLINE_HOVERED,
-                Route.RouteType.FastestPreview => Constants.FASTEST_ROUTE_PREVIEW_OUTLINE_HOVERED,
-                _ => Constants.TRANSPARENT_OUTLINE,
+                Route.RouteType.Cheapest => GeometriesManager.Instance.routeCheapestOutline,
+                Route.RouteType.Fastest => GeometriesManager.Instance.routeFastestOutline,
+                Route.RouteType.Queued => GeometriesManager.Instance.routeQueuedOutline,
+                Route.RouteType.Current => GeometriesManager.Instance.routeCurrentOutline,
+                Route.RouteType.CheapestPreview => GeometriesManager.Instance.routeCheapestPreviewOutline,
+                Route.RouteType.FastestPreview => GeometriesManager.Instance.routeFastestPreviewOutline,
+                _ => Constants.TransparentOutline,
             };
 
-            SetOutlineParameters(outlineData);
+            outline.outlineColor.a = 1.0f;
+            outline.innerColor.a = 1.0f;
+            SetOutlineParameters(outline);
             hovered = true;
         }
 

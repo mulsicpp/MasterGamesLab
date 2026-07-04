@@ -493,7 +493,7 @@ namespace Map
 
         public void ClearOutline()
         {
-            if (outliner != null)
+            if (outliner)
             {
                 TileOutlinerPool.Instance.Release(outliner);
                 outliner = null;
@@ -513,7 +513,7 @@ namespace Map
             var outlineData = hoverState switch
             {
                 HoverState.Invalid => GeometriesManager.Instance.invalid,
-                _ => Constants.HOVER_OUTLINE,
+                _ => Constants.HoverOutlineClear,
             };
             ShowOutline(outlineData);
         }

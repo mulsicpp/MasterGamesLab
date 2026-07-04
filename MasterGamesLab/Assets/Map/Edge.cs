@@ -457,11 +457,40 @@ namespace Map
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
         {
-            var outlineData = hoverState switch
+            var outlineData = GeometriesManager.Instance.invalid;
+
+            if (hoverState == HoverState.Valid)
             {
-                HoverState.Invalid => GeometriesManager.Instance.invalid,
-                _ => Constants.HOVER_OUTLINE_FILLED_IN,
-            };
+                switch (BlueprintVisualState)
+                {
+                    case Blueprint.VisualState.Valid:
+                        outlineData = GeometriesManager.Instance.blueprintOutline;
+                        if (BlueprintType == EdgeType.Canal)
+                        {
+                            outlineData.textureId = Constants.OutlineTextures.Waves;
+                        }
+
+                        break;
+                    case Blueprint.VisualState.Preview:
+                        outlineData = Constants.HoverOutlineClear;
+                        break;
+                    case Blueprint.VisualState.PreviewOverlapping:
+                        outlineData = GeometriesManager.Instance.previewOverlapping;
+                        break;
+                    case Blueprint.VisualState.Overlapping:
+                        outlineData = GeometriesManager.Instance.blueprintOverlapping;
+                        break;
+                    case Blueprint.VisualState.Invalid:
+                        outlineData = GeometriesManager.Instance.invalid;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                outlineData.outlineColor = GeometriesManager.Instance.hoverOutlineColor;
+                outlineData.innerColor = GeometriesManager.Instance.hoverInnerColor;
+            }
+
             ShowOutline(outlineData);
         }
 

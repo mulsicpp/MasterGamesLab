@@ -8,6 +8,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Map.GeometryGeneration;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
@@ -315,9 +316,9 @@ namespace UI
             }
             else
             {
-                SelectedVehicle.ShowOutline(Constants.SELECTED_OUTLINE);
+                SelectedVehicle.ShowOutline(GeometriesManager.Instance.selectedOutline);
                 var start = SelectedVehicle.GetTileLocationAfterAllActions(out bool loaded);
-                RouteOptions.VisualDestination?.ShowOutline(Constants.SELECTED_OUTLINE);
+                RouteOptions.VisualDestination?.ShowOutline(GeometriesManager.Instance.selectedOutline);
 
                 if (SelectedVehicle is Truck truck)
                 {

@@ -681,11 +681,37 @@ namespace Map.Fleet
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
         {
-            var outlineData = hoverState switch
+            Constants.OutlineData outlineData;
+
+            switch (hoverState)
             {
-                HoverState.Invalid => GeometriesManager.Instance.invalid,
-                _ => Constants.HOVER_OUTLINE,
-            };
+                case HoverState.Valid:
+                    if (BlueprintTile != null)
+                    {
+                        outlineData = BlueprintVisualState switch
+                        {
+                            VisualState.Preview => Constants.HoverOutlineClear,
+                            VisualState.Valid => GeometriesManager.Instance.blueprintOutline,
+                            VisualState.Invalid => GeometriesManager.Instance.invalid,
+                            VisualState.Overlapping => GeometriesManager.Instance.blueprintOverlapping,
+                            VisualState.PreviewOverlapping => GeometriesManager.Instance.previewOverlapping,
+                            _ => Constants.HoverOutlineClear
+                        };
+                        outlineData.outlineColor = GeometriesManager.Instance.hoverOutlineColor;
+                        outlineData.innerColor = GeometriesManager.Instance.hoverInnerColor;
+                    }
+                    else
+                    {
+                        outlineData = Constants.HoverOutlineClear;
+                    }
+
+                    break;
+                case HoverState.Invalid:
+                default:
+                    outlineData = GeometriesManager.Instance.invalid;
+                    break;
+            }
+
             ShowOutline(outlineData);
         }
 

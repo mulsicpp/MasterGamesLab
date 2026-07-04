@@ -78,11 +78,27 @@ namespace Map.GeometryGeneration
 
         public Material overlappingMaterial;
         public Material invalidMaterial;
-        
+
         public Constants.OutlineData blueprintOutline;
         public Constants.OutlineData invalid;
         public Constants.OutlineData blueprintOverlapping;
         public Constants.OutlineData previewOverlapping;
+
+        public Color hoverOutlineColor;
+        public Color hoverInnerColor;
+
+        public Constants.OutlineData selectedOutline;
+
+        [Header("Routes")] public Constants.OutlineData routeCheapestOutline;
+        public Constants.OutlineData routeFastestOutline;
+        public Constants.OutlineData routeQueuedOutline;
+        public Constants.OutlineData routeCurrentOutline;
+        public Constants.OutlineData routeCheapestPreviewOutline;
+        public Constants.OutlineData routeFastestPreviewOutline;
+
+        [Header("Actions")] public Color actionColor;
+        public Color actionPreviewColor;
+        public Color actionInvalidColor;
         
         private void Awake()
         {

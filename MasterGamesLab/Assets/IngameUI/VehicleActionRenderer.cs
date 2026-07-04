@@ -1,3 +1,4 @@
+using System;
 using Map;
 using Map.Fleet;
 using Map.GeometryGeneration;
@@ -70,7 +71,7 @@ namespace UI
                     break;
             }
 
-            FixedGeometry?.SetCustomColor(Color.yellow);
+            FixedGeometry?.SetCustomColor(GeometriesManager.Instance.actionColor);
 
             map.EntityIdManager[EntityId] = this;
         }
@@ -99,23 +100,33 @@ namespace UI
             {
                 case VehicleAction.ActionType.LoadTruck:
                 case VehicleAction.ActionType.WaitForTruck:
-                    var geometryType = action.Type == VehicleAction.ActionType.LoadTruck ? GeometriesManager.GeometryType.ActionLoad : GeometriesManager.GeometryType.ActionWait;
-                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(geometryType, -1, transform, Player.Player.Self);
+                    var geometryType = action.Type == VehicleAction.ActionType.LoadTruck
+                        ? GeometriesManager.GeometryType.ActionLoad
+                        : GeometriesManager.GeometryType.ActionWait;
+                    FixedGeometry =
+                        GeometriesManager.Instance.GetGameObjectGeometry(geometryType, -1, transform,
+                            Player.Player.Self);
                     targetTile = map.Tiles[action.TargetTileId] as Tile;
 
                     transform.localPosition = startTile.PositionOnSphere;
-                    transform.localRotation = Quaternion.LookRotation((targetTile.PositionOnSphere - startTile.PositionOnSphere).normalized, transform.localPosition.normalized);
+                    transform.localRotation = Quaternion.LookRotation(
+                        (targetTile.PositionOnSphere - startTile.PositionOnSphere).normalized,
+                        transform.localPosition.normalized);
                     break;
 
                 case VehicleAction.ActionType.UnloadTruck:
-                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(GeometriesManager.GeometryType.ActionUnload, -1, transform, Player.Player.Self);
+                    FixedGeometry = GeometriesManager.Instance.GetGameObjectGeometry(
+                        GeometriesManager.GeometryType.ActionUnload, -1, transform, Player.Player.Self);
                     targetTile = map.Tiles[action.TargetTileId] as Tile;
 
                     transform.localPosition = targetTile.PositionOnSphere;
-                    transform.localRotation = Quaternion.LookRotation((targetTile.NeighborTiles[0].LeftVertex - targetTile.PositionOnSphere).normalized, transform.localPosition.normalized);
+                    transform.localRotation = Quaternion.LookRotation(
+                        (targetTile.NeighborTiles[0].LeftVertex - targetTile.PositionOnSphere).normalized,
+                        transform.localPosition.normalized);
                     break;
             }
-            FixedGeometry.SetCustomColor(Constants.VEHICLE_ACTION_COLOR_PREVIEW);
+
+            FixedGeometry.SetCustomColor(GeometriesManager.Instance.actionPreviewColor);
             FixedGeometry.CurrentlyHoverable = false;
         }
 
@@ -147,11 +158,20 @@ namespace UI
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
         {
-            var outlineData = hoverState switch
+            Constants.OutlineData outlineData;
+            switch (hoverState)
             {
-                HoverState.Invalid => GeometriesManager.Instance.invalid,
-                _ => Constants.HOVER_OUTLINE,
-            };
+                case HoverState.Valid:
+                    outlineData = GeometriesManager.Instance.routeQueuedOutline;
+                    outlineData.outlineColor.a = 1.0f;
+                    outlineData.innerColor.a = 1.0f;
+                    break;
+                case HoverState.Invalid:
+                default:
+                    outlineData = GeometriesManager.Instance.invalid;
+                    break;
+            }
+
             FixedGeometry?.SetOutlineLayer();
             FixedGeometry?.SetOutlineParameters(outlineData);
 
