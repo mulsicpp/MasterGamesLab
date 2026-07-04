@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Map.GeometryGeneration;
 using UI;
 using Unity.Collections;
 using Unity.Netcode;
@@ -165,7 +166,7 @@ namespace Player
 
         public Color GetPlayerColor(PlayerId playerId)
         {
-            return Constants.PLAYER_COLORS[playerId % Constants.MAX_PLAYER_COUNT];
+            return GeometriesManager.Instance.playerColors[playerId % Constants.MAX_PLAYER_COUNT];
         }
     }
 

@@ -11,8 +11,6 @@ public static class Constants
     public const byte MIN_PLAYER_COUNT = 2;
     public const byte MAX_PLAYER_COUNT = 4;
 
-    public static readonly Color[] PLAYER_COLORS = { Color.red, Color.blue, Color.yellow, Color.green };
-
     public const int PLAYER_INITIAL_CASH = 2000;
     public const int WINNING_MARKET_CAP = 100000;
 

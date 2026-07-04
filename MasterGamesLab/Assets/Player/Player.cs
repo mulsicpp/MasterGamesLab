@@ -1,5 +1,6 @@
 using Networking;
 using System;
+using Map.GeometryGeneration;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -41,7 +42,7 @@ namespace Player
 
         public new Map.Timestamp Timestamp => base.Timestamp;
 
-        public Color Color => Constants.PLAYER_COLORS[Id % Constants.MAX_PLAYER_COUNT];
+        public Color Color => GeometriesManager.Instance.playerColors[Id % Constants.MAX_PLAYER_COUNT];
 
         private int cash;
         public int Cash

@@ -42,6 +42,8 @@ namespace Map.GeometryGeneration
         public static Vector3 Scale => new Vector3(ScaleValue, ScaleValue, ScaleValue);
         public static GeometriesManager Instance { get; private set; }
 
+        public Color[] playerColors;
+        
         [SerializeField] private Mesh truckMesh;
         [SerializeField] private Mesh freighterMesh;
 
@@ -75,7 +77,7 @@ namespace Map.GeometryGeneration
         [SerializeField] private Material buoyMaterial;
 
         [SerializeField] private Material actionMaterial;
-
+        
         public Material overlappingMaterial;
         public Material invalidMaterial;
 
