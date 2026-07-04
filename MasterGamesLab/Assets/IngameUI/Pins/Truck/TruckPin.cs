@@ -20,7 +20,7 @@ namespace UI
         [SerializeField] private List<GoodImagePair> goodsConfiguration = new List<GoodImagePair>();
         public Dictionary<Good, Sprite> goodsImages = new Dictionary<Good, Sprite>();
 
-        public VehicleRenderer vehicleRenderer;
+        public VehicleRenderer VehicleRenderer;
         private Label timeLabel;
         private VisualElement icon, good, time;
 
@@ -30,13 +30,14 @@ namespace UI
         // MANAGER HOOKS: Hand over data context seamlessly to the manager pa
         protected override void OnEnable()
         {
-            vehicleRenderer = GetComponentInParent<VehicleRenderer>();
+            VehicleRenderer = GetComponentInParent<VehicleRenderer>();
             base.OnEnable(); // Crucial: Registers this pin into the manager pool
         }
 
         protected override void Start()
         {
             hoverable = UiElement.Q<VisualElement>("Pickable");
+            hoverable.userData = VehicleRenderer?.Vehicle;
             base.Start();
 
             foreach (var pair in goodsConfiguration)
@@ -49,23 +50,23 @@ namespace UI
 
         private void Update()
         {
-            if (vehicleRenderer?.Vehicle == null) return;
+            if (VehicleRenderer?.Vehicle == null) return;
 
-            var loadedgood = (vehicleRenderer.Vehicle as Truck).Good;
+            var loadedgood = (VehicleRenderer.Vehicle as Truck).Good;
             good.style.backgroundImage = loadedgood != Good.None ? new StyleBackground(goodsImages[loadedgood]) : null;
 
-            if (IsHovered && Map.Map.Instance.ShouldBeHoverablePredicate(vehicleRenderer.Vehicle))
+            if (IsHovered && Map.Map.Instance.ShouldBeHoverablePredicate(VehicleRenderer.Vehicle))
             {
-                Map.Map.Instance.CurrentlyHovered = vehicleRenderer.Vehicle;
+                Map.Map.Instance.CurrentlyHovered = VehicleRenderer.Vehicle;
                 HoverablePicker.Instance.DenyPick = true;
             }
 
-            time.style.visibility = vehicleRenderer.Vehicle.IsParked ? Visibility.Hidden : Visibility.Visible;
+            time.style.visibility = VehicleRenderer.Vehicle.IsParked ? Visibility.Hidden : Visibility.Visible;
         }
 
         protected override void LateUpdate()
         {
-            Truck Vehicle = vehicleRenderer.Vehicle as Truck;
+            Truck Vehicle = VehicleRenderer.Vehicle as Truck;
             if (Vehicle == null || !Vehicle.Exists)
             {
                 SetShowing(false);
@@ -93,7 +94,7 @@ namespace UI
             timeLabel = UiElement.Q<Label>("TimeLabel");
             good = UiElement.Q<VisualElement>("Recource");
             time = UiElement.Q<VisualElement>("Time");
-            icon.style.unityBackgroundImageTintColor = vehicleRenderer.Vehicle.Owner.Color;
+            icon.style.unityBackgroundImageTintColor = VehicleRenderer.Vehicle.Owner.Color;
         }
     }
 }

@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
-    <ui:VisualElement name="Root" class="unity-ui-document__root element">
-        <AlphaPickableElement name="Icon" class="element" style="position: relative; height: auto; width: 100%; aspect-ratio: 1; background-image: url(&quot;project://database/Assets/Icons/Pins/producer%20pins/1.png?fileID=21300000&amp;guid=4e90ff2fe21786b499ed56b59e4acb84&amp;type=3#1&quot;);"/>
+    <ui:VisualElement name="Root" picking-mode="Ignore" class="unity-ui-document__root element">
+        <AlphaPickableElement name="Icon" class="element" style="position: relative; height: auto; width: 100%; aspect-ratio: 1; background-image: url(&quot;project://database/Assets/IngameUI/Pins/Producer/producer%20pins/1.png?fileID=21300000&amp;guid=4e90ff2fe21786b499ed56b59e4acb84&amp;type=3#1&quot;);"/>
     </ui:VisualElement>
 </ui:UXML>

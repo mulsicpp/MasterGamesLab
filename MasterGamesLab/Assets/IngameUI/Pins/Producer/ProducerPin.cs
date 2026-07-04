@@ -39,8 +39,9 @@ namespace UI
         protected override void Start()
         {
             hoverable = UiElement.Q<VisualElement>("Icon");
+            hoverable.userData = structureRenderer.Structure.Tile;
             base.Start();
-            
+
             foreach (var pair in producerGoodsConfiguration)
             {
                 if (!producerGoodsImages.ContainsKey(pair.GoodType))

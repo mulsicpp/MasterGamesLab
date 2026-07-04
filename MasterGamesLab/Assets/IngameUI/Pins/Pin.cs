@@ -57,11 +57,6 @@ namespace UI
 
         protected virtual void Start()
         {
-            if (hoverable != null)
-            {
-                hoverable.RegisterCallback<PointerEnterEvent>(OnPointerEnterElement);
-                hoverable.RegisterCallback<PointerLeaveEvent>(OnPointerLeaveElement);
-            }
             ApplyLayoutPivots();
             InitializeUiComponents();
             CalculateUnscaledDimensions();

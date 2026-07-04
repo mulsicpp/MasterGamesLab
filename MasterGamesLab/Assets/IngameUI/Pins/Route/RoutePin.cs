@@ -27,12 +27,14 @@ namespace UI
 
         protected override void Start()
         {
-            hoverable = UiElement.Q<VisualElement>("Arrow");
+            hoverable = UiElement.Q<VisualElement>("Pickable");
             base.Start();
         }
 
         private void Update()
         {
+            hoverable.userData = routeRenderer.Geometry;
+
             pivotDirection = FacingLeft ? PinDirection.Right : PinDirection.Left;
 
             if (IsHovered)
@@ -59,7 +61,7 @@ namespace UI
             SetShowing(true);
             cost.text = routeRenderer.Route.Cost.ToString();
             duration.text = routeRenderer.Route.Duration.ToString();
-            
+
             base.LateUpdate();
         }
 
