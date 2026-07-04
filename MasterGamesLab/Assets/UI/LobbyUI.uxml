@@ -8,7 +8,7 @@
             <ResponsiveLabel text="Lobby Code:" height-percentage="0.7" class="element label" style="height: 100%; width: 53.37%; -unity-text-align: middle-right; padding-right: 2%; text-overflow: ellipsis;"/>
             <ResponsiveButton height-percentage="0.7" name="LobbyCodeButton" class="element copy-button" style="width: auto; height: 100%; -unity-text-align: middle-left; flex-direction: row; align-items: center; justify-content: flex-start; flex-grow: 0; flex-shrink: 0; text-overflow: ellipsis; max-width: 46.63%;">
                 <ResponsiveLabel text="WWWWWW" height-percentage="0.7" name="LobbyCodeLabel" class="element text-label label" style="height: 100%; flex-shrink: 1; white-space: nowrap; text-overflow: ellipsis;"/>
-                <SquareHightElement picking-mode="Ignore" class="image-icon element" style="background-image: url(&quot;project://database/Assets/Icons/image36.png?fileID=-1933447107&amp;guid=d05e2a443fafe2b4b869b2fc024c70b3&amp;type=3#image36_0&quot;); -unity-background-scale-mode: scale-to-fit; height: 55%; margin-left: 8px; top: -3%;"/>
+                <SquareHightElement picking-mode="Ignore" class="image-icon element" style="background-image: url(&quot;project://database/Assets/Icons/IMG_2036.PNG?fileID=21300000&amp;guid=8d0207eaac0c7404abf5a1e59e3f92be&amp;type=3#IMG_2036&quot;); -unity-background-scale-mode: scale-to-fit; height: 55%; margin-left: 8px; top: -3%;"/>
             </ResponsiveButton>
         </ui:GroupBox>
         <ui:GroupBox class="element" style="width: 100%; height: 32.2%; flex-direction: row;">

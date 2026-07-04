@@ -52,13 +52,14 @@ MonoBehaviour:
   - GoodType: 1
     ImageAsset: {fileID: 21300000, guid: be6642986fae46540a018d367d6c8484, type: 3}
   - GoodType: 2
-    ImageAsset: {fileID: 21300000, guid: 241e5d21aea8dee4cbc94b63b189733c, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 8ea53fb6c929f8c44b5a94eeb76d7346, type: 3}
   - GoodType: 3
-    ImageAsset: {fileID: 21300000, guid: da14888351966224cab7792044a2789a, type: 3}
+    ImageAsset: {fileID: 21300000, guid: cd68c84bd9e973646a8283dd95f150e9, type: 3}
   - GoodType: 4
-    ImageAsset: {fileID: 21300000, guid: e3332fe0599d78c438f1fced8191a900, type: 3}
+    ImageAsset: {fileID: 21300000, guid: d7038ea4cc4ffd847ab3c7cd4f572538, type: 3}
   - GoodType: 5
-    ImageAsset: {fileID: 21300000, guid: 4ebcfa961dee2fb49b6eb11f629879b9, type: 3}
+    ImageAsset: {fileID: 21300000, guid: af5a1091cc7068549bde78103ae78f08, type: 3}
+  structureRenderer: {fileID: 0}
 --- !u!1 &4004374116097416254
 GameObject:
   m_ObjectHideFlags: 0
