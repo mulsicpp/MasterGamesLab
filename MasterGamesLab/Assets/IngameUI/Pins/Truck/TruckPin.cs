@@ -24,7 +24,7 @@ namespace UI
         private Label timeLabel;
         private VisualElement icon, good, time;
 
-        protected override float pinHeightPercent => 8f;
+        protected override float pinHeightPercent => 4f;
         protected override float pinAspectRatio => 0.5618f;
 
         // MANAGER HOOKS: Hand over data context seamlessly to the manager pa
