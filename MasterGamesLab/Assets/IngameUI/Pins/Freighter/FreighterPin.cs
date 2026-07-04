@@ -25,7 +25,7 @@ namespace UI
         private Label timeLabel;
         private VisualElement icon, time;
 
-        protected override float pinHeightPercent => 8f;
+        protected override float pinHeightPercent => 4f;
         protected override float pinAspectRatio => 0.5618f;
 
         protected override void OnEnable()

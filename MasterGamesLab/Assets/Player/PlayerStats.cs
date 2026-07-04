@@ -14,11 +14,12 @@ namespace Player
             get
             {
                 var marketCap = Cash;
-                marketCap += RoadCount * Constants.ROAD_MARKET_CAP;
-                marketCap += CanalCount * Constants.CANAL_MARKET_CAP;
-                marketCap += PortCount * Constants.PORT_MARKET_CAP;
-                marketCap += TruckCount * Constants.TRUCK_MARKET_CAP;
-                marketCap += FreighterCount * Constants.FREIGHTER_MARKET_CAP;
+
+                for (var i = 0; i < RoadCount; i++) marketCap += Constants.RoadMarketCap(i);
+                for (var i = 0; i < CanalCount; i++) marketCap += Constants.CanalMarketCap(i);
+                for (var i = 0; i < PortCount; i++) marketCap += Constants.PortMarketCap(i);
+                for (var i = 0; i < TruckCount; i++) marketCap += Constants.TruckMarketCap(i);
+                for (var i = 0; i < FreighterCount; i++) marketCap += Constants.FreighterMarketCap(i);
                 return marketCap;
             }
         }
