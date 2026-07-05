@@ -4,7 +4,6 @@ using UnityEngine.UIElements;
 using System.Collections.Generic;
 using Map.Infrastructure;
 using Map.Hoverables;
-using Map.Fleet;
 
 namespace UI
 {

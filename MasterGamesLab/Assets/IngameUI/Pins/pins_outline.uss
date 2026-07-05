@@ -1,0 +1,7 @@
+.pin-outline {
+    -unity-material: url("project://database/Assets/IngameUI/Pins/pin_outline_material.mat?fileID=2100000&guid=67af4b847e9359e41a52b0822f55bea1&type=2#pin_outline_material");
+}
+
+.pin-no-outline-child {
+    -unity-material: url("project://database/Assets/IngameUI/Pins/none_ui_material.mat?fileID=2100000&guid=030f4a327831de54aaab2f6f2d3e22b1&type=2#none_ui_material");
+}

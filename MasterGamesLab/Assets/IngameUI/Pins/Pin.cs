@@ -6,9 +6,20 @@ namespace UI
 {
     public abstract class Pin : MonoBehaviour
     {
+        private static readonly int OutlineColor = Shader.PropertyToID("_Color");
+        private static readonly int OutlineThickness = Shader.PropertyToID("_Spread");
+
         public enum PinDirection
         {
-            Center, Bottom, Top, Left, Right, BottomLeft, BottomRight, TopLeft, TopRight
+            Center,
+            Bottom,
+            Top,
+            Left,
+            Right,
+            BottomLeft,
+            BottomRight,
+            TopLeft,
+            TopRight
         }
 
         [SerializeField] private float panelOffset = 10f;
@@ -24,10 +35,13 @@ namespace UI
 
         public VisualElement UiElement { get; private set; }
         protected VisualElement hoverable;
+        private VisualElement outlineElement;
+        private Material outlineMaterial;
+        private bool outlineMaterialReady;
         public bool IsHovered { get; private set; }
 
         [SerializeField] protected VisualTreeAsset PinTemplate;
-        
+
         public float UnscaledWidth { get; private set; }
         public float UnscaledHeight { get; private set; }
 
@@ -62,9 +76,23 @@ namespace UI
                 hoverable.RegisterCallback<PointerEnterEvent>(OnPointerEnterElement);
                 hoverable.RegisterCallback<PointerLeaveEvent>(OnPointerLeaveElement);
             }
+
+            outlineElement = UiElement.Q<VisualElement>(className: "pin-outline");
+            outlineElement.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+
             ApplyLayoutPivots();
             InitializeUiComponents();
             CalculateUnscaledDimensions();
+        }
+
+        private void OnGeometryChanged(GeometryChangedEvent evt)
+        {
+            var material = outlineElement.resolvedStyle.unityMaterial.material;
+            outlineMaterial = Instantiate(material);
+            outlineElement.style.unityMaterial = new StyleMaterialDefinition(outlineMaterial);
+            outlineMaterialReady = true;
+            // SetOutlineColor(new Color(0, 0, 0, 0));
+            ClearOutline();
         }
 
         private void CalculateUnscaledDimensions()
@@ -74,6 +102,24 @@ namespace UI
 
             UnscaledHeight = containerHeight * (pinHeightPercent / 100f);
             UnscaledWidth = UnscaledHeight * pinAspectRatio;
+        }
+
+        public void SetOutlineColor(Color color)
+        {
+            if (outlineMaterialReady)
+            {
+                outlineMaterial.SetColor(OutlineColor, color);
+                outlineMaterial.SetFloat(OutlineThickness, 0.01f);
+            }
+        }
+
+        public void ClearOutline()
+        {
+            if (outlineMaterialReady)
+            {
+                outlineMaterial.SetColor(OutlineColor, new Color(0, 0, 0, 0));
+                outlineMaterial.SetFloat(OutlineThickness, 0);
+            }
         }
 
         public void SetManagedOffset(Vector2 offset)
@@ -89,7 +135,8 @@ namespace UI
 
             Vector3 worldPos = GetTargetWorldPosition(out Vector3 upVector);
             Vector3 screenPos = mainCamera.WorldToScreenPoint(worldPos);
-            bool facingAway = Vector3.Dot((mainCamera.transform.position - worldPos).normalized, upVector) < invisibleThreshold;
+            bool facingAway = Vector3.Dot((mainCamera.transform.position - worldPos).normalized, upVector) <
+                              invisibleThreshold;
 
             if (screenPos.z < 0 || facingAway)
             {
@@ -97,7 +144,8 @@ namespace UI
                 return;
             }
 
-            Vector2 panelPosition = RuntimePanelUtils.CameraTransformWorldToPanel(pinboard.root.panel, worldPos, mainCamera);
+            Vector2 panelPosition =
+                RuntimePanelUtils.CameraTransformWorldToPanel(pinboard.root.panel, worldPos, mainCamera);
             float scaleFactor = cameraController.ScalingFactor;
 
             ApplyLayoutPivots();
@@ -161,7 +209,7 @@ namespace UI
 
         protected virtual void OnPointerEnterElement(PointerEnterEvent evt) => IsHovered = true;
         protected virtual void OnPointerLeaveElement(PointerLeaveEvent evt) => IsHovered = false;
-        
+
         protected virtual void SetShowing(bool active)
         {
             _isShowing = active;
