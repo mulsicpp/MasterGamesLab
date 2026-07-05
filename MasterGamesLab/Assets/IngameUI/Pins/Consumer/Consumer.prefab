@@ -52,9 +52,9 @@ MonoBehaviour:
   - GoodType: 1
     ImageAsset: {fileID: 21300000, guid: be6642986fae46540a018d367d6c8484, type: 3}
   - GoodType: 2
-    ImageAsset: {fileID: 21300000, guid: 8ea53fb6c929f8c44b5a94eeb76d7346, type: 3}
-  - GoodType: 3
     ImageAsset: {fileID: 21300000, guid: cd68c84bd9e973646a8283dd95f150e9, type: 3}
+  - GoodType: 3
+    ImageAsset: {fileID: 21300000, guid: 8ea53fb6c929f8c44b5a94eeb76d7346, type: 3}
   - GoodType: 4
     ImageAsset: {fileID: 21300000, guid: d7038ea4cc4ffd847ab3c7cd4f572538, type: 3}
   - GoodType: 5
