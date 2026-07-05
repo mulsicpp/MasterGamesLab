@@ -1,4 +1,5 @@
 using Map.GeometryGeneration;
+using UI;
 using UnityEngine;
 
 namespace Map.Infrastructure
@@ -9,6 +10,7 @@ namespace Map.Infrastructure
 
         // public PinUI Pin { get; private set; }
         public ObjectWithFixedGeometry Geometry { get; private set; }
+        public Pin Pin; 
 
         public void Init(Structure structure)
         {

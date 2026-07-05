@@ -214,12 +214,15 @@ namespace Map.Infrastructure
         public void ClearOutline()
         {
             Renderer?.Geometry.SetBaseLayer();
+            Renderer?.Pin?.ClearOutline();
         }
 
         public void ShowOutline(Constants.OutlineData outlineData)
         {
             Renderer?.Geometry.SetOutlineLayer();
             Renderer?.Geometry.SetOutlineParameters(outlineData);
+            outlineData.outlineColor.a = 1.0f;
+            Renderer?.Pin?.SetOutline(outlineData.outlineColor);
         }
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)

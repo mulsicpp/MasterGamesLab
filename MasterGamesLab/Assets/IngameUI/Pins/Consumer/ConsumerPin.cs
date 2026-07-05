@@ -33,6 +33,7 @@ namespace UI
         protected override void OnEnable()
         {
             structureRenderer = GetComponentInParent<StructureRenderer>();
+            structureRenderer.Pin = this;
             base.OnEnable(); // Crucial: Registers this pin into the manager pool
         }
 

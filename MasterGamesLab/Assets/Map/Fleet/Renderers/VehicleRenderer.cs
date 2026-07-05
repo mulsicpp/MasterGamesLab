@@ -1,9 +1,7 @@
-using System;
 using Map.Blueprint;
 using Map.GeometryGeneration;
 using UnityEngine;
 using UI;
-using UnityEngine.UIElements;
 
 namespace Map.Fleet
 {
@@ -12,7 +10,8 @@ namespace Map.Fleet
         public Vehicle Vehicle { get; private set; }
         public ObjectWithFixedGeometry Geometry { get; private set; }
         public Transform CargoTransform;
-
+        public Pin VehiclePin;
+        
         public void Init(Vehicle vehicle)
         {
             InitVehicle(vehicle);
@@ -51,9 +50,12 @@ namespace Map.Fleet
             {
                 Geometry.SetOutlineLayer();
                 Geometry.SetOutlineParameters(o);
+                o.outlineColor.a = 1.0f;
+                VehiclePin.SetOutline(o.outlineColor);
             }
             else
             {
+                VehiclePin.ClearOutline();
                 if (Vehicle.BlueprintTile != null)
                 {
                     switch (Vehicle.BlueprintVisualState)

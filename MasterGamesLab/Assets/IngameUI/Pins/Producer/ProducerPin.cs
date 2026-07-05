@@ -32,6 +32,7 @@ namespace UI
         protected override void OnEnable()
         {
             structureRenderer = GetComponentInParent<StructureRenderer>();
+            structureRenderer.Pin = this;
             base.OnEnable(); // Registers to the central layout pool
         }
 

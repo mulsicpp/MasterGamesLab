@@ -72,22 +72,46 @@ namespace UI
         protected virtual void Start()
         {
             outlineElement = UiElement.Q<VisualElement>(className: "pin-outline");
-            outlineElement.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+            outlineElement.RegisterCallbackOnce<GeometryChangedEvent>(OnGeometryChanged);
 
             ApplyLayoutPivots();
             InitializeUiComponents();
             CalculateUnscaledDimensions();
+
+            if (outlineElement.resolvedStyle.unityMaterial.material != null)
+            {
+                InitializeOutlineMaterial();
+            }
         }
 
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
+            InitializeOutlineMaterial();
+        }
+
+        private void InitializeOutlineMaterial()
+        {
+            if (outlineMaterialReady) return;
+
             var material = outlineElement.resolvedStyle.unityMaterial.material;
+            if (material == null) return;
+
             outlineMaterial = Instantiate(material);
             outlineElement.style.unityMaterial = new StyleMaterialDefinition(outlineMaterial);
             outlineMaterialReady = true;
-            // SetOutlineColor(new Color(0, 0, 0, 0));
-            ClearOutline();
+
+            if (_pendingOutlineColor.HasValue)
+            {
+                SetOutline(_pendingOutlineColor.Value);
+                _pendingOutlineColor = null;
+            }
+            else
+            {
+                ClearOutline();
+            }
         }
+
+        private Color? _pendingOutlineColor;
 
         private void CalculateUnscaledDimensions()
         {
@@ -98,12 +122,16 @@ namespace UI
             UnscaledWidth = UnscaledHeight * pinAspectRatio;
         }
 
-        public void SetOutlineColor(Color color)
+        public void SetOutline(Color color)
         {
             if (outlineMaterialReady)
             {
                 outlineMaterial.SetColor(OutlineColor, color);
-                outlineMaterial.SetFloat(OutlineThickness, 0.01f);
+                outlineMaterial.SetFloat(OutlineThickness, 0.015f);
+            }
+            else
+            {
+                _pendingOutlineColor = color;
             }
         }
 
@@ -113,6 +141,10 @@ namespace UI
             {
                 outlineMaterial.SetColor(OutlineColor, new Color(0, 0, 0, 0));
                 outlineMaterial.SetFloat(OutlineThickness, 0);
+            }
+            else
+            {
+                _pendingOutlineColor = null;
             }
         }
 
@@ -129,7 +161,8 @@ namespace UI
 
             Vector3 worldPos = GetTargetWorldPosition(out Vector3 upVector);
             Vector3 screenPos = mainCamera.WorldToScreenPoint(worldPos);
-            bool facingAway = Vector3.Dot((mainCamera.transform.position - worldPos).normalized, upVector) < invisibleThreshold;
+            bool facingAway = Vector3.Dot((mainCamera.transform.position - worldPos).normalized, upVector) <
+                              invisibleThreshold;
 
             if (screenPos.z < 0 || facingAway)
             {
@@ -137,7 +170,8 @@ namespace UI
                 return;
             }
 
-            Vector2 panelPosition = RuntimePanelUtils.CameraTransformWorldToPanel(pinboard.root.panel, worldPos, mainCamera);
+            Vector2 panelPosition =
+                RuntimePanelUtils.CameraTransformWorldToPanel(pinboard.root.panel, worldPos, mainCamera);
             float scaleFactor = cameraController.ScalingFactor;
 
             ApplyLayoutPivots();
@@ -201,7 +235,7 @@ namespace UI
 
         protected virtual void OnPointerEnterElement(PointerEnterEvent evt) => IsHovered = true;
         protected virtual void OnPointerLeaveElement(PointerLeaveEvent evt) => IsHovered = false;
-        
+
         protected virtual void SetShowing(bool active)
         {
             _isShowing = active;
