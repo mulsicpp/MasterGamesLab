@@ -47,7 +47,7 @@ namespace Map.Infrastructure
 
         public virtual Player.Player Owner => null;
 
-        public bool RendererUpdateTriggered;
+        public bool MaterialUpdateTriggered;
         public bool RendererRebuildTriggered;
 
         public StructureRenderer Renderer { get; private set; }
@@ -114,7 +114,7 @@ namespace Map.Infrastructure
             set
             {
                 blueprintPreview = value;
-                TriggerRendererUpdate();
+                TriggerMaterialUpdate();
             }
         }
 
@@ -126,7 +126,7 @@ namespace Map.Infrastructure
             set
             {
                 blueprintIsValid = value;
-                TriggerRendererUpdate();
+                TriggerMaterialUpdate();
             }
         }
 
@@ -167,7 +167,7 @@ namespace Map.Infrastructure
             Tile = null;
             Renderer = null;
             RendererRebuildTriggered = false;
-            RendererUpdateTriggered = false;
+            MaterialUpdateTriggered = false;
             Touch();
         }
 
@@ -183,15 +183,15 @@ namespace Map.Infrastructure
                 base.Touch();
         }
 
-        public void TriggerRendererUpdate()
+        public void TriggerMaterialUpdate()
         {
-            RendererUpdateTriggered = true;
+            MaterialUpdateTriggered = true;
         }
 
         public void TriggerRendererRebuild()
         {
             RendererRebuildTriggered = true;
-            RendererUpdateTriggered = true;
+            MaterialUpdateTriggered = true;
         }
 
         public void RebuildRenderer()
@@ -208,7 +208,7 @@ namespace Map.Infrastructure
                 Renderer.Init(this);
             }
             RendererRebuildTriggered = false;
-            RendererUpdateTriggered = false;
+            MaterialUpdateTriggered = false;
         }
 
         public void ClearOutline()

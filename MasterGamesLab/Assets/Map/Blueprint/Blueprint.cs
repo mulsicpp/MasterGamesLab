@@ -181,10 +181,10 @@ namespace Map.Blueprint
                 structure.BlueprintPreview = true;
                 SetValid(structure, false, 0);
                 previewStructure = structure;
-                if (previewStructure.Renderer && previewStructure.Renderer.Geometry)
-                {
-                    previewStructure.Renderer.Geometry.SetAsPreview();
-                }
+                // if (previewStructure.Renderer && previewStructure.Renderer.Geometry)
+                // {
+                //     previewStructure.Renderer.Geometry.SetAsPreview();
+                // }
 
                 return true;
             }
@@ -215,10 +215,10 @@ namespace Map.Blueprint
                 vehicle.BlueprintPreview = true;
                 SetValid(vehicle, false, 0);
                 previewVehicle = vehicle;
-                if (previewVehicle.Renderer && previewVehicle.Renderer.Geometry)
-                {
-                    previewVehicle.Renderer.Geometry.SetAsPreview();
-                }
+                // if (previewVehicle.Renderer && previewVehicle.Renderer.Geometry)
+                // {
+                //     previewVehicle.Renderer.Geometry.SetAsPreview();
+                // }
 
                 return true;
             }
@@ -320,13 +320,13 @@ namespace Map.Blueprint
 
             foreach (var structure in structures)
             {
-                structure.Renderer.Geometry.SetMaterial(GeometriesManager.Instance.GetFixedGeometryMaterial());
+                // structure.Renderer.Geometry.SetMaterial(GeometriesManager.Instance.GetFixedGeometryMaterial());
                 lastPacket = lastPacket.AddStructureToPackets(structure, packets);
             }
 
             foreach (var vehicle in vehicles)
             {
-                vehicle.Renderer.Geometry.SetMaterial(GeometriesManager.Instance.GetFixedGeometryMaterial());
+                // vehicle.Renderer.Geometry.SetMaterial(GeometriesManager.Instance.GetFixedGeometryMaterial());
                 lastPacket = lastPacket.AddVehicleToPackets(vehicle, packets);
             }
 
