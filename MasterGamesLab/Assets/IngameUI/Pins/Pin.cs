@@ -71,12 +71,6 @@ namespace UI
 
         protected virtual void Start()
         {
-            if (hoverable != null)
-            {
-                hoverable.RegisterCallback<PointerEnterEvent>(OnPointerEnterElement);
-                hoverable.RegisterCallback<PointerLeaveEvent>(OnPointerLeaveElement);
-            }
-
             outlineElement = UiElement.Q<VisualElement>(className: "pin-outline");
             outlineElement.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
 
@@ -135,8 +129,7 @@ namespace UI
 
             Vector3 worldPos = GetTargetWorldPosition(out Vector3 upVector);
             Vector3 screenPos = mainCamera.WorldToScreenPoint(worldPos);
-            bool facingAway = Vector3.Dot((mainCamera.transform.position - worldPos).normalized, upVector) <
-                              invisibleThreshold;
+            bool facingAway = Vector3.Dot((mainCamera.transform.position - worldPos).normalized, upVector) < invisibleThreshold;
 
             if (screenPos.z < 0 || facingAway)
             {
@@ -144,8 +137,7 @@ namespace UI
                 return;
             }
 
-            Vector2 panelPosition =
-                RuntimePanelUtils.CameraTransformWorldToPanel(pinboard.root.panel, worldPos, mainCamera);
+            Vector2 panelPosition = RuntimePanelUtils.CameraTransformWorldToPanel(pinboard.root.panel, worldPos, mainCamera);
             float scaleFactor = cameraController.ScalingFactor;
 
             ApplyLayoutPivots();
@@ -209,7 +201,7 @@ namespace UI
 
         protected virtual void OnPointerEnterElement(PointerEnterEvent evt) => IsHovered = true;
         protected virtual void OnPointerLeaveElement(PointerLeaveEvent evt) => IsHovered = false;
-
+        
         protected virtual void SetShowing(bool active)
         {
             _isShowing = active;

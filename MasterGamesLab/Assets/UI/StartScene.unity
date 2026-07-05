@@ -598,19 +598,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UI.IngameUI
   vehicleActionConfiguration:
   - VehicleActionType: 0
-    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
+    ImageAsset: {fileID: 21300000, guid: f7a0f68e7bc3c0649a3cf7972520e58b, type: 3}
   - VehicleActionType: 1
-    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 340c02cd242b28f429cbd70a0081d8a3, type: 3}
   - VehicleActionType: 2
-    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
+    ImageAsset: {fileID: 21300000, guid: e3f07d0a2ba5408448a4de2ddd3252eb, type: 3}
   - VehicleActionType: 3
-    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 7a37951e826645e4f9a61a37518a4816, type: 3}
   - VehicleActionType: 4
-    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
+    ImageAsset: {fileID: 21300000, guid: dafce3369eb14f54385ae03573603c23, type: 3}
   - VehicleActionType: 5
     ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
   - VehicleActionType: 6
-    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 627399a259fe4d040acfb7677e96d9ed, type: 3}
   - VehicleActionType: 7
     ImageAsset: {fileID: 21300000, guid: 6d891ab223ed5364fa71a649861ddb7f, type: 3}
   - VehicleActionType: 8
@@ -619,10 +619,9 @@ MonoBehaviour:
     ImageAsset: {fileID: 21300000, guid: 840b578123c845c41a654da7eaab9d4b, type: 3}
   - VehicleActionType: 10
     ImageAsset: {fileID: 21300000, guid: da223b64aeed1354e932673545ff2a22, type: 3}
-  IsHovered: 0
   actionQueueTemplate: {fileID: 9197481963319205126, guid: 102683850d6acc24288b6059039e2cab, type: 3}
-  hide: {fileID: -1844845555, guid: 8a648cac76db10b42a0f3492ee5ff516, type: 3}
-  hidden: {fileID: 1506502981, guid: e81343c7df71c6f4984e62c3c1fccb34, type: 3}
+  hide: {fileID: 21300000, guid: 9315c66dfdaee384594c6bcccc720c8b, type: 3}
+  hidden: {fileID: 21300000, guid: bc55a776ea13be6409e45b01b487024b, type: 3}
 --- !u!114 &985979806
 MonoBehaviour:
   m_ObjectHideFlags: 0

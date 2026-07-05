@@ -454,8 +454,8 @@ namespace Map.GeometryGeneration.Edges
                 var (p, normal) = GetPosAndNormal(curve, t);
                 p += p.normalized * heightOffset;
 
-                var leftPoint = p + normal * FullRoadRadius;
-                var rightPoint = p - normal * FullRoadRadius;
+                var leftPoint = p + normal * FullRoadRadius * (type == Route.RouteType.Current ? 0.95f : 1.0f);
+                var rightPoint = p - normal * FullRoadRadius * (type == Route.RouteType.Current ? 0.95f : 1.0f);
 
                 element.AddVertex(leftPoint, uv1);
                 element.AddVertex(rightPoint, uv1);

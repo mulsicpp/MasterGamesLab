@@ -19,13 +19,13 @@ namespace UI
 
         [SerializeField] private List<GoodImagePair> goodsConfiguration = new List<GoodImagePair>();
         public Dictionary<Good, Sprite> goodsImages = new Dictionary<Good, Sprite>();
-        
+
         // Expose the renderer so the manager can inspect the underlying fleet structure directly
         public VehicleRenderer VehicleRenderer { get; private set; }
         private Label timeLabel;
         private VisualElement icon, time;
 
-        protected override float pinHeightPercent => 8f;
+        protected override float pinHeightPercent => 4f;
         protected override float pinAspectRatio => 0.5618f;
 
         protected override void OnEnable()
@@ -37,8 +37,9 @@ namespace UI
         protected override void Start()
         {
             var hoverable = UiElement.Q<VisualElement>("Pickable");
+            hoverable.userData = VehicleRenderer?.Vehicle;
             base.Start();
-            
+
             foreach (var pair in goodsConfiguration)
             {
                 if (!goodsImages.ContainsKey(pair.GoodType))
@@ -58,7 +59,7 @@ namespace UI
                 Map.Map.Instance.CurrentlyHovered = VehicleRenderer.Vehicle;
                 HoverablePicker.Instance.DenyPick = true;
             }
-            
+
             time.style.visibility = VehicleRenderer.Vehicle.IsParked ? Visibility.Hidden : Visibility.Visible;
         }
 

@@ -9,6 +9,7 @@ using Map.Fleet;
 using Map.Hoverables;
 using Map.Infrastructure;
 using Player;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -48,8 +49,6 @@ namespace UI
 
         public static IngameUI Instance { get; private set; }
         public override MenuId Id => MenuId.Ingame;
-        public bool IsHovered = false;
-
         // --- Configuration Constants ---
         public const string activeClass = "ingame-build-button--active";
         public const string activeColumnClass = "tab-menu-active-column";
@@ -93,8 +92,6 @@ namespace UI
 
         protected PlanetCameraController mainCamera;
 
-        private IHoverable currentHoveredInUI = null;
-
 
         private IControls[] controls;
 
@@ -126,7 +123,6 @@ namespace UI
             OnBecameVisible += BecameVisible;
             OnBecameHidden += BecameHidden;
 
-            // 1. Resolve Dependencies
             VehicleControls = GetComponent<VehicleControls>();
 
             ConstructionControls = GetComponent<ConstructionControls>();
@@ -136,7 +132,6 @@ namespace UI
 
             Player.Player.OnPlayerChanged += ChangePlayerInfo;
 
-            // 2. Query Visual Elements
             buildRoadButton = root.Q<Button>("BuildRoadButton");
             buildCanalButton = root.Q<Button>("BuildCanalButton");
             buildPortButton = root.Q<Button>("BuildPortButton");
@@ -155,10 +150,8 @@ namespace UI
             buildCount = root.Q<GroupBox>("BuildCount");
             compass = root.Q<Compass>("Compass");
 
-            // 3. Setup Sorting Header Events
             var headerRow = root.Q<VisualElement>("header-row");
             var headers = headerRow.Query<ResponsiveButton>().ToList();
-            //headers[0].clicked += () => SetSortTarget(SortColumn.Name);
             headers[1].clicked += () => SetSortTarget(SortColumn.MarketCap, headers, 1);
             headers[2].clicked += () => SetSortTarget(SortColumn.Cash, headers, 2);
             headers[3].clicked += () => SetSortTarget(SortColumn.Trucks, headers, 3);
@@ -180,7 +173,6 @@ namespace UI
                 headers[i].RegisterCallback<PointerLeaveEvent>(e => ClearHoveredColumns());
             }
 
-            // 4. Setup Interaction Button Events
             buildRoadButton.clicked += OnRoadClicked;
             buildCanalButton.clicked += OnCanalClicked;
             buildPortButton.clicked += OnPortClicked;
@@ -190,24 +182,14 @@ namespace UI
             cancelButton.clicked += OnCancelPressed;
             hideButton.clicked += OnHidePressed;
             compass.clicked += OnCompassPressed;
-            // 5. Initialize States & Loops
             blueprintCountContainer.style.display = DisplayStyle.None;
-            // UpdateAllPlayerStats();
             uiUpdateCoroutine = StartCoroutine(PeriodicUiUpdateLoop());
-
-            container.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
-            container.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
-            blueprintCountContainer.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
-            blueprintCountContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
-            tabMenu.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
-            tabMenu.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
 
 
             actionQueueScrollView = root.Q<ScrollView>("QueueScroll");
             actionQueue = root.Q<VisualElement>("ActionQueue");
 
             actionQueueScrollView.RegisterCallback<MouseEnterEvent>(evt => mainCamera.supressZoom = true);
-
             actionQueueScrollView.RegisterCallback<MouseLeaveEvent>(evt => mainCamera.supressZoom = false);
         }
 
@@ -248,7 +230,6 @@ namespace UI
 
             Map.Map.Instance.Blueprint.OnChanged += HandleBlueprintUpdate;
 
-            // Map.Map.Instance.enabled = true;
             // TODO enable ingame actions
 
             MainCamera.Instance.PlanetControllerEnabled = true;
@@ -259,7 +240,6 @@ namespace UI
         {
             if (Map.Map.Instance.Blueprint != null)
                 Map.Map.Instance.Blueprint.OnChanged -= HandleBlueprintUpdate;
-            // Map.Map.Instance.enabled = false;
             // TODO disable ingame actions
 
             MainCamera.Instance.PlanetControllerEnabled = false;
@@ -271,8 +251,13 @@ namespace UI
             Vector2 mousePos = Mouse.current.position.ReadValue();
             mousePos.y = Screen.height - mousePos.y;
             Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(root.panel, mousePos);
-            VisualElement visualElement = root.panel.Pick(panelPos);
-            //Debug.Log(visualElement);
+            VisualElement pickedElement = root.panel.Pick(panelPos);
+            Debug.Log(pickedElement + " " + pickedElement?.userData);
+            if (pickedElement != null)
+            {
+                Map.Map.Instance.CurrentlyHovered = pickedElement.userData as IHoverable;
+                HoverablePicker.Instance.DenyPick = true;
+            }
 
 
             float signedAngle = Vector2.SignedAngle(Vector2.up, mainCamera.LocalNorth);
@@ -283,11 +268,6 @@ namespace UI
             }
 
             compass.ArrowAngle = (630f - signedAngle) % 360f;
-            if (IsHovered)
-            {
-                Map.Map.Instance.CurrentlyHovered = currentHoveredInUI;
-                HoverablePicker.Instance.DenyPick = true;
-            }
 
             Map.Map.Instance.ShouldBeHoverablePredicate = controls.FirstOrDefault(c => c.ControlsAreActive)?.GetHoverablePredicate() ?? Map.Map.DefaultHoverablePredicate;
 
@@ -321,8 +301,8 @@ namespace UI
             clone.Q<VisualElement>("Icon").style.backgroundImage = new StyleBackground(vehicleActionImages[action]);
 
             clone.AddToClassList("actionqueue-template-container");
-            clone.RegisterCallback<MouseEnterEvent>((evt) => { IsHovered = true; currentHoveredInUI = entity; });
-            clone.RegisterCallback<MouseLeaveEvent>((evt) => IsHovered = false);
+
+            clone.Q<VisualElement>("root").userData = entity;
 
             actionQueueScrollView.Add(clone);
         }
@@ -391,7 +371,6 @@ namespace UI
             {
                 VisualElement row = playersContainer[i];
 
-                // Find all labels within this row and strip the hover class
                 row.Query<Label>().ForEach(label =>
                 {
                     label.RemoveFromClassList(hoveredColumnClass);
@@ -607,8 +586,7 @@ namespace UI
             if (type == Vehicle.VehicleType.Truck)
             {
                 v = Map.Map.Instance.Fleet.Trucks[Player.Player.SelfId * Constants.MAX_TRUCKS_PER_PLAYER + slotIndex];
-                // if ((v as Truck).Freighter != null)
-                //     v = (v as Truck).Freighter;
+
             }
             else
                 v = Map.Map.Instance.Fleet.Freighters[Player.Player.SelfId * Constants.MAX_FREIGHTERS_PER_PLAYER + slotIndex];
@@ -697,18 +675,6 @@ namespace UI
             else
                 container.AddToClassList("container-hidden");
         }
-
-        private void OnMouseEnterElement(MouseEnterEvent evt)
-        {
-            IsHovered = true;
-            currentHoveredInUI = null;
-        }
-
-        private void OnMouseLeaveElement(MouseLeaveEvent evt)
-        {
-            IsHovered = false;
-        }
-
         #endregion
     }
 }

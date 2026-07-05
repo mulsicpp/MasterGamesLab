@@ -3,68 +3,70 @@
     <ui:Template name="TabMenu" src="project://database/Assets/IngameUI/TabMenu.uxml?fileID=9197481963319205126&amp;guid=1226372f1629f6c45a297bd9a0f823c2&amp;type=3#TabMenu"/>
     <Style src="project://database/Assets/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
     <ui:VisualElement name="Root" picking-mode="Ignore" class="unity-ui-document__root" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
-        <Compass arrow-thickness="1.34" arrow-length="1.05" name="Compass" arrow-angle="180.84" style="right: 1%; top: 8%; position: absolute; aspect-ratio: 1; width: 6%; background-image: url(&quot;project://database/Assets/IngameUI/Compass-Icon-with-an-Arrow-and-Scale-Graphics-14919432-1.jpg?fileID=-99974184&amp;guid=33e1344ae4f4a1d45bca58ccb3ed1afc&amp;type=3#Compass-Icon-with-an-Arrow-and-Scale-Graphics-14919432-1_0&quot;);"/>
-        <ui:VisualElement class="element money-display" style="flex-direction: row-reverse; width: 21%; align-items: center; margin-top: 0.5%; margin-right: 1%;">
-            <ui:VisualElement style="-unity-background-scale-mode: scale-to-fit; background-image: url(&quot;project://database/Assets/Icons/svg/cash.svg?fileID=7388822144124034973&amp;guid=3e75e502074cfd64691dbaf661d1c65e&amp;type=3#cash&quot;); height: 59%; aspect-ratio: 1;"/>
-            <ResponsiveLabel name="MONEY" text="Money: 100" class="element label" style="width: auto; height: 100%; top: 4%;"/>
+        <Compass arrow-thickness="1.34" arrow-length="1.05" name="Compass" arrow-angle="180.84" picking-mode="Position" style="right: 1%; top: 8%; position: absolute; aspect-ratio: 1; width: 6%; background-image: url(&quot;project://database/Assets/Icons/pins%20&amp;%20action/IMG_2033.PNG?fileID=21300000&amp;guid=687ea3218acae4a469d23bf649099d69&amp;type=3#IMG_2033&quot;); background-color: rgba(188, 188, 188, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; background-size: 180% 180%;"/>
+        <ui:VisualElement picking-mode="Ignore" class="element money-display" style="flex-direction: row-reverse; width: 21%; align-items: center; margin-top: 0.5%; margin-right: 1%;">
+            <ui:VisualElement picking-mode="Ignore" style="-unity-background-scale-mode: scale-to-fit; background-image: url(&quot;project://database/Assets/Icons/svg/cash.svg?fileID=7388822144124034973&amp;guid=3e75e502074cfd64691dbaf661d1c65e&amp;type=3#cash&quot;); height: 59%; aspect-ratio: 1;"/>
+            <ResponsiveLabel name="MONEY" text="Money: 100" picking-mode="Ignore" class="element label" style="width: auto; height: 100%; top: 4%;"/>
         </ui:VisualElement>
-        <ui:GroupBox name="BuildMenu" class="element build-menu-sidebar" style="justify-content: flex-end; height: auto; position: absolute; right: 1%; bottom: 2%; left: auto; top: auto; width: 12%;">
-            <ui:GroupBox name="BuildCount" class="element" style="margin-bottom: 5%;">
-                <ShrinkWrapContainer name="BlueprintCountContainer" class="element container" style="flex-direction: row; flex-wrap: wrap; padding-top: 5%; padding-right: 5%; padding-bottom: 5%; padding-left: 5%;">
-                    <ui:VisualElement name="RoadCount" class="element countlabel">
-                        <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
+        <ui:GroupBox name="BuildMenu" picking-mode="Ignore" class="element build-menu-sidebar" style="justify-content: flex-end; height: auto; position: absolute; right: 1%; bottom: 2%; left: auto; top: auto; width: 12%;">
+            <ui:GroupBox name="BuildCount" picking-mode="Ignore" class="element" style="margin-bottom: 5%;">
+                <ShrinkWrapContainer name="BlueprintCountContainer" picking-mode="Ignore" class="element container" style="flex-direction: row; flex-wrap: wrap; padding-top: 5%; padding-right: 5%; padding-bottom: 5%; padding-left: 5%;">
+                    <ui:VisualElement name="RoadCount" picking-mode="Ignore" class="element countlabel">
+                        <ui:Instance template="BlueprintCount" picking-mode="Ignore" style="height: 100%; width: 100%;">
+                            <AttributeOverrides element-name="root" picking-mode="Ignore"/>
+                        </ui:Instance>
                     </ui:VisualElement>
-                    <ui:VisualElement name="CanalCount" class="element countlabel">
-                        <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
+                    <ui:VisualElement name="CanalCount" picking-mode="Ignore" class="element countlabel">
+                        <ui:Instance template="BlueprintCount" picking-mode="Ignore" style="height: 100%; width: 100%;"/>
                     </ui:VisualElement>
-                    <ui:VisualElement name="PortCount" class="element countlabel">
-                        <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
+                    <ui:VisualElement name="PortCount" picking-mode="Ignore" class="element countlabel">
+                        <ui:Instance template="BlueprintCount" picking-mode="Ignore" style="height: 100%; width: 100%;"/>
                     </ui:VisualElement>
-                    <ui:VisualElement name="TruckCount" class="element countlabel">
-                        <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
+                    <ui:VisualElement name="TruckCount" picking-mode="Ignore" class="element countlabel">
+                        <ui:Instance template="BlueprintCount" picking-mode="Ignore" style="height: 100%; width: 100%;"/>
                     </ui:VisualElement>
-                    <ui:VisualElement name="FreighterCount" class="element countlabel">
-                        <ui:Instance template="BlueprintCount" style="height: 100%; width: 100%;"/>
+                    <ui:VisualElement name="FreighterCount" picking-mode="Ignore" class="element countlabel">
+                        <ui:Instance template="BlueprintCount" picking-mode="Ignore" style="height: 100%; width: 100%;"/>
                     </ui:VisualElement>
-                    <ui:VisualElement class="element" style="width: 100%; aspect-ratio: 6; flex-direction: row;">
-                        <ResponsiveLabel name="TotalCost" height-percentage="0.8" text="Total Cost: 5000" class="element label" style="flex-shrink: 1; padding-right: 3%; top: 7%;"/>
-                        <ui:VisualElement class="element" style="aspect-ratio: 1; height: 100%; background-image: url(&quot;project://database/Assets/Icons/svg/cash.svg?fileID=7388822144124034973&amp;guid=3e75e502074cfd64691dbaf661d1c65e&amp;type=3#cash&quot;); -unity-background-scale-mode: scale-to-fit;"/>
+                    <ui:VisualElement picking-mode="Ignore" class="element" style="width: 100%; aspect-ratio: 6; flex-direction: row;">
+                        <ResponsiveLabel name="TotalCost" height-percentage="0.8" text="Total Cost: 5000" picking-mode="Ignore" class="element label" style="flex-shrink: 1; padding-right: 3%; top: 7%;"/>
+                        <ui:VisualElement picking-mode="Ignore" class="element" style="aspect-ratio: 1; height: 100%; background-image: url(&quot;project://database/Assets/Icons/svg/cash.svg?fileID=7388822144124034973&amp;guid=3e75e502074cfd64691dbaf661d1c65e&amp;type=3#cash&quot;); -unity-background-scale-mode: scale-to-fit;"/>
                     </ui:VisualElement>
                 </ShrinkWrapContainer>
             </ui:GroupBox>
-            <ShrinkWrapContainer name="Container" class="element container" style="right: 0; bottom: 0;">
-                <ui:GroupBox name="BuildButtons" class="element group-box-top" style="align-items: flex-end; flex-direction: row; align-self: flex-end; flex-grow: 0; justify-content: space-between; padding-left: 5%; padding-right: 5%; padding-top: 5%; padding-bottom: 0%;">
-                    <ui:VisualElement class="element ingame-construct-button-square">
+            <ShrinkWrapContainer name="Container" picking-mode="Ignore" class="element container" style="right: 0; bottom: 0;">
+                <ui:GroupBox name="BuildButtons" picking-mode="Ignore" class="element group-box-top" style="align-items: flex-end; flex-direction: row; align-self: flex-end; flex-grow: 0; justify-content: space-between; padding-left: 5%; padding-right: 5%; padding-top: 5%; padding-bottom: 0%;">
+                    <ui:VisualElement picking-mode="Ignore" class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuyTruckButton" class="button element ingame-build-button">
                             <ui:VisualElement name="Icon" class="ingame-build-button-icon element truck"/>
                         </ui:Button>
                     </ui:VisualElement>
-                    <ui:VisualElement class="element ingame-construct-button-square">
+                    <ui:VisualElement picking-mode="Ignore" class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuyFreighterButton" class="button element ingame-build-button">
                             <ui:VisualElement name="Icon" class="ingame-build-button-icon element test freighter"/>
                         </ui:Button>
                     </ui:VisualElement>
-                    <ui:VisualElement class="element ingame-construct-button-square">
+                    <ui:VisualElement picking-mode="Ignore" class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuildPortButton" class="button element ingame-build-button">
                             <ui:VisualElement name="Icon" class="ingame-build-button-icon element port"/>
                         </ui:Button>
                     </ui:VisualElement>
-                    <ui:VisualElement class="element ingame-construct-button-square">
+                    <ui:VisualElement picking-mode="Ignore" class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuildRoadButton" class="button element ingame-build-button">
                             <ui:VisualElement name="Icon" class="ingame-build-button-icon element road"/>
                         </ui:Button>
                     </ui:VisualElement>
-                    <ui:VisualElement class="element ingame-construct-button-square">
+                    <ui:VisualElement picking-mode="Ignore" class="element ingame-construct-button-square">
                         <ui:Button text="" name="BuildCanalButton" class="button element ingame-build-button">
                             <ui:VisualElement name="Icon" class="ingame-build-button-icon element canal" style="-unity-background-scale-mode: scale-to-fit;"/>
                         </ui:Button>
                     </ui:VisualElement>
-                    <ui:VisualElement name="Placeholder1" class="element ingame-construct-button-square"/>
+                    <ui:VisualElement name="Placeholder1" picking-mode="Ignore" class="element ingame-construct-button-square"/>
                 </ui:GroupBox>
-                <ui:GroupBox name="Devider" class="element group-box-divider">
+                <ui:GroupBox name="Devider" picking-mode="Ignore" class="element group-box-divider">
                     <ui:VisualElement name="VisualElement" class="element div build-menu-divider-line"/>
                 </ui:GroupBox>
-                <ui:GroupBox class="element group-box-bottom" style="align-items: stretch; flex-grow: 0; bottom: 0; right: 0; justify-content: space-between; padding-top: 5%; padding-right: 5%; padding-bottom: 5%; padding-left: 5%;">
+                <ui:GroupBox picking-mode="Ignore" class="element group-box-bottom" style="align-items: stretch; flex-grow: 0; bottom: 0; right: 0; justify-content: space-between; padding-top: 5%; padding-right: 5%; padding-bottom: 5%; padding-left: 5%;">
                     <ui:VisualElement class="element ingame-build-button-square">
                         <ResponsiveButton text="" name="ConfirmButton" class="element button ingame-build-button confirm-btn" style="background-image: url(&quot;project://database/Assets/Icons/Commit.png?fileID=1504485910&amp;guid=28fa3396e97fcdc4c8762da95962e14c&amp;type=3#image49_0&quot;); -unity-background-scale-mode: scale-to-fit; background-size: 80% 80%;"/>
                     </ui:VisualElement>
@@ -72,17 +74,17 @@
                         <ResponsiveButton text="" name="CancelButton" class="element button ingame-build-button confirm-btn" style="background-image: url(&quot;project://database/Assets/Icons/Cancel.png?fileID=-508303762&amp;guid=1679241bb7d407e4c851cc60a4a66080&amp;type=3#image47_0&quot;); -unity-background-scale-mode: scale-to-fit; background-size: 80% 80%; -unity-background-image-tint-color: rgb(255, 29, 0);"/>
                     </ui:VisualElement>
                     <ui:VisualElement class="element ingame-build-button-square" style="background-color: rgba(0, 0, 0, 0); align-self: flex-end;">
-                        <ui:Button text="" name="HideButton" class="element button ingame-build-button" style="position: relative; background-image: url(&quot;project://database/Assets/Icons/image52.png?fileID=1506502981&amp;guid=e81343c7df71c6f4984e62c3c1fccb34&amp;type=3#image52_0&quot;); background-size: 80% 80%;"/>
+                        <ui:Button text="" name="HideButton" class="element button ingame-build-button" style="position: relative; background-image: url(&quot;project://database/Assets/Icons/IMG_2034.PNG?fileID=2800000&amp;guid=bc55a776ea13be6409e45b01b487024b&amp;type=3#IMG_2034&quot;); background-size: 80% 80%;"/>
                     </ui:VisualElement>
                 </ui:GroupBox>
             </ShrinkWrapContainer>
         </ui:GroupBox>
-        <ui:VisualElement name="TabMenu" class="container tab-menu" style="visibility: hidden;">
-            <ui:Instance template="TabMenu" style="width: 100%; height: 100%;"/>
+        <ui:VisualElement name="TabMenu" picking-mode="Ignore" class="container tab-menu" style="visibility: hidden;">
+            <ui:Instance template="TabMenu" name="TemplateContainer" picking-mode="Ignore" style="width: 100%; height: 100%;"/>
         </ui:VisualElement>
         <ui:VisualElement name="ActionQueuePosition" picking-mode="Ignore" class="element" style="height: 12%; bottom: 6%; right: auto; left: 13%; position: absolute; width: 60%; align-items: center;">
-            <ui:VisualElement name="ActionQueue" class="element container" style="position: absolute; height: 100%; flex-direction: row; align-items: center; justify-content: center; padding-top: 0.5%; padding-right: 0.5%; padding-bottom: 0.5%; padding-left: 0.5%; visibility: hidden; max-width: 100%;">
-                <ui:ScrollView name="QueueScroll" mode="Horizontal" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" focusable="false" class="element" style="height: 100%; flex-grow: 1; flex-shrink: 1;"/>
+            <ui:VisualElement name="ActionQueue" picking-mode="Ignore" class="element container" style="position: absolute; height: 100%; flex-direction: row; align-items: center; justify-content: center; padding-top: 0.5%; padding-right: 0.5%; padding-bottom: 0.5%; padding-left: 0.5%; visibility: hidden; max-width: 100%;">
+                <ui:ScrollView name="QueueScroll" mode="Horizontal" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" focusable="false" picking-mode="Ignore" class="element" style="height: 100%; flex-grow: 1; flex-shrink: 1;"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

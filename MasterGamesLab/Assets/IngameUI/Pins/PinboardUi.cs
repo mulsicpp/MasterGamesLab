@@ -65,7 +65,7 @@ namespace UI
             }
             if (pin is TruckPin truckPin)
             {
-                var vehicle = truckPin.vehicleRenderer?.Vehicle;
+                var vehicle = truckPin.VehicleRenderer?.Vehicle;
                 return vehicle != null && vehicle.IsParked ? vehicle.ParkedTile : null;
             }
             return null;
@@ -220,6 +220,7 @@ namespace UI
 
             VisualElement visualContent = template.Instantiate();
             wrapper.Add(visualContent);
+            wrapper.pickingMode = PickingMode.Ignore;
             root.Add(wrapper);
             return wrapper;
         }

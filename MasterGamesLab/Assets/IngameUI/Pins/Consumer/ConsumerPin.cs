@@ -39,6 +39,7 @@ namespace UI
         protected override void Start()
         {
             hoverable = UiElement.Q<VisualElement>("Pickable");
+            hoverable.userData = structureRenderer.Structure.Tile;
             base.Start();
 
             foreach (var pair in goodsConfiguration)

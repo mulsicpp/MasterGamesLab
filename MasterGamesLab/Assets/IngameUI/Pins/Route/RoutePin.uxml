@@ -1,20 +1,19 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a88bc4db9de616e479d723516556bada&amp;type=3#Theme"/>
-    <Style src="project://database/Assets/IngameUI/Pins/pins_outline.uss?fileID=7433441132597879392&amp;guid=a998b9fe5eeca1c48bc8a0d793016819&amp;type=3#pins_outline"/>
-    <ui:VisualElement name="root" class="unity-ui-document__root" style="flex-direction: row;">
-        <AlphaPickableElement name="Arrow" class="element pin-outline" style="flex-shrink: 0; width: 100%; flex-direction: row; background-image: url(&quot;project://database/Assets/IngameUI/Pins/Route/street%20pins/IMG_2003.PNG?fileID=21300000&amp;guid=20d43796b78eece4d9659d1531bedd4d&amp;type=3#IMG_2003&quot;); aspect-ratio: 3.3115; position: absolute; -unity-background-scale-mode: scale-to-fit;"/>
-        <ui:VisualElement name="Element" class="element" style="flex-shrink: 0; width: 100%; flex-direction: row; aspect-ratio: 3.3115; position: absolute; justify-content: flex-end;">
-            <ui:VisualElement class="element" style="height: 100%; flex-direction: row; width: 86%; align-items: center;">
-                <ResponsiveButton height-percentage="0.7" name="Cost" class="element copy-button" style="width: 50%; height: 80%; -unity-text-align: middle-left; align-items: center; justify-content: flex-start; text-overflow: ellipsis; flex-direction: row;">
-                    <ui:VisualElement name="VisualElement" class="element" style="height: 100%; width: 6%;"/>
-                    <ResponsiveLabel text="200" height-percentage="0.7" name="CostLabel" class="element text-label label" style="height: 100%; flex-shrink: 1; white-space: nowrap; text-overflow: ellipsis; color: rgb(0, 0, 0); top: 4%;"/>
+    <ui:VisualElement name="root" picking-mode="Ignore" class="unity-ui-document__root" style="flex-direction: row;">
+        <AlphaPickableElement name="Pickable" picking-mode="Position" class="element" style="flex-shrink: 0; width: 100%; flex-direction: row; background-image: url(&quot;project://database/Assets/IngameUI/Pins/Route/street%20pins/IMG_2003.PNG?fileID=21300000&amp;guid=20d43796b78eece4d9659d1531bedd4d&amp;type=3#IMG_2003&quot;); aspect-ratio: 3.3115; position: absolute; -unity-background-scale-mode: scale-to-fit;"/>
+        <ui:VisualElement name="Element" picking-mode="Ignore" class="element" style="flex-shrink: 0; width: 100%; flex-direction: row; aspect-ratio: 3.3115; position: absolute; justify-content: flex-end;">
+            <ui:VisualElement picking-mode="Ignore" class="element" style="height: 100%; flex-direction: row; width: 86%; align-items: center;">
+                <ResponsiveButton height-percentage="0.7" name="Cost" picking-mode="Ignore" class="element copy-button" style="width: 50%; height: 80%; -unity-text-align: middle-left; align-items: center; justify-content: flex-start; text-overflow: ellipsis; flex-direction: row;">
+                    <ui:VisualElement name="VisualElement" picking-mode="Ignore" class="element" style="height: 100%; width: 6%;"/>
+                    <ResponsiveLabel text="200" height-percentage="0.7" name="CostLabel" picking-mode="Ignore" class="element text-label label" style="height: 100%; flex-shrink: 1; white-space: nowrap; text-overflow: ellipsis; color: rgb(0, 0, 0); top: 4%;"/>
                     <SquareHightElement picking-mode="Ignore" name="SquareHightElement" class="image-icon element" style="background-image: url(&quot;project://database/Assets/Icons/svg/cash.svg?fileID=7388822144124034973&amp;guid=3e75e502074cfd64691dbaf661d1c65e&amp;type=3#cash&quot;); -unity-background-scale-mode: scale-to-fit; height: 55%; top: -3%; -unity-background-image-tint-color: rgb(0, 0, 0);"/>
-                    <ui:VisualElement name="VisualElement" class="element" style="height: 100%; width: 6%;"/>
+                    <ui:VisualElement name="VisualElement" picking-mode="Ignore" class="element" style="height: 100%; width: 6%;"/>
                 </ResponsiveButton>
-                <ResponsiveButton height-percentage="0.7" name="Duration" class="element copy-button" style="width: 50%; height: 80%; -unity-text-align: middle-left; flex-direction: row; align-items: center; justify-content: flex-start; flex-grow: 0; flex-shrink: 0; text-overflow: ellipsis;">
-                    <ResponsiveLabel text="1:20" height-percentage="0.7" name="DurationLabel" class="element text-label label" style="height: 100%; flex-shrink: 1; white-space: nowrap; text-overflow: ellipsis; color: rgb(0, 0, 0); top: 4%;"/>
+                <ResponsiveButton height-percentage="0.7" name="Duration" picking-mode="Ignore" class="element copy-button" style="width: 50%; height: 80%; -unity-text-align: middle-left; flex-direction: row; align-items: center; justify-content: flex-start; flex-grow: 0; flex-shrink: 0; text-overflow: ellipsis;">
+                    <ResponsiveLabel text="1:20" height-percentage="0.7" name="DurationLabel" picking-mode="Ignore" class="element text-label label" style="height: 100%; flex-shrink: 1; white-space: nowrap; text-overflow: ellipsis; color: rgb(0, 0, 0); top: 4%;"/>
                     <SquareHightElement picking-mode="Ignore" name="SquareHightElement" class="image-icon element" style="background-image: url(&quot;project://database/Assets/Icons/svg/time.svg?fileID=7388822144124034973&amp;guid=b2e97c98e177a1341b06bc66284a98ef&amp;type=3#time&quot;); -unity-background-scale-mode: scale-to-fit; height: 55%; top: 0%; -unity-background-image-tint-color: rgb(0, 0, 0);"/>
-                    <ui:VisualElement name="VisualElement" class="element" style="height: 100%; width: 6%;"/>
+                    <ui:VisualElement name="VisualElement" picking-mode="Ignore" class="element" style="height: 100%; width: 6%;"/>
                 </ResponsiveButton>
             </ui:VisualElement>
         </ui:VisualElement>

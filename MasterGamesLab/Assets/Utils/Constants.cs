@@ -20,7 +20,7 @@ public static class Constants
     public const byte MAX_TRUCK_COUNT = MAX_TRUCKS_PER_PLAYER * MAX_PLAYER_COUNT;
     public const float TRUCK_BASE_SPEED_TPS = 0.5f;
 
-    public const byte MAX_FREIGHTERS_PER_PLAYER = 8;
+    public const byte MAX_FREIGHTERS_PER_PLAYER = 4;
     public const byte MAX_FREIGHTER_COUNT = MAX_FREIGHTERS_PER_PLAYER * MAX_PLAYER_COUNT;
     public const float FREIGHTER_BASE_SPEED_TPS = 0.3f;
 
@@ -55,7 +55,7 @@ public static class Constants
     public const int MIN_RANDOM_COST = 0;
     public const int MAX_RANDOM_COST = 0;
 
-    public const int MAX_PAYOUT = 1000;
+    public const int MAX_PAYOUT = 8000;
 
     public const float FOREIGN_GOOD_PAYOUT_FACTOR = 3.0f;
 
@@ -123,26 +123,32 @@ public static class Constants
         1 => 3000,
         2 => 5000,
         3 => 10000,
-        4 => 20000,
+        _ => 20000,
     };
     public static int FreighterBuildCost(int n) => n switch
     {
         0 => 3000,
         1 => 7500,
         2 => 10000,
-        3 => 20000,
+        _ => 20000,
     };
 
 
     // ------------------- Market Cap -------------------
 
-    public const int ROAD_MARKET_CAP = (int)(0.7f * ROAD_BUILD_COST);
-    public const int CANAL_MARKET_CAP = (int)(1.0f * BASE_CANAL_BUILD_COST);
 
-    public const int PORT_MARKET_CAP = (int)(0.9f * PORT_BUILD_COST);
+    public static int RoadMarketCap(int n) => (int)(RoadBuildCost(n) * 0.9f);
+    public static int CanalMarketCap(int n) => (int)(RoadBuildCost(n) * 1.5f);
 
-    public const int TRUCK_MARKET_CAP = (int)(0.7f * TRUCK_BUILD_COST);
-    public const int FREIGHTER_MARKET_CAP = (int)(0.7f * FREIGHTER_BUILD_COST);
+    public static int PortMarketCap(int n) => (int)(PortBuildCost(n) * 1.5f);
+
+    public static int TruckMarketCap(int n) => n switch
+    {
+        0 => 0,
+        _ => 2000,
+    };
+
+    public static int FreighterMarketCap(int n) => 3000;
 
 
     // ------------------- Pathfinding -------------------
