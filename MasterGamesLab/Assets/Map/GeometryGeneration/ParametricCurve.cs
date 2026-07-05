@@ -1,5 +1,4 @@
-﻿using Unity.AppUI.UI;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Map.GeometryGeneration
 {
