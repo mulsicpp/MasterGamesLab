@@ -189,8 +189,9 @@ namespace UI
             actionQueueScrollView = root.Q<ScrollView>("QueueScroll");
             actionQueue = root.Q<VisualElement>("ActionQueue");
 
-            actionQueueScrollView.RegisterCallback<MouseEnterEvent>(evt => mainCamera.supressZoom = true);
-            actionQueueScrollView.RegisterCallback<MouseLeaveEvent>(evt => mainCamera.supressZoom = false);
+            // actionQueueScrollView.RegisterCallback<MouseEnterEvent>(evt => mainCamera.supressZoom = true);
+            // actionQueueScrollView.RegisterCallback<MouseLeaveEvent>(evt => mainCamera.supressZoom = false);
+            actionQueueScrollView.pickingMode = PickingMode.Position;
         }
 
 
@@ -252,11 +253,18 @@ namespace UI
             mousePos.y = Screen.height - mousePos.y;
             Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(root.panel, mousePos);
             VisualElement pickedElement = root.panel.Pick(panelPos);
-            Debug.Log(pickedElement + " " + pickedElement?.userData);
+
+            mainCamera.supressZoom = false;
+
             if (pickedElement != null)
             {
                 Map.Map.Instance.CurrentlyHovered = pickedElement.userData as IHoverable;
                 HoverablePicker.Instance.DenyPick = true;
+
+                if (pickedElement == actionQueueScrollView || pickedElement.userData is VehicleActionRenderer)
+                {
+                    mainCamera.supressZoom = true;
+                }
             }
 
 
