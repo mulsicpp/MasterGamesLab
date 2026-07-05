@@ -202,10 +202,10 @@ namespace Map
                 {
                     structure.RebuildRenderer();
                 }
-                else if (structure.RendererUpdateTriggered)
+                else if (structure.MaterialUpdateTriggered)
                 {
                     structure.Renderer?.UpdateMaterial();
-                    structure.RendererUpdateTriggered = false;
+                    structure.MaterialUpdateTriggered = false;
                 }
             }
 

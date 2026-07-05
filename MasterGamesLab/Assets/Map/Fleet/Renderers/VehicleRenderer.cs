@@ -2,6 +2,8 @@ using Map.Blueprint;
 using Map.GeometryGeneration;
 using UnityEngine;
 using UI;
+using UnityEngine.UIElements;
+using Map.Infrastructure;
 
 namespace Map.Fleet
 {
@@ -36,7 +38,7 @@ namespace Map.Fleet
 
             Geometry.gameObject.SetActive(true);
 
-            SetVisibleOutline(Vehicle.Outline);
+            UpdateMaterial(Vehicle.Outline);
 
             var tProj = t; // Map.Instance.GetProjectedVehicleTransform(t);
             transform.localPosition = tProj.Position;
@@ -44,46 +46,31 @@ namespace Map.Fleet
             transform.localScale = GeometriesManager.Scale * tProj.Scale;
         }
 
-        public virtual void SetVisibleOutline(Constants.OutlineData? outline)
+        public virtual void UpdateMaterial(Constants.OutlineData? outline)
         {
+
+            if (Vehicle.BlueprintTile != null)
+            {
+                switch (Vehicle.BlueprintVisualState)
+                {
+                    case VisualState.Preview: Geometry.SetAsPreview(); break;
+                    case VisualState.PreviewOverlapping: Geometry.SetAsPreviewOverlapping(); break;
+                    case VisualState.Valid: Geometry.SetAsBlueprint(); break;
+                    case VisualState.Invalid: Geometry.SetAsBluePrintInvalid(); break;
+                    case VisualState.Overlapping: Geometry.SetAsBluePrintOverlapping(); break;
+                }
+            }
+            else
+            {
+                Geometry.SetAsBase();
+            }
+
             if (outline is Constants.OutlineData o)
             {
                 Geometry.SetOutlineLayer();
                 Geometry.SetOutlineParameters(o);
                 o.outlineColor.a = 1.0f;
                 VehiclePin.SetOutline(o.outlineColor);
-            }
-            else
-            {
-                VehiclePin.ClearOutline();
-                if (Vehicle.BlueprintTile != null)
-                {
-                    switch (Vehicle.BlueprintVisualState)
-                    {
-                        case VisualState.Preview:
-                            Geometry.SetAsPreview();
-                            break;
-                        case VisualState.Valid:
-                            Geometry.SetAsBlueprint();
-                            break;
-                        case VisualState.Invalid:
-                            Geometry.SetAsBluePrintInvalid();
-                            break;
-                        case VisualState.Overlapping:
-                            Geometry.SetAsBluePrintOverlapping();
-                            break;
-                        case VisualState.PreviewOverlapping:
-                            Geometry.SetAsPreviewOverlapping();
-                            break;
-                        default:
-                            Geometry.SetBaseLayer();
-                            break;
-                    }
-                }
-                else
-                {
-                    Geometry.SetBaseLayer();
-                }
             }
         }
     }

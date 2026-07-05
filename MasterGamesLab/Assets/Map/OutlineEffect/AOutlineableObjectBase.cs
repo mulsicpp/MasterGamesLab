@@ -158,6 +158,12 @@ namespace Map.OutlineEffect
             SetMaterial(GeometriesManager.Instance.invalidMaterial);
         }
 
+        public void SetAsBase()
+        {
+            SetBaseLayer();
+            SetMaterial(GeometriesManager.Instance.GetFixedGeometryMaterial());
+        }
+
         public void SetMaterial(Material material)
         {
             if (objRenderer != null)

@@ -63,7 +63,7 @@ namespace Map.Fleet
                 transform.localRotation = Quaternion.identity;
                 transform.localScale = Vector3.one;
 
-                SetVisibleOutline(Truck.Outline);
+                UpdateMaterial(Truck.Outline);
 
                 return;
             }
@@ -72,9 +72,9 @@ namespace Map.Fleet
             base.Update();
         }
 
-        public override void SetVisibleOutline(Constants.OutlineData? outline)
+        public override void UpdateMaterial(Constants.OutlineData? outline)
         {
-            base.SetVisibleOutline(outline);
+            base.UpdateMaterial(outline);
             if (outline is Constants.OutlineData o)
             {
                 CargoGeometry?.SetOutlineLayer();
