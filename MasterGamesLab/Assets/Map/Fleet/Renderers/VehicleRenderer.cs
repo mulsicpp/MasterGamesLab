@@ -72,6 +72,10 @@ namespace Map.Fleet
                 o.outlineColor.a = 1.0f;
                 VehiclePin.SetOutline(o.outlineColor);
             }
+            else
+            {
+                VehiclePin.ClearOutline();
+            }
         }
     }
 }
