@@ -8,6 +8,8 @@ namespace Map.Blueprint
 {
     public class ServerValidatableBlueprint : ValidatableBlueprint
     {
+        private Player.Player sender;
+
         private struct EdgeData
         {
             public Edge.EdgeType Type;
@@ -36,8 +38,9 @@ namespace Map.Blueprint
         private SortedList<VehicleId, VehicleData> vehicleData;
 
 
-        public ServerValidatableBlueprint(BlueprintPacket blueprintPacket)
+        public ServerValidatableBlueprint(Player.Player sender, BlueprintPacket blueprintPacket)
         {
+            this.sender = sender;
             this.blueprintPacket = blueprintPacket;
 
             edgeData = new();
@@ -59,6 +62,7 @@ namespace Map.Blueprint
             }
         }
 
+        protected override Player.Player GetPlayer() => sender;
 
         protected override IEnumerable<Edge> EnumerateEdges() => blueprintPacket.Edges.Select(e => Map.Instance.Edges[e.EdgeId]);
         protected override IEnumerable<Structure> EnumerateStructures() => blueprintPacket.Structures.Select(s => Map.Instance.Infrastructure[s.StructureId]);

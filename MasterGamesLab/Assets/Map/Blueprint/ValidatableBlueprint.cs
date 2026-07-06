@@ -18,6 +18,8 @@ namespace Map.Blueprint
         protected abstract IEnumerable<Structure> EnumerateStructures();
         protected abstract IEnumerable<Vehicle> EnumerateVehicles();
 
+        protected abstract Player.Player GetPlayer();
+
         protected abstract void SetValid(Edge edge, bool valid, int cost);
         public abstract bool IsValid(Edge edge);
         public abstract int Cost(Edge edge);
@@ -56,7 +58,7 @@ namespace Map.Blueprint
             canalDepths = new();
             canalQueue = new();
 
-            var playerStats = Map.Instance.GetPlayerStats()[Player.Player.SelfId];
+            var playerStats = Map.Instance.GetPlayerStats()[GetPlayer().Id];
 
             objectCount = new()
             {

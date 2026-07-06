@@ -56,12 +56,7 @@ namespace UI
             var loadedgood = (VehicleRenderer.Vehicle as Truck).Good;
             good.style.backgroundImage = loadedgood != Good.None ? new StyleBackground(goodsImages[loadedgood]) : null;
 
-            if (IsHovered && Map.Map.Instance.ShouldBeHoverablePredicate(VehicleRenderer.Vehicle))
-            {
-                Map.Map.Instance.CurrentlyHovered = VehicleRenderer.Vehicle;
-                HoverablePicker.Instance.DenyPick = true;
-            }
-
+            hoverable.pickingMode = Map.Map.Instance.ShouldBeHoverablePredicate(VehicleRenderer.Vehicle) ? PickingMode.Position : PickingMode.Ignore;
             time.style.visibility = VehicleRenderer.Vehicle.IsParked ? Visibility.Hidden : Visibility.Visible;
         }
 

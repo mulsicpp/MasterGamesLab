@@ -22,10 +22,10 @@ public static class Constants
 
     public const byte MAX_FREIGHTERS_PER_PLAYER = 4;
     public const byte MAX_FREIGHTER_COUNT = MAX_FREIGHTERS_PER_PLAYER * MAX_PLAYER_COUNT;
-    public const float FREIGHTER_BASE_SPEED_TPS = 0.3f;
+    public const float FREIGHTER_BASE_SPEED_TPS = 1/3f;
 
-    public const int TRUCK_LOADING_COST_ENEMY = 40;
-    public const int TRUCK_UNLOADING_COST_ENEMY = 80;
+    public const int TRUCK_LOADING_COST_ENEMY = 100;
+    public const int TRUCK_UNLOADING_COST_ENEMY = 200;
 
     public const int MAX_VEHICLE_ACTION_COUNT_PER_VEHICLE = 64;
 
@@ -157,15 +157,15 @@ public static class Constants
 
     public const int ROAD_TRAVERSAL_COST_PUBLIC = 0;
     public const int ROAD_TRAVERSAL_COST_OWN = 0;
-    public const int ROAD_TRAVERSAL_COST_ENEMY = 2;
+    public const int ROAD_TRAVERSAL_COST_ENEMY = 5;
 
     public const float ROAD_SPEED_MULTIPLIER = 1.0f;
 
     public const int CANAL_TRAVERSAL_COST_PUBLIC = 0;
     public const int CANAL_TRAVERSAL_COST_OWN = 0;
-    public const int CANAL_TRAVERSAL_COST_ENEMY = 4;
+    public const int CANAL_TRAVERSAL_COST_ENEMY = 10;
 
-    public const float CANAL_SPEED_MULTIPLIER = 2.5f;
+    public const float CANAL_SPEED_MULTIPLIER = 3f;
 
 
     // ------------------- Networking -------------------
