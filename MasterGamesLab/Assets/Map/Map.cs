@@ -707,7 +707,7 @@ namespace Map
             {
                 var packet = storedBlueprintPackets[player.Id];
 
-                var validatableBlueprint = new ServerValidatableBlueprint(packet);
+                var validatableBlueprint = new ServerValidatableBlueprint(player, packet);
 
                 validatableBlueprint.Validate();
                 int cost = validatableBlueprint.GetDetails().TotalCost;

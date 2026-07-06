@@ -372,6 +372,8 @@ namespace Map.Blueprint
             }
         }
 
+        protected override Player.Player GetPlayer() => Player.Player.Self;
+
         protected override IEnumerable<Edge> EnumerateEdges() => edges.AsEnumerable();
         protected override IEnumerable<Structure> EnumerateStructures() => structures.AsEnumerable();
         protected override IEnumerable<Vehicle> EnumerateVehicles() => vehicles.AsEnumerable();
