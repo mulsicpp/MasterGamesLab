@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map.Fleet.TruckRenderer
   CargoTransform: {fileID: 1193400825577356308}
+  VehiclePin: {fileID: 4770426019011029057}
 --- !u!1 &4218635562262368961
 GameObject:
   m_ObjectHideFlags: 0
@@ -99,14 +100,14 @@ MonoBehaviour:
   - GoodType: 1
     ImageAsset: {fileID: 21300000, guid: f5e1cdef8ff914d4b883749afc5637f0, type: 3}
   - GoodType: 2
-    ImageAsset: {fileID: 21300000, guid: c92cd5c3700783b4a9053a66613bd7ab, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 17a6977446064094eaec7021bb232e2f, type: 3}
   - GoodType: 3
-    ImageAsset: {fileID: 21300000, guid: 356336df8ddffe14f82abec8c64be0be, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 8acfd591dde17a8498e779026642dfd5, type: 3}
   - GoodType: 4
     ImageAsset: {fileID: 21300000, guid: ea9d7e7b9ac962d4aa079e68c0b4c4e0, type: 3}
   - GoodType: 5
     ImageAsset: {fileID: 21300000, guid: 9ca6bc748483c3745a716d0ed3e6900e, type: 3}
-  vehicleRenderer: {fileID: 0}
+  VehicleRenderer: {fileID: 0}
 --- !u!1 &6933318389239052457
 GameObject:
   m_ObjectHideFlags: 0
