@@ -38,7 +38,6 @@ namespace UI
         private VisualElement outlineElement;
         private Material outlineMaterial;
         private bool outlineMaterialReady;
-        public bool IsHovered { get; private set; }
 
         [SerializeField] protected VisualTreeAsset PinTemplate;
 
@@ -232,9 +231,6 @@ namespace UI
 
             UiElement.style.transformOrigin = new StyleTransformOrigin(new TransformOrigin(x, y));
         }
-
-        protected virtual void OnPointerEnterElement(PointerEnterEvent evt) => IsHovered = true;
-        protected virtual void OnPointerLeaveElement(PointerLeaveEvent evt) => IsHovered = false;
 
         protected virtual void SetShowing(bool active)
         {

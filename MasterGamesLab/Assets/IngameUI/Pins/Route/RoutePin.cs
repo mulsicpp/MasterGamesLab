@@ -37,12 +37,6 @@ namespace UI
 
             pivotDirection = FacingLeft ? PinDirection.Right : PinDirection.Left;
 
-            if (IsHovered)
-            {
-                Map.Map.Instance.CurrentlyHovered = routeRenderer.Geometry;
-                HoverablePicker.Instance.DenyPick = true;
-            }
-
             if (arrow != null)
             {
                 arrow.style.scale = new StyleScale(new Scale(new Vector3(FacingLeft ? 1f : -1f, 1f, 1f)));
