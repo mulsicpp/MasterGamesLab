@@ -31,6 +31,7 @@ namespace UI
         protected override void OnEnable()
         {
             VehicleRenderer = GetComponentInParent<VehicleRenderer>();
+            VehicleRenderer.VehiclePin = this;
             base.OnEnable(); // Crucial: Registers this pin into the manager pool
         }
 

@@ -10,6 +10,7 @@ namespace Map.GeometryGeneration.Edges
         public EntityId EntityId { get; private set; }
 
         public Route.RouteType Type { get; private set; }
+        public Pin Pin;
 
         private bool hovered = false;
 
@@ -63,12 +64,16 @@ namespace Map.GeometryGeneration.Edges
 
             SetOutlineParameters(outline);
             hovered = false;
+            
+            Pin?.SetOutline(outline.outlineColor);
         }
 
         public void ShowOutline(Constants.OutlineData outlineData)
         {
             SetOutlineParameters(outlineData);
             hovered = true;
+            
+            Pin?.SetOutline(outlineData.outlineColor);
         }
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)
@@ -88,6 +93,8 @@ namespace Map.GeometryGeneration.Edges
             outline.innerColor.a = 1.0f;
             SetOutlineParameters(outline);
             hovered = true;
+            
+            Pin?.SetOutline(outline.outlineColor);
         }
 
         public void SetHoverableStatus(bool isHoverable)

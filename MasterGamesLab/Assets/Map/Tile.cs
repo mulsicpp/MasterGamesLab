@@ -498,6 +498,7 @@ namespace Map
                 TileOutlinerPool.Instance.Release(outliner);
                 outliner = null;
             }
+            Structure?.Renderer?.Pin?.ClearOutline();
         }
 
         public void ShowOutline(Constants.OutlineData outlineData)
@@ -506,6 +507,9 @@ namespace Map
                 outliner = TileOutlinerPool.Instance.Get();
             outliner.SetOutlineParameters(outlineData);
             outliner.OutlineTile(this);
+            
+            outlineData.outlineColor.a = 1.0f;
+            Structure?.Renderer?.Pin?.SetOutline(outlineData.outlineColor);
         }
 
         public void ShowHoverOutline(HoverState hoverState = HoverState.Valid)

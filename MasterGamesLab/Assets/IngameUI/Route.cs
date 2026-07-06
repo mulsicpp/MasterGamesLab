@@ -72,6 +72,7 @@ namespace UI
 
                 Renderer.Geometry = EdgeGeometryFactory.GenerateRoute(tileIds, Type, -1, curveData);
                 Renderer.Geometry.transform.SetParent(Renderer.transform);
+                Renderer.Geometry.Pin = Renderer.Pin;
             }
         }
 
