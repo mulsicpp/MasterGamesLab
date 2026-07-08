@@ -267,6 +267,15 @@ namespace UI
                 }
             }
 
+            if (IngameInputs.focusVehicle.WasPressedThisFrame() && VehicleControls.SelectedVehicle == null)
+            {
+                SelectNextVehicle();
+            }
+
+            if (IngameInputs.focusVehicle.IsPressed() && VehicleControls.SelectedVehicle != null)
+                mainCamera.FocusedObject = VehicleControls.SelectedVehicle.Renderer?.transform;
+            else
+                mainCamera.FocusedObject = null;
 
             float signedAngle = Vector2.SignedAngle(Vector2.up, mainCamera.LocalNorth);
 
@@ -569,6 +578,12 @@ namespace UI
         public void OnHidePressed() => ConstructionControls.ToggleHide();
         public void OnCompassPressed() => mainCamera.TurnNorth();
 
+        public void FocusSelectedVehicle()
+        {
+            if (VehicleControls.SelectedVehicle == null) SelectNextVehicle();
+            mainCamera.FocusedObject = VehicleControls.SelectedVehicle?.Renderer?.transform;
+        }
+
         public void SelectNextVehicle()
         {
             var current = VehicleControls.SelectedVehicle;
@@ -584,8 +599,25 @@ namespace UI
             if (nextVehicle == null)
                 nextVehicle = Map.Map.Instance.Fleet.Vehicles.FirstOrDefault(condition);
 
-            mainCamera.FocusedObject = nextVehicle.Renderer.transform;
             VehicleControls.SelectedVehicle = nextVehicle;
+        }
+
+        public void SelectPreviousVehicle()
+        {
+            var current = VehicleControls.SelectedVehicle;
+            Vehicle prevVehicle = null;
+
+            Func<Vehicle, bool> condition = v => v.Exists && v.Owner.IsSelf;
+
+            if (current != null)
+            {
+                prevVehicle = Map.Map.Instance.Fleet.Vehicles.Reverse().FirstOrDefault(v => condition(v) && v.IndexInVehicles < current.IndexInVehicles);
+            }
+
+            if (prevVehicle == null)
+                prevVehicle = Map.Map.Instance.Fleet.Vehicles.Reverse().FirstOrDefault(condition);
+
+            VehicleControls.SelectedVehicle = prevVehicle;
         }
 
         public void SelectVehicleBySlot(Vehicle.VehicleType type, int slotIndex)
@@ -603,8 +635,6 @@ namespace UI
             if (v.Exists)
             {
                 VehicleControls.SelectedVehicle = v;
-
-                mainCamera.FocusedObject = v.Renderer.transform;
             }
         }
 

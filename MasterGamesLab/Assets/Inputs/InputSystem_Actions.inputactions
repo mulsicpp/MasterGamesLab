@@ -822,7 +822,25 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ChangeVehicle",
+                    "name": "NextVehicle",
+                    "type": "Button",
+                    "id": "8b9134bb-a9b6-4a06-9515-8573b003eadc",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PreviousVehicle",
+                    "type": "Button",
+                    "id": "774b498f-ce1e-4d98-8d90-1f62acaa3ac2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "FocusVehicle",
                     "type": "Button",
                     "id": "7826f3c3-4fb9-4b87-89b2-fd16acbb843c",
                     "expectedControlType": "",
@@ -1367,7 +1385,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ChangeVehicle",
+                    "action": "FocusVehicle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1390,6 +1408,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ChooseCheapestRoute",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bb2c1fe4-a34d-4a2d-b6dd-9735f9c01ecc",
+                    "path": "<Keyboard>/rightArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "NextVehicle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3215359d-e87d-4635-890f-805e0ee0a55d",
+                    "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PreviousVehicle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

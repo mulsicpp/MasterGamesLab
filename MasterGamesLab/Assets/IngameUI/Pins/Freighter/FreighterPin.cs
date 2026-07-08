@@ -37,7 +37,7 @@ namespace UI
 
         protected override void Start()
         {
-            var hoverable = UiElement.Q<VisualElement>("Pickable");
+            hoverable = UiElement.Q<VisualElement>("Pickable");
             hoverable.userData = VehicleRenderer?.Vehicle;
             base.Start();
 

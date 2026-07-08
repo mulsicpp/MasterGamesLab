@@ -171,9 +171,15 @@ namespace InGameCamera
 
         private void UpdateCameraTransformNew()
         {
-            if (primaryMousePressedAction.IsPressed())
+            if (FocusedObject != null)
             {
-                FocusedObject = null;
+                var currentVec = (transform.position - Target.position).normalized;
+                var targetVec = (FocusedObject.position - Target.position).normalized;
+
+                AddRotationStepFromTo(currentVec, targetVec);
+            }
+            else if (primaryMousePressedAction.IsPressed())
+            {
                 var lookDelta = lookAction.ReadValue<Vector2>();
 
                 var velocityWorld = camera.ScreenToWorldPoint(new(0, 0, CurrentDistance - 1)) - camera.ScreenToWorldPoint(new(lookDelta.x, lookDelta.y, CurrentDistance - 1));
@@ -181,13 +187,7 @@ namespace InGameCamera
 
                 transform.rotation = Quaternion.AngleAxis(velocityWorld.magnitude * rotationSpeedFactor * 180 / Mathf.PI, axis) * transform.rotation;
             }
-            else if (FocusedObject != null)
-            {
-                var currentVec = (transform.position - Target.position).normalized;
-                var targetVec = (FocusedObject.position - Target.position).normalized;
 
-                AddRotationStepFromTo(currentVec, targetVec);
-            }
             if (!supressZoom)
             {
                 var scrollDelta = zoomAction.ReadValue<Vector2>();
