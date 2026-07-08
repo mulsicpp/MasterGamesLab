@@ -263,7 +263,7 @@ namespace UI
         public RouteOptions PreviewRouteOptions { get; private set; }
         private VehicleActionRenderer previewVehicleAction;
 
-        private List<IOutlinable> outlinedTargets;
+        private List<Tile> targetTiles;
 
         public void Start()
         {
@@ -276,15 +276,17 @@ namespace UI
             previewVehicleAction = Instantiate(Map.Map.Instance.VehicleActionPrefab).GetComponent<VehicleActionRenderer>();
             previewVehicleAction.gameObject.SetActive(false);
 
-            outlinedTargets = new();
+            targetTiles = new();
         }
 
         public void DisableControls()
         {
             hoveredAction = null;
             SelectedVehicle = null;
-            RouteOptions.Clear();
-            PreviewRouteOptions.Clear();
+            RouteOptions?.Clear();
+
+            PreviewRouteOptions?.Clear();
+            targetTiles?.Clear();
         }
 
         public Predicate<IHoverable> GetHoverablePredicate() => Map.Map.DefaultHoverablePredicate;
@@ -294,11 +296,7 @@ namespace UI
             PreviewRouteOptions.Clear();
             previewVehicleAction.gameObject.SetActive(false);
 
-            foreach (var t in outlinedTargets)
-            {
-                t?.ClearOutline();
-            }
-            outlinedTargets.Clear();
+            targetTiles.Clear();
 
             if (selectedVehicle == null || SelectedVehicle.ActionQueue.Count == 0 && SelectedVehicle.Route == null)
             {
@@ -329,8 +327,7 @@ namespace UI
 
                         foreach (var t in driveTargets)
                         {
-                            // t.Structure.ShowOutline(Constants.UNLOAD_TARGET_OUTLINE);
-                            outlinedTargets.Add(t.Structure);
+                            targetTiles.Add(t);
                         }
                     }
                     else
@@ -339,15 +336,13 @@ namespace UI
 
                         foreach (var t in driveTargets)
                         {
-                            // t.Structure.ShowOutline(Constants.TRUCK_DRIVE_TARGET_OUTLINE);
-                            outlinedTargets.Add(t.Structure);
+                            targetTiles.Add(t);
                             if (t.Structure?.Type == Structure.StructureType.Port)
                             {
                                 foreach (var n in t.Neighbors)
                                     if (n.Type == Tile.TileType.Water)
                                     {
-                                        // n.ShowOutline(Constants.LOAD_TARGET_OUTLINE);
-                                        outlinedTargets.Add(n);
+                                        targetTiles.Add(n as Tile);
                                     }
                             }
                         }
@@ -357,8 +352,7 @@ namespace UI
                             foreach (var n in start.Neighbors)
                                 if (n.Type == Tile.TileType.Water)
                                 {
-                                    // n.ShowOutline(Constants.LOAD_TARGET_OUTLINE);
-                                    outlinedTargets.Add(n);
+                                    targetTiles.Add(n as Tile);
                                 }
                         }
                     }
@@ -368,16 +362,14 @@ namespace UI
 
                     foreach (var t in driveTargets)
                     {
-                        // t.ShowOutline(Constants.TRUCK_DRIVE_TARGET_OUTLINE);
-                        outlinedTargets.Add(t);
+                        targetTiles.Add(t);
                     }
 
                     foreach (var n in start.Neighbors)
                     {
                         if (n.Structure?.Type == Structure.StructureType.Port)
                         {
-                            // n.Structure.ShowOutline(Constants.WAIT_TARGET_OUTLINE);
-                            outlinedTargets.Add(n.Structure);
+                            targetTiles.Add(n as Tile);
                         }
                     }
                 }

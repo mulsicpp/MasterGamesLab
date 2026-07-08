@@ -243,12 +243,17 @@ namespace UI
                 Map.Map.Instance.Blueprint.OnChanged -= HandleBlueprintUpdate;
             // TODO disable ingame actions
 
+            VehicleControls.DisableControls();
+            ConstructionControls.DisableControls();
+
             MainCamera.Instance.PlanetControllerEnabled = false;
             FindAnyObjectByType<IngameInputs>().enabled = false;
         }
 
         private void Update()
         {
+            if (!IsVisible) return;
+
             Vector2 mousePos = Mouse.current.position.ReadValue();
             mousePos.y = Screen.height - mousePos.y;
             Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(root.panel, mousePos);

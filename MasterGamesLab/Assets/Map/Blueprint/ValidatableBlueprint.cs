@@ -58,7 +58,14 @@ namespace Map.Blueprint
             canalDepths = new();
             canalQueue = new();
 
-            var playerStats = Map.Instance.GetPlayerStats()[GetPlayer().Id];
+            foreach (var edge in EnumerateEdges()) SetValid(edge, false, 0);
+            foreach (var structure in EnumerateStructures()) SetValid(structure, false, 0);
+            foreach (var vehicle in EnumerateVehicles()) SetValid(vehicle, false, 0);
+
+            var player = GetPlayer();
+            if (player == null) return;
+
+            var playerStats = Map.Instance.GetPlayerStats()[player.Id];
 
             objectCount = new()
             {
@@ -69,9 +76,6 @@ namespace Map.Blueprint
                 { ConstructibleType.Freighter, playerStats.FreighterCount },
             };
 
-            foreach (var edge in EnumerateEdges()) SetValid(edge, false, 0);
-            foreach (var structure in EnumerateStructures()) SetValid(structure, false, 0);
-            foreach (var vehicle in EnumerateVehicles()) SetValid(vehicle, false, 0);
 
             foreach (var edge in EnumerateEdges()) ValidateEdge(edge);
             ValidateCanals();
