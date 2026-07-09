@@ -107,7 +107,7 @@ MonoBehaviour:
     ImageAsset: {fileID: 21300000, guid: ea9d7e7b9ac962d4aa079e68c0b4c4e0, type: 3}
   - GoodType: 5
     ImageAsset: {fileID: 21300000, guid: 9ca6bc748483c3745a716d0ed3e6900e, type: 3}
-  VehicleRenderer: {fileID: 0}
+  VehicleRenderer: {fileID: 8294785909044339647}
 --- !u!1 &6933318389239052457
 GameObject:
   m_ObjectHideFlags: 0
