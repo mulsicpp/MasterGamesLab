@@ -19,6 +19,7 @@ namespace Map.GeometryGeneration.Edges
             Init();
             SetOutlineTransparentLayer();
             ClearOutline();
+            CurrentlyHoverable = Type is Route.RouteType.Cheapest or Route.RouteType.Fastest or Route.RouteType.Queued;
         }
 
         public void Init(Route.RouteType newType, int index)
@@ -36,7 +37,6 @@ namespace Map.GeometryGeneration.Edges
                     break;
                 default:
                     EntityId = new EntityId(-1);
-                    CurrentlyHoverable = false;
                     break;
             }
 

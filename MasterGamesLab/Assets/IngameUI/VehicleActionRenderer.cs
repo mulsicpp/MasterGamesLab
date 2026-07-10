@@ -73,6 +73,7 @@ namespace UI
 
             FixedGeometry?.SetCustomColor(GeometriesManager.Instance.actionColor);
 
+
             map.EntityIdManager[EntityId] = this;
         }
 
@@ -180,15 +181,15 @@ namespace UI
 
         public void SetHoverableStatus(bool isHoverable)
         {
-            if (FixedGeometry)
-            {
-                FixedGeometry.CurrentlyHoverable = isHoverable;
-            }
-
-            if (RouteGeometry)
-            {
-                RouteGeometry.CurrentlyHoverable = isHoverable;
-            }
+            // if (FixedGeometry)
+            // {
+            //     FixedGeometry.CurrentlyHoverable = isHoverable;
+            // }
+            // 
+            // if (RouteGeometry)
+            // {
+            //     RouteGeometry.CurrentlyHoverable = isHoverable;
+            // }
         }
     }
 }
