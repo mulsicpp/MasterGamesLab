@@ -598,15 +598,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UI.IngameUI
   vehicleActionConfiguration:
   - VehicleActionType: 0
-    ImageAsset: {fileID: 21300000, guid: f7a0f68e7bc3c0649a3cf7972520e58b, type: 3}
+    ImageAsset: {fileID: 21300000, guid: f106dea230f6c134e969a5ec16c2daeb, type: 3}
   - VehicleActionType: 1
-    ImageAsset: {fileID: 21300000, guid: 340c02cd242b28f429cbd70a0081d8a3, type: 3}
+    ImageAsset: {fileID: 21300000, guid: c8b72593b40881845891a57f5d0523ec, type: 3}
   - VehicleActionType: 2
-    ImageAsset: {fileID: 21300000, guid: e3f07d0a2ba5408448a4de2ddd3252eb, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 5812793b0a4332040a803e01be625dec, type: 3}
   - VehicleActionType: 3
-    ImageAsset: {fileID: 21300000, guid: 7a37951e826645e4f9a61a37518a4816, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 92c125d69f9e5ea40bdaec1899692fd0, type: 3}
   - VehicleActionType: 4
-    ImageAsset: {fileID: 21300000, guid: dafce3369eb14f54385ae03573603c23, type: 3}
+    ImageAsset: {fileID: 21300000, guid: aa317a97a55f30f44a2aee961e86b423, type: 3}
   - VehicleActionType: 5
     ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
   - VehicleActionType: 6

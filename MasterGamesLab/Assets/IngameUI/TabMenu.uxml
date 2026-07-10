@@ -8,7 +8,7 @@
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" picking-mode="Position" class="element tab-menu-header" style="width: 15%; padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%;">
                 <ui:VisualElement picking-mode="Ignore" class="element tab-menu-header" style="width: 60%; padding-right: 6.67%; padding-left: 6.67%; border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0);">
-                    <ui:VisualElement name="Icon" picking-mode="Ignore" class="element tab-menu-header-icon" style="background-image: url(&quot;project://database/Assets/Icons/svg/MarcetCap.svg?fileID=7388822144124034973&amp;guid=f5bdb472dac81d543a50f657689304f8&amp;type=3#MarcetCap&quot;); -unity-background-scale-mode: scale-to-fit;"/>
+                    <ui:VisualElement name="Icon" picking-mode="Ignore" class="element tab-menu-header-icon" style="background-image: url(&quot;project://database/Assets/Icons/Cash.PNG?fileID=21300000&amp;guid=018f631daed10eb43803b2f317ee532d&amp;type=3#Cash&quot;); -unity-background-scale-mode: scale-to-fit; -unity-slice-scale: 0;"/>
                 </ui:VisualElement>
             </ResponsiveButton>
             <ResponsiveButton name="ResponsiveButton" picking-mode="Position" class="element tab-menu-header" style="width: 15%; padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%;">
