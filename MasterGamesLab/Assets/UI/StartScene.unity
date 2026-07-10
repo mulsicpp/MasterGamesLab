@@ -913,7 +913,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1286418471}
-  - component: {fileID: 1286418470}
+  - component: {fileID: 1286418472}
   m_Layer: 0
   m_Name: TileOutlinerPool
   m_TagString: Untagged
@@ -921,21 +921,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1286418470
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1286418469}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 469626b177d964140b9185527eeac9c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Map.OutlineEffect.TileOutlinerPool
-  prefab: {fileID: 3355747564128440831, guid: 7a6832fdb2040b748abbdb4a3b062de1, type: 3}
-  defaultCapacity: 10
-  maxPoolSize: 100
 --- !u!4 &1286418471
 Transform:
   m_ObjectHideFlags: 0
@@ -951,6 +936,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1286418472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1286418469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b0d095e7055436fa466969bbcf7f9ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Map.OutlineEffect.TileOutlinerPool
+  prefab: {fileID: 3355747564128440831, guid: 7a6832fdb2040b748abbdb4a3b062de1, type: 3}
+  defaultCapacity: 10
+  maxPoolSize: 100
 --- !u!1 &1292364102
 GameObject:
   m_ObjectHideFlags: 0
@@ -995,6 +995,50 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.392412, y: 1.0434241, z: -0.2549069}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1474443359
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1474443361}
+  - component: {fileID: 1474443360}
+  m_Layer: 0
+  m_Name: TestBeacon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1474443360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1474443359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d908c08a493a7545b6b327b9988bd95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Map.TestHoverTiles
+--- !u!4 &1474443361
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1474443359}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1213,6 +1257,53 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b3b0806ee946a5447b09d1f01caa4623, type: 3}
+--- !u!1 &2002289130
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2002289132}
+  - component: {fileID: 2002289131}
+  m_Layer: 0
+  m_Name: TileBeaconPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2002289131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2002289130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fdc08d7ebd04659bb0ec6f0011fdf42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Map.GeometryGeneration.TileBeaconPool
+  prefab: {fileID: 6407350266909620446, guid: f88fa74807bbd27438426526d06a02a1, type: 3}
+  defaultCapacity: 10
+  maxPoolSize: 100
+--- !u!4 &2002289132
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2002289130}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &245963412366084227
 Transform:
   m_ObjectHideFlags: 0
@@ -2021,4 +2112,6 @@ SceneRoots:
   - {fileID: 264134038}
   - {fileID: 615409478525799809}
   - {fileID: 1286418471}
+  - {fileID: 2002289132}
   - {fileID: 1292364104}
+  - {fileID: 1474443361}
