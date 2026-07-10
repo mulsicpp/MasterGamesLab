@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map.Fleet.FreighterRenderer
   CargoTransform: {fileID: 1193400825577356308}
+  VehiclePin: {fileID: 3128535114706607406}
 --- !u!1 &5964703610952924499
 GameObject:
   m_ObjectHideFlags: 0
@@ -95,6 +96,7 @@ MonoBehaviour:
   invisibleThreshold: -0.1
   pivotDirection: 1
   PinTemplate: {fileID: 9197481963319205126, guid: 8fd75eb6755c56b4ea155ebc04709094, type: 3}
+  goodsConfiguration: []
 --- !u!1 &6933318389239052457
 GameObject:
   m_ObjectHideFlags: 0
