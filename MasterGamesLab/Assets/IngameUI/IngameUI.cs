@@ -276,9 +276,7 @@ namespace UI
             }
 
             if (IngameInputs.focusVehicle.IsPressed() && VehicleControls.SelectedVehicle != null)
-                mainCamera.FocusedObject = VehicleControls.SelectedVehicle.Renderer?.transform;
-            else
-                mainCamera.FocusedObject = null;
+                mainCamera.FocusedPosition = VehicleControls.SelectedVehicle.Renderer?.transform.position;
 
             float signedAngle = Vector2.SignedAngle(Vector2.up, mainCamera.LocalNorth);
 
@@ -588,7 +586,7 @@ namespace UI
         public void FocusSelectedVehicle()
         {
             if (VehicleControls.SelectedVehicle == null) SelectNextVehicle();
-            mainCamera.FocusedObject = VehicleControls.SelectedVehicle?.Renderer?.transform;
+            mainCamera.FocusedPosition = VehicleControls.SelectedVehicle?.Renderer?.transform.position;
         }
 
         public void SelectNextVehicle()
