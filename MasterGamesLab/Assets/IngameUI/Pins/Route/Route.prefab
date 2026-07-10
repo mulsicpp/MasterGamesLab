@@ -44,9 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09119be460e28344aa730834855706bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoadPin
-  panelOffset: 0
   invisibleThreshold: -0.1
-  pivotDirection: 1
+  pivotDirection: 3
   PinTemplate: {fileID: 9197481963319205126, guid: ccfc1a7144d97a242b96d827d4703f3f, type: 3}
   FacingLeft: 0
 --- !u!1 &4004374116097416254

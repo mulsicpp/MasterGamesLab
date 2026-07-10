@@ -3,8 +3,8 @@
     <Style src="project://database/Assets/IngameUI/Pins/pins_outline.uss?fileID=7433441132597879392&amp;guid=a998b9fe5eeca1c48bc8a0d793016819&amp;type=3#pins_outline"/>
     <ui:VisualElement name="root" picking-mode="Ignore" class="unity-ui-document__root" style="flex-direction: row;">
         <AlphaPickableElement name="Pickable" picking-mode="Position" class="element pin-outline" style="flex-shrink: 0; width: 100%; flex-direction: row; background-image: url(&quot;project://database/Assets/IngameUI/Pins/Route/street%20pins/IMG_2003.PNG?fileID=21300000&amp;guid=20d43796b78eece4d9659d1531bedd4d&amp;type=3#IMG_2003&quot;); aspect-ratio: 3.3115; position: absolute; -unity-background-scale-mode: scale-to-fit;"/>
-        <ui:VisualElement name="Element" picking-mode="Ignore" class="element" style="flex-shrink: 0; width: 100%; flex-direction: row; aspect-ratio: 3.3115; position: absolute; justify-content: flex-end;">
-            <ui:VisualElement picking-mode="Ignore" class="element" style="height: 100%; flex-direction: row; width: 86%; align-items: center;">
+        <ui:VisualElement name="Element1" picking-mode="Ignore" class="element" style="flex-shrink: 0; width: 100%; flex-direction: row; aspect-ratio: 3.3115; position: absolute; justify-content: flex-end;">
+            <ui:VisualElement picking-mode="Ignore" name="Element" class="element" style="height: 100%; flex-direction: row; width: 86%; align-items: center;">
                 <ResponsiveButton height-percentage="0.7" name="Cost" picking-mode="Ignore" class="element copy-button" style="width: 50%; height: 80%; -unity-text-align: middle-left; align-items: center; justify-content: flex-start; text-overflow: ellipsis; flex-direction: row;">
                     <ui:VisualElement name="VisualElement" picking-mode="Ignore" class="element" style="height: 100%; width: 6%;"/>
                     <ResponsiveLabel text="200" height-percentage="0.7" name="CostLabel" picking-mode="Ignore" class="element text-label label" style="height: 100%; flex-shrink: 1; white-space: nowrap; text-overflow: ellipsis; color: rgb(0, 0, 0); top: 4%;"/>
