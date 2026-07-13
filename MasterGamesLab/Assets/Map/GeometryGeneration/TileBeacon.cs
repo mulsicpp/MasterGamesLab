@@ -11,7 +11,7 @@ namespace Map.GeometryGeneration
         private const float MAX_DELTA = 0.012f;
         private const float MIN_DIST = 2f;
         private const float MAX_DIST = 2.6f;
-        private const float INSET = 0.001f;
+        private const float INSET = 0.004f;
 
         private void Awake()
         {

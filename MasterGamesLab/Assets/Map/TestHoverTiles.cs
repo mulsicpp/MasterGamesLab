@@ -42,6 +42,7 @@ namespace Map
                 case ITile t:
                     tileBeacon = TileBeaconPool.Instance.Get();
                     tileBeacon.HighlightTile((Tile)t);
+                    tileBeacon.SetCustomColor(Color.red);
                     break;
                 case Edge e:
                     break;
