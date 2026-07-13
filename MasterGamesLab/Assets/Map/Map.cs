@@ -2,6 +2,7 @@
 using Map.Blueprint;
 using Map.Fleet;
 using Map.GeometryGeneration;
+using Map.GeometryGeneration.Edges;
 using Map.Hoverables;
 using Map.Infrastructure;
 using Networking;
@@ -320,7 +321,7 @@ namespace Map
 
             var hoverable = EntityIdManager[new EntityId(currentlyHoveredId)] as IHoverable;
 
-            CurrentlyHovered = ShouldBeHoverablePredicate(hoverable) ? hoverable : null;
+            CurrentlyHovered = hoverable is VehicleActionRenderer or RouteGeometry || ShouldBeHoverablePredicate(hoverable) ? hoverable : null;
         }
 
         public int GetTileAndEdgeCount() => tiles.Count + edges.Length;

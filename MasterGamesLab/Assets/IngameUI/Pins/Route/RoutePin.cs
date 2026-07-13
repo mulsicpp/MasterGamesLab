@@ -8,21 +8,18 @@ namespace UI
     public class RoutePin : Pin
     {
         private Label cost, duration;
-        private VisualElement arrow, element;
+        private VisualElement element;
         private RouteRenderer routeRenderer;
 
         protected override float pinHeightPercent => 3f;
-        protected override float pinAspectRatio => 4.5f;
+        protected override float pinAspectRatio => 3.3115f;
 
-        public bool FacingLeft = false;
-
-        // MANAGER HOOKS: Routes span across tiles, so returning null 
-        // bypasses the side-by-side stacking layout logic entirely.
+        public bool FacingLeft = true;
 
         protected override void OnEnable()
         {
             routeRenderer = GetComponentInParent<RouteRenderer>();
-            base.OnEnable(); // Registers to the manager pool cleanly
+            base.OnEnable();
         }
 
         protected override void Start()
@@ -35,13 +32,11 @@ namespace UI
         {
             hoverable.userData = routeRenderer.Geometry;
 
-            pivotDirection = FacingLeft ? PinDirection.Right : PinDirection.Left;
+            pivotDirection = FacingLeft ? PinDirection.Left : PinDirection.Right;
 
-            if (arrow != null)
-            {
-                arrow.style.scale = new StyleScale(new Scale(new Vector3(FacingLeft ? 1f : -1f, 1f, 1f)));
-                element.style.flexDirection = FacingLeft ? FlexDirection.Row : FlexDirection.RowReverse;
-            }
+
+            hoverable.style.scale = new StyleScale(new Scale(new Vector3(FacingLeft ? 1f : -1f, 1f, 1f)));
+            element.style.flexDirection = FacingLeft ?FlexDirection.Row : FlexDirection.RowReverse;
         }
 
         protected override void LateUpdate()
@@ -71,7 +66,7 @@ namespace UI
         {
             cost = UiElement.Q<Label>("CostLabel");
             duration = UiElement.Q<Label>("DurationLabel");
-            element = UiElement.Q<VisualElement>("Element");
+            element = UiElement.Q<VisualElement>("Element1");
         }
     }
 }

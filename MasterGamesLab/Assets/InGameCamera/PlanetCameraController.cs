@@ -18,6 +18,7 @@ namespace InGameCamera
         public float CurrentDistance { get; private set; } = 3f;
 
         public Transform FocusedObject;
+        public Vector3? FocusedPosition = null;
 
         [SerializeField] private InputActionAsset inputActions;
 
@@ -173,10 +174,18 @@ namespace InGameCamera
         {
             if (FocusedObject != null)
             {
-                var currentVec = (transform.position - Target.position).normalized;
-                var targetVec = (FocusedObject.position - Target.position).normalized;
+                FocusedPosition = FocusedObject.position;
+            }
 
-                AddRotationStepFromTo(currentVec, targetVec);
+            if (FocusedPosition is Vector3 p)
+            {
+                var currentVec = (transform.position - Target.position).normalized;
+                var targetVec = (p - Target.position).normalized;
+
+                if(!AddRotationStepFromTo(currentVec, targetVec))
+                {
+                    FocusedPosition = null;
+                }
             }
             else if (primaryMousePressedAction.IsPressed())
             {
@@ -282,19 +291,16 @@ namespace InGameCamera
             transform.rotation = Quaternion.FromToRotation(transform.up, TangentNorth) * transform.rotation;
         }
 
-        public void SnapToFocusedObject()
+        public void SnapToPosition(Vector3 position)
         {
-            if (FocusedObject != null)
-            {
-                transform.rotation = Quaternion.FromToRotation(-transform.forward, (FocusedObject.transform.position - Target.transform.position).normalized) * transform.rotation;
+            transform.rotation = Quaternion.FromToRotation(-transform.forward, (position - Target.transform.position).normalized) * transform.rotation;
 
-                transform.position = Target.position + transform.rotation * new Vector3(0f, 0f, -CurrentDistance);
-            }
+            transform.position = Target.position + transform.rotation * new Vector3(0f, 0f, -CurrentDistance);
         }
 
-        public void SetForGameStart()
+        public void SetForGameStart(Vector3 position)
         {
-            SnapToFocusedObject();
+            SnapToPosition(position);
             SnapNorth();
 
             zoomExp = 0.0f;

@@ -15,8 +15,43 @@ public class TestRoadCreation : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        // if (Input.GetKeyDown(KeyCode.L))
+        // {
+        //     Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Truck, tile.Id);
+        // }
+        // 
+        // if (Input.GetKeyDown(KeyCode.B))
+        // {
+        //     Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
+        // }
+
+        // if(Input.GetKeyDown(KeyCode.A)) 
+        // {
+        //     Map.Map.Instance.LoadFirstTruckOnFreighterServerRpc();
+        // }
+
+        if (Input.GetKeyDown(KeyCode.Escape) && Input.GetKey(KeyCode.LeftShift) && IsServer)
+        {
+            Map.Map.Instance.FinishGame();
+        }
+
+        if (Input.GetKeyDown(KeyCode.M) && IsServer)
+        {
+            foreach (var player in Map.Map.Instance.Players)
+            {
+                player.Earn(1000);
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.P) && IsServer)
+        {
+            Map.Map.Instance.SpawnLogic.FastForward(0.05f);
+        }
+
         var tile = Map.Map.Instance.CurrentlyHovered as Tile;
         if (tile == null) return;
+
 
         if (Input.GetKeyDown(KeyCode.P) && IsServer)
         {
@@ -39,38 +74,5 @@ public class TestRoadCreation : NetworkBehaviour
             Map.Map.Instance.Infrastructure.SpawnGlobal(new CarPark.CarParkState { Common = { TileId = tile.Id } });
         }
 
-        // if (Input.GetKeyDown(KeyCode.L))
-        // {
-        //     Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Truck, tile.Id);
-        // }
-        // 
-        // if (Input.GetKeyDown(KeyCode.B))
-        // {
-        //     Map.Map.Instance.RequestNewVehicleServerRpc(Map.Fleet.Vehicle.VehicleType.Freighter, tile.Id);
-        // }
-
-        // if(Input.GetKeyDown(KeyCode.A)) 
-        // {
-        //     Map.Map.Instance.LoadFirstTruckOnFreighterServerRpc();
-        // }
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (!IsServer) return;
-            Map.Map.Instance.FinishGame();
-        }
-
-        if (Input.GetKeyDown(KeyCode.M) && IsServer)
-        {
-            foreach (var player in Map.Map.Instance.Players)
-            {
-                player.Earn(1000);
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.P) && IsServer)
-        {
-            Map.Map.Instance.SpawnLogic.FastForward(0.05f);
-        }
     }
 }

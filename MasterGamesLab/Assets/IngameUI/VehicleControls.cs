@@ -289,7 +289,12 @@ namespace UI
             targetTiles?.Clear();
         }
 
-        public Predicate<IHoverable> GetHoverablePredicate() => Map.Map.DefaultHoverablePredicate;
+        public Predicate<IHoverable> GetHoverablePredicate()
+        {
+            if (SelectedVehicle != null)
+                return t => targetTiles.Contains(t as Tile);
+            return null;
+        }
 
         public void UpdateControls()
         {

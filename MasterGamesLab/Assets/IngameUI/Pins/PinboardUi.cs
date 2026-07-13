@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Map.Fleet;
 using Map.Infrastructure;
+using NUnit.Framework;
 
 namespace UI
 {
@@ -11,7 +12,12 @@ namespace UI
         public static PinboardUi Instance { get; private set; }
         public VisualElement root { get; private set; }
 
-        private readonly List<Pin> _activePins = new List<Pin>();
+        private readonly List<TruckPin> _activeTruckPins = new List<TruckPin>();
+        private readonly List<FreighterPin> _activeFreighterPins = new List<FreighterPin>();
+        private readonly List<ConsumerPin> _activeConsumerPins = new List<ConsumerPin>();
+        private readonly List<ProducerPin> _activeProducerPins = new List<ProducerPin>();
+        private readonly List<RoutePin> _activeRoutePins = new List<RoutePin>();
+
         private readonly Dictionary<object, List<Pin>> _tileGroups = new Dictionary<object, List<Pin>>();
         private readonly HashSet<Pin> _pinsHandledAsCarriedChildren = new HashSet<Pin>();
 
@@ -26,8 +32,48 @@ namespace UI
             root = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>("root");
         }
 
-        public void RegisterPin(Pin pin) => _activePins.Add(pin);
-        public void UnregisterPin(Pin pin) => _activePins.Remove(pin);
+        public void RegisterPin(Pin pin)
+        {
+            switch (pin)
+            {
+                case FreighterPin f:
+                    _activeFreighterPins.Add(f);
+                    break;
+                case TruckPin t:
+                    _activeTruckPins.Add(t);
+                    break;
+                case ConsumerPin c:
+                    _activeConsumerPins.Add(c);
+                    break;
+                case ProducerPin p:
+                    _activeProducerPins.Add(p);
+                    break;
+                case RoutePin r:
+                    _activeRoutePins.Add(r);
+                    break;
+            }
+        }
+        public void UnregisterPin(Pin pin)
+        {
+            switch (pin)
+            {
+                case FreighterPin f:
+                    _activeFreighterPins.Remove(f);
+                    break;
+                case TruckPin t:
+                    _activeTruckPins.Remove(t);
+                    break;
+                case ConsumerPin c:
+                    _activeConsumerPins.Remove(c);
+                    break;
+                case ProducerPin p:
+                    _activeProducerPins.Remove(p);
+                    break;
+                case RoutePin r:
+                    _activeRoutePins.Remove(r);
+                    break;
+            }
+        }
 
         public bool isStructurePin(Pin pin)
         {
@@ -61,12 +107,12 @@ namespace UI
             if (pin is FreighterPin freighterPin)
             {
                 var vehicle = freighterPin.VehicleRenderer?.Vehicle;
-                return vehicle != null && vehicle.IsParked ? vehicle.ParkedTile : null;
+                return vehicle.ParkedTile;
             }
             if (pin is TruckPin truckPin)
             {
                 var vehicle = truckPin.VehicleRenderer?.Vehicle;
-                return vehicle != null && vehicle.IsParked ? vehicle.ParkedTile : null;
+                return vehicle.ParkedTile;
             }
             return null;
         }
@@ -75,134 +121,96 @@ namespace UI
         {
 
             _tileGroups.Clear();
-            _pinsHandledAsCarriedChildren.Clear();
 
-            for (int i = 0; i < _activePins.Count; i++)
+            object groupKey;
+            foreach (ConsumerPin pin in _activeConsumerPins)
             {
-                if (_activePins[i] is FreighterPin freighter && freighter.IsShowing())
+                pin.SetManagedOffset(new Vector2(0f, 0f));
+                if (pin.IsShowing())
                 {
-                    Pin loadedTruck = GetLinkedTruckPin(freighter);
-                    if (loadedTruck != null) _pinsHandledAsCarriedChildren.Add(loadedTruck);
-                }
-            }
-            for (int i = 0; i < _activePins.Count; i++)
-            {
-                Pin pin = _activePins[i];
-                bool isCarried = _pinsHandledAsCarriedChildren.Contains(pin);
-                object groupKey = GetGroupingKey(pin);
-
-                if (!pin.IsShowing() || (groupKey == null && !isCarried))
-                {
-                    pin.SetManagedOffset(Vector2.zero);
-                    continue;
-                }
-
-                if (isCarried) continue;
-
-                if (!_tileGroups.TryGetValue(groupKey, out var list))
-                {
-                    list = new List<Pin>();
+                    groupKey = GetGroupingKey(pin);
+                    var list = new List<Pin>();
                     _tileGroups[groupKey] = list;
+                    list.Add(pin);
                 }
-                list.Add(pin);
             }
-
-            // Step 3: Run spatial group offset calculations
+            foreach (ProducerPin pin in _activeProducerPins)
+            {
+                pin.SetManagedOffset(new Vector2(0f, 0f));
+                if (pin.IsShowing())
+                {
+                    groupKey = GetGroupingKey(pin);
+                    var list = new List<Pin>();
+                    _tileGroups[groupKey] = list;
+                    list.Add(pin);
+                }
+            }
+            foreach (FreighterPin pin in _activeFreighterPins)
+            {
+                pin.SetManagedOffset(new Vector2(0f, 0f));
+                if (pin.IsShowing())
+                {
+                    groupKey = GetGroupingKey(pin);
+                    Pin loadedTruck = GetLinkedTruckPin(pin);
+                    if (loadedTruck != null && !pin.VehicleRenderer.Vehicle.IsParked)
+                    {
+                        pin.SetManagedOffset(new Vector2(-pin.UnscaledWidth * 0.5f, 0f));
+                        loadedTruck.SetManagedOffset(new Vector2(pin.UnscaledWidth * 0.5f, 0f));
+                        continue;
+                    }
+                    if (!_tileGroups.TryGetValue(groupKey, out var list))
+                    {
+                        list = new List<Pin>();
+                        _tileGroups[groupKey] = list;
+                    }
+                    list.Add(pin);
+                    if (loadedTruck != null)
+                        list.Add(loadedTruck);
+                }
+            }
+            foreach (TruckPin pin in _activeTruckPins)
+            {
+                if (pin.IsShowing() && pin.VehicleRenderer.Vehicle is Truck t && t.Freighter == null)
+                {
+                    pin.SetManagedOffset(new Vector2(0f, 0f));
+                    if (t.IsParked)
+                    {
+                        groupKey = GetGroupingKey(pin);
+                        if (!_tileGroups.TryGetValue(groupKey, out var list))
+                        {
+                            list = new List<Pin>();
+                            _tileGroups[groupKey] = list;
+                        }
+                        list.Add(pin);
+                    }
+                }
+            }
+            Debug.Log(_tileGroups.Count);
             foreach (var group in _tileGroups.Values)
             {
-                int pinsCount = group.Count;
-                if (pinsCount == 0) continue;
-
-                bool hasVehicles = false;
-                Pin structurePin = null;
-
-                for (int i = 0; i < pinsCount; i++)
+                Debug.Log(group.Count);
+                if (group.Count < 2)
+                    continue;
+                var index = 0;
+                if (isStructurePin(group[index]))
                 {
-                    if (isStructurePin(group[i])) structurePin = group[i];
-                    else hasVehicles = true;
+                    group[index].SetManagedOffset(new Vector2(0f, -group[index].UnscaledHeight * 0.2f));
+                    index++;
+                }
+                float totalwidth = 0;
+                for (int i = index; i < group.Count; i++)
+                {
+                    totalwidth += group[i].UnscaledWidth;
                 }
 
-                if (structurePin != null && hasVehicles)
+                float currentXOffset = -totalwidth / 2f;
+
+                for (int i = index; i < group.Count; i++)
                 {
-                    structurePin.SetManagedOffset(new Vector2(0f, -structurePin.UnscaledHeight * 0.6f));
-                }
-
-                float totalWidth = 0f;
-                int logicalVehicleCount = 0;
-
-                // Diagnostic Trackers
-
-                for (int i = 0; i < pinsCount; i++)
-                {
-                    Pin pin = group[i];
-
-                    if (isStructurePin(pin)) continue;
-
-                    totalWidth += pin.UnscaledWidth;
-                    logicalVehicleCount++;
-
-                    if (pin is FreighterPin fp)
-                    {
-                        Pin loadedTruck = GetLinkedTruckPin(fp);
-                        bool truckFound = loadedTruck != null;
-                        if (truckFound) totalWidth += loadedTruck.UnscaledWidth;
-                    }
-                }
-
-                bool isSingleFreighterWithTruck = pinsCount == 1 && group[0] is FreighterPin singleFp && GetLinkedTruckPin(singleFp) != null;
-
-                // Print the comprehensive group snapshot to your console
-
-                // If multiple vehicles share this tile, arrange them side-by-side using a running X offset
-                if (logicalVehicleCount > 1 || isSingleFreighterWithTruck)
-                {
-                    float runningXOffset = -totalWidth / 2f;
-
-                    for (int i = 0; i < pinsCount; i++)
-                    {
-                        Pin pin = group[i];
-                        if (isStructurePin(pin)) continue;
-
-                        float halfWidth = pin.UnscaledWidth / 2f;
-                        runningXOffset += halfWidth;
-
-                        pin.SetManagedOffset(new Vector2(runningXOffset, 0f));
-                        runningXOffset += halfWidth;
-
-                        if (pin is FreighterPin fp)
-                        {
-                            Pin truckPin = GetLinkedTruckPin(fp);
-                            if (truckPin != null)
-                            {
-                                float truckHalfWidth = truckPin.UnscaledWidth / 2f;
-                                runningXOffset += truckHalfWidth;
-
-                                truckPin.SetManagedOffset(new Vector2(runningXOffset, 0f));
-                                runningXOffset += truckHalfWidth;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // Fallback: If a vehicle is alone on the tile, center it perfectly at zero
-                    for (int i = 0; i < pinsCount; i++)
-                    {
-                        Pin pin = group[i];
-                        if (!isStructurePin(pin))
-                        {
-                            pin.SetManagedOffset(Vector2.zero);
-
-                            if (pin is FreighterPin fp)
-                            {
-                                Pin truckPin = GetLinkedTruckPin(fp);
-                                if (truckPin != null)
-                                {
-                                    truckPin.SetManagedOffset(Vector2.zero);
-                                }
-                            }
-                        }
-                    }
+                    var element = group[i];
+                    float elementXShift = currentXOffset + (element.UnscaledWidth / 2f);
+                    element.SetManagedOffset(new Vector2(elementXShift, 0f));
+                    currentXOffset += element.UnscaledWidth;
                 }
             }
         }

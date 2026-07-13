@@ -133,8 +133,8 @@ namespace UI
 
             bool cheapestFacingLeft = camera.WorldToScreenPoint(cheapestPosition).x < camera.WorldToScreenPoint(fastestPosition).x;
 
-            FastestRoute.Renderer.Pin.FacingLeft = !cheapestFacingLeft;
-            CheapestRoute.Renderer.Pin.FacingLeft = cheapestFacingLeft;
+            FastestRoute.Renderer.Pin.FacingLeft = cheapestFacingLeft;
+            CheapestRoute.Renderer.Pin.FacingLeft = !cheapestFacingLeft;
         }
     }
 }

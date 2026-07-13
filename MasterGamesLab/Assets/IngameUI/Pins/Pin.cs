@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using InGameCamera;
+using UnityEngine.PlayerLoop;
 
 namespace UI
 {
@@ -22,7 +23,6 @@ namespace UI
             TopRight
         }
 
-        [SerializeField] private float panelOffset = 10f;
         [SerializeField] private float invisibleThreshold = -0.1f;
         [SerializeField] protected PinDirection pivotDirection = PinDirection.Bottom;
 
@@ -75,7 +75,6 @@ namespace UI
 
             ApplyLayoutPivots();
             InitializeUiComponents();
-            CalculateUnscaledDimensions();
 
             if (outlineElement.resolvedStyle.unityMaterial.material != null)
             {
@@ -115,7 +114,7 @@ namespace UI
         private void CalculateUnscaledDimensions()
         {
             float containerHeight = pinboard.root.layout.height;
-            if (float.IsNaN(containerHeight) || containerHeight <= 0) containerHeight = Screen.height;
+            Debug.Log("Containerhight: " + containerHeight);
 
             UnscaledHeight = containerHeight * (pinHeightPercent / 100f);
             UnscaledWidth = UnscaledHeight * pinAspectRatio;
@@ -156,6 +155,7 @@ namespace UI
 
         protected virtual void LateUpdate()
         {
+            CalculateUnscaledDimensions();
             if (!_isShowing) return;
 
             Vector3 worldPos = GetTargetWorldPosition(out Vector3 upVector);
@@ -194,15 +194,15 @@ namespace UI
         {
             return pivotDirection switch
             {
-                PinDirection.Bottom => new Vector2(-(UnscaledWidth * 0.5f), -UnscaledHeight - panelOffset),
+                PinDirection.Bottom => new Vector2(-(UnscaledWidth * 0.5f), -UnscaledHeight),
                 PinDirection.Center => new Vector2(-(UnscaledWidth * 0.5f), -(UnscaledHeight * 0.5f)),
-                PinDirection.Top => new Vector2(-(UnscaledWidth * 0.5f), panelOffset),
-                PinDirection.Left => new Vector2(panelOffset, -(UnscaledHeight * 0.5f)),
-                PinDirection.Right => new Vector2(-UnscaledWidth - panelOffset, -(UnscaledHeight * 0.5f)),
-                PinDirection.BottomLeft => new Vector2(panelOffset, -UnscaledHeight - panelOffset),
-                PinDirection.BottomRight => new Vector2(-UnscaledWidth - panelOffset, -UnscaledHeight - panelOffset),
-                PinDirection.TopLeft => new Vector2(panelOffset, panelOffset),
-                PinDirection.TopRight => new Vector2(-UnscaledWidth - panelOffset, panelOffset),
+                PinDirection.Top => new Vector2(-(UnscaledWidth * 0.5f), 0),
+                PinDirection.Left => new Vector2(0, -(UnscaledHeight * 0.5f)),
+                PinDirection.Right => new Vector2(-UnscaledWidth, -(UnscaledHeight * 0.5f)),
+                PinDirection.BottomLeft => new Vector2(0, -UnscaledHeight),
+                PinDirection.BottomRight => new Vector2(-UnscaledWidth, -UnscaledHeight),
+                PinDirection.TopLeft => new Vector2(0, 0),
+                PinDirection.TopRight => new Vector2(-UnscaledWidth, 0),
                 _ => Vector2.zero
             };
         }

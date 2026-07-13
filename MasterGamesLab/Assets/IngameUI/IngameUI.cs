@@ -9,10 +9,8 @@ using Map.Fleet;
 using Map.Hoverables;
 using Map.Infrastructure;
 using Player;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 namespace UI
@@ -260,7 +258,7 @@ namespace UI
             VisualElement pickedElement = root.panel.Pick(panelPos);
 
             mainCamera.supressZoom = false;
-
+             
             if (pickedElement != null)
             {
                 Map.Map.Instance.CurrentlyHovered = pickedElement.userData as IHoverable;
@@ -278,9 +276,7 @@ namespace UI
             }
 
             if (IngameInputs.focusVehicle.IsPressed() && VehicleControls.SelectedVehicle != null)
-                mainCamera.FocusedObject = VehicleControls.SelectedVehicle.Renderer?.transform;
-            else
-                mainCamera.FocusedObject = null;
+                mainCamera.FocusedPosition = VehicleControls.SelectedVehicle.Renderer?.transform.position;
 
             float signedAngle = Vector2.SignedAngle(Vector2.up, mainCamera.LocalNorth);
 
@@ -291,7 +287,7 @@ namespace UI
 
             compass.ArrowAngle = (630f - signedAngle) % 360f;
 
-            Map.Map.Instance.ShouldBeHoverablePredicate = controls.FirstOrDefault(c => c.ControlsAreActive)?.GetHoverablePredicate() ?? Map.Map.DefaultHoverablePredicate;
+            Map.Map.Instance.ShouldBeHoverablePredicate = controls.FirstOrDefault(c => c.ControlsAreActive)?.GetHoverablePredicate() ?? DefaultHoverablePredicate;
 
             Map.Map.Instance.HoverOutliner.HoverState = HoverState.Valid;
             foreach (var c in controls)
@@ -303,6 +299,10 @@ namespace UI
                 HandleClick(ClickEventType.CancelPressed);
             if (IngameInputs.cancelClickAction.WasReleasedThisFrame())
                 HandleClick(ClickEventType.CancelReleased);
+        }
+
+        public static bool DefaultHoverablePredicate(IHoverable h) { 
+            return (h is Vehicle v && v.Owner.IsSelf) || h is Edge || (h is Tile t && t.BlueprintStructure != null && !t.BlueprintStructure.BlueprintPreview);
         }
 
         public bool HandleClick(ClickEventType type)
@@ -586,7 +586,7 @@ namespace UI
         public void FocusSelectedVehicle()
         {
             if (VehicleControls.SelectedVehicle == null) SelectNextVehicle();
-            mainCamera.FocusedObject = VehicleControls.SelectedVehicle?.Renderer?.transform;
+            mainCamera.FocusedPosition = VehicleControls.SelectedVehicle?.Renderer?.transform.position;
         }
 
         public void SelectNextVehicle()

@@ -67,6 +67,7 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
 
 
             Map.Map.Instance.Blueprint.ToggleHide(type != ConstructionType.Hidden);
+            IngameUI.Instance.hideButton.style.backgroundImage = new StyleBackground((Type == ConstructionType.Hidden) ? IngameUI.Instance.hide : IngameUI.Instance.hidden);
 
             if (ControlsAreActive)
             {
@@ -244,7 +245,6 @@ public class ConstructionControls : MonoBehaviour, IClickEventHandler, IControls
 
     public void ToggleHide()
     {
-        IngameUI.Instance.hideButton.style.backgroundImage = new StyleBackground((Type == ConstructionType.Hidden)? IngameUI.Instance.hidden: IngameUI.Instance.hide);
         Type = (Type == ConstructionType.Hidden) ? ConstructionType.None : ConstructionType.Hidden;
     }
 
