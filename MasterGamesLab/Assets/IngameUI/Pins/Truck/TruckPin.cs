@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using Map.Fleet;
-using Map.Hoverables;
 using System;
 using Map.Infrastructure;
 using System.Collections.Generic;
@@ -23,6 +22,9 @@ namespace UI
         public VehicleRenderer VehicleRenderer;
         private Label timeLabel;
         private VisualElement icon, good, time;
+
+        [SerializeField]
+        private Sprite truckWithGood, truckWithoutGood;
 
         protected override float pinHeightPercent => 4f;
         protected override float pinAspectRatio => 0.5618f;
@@ -51,10 +53,18 @@ namespace UI
 
         private void Update()
         {
-            if (VehicleRenderer?.Vehicle == null) return;
-
             var loadedgood = (VehicleRenderer.Vehicle as Truck).Good;
-            good.style.backgroundImage = loadedgood != Good.None ? new StyleBackground(goodsImages[loadedgood]) : null;
+            if (loadedgood == Good.None)
+            {
+                good.style.backgroundImage =  null;
+                icon.style.backgroundImage = new StyleBackground(truckWithoutGood);
+            }
+            else
+            {
+                good.style.backgroundImage = new StyleBackground(goodsImages[loadedgood]);
+                icon.style.backgroundImage = new StyleBackground(truckWithGood);
+            }
+
 
             hoverable.pickingMode = Map.Map.Instance.ShouldBeHoverablePredicate(VehicleRenderer.Vehicle) ? PickingMode.Position : PickingMode.Ignore;
             time.style.visibility = VehicleRenderer.Vehicle.IsParked ? Visibility.Hidden : Visibility.Visible;
