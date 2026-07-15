@@ -263,7 +263,33 @@ namespace UI
         public RouteOptions PreviewRouteOptions { get; private set; }
         private VehicleActionRenderer previewVehicleAction;
 
-        private List<Tile> targetTiles;
+        private IReadOnlyList<Tile> __targetTiles;
+        private List<TileBeacon> __targetTileBeacons;
+        private IReadOnlyList<Tile> targetTiles
+        {
+            get => __targetTiles;
+            set
+            {
+                if (__targetTileBeacons != null)
+                    foreach (var beacon in __targetTileBeacons)
+                        TileBeaconPool.Instance.Release(beacon);
+
+                __targetTiles = value;
+                __targetTileBeacons = new();
+                foreach (var tile in __targetTiles)
+                {
+                    var beacon = TileBeaconPool.Instance.Get();
+                    beacon.HighlightTile(tile);
+                    if (tile == Map.Map.Instance.CurrentlyHovered)
+                        beacon.SetCustomColor(GeometriesManager.Instance.actionPreviewColor);
+                    else if (tile.Type == Tile.TileType.Water)
+                        beacon.SetCustomColor(GeometriesManager.Instance.beaconWaterColor);
+                    else
+                        beacon.SetCustomColor(GeometriesManager.Instance.beaconLandColor);
+                    __targetTileBeacons.Add(beacon);
+                }
+            }
+        }
 
         public void Start()
         {
@@ -276,7 +302,7 @@ namespace UI
             previewVehicleAction = Instantiate(Map.Map.Instance.VehicleActionPrefab).GetComponent<VehicleActionRenderer>();
             previewVehicleAction.gameObject.SetActive(false);
 
-            targetTiles = new();
+            targetTiles = new List<Tile>();
         }
 
         public void DisableControls()
@@ -286,7 +312,7 @@ namespace UI
             RouteOptions?.Clear();
 
             PreviewRouteOptions?.Clear();
-            targetTiles?.Clear();
+            targetTiles = new List<Tile>();
         }
 
         public Predicate<IHoverable> GetHoverablePredicate()
@@ -300,8 +326,6 @@ namespace UI
         {
             PreviewRouteOptions.Clear();
             previewVehicleAction.gameObject.SetActive(false);
-
-            targetTiles.Clear();
 
             if (selectedVehicle == null || SelectedVehicle.ActionQueue.Count == 0 && SelectedVehicle.Route == null)
             {
@@ -323,6 +347,8 @@ namespace UI
                 var start = SelectedVehicle.GetTileLocationAfterAllActions(out bool loaded);
                 RouteOptions.VisualDestination?.ShowOutline(GeometriesManager.Instance.selectedOutline);
 
+                var newTargetTiles = new List<Tile>();
+
                 if (SelectedVehicle is Truck truck)
                 {
                     if (loaded)
@@ -332,7 +358,7 @@ namespace UI
 
                         foreach (var t in driveTargets)
                         {
-                            targetTiles.Add(t);
+                            newTargetTiles.Add(t);
                         }
                     }
                     else
@@ -341,13 +367,13 @@ namespace UI
 
                         foreach (var t in driveTargets)
                         {
-                            targetTiles.Add(t);
+                            newTargetTiles.Add(t);
                             if (t.Structure?.Type == Structure.StructureType.Port)
                             {
                                 foreach (var n in t.Neighbors)
                                     if (n.Type == Tile.TileType.Water)
                                     {
-                                        targetTiles.Add(n as Tile);
+                                        newTargetTiles.Add(n as Tile);
                                     }
                             }
                         }
@@ -357,7 +383,7 @@ namespace UI
                             foreach (var n in start.Neighbors)
                                 if (n.Type == Tile.TileType.Water)
                                 {
-                                    targetTiles.Add(n as Tile);
+                                    newTargetTiles.Add(n as Tile);
                                 }
                         }
                     }
@@ -367,17 +393,23 @@ namespace UI
 
                     foreach (var t in driveTargets)
                     {
-                        targetTiles.Add(t);
+                        newTargetTiles.Add(t);
                     }
 
-                    foreach (var n in start.Neighbors)
+
+                    if (freighter.ActionQueue.Last == null || freighter.ActionQueue.Last.Value.Type != VehicleAction.ActionType.WaitForTruck)
                     {
-                        if (n.Structure?.Type == Structure.StructureType.Port)
+                        foreach (var n in start.Neighbors)
                         {
-                            targetTiles.Add(n as Tile);
+                            if (n.Structure?.Type == Structure.StructureType.Port)
+                            {
+                                newTargetTiles.Add(n as Tile);
+                            }
                         }
                     }
                 }
+
+                targetTiles = newTargetTiles;
 
                 switch (Map.Map.Instance.CurrentlyHovered)
                 {

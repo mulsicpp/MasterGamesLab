@@ -18,6 +18,7 @@ using LobbyPlayer = Unity.Services.Lobbies.Models.Player;
 
 using MenuId = UI.Menu.MenuId;
 using InGameCamera;
+using System.Linq;
 
 public class UIManager : MonoBehaviour
 {
@@ -302,10 +303,10 @@ public class UIManager : MonoBehaviour
         CurrentMenu = MenuId.Loading;
         yield return new WaitUntil(() => PlayerManager.Instance.GameCanStart);
 
-        UI.IngameUI.Instance?.SelectNextVehicle();
-
         var planetCameraController = MainCamera.Instance.GetComponentInChildren<PlanetCameraController>();
-        planetCameraController.SetForGameStart();
+        var vehicle = Map.Map.Instance.Fleet.Vehicles.FirstOrDefault(v => v.Owner.IsSelf);
+        if (vehicle?.Renderer != null)
+            planetCameraController.SetForGameStart(vehicle.Renderer.transform.position);
 
         yield return null;
 

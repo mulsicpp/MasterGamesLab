@@ -41,6 +41,7 @@ namespace Map
         public float TEST_CANAL_INSET_LOWER = 0.7f;
         public float TEST_CANAL_INSET_UPPER = 0.6f;
         public float TEST_CANAL_RANDOM_ = 0.00f;
+        public float TEST_BEACON_HEIGHT = 0.1f;
 
         private float oldTestCanalInsetLower;
         private float oldTestCanalInsetUpper;

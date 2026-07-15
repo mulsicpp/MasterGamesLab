@@ -1,3 +1,4 @@
+using Map.GeometryGeneration;
 using Map.Hoverables;
 using Map.OutlineEffect;
 using UnityEngine;
@@ -8,14 +9,10 @@ namespace Map
     {
         private IHoverable lastHoveredThing;
 
-        [SerializeField] private GameObject tileOutlinerPrefab;
-
-        private TileOutliner tileOutliner;
+        private TileBeacon tileBeacon;
 
         private void Awake()
         {
-            var go = Instantiate(tileOutlinerPrefab, transform);
-            tileOutliner = go.GetComponent<TileOutliner>();
         }
 
         private void Update()
@@ -25,6 +22,12 @@ namespace Map
                 switch (lastHoveredThing)
                 {
                     case ITile t:
+                        if (tileBeacon != null)
+                        {
+                            TileBeaconPool.Instance.Release(tileBeacon);
+                            tileBeacon = null;
+                        }
+
                         break;
                     case Edge edge:
                         break;
@@ -37,8 +40,9 @@ namespace Map
             switch (tile)
             {
                 case ITile t:
-                    tileOutliner.OutlineTile((Tile)t);
-                    tileOutliner.SetOutlineParameters(Color.black, new Color(0, 0, 0, 0), 0);
+                    tileBeacon = TileBeaconPool.Instance.Get();
+                    tileBeacon.HighlightTile((Tile)t);
+                    tileBeacon.SetCustomColor(Color.red);
                     break;
                 case Edge e:
                     break;
