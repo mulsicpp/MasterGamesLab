@@ -76,9 +76,18 @@ namespace UI
             base.LateUpdate();
         }
 
-        protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)
+        public override Vector3 GetTargetWorldPosition(out Vector3 upVector)
         {
+            var truck = VehicleRenderer.Vehicle as Truck;
+            if (truck.Freighter is Freighter freighter)
+            {
+                return freighter.Renderer.VehiclePin.GetTargetWorldPosition(out upVector);
+            }
             Vector3 rawPosition = gameObject.transform.position;
+            if (truck.IsParked)
+            {
+                rawPosition = truck.ParkedTile.PositionOnSphere;
+            }
             Vector3 projectedPosition = Map.Map.Instance.GetProjectedPosition(rawPosition);
             upVector = (Map.Map.Instance.GetProjectedPosition(rawPosition * 1.01f) - projectedPosition).normalized;
             return projectedPosition;

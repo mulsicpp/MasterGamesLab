@@ -54,14 +54,6 @@ namespace UI
             base.LateUpdate();
         }
 
-        protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)
-        {
-            Vector3 rawPosition = gameObject.transform.position;
-            Vector3 projectedPosition = Map.Map.Instance.GetProjectedPosition(rawPosition);
-            upVector = (Map.Map.Instance.GetProjectedPosition(rawPosition * 1.01f) - projectedPosition).normalized;
-            return projectedPosition;
-        }
-
         protected override void InitializeUiComponents()
         {
             cost = UiElement.Q<Label>("CostLabel");

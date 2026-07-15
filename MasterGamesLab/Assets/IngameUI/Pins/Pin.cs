@@ -47,7 +47,14 @@ namespace UI
         private Vector2 _managedOffset = Vector2.zero;
         private bool _isShowing = true;
 
-        protected abstract Vector3 GetTargetWorldPosition(out Vector3 upVector);
+        public virtual Vector3 GetTargetWorldPosition(out Vector3 upVector)
+        {
+            Vector3 rawPosition = gameObject.transform.position;
+            Vector3 projectedPosition = Map.Map.Instance.GetProjectedPosition(rawPosition);
+            upVector = (Map.Map.Instance.GetProjectedPosition(rawPosition * 1.01f) - projectedPosition).normalized;
+            return projectedPosition;
+        }
+
         protected abstract void InitializeUiComponents();
 
         private void Awake()
