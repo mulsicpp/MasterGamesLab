@@ -91,9 +91,6 @@ namespace UI
             }
             return null;
         }
-
-        // Helper 3: Pulls spatial tracking coordinates from dynamic/movable components.
-        // RoutePin is intentionally omitted here so it returns null and stays locked to its world position.
         private object GetGroupingKey(Pin pin)
         {
             if (pin is ConsumerPin consumerPin)
@@ -121,10 +118,14 @@ namespace UI
         {
 
             _tileGroups.Clear();
-
+            foreach (RoutePin pin in _activeRoutePins)
+            {
+                pin.UiElement.BringToFront();
+            }
             object groupKey;
             foreach (ConsumerPin pin in _activeConsumerPins)
             {
+                pin.UiElement.SendToBack();
                 pin.SetManagedOffset(new Vector2(0f, 0f));
                 if (pin.IsShowing())
                 {
@@ -136,6 +137,7 @@ namespace UI
             }
             foreach (ProducerPin pin in _activeProducerPins)
             {
+                pin.UiElement.SendToBack();
                 pin.SetManagedOffset(new Vector2(0f, 0f));
                 if (pin.IsShowing())
                 {
@@ -188,10 +190,8 @@ namespace UI
                     }
                 }
             }
-            Debug.Log(_tileGroups.Count);
             foreach (var group in _tileGroups.Values)
             {
-                Debug.Log(group.Count);
                 if (group.Count < 2)
                     continue;
                 var index = 0;
