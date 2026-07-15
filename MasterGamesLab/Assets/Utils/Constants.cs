@@ -3,6 +3,7 @@ using System;
 using Map.GeometryGeneration;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.VisualScripting;
 
 public static class Constants
 {
@@ -236,4 +237,7 @@ public static class Constants
 
     public static OutlineData UNLOAD_TARGET_OUTLINE = LOAD_TARGET_OUTLINE;
     public static OutlineData WAIT_TARGET_OUTLINE = LOAD_TARGET_OUTLINE;
+
+    public static Color BEACON_COLOR_LAND = Color.greenYellow;
+    public static Color BEACON_COLOR_WATER = Color.lightSkyBlue;
 }

@@ -101,7 +101,10 @@ namespace Map.GeometryGeneration
         [Header("Actions")] public Color actionColor;
         public Color actionPreviewColor;
         public Color actionInvalidColor;
-        
+
+        [Header("Beacons")] public Color beaconLandColor;
+        public Color beaconWaterColor;
+
         private void Awake()
         {
             Instance = this;

@@ -1016,7 +1016,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1474443360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1348,6 +1348,22 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -2432090755550338912, guid: 1d9abc1cf16ffcd459a902e314992922, type: 3}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: beaconLandColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: beaconLandColor.b
+      value: 0.1843137
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: beaconLandColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: beaconLandColor.r
+      value: 0.6784314
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: hoverInnerColor.a
       value: 0.61960787
       objectReference: {fileID: 0}
@@ -1366,6 +1382,22 @@ PrefabInstance:
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: invalid.textureId
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: beaconWaterColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: beaconWaterColor.b
+      value: 0.8156863
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: beaconWaterColor.g
+      value: 0.8784314
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
+      propertyPath: beaconWaterColor.r
+      value: 0.2509804
       objectReference: {fileID: 0}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: hoverOutlineColor.a
