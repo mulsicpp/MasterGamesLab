@@ -81,9 +81,9 @@ public class IngameInputs : MonoBehaviour
         hideBuildPlanAction.started += OnHide;
         openTabMenuAction.started += OnTabPressed;
         openTabMenuAction.canceled += OnTabReleased;
-        nextVehicle.started += OnNextVehcile;
-        previousVehicle.started += OnPreviousVehcile;
-        // focusVehicle.started += OnFocusVehcile;
+        // nextVehicle.started += OnNextVehcile;
+        // previousVehicle.started += OnPreviousVehcile;
+        focusVehicle.started += OnFocusVehcile;
 
         for (int i = 0; i < truckHotkeyActions.Count; i++)
         {
@@ -111,9 +111,9 @@ public class IngameInputs : MonoBehaviour
         hideBuildPlanAction.started -= OnHide;
         openTabMenuAction.started -= OnTabPressed;
         openTabMenuAction.canceled -= OnTabReleased;
-        nextVehicle.started -= OnNextVehcile;
-        previousVehicle.started -= OnPreviousVehcile;
-        // focusVehicle.started -= OnFocusVehcile;
+        //nextVehicle.started -= OnNextVehcile;
+        //previousVehicle.started -= OnPreviousVehcile;
+        focusVehicle.started -= OnFocusVehcile;
 
         // Unsubscribe hotkeys
         for (int i = 0; i < truckHotkeyActions.Count; i++)
@@ -142,7 +142,7 @@ public class IngameInputs : MonoBehaviour
     private void OnTabReleased(InputAction.CallbackContext ctx) => IngameUI.Instance.ShowTabMenu(false);
     private void OnNextVehcile(InputAction.CallbackContext ctx) => IngameUI.Instance.SelectNextVehicle();
     private void OnPreviousVehcile(InputAction.CallbackContext ctx) => IngameUI.Instance.SelectPreviousVehicle();
-    // private void OnFocusVehcile(InputAction.CallbackContext ctx) => IngameUI.Instance.FocusSelectedVehicle();
+    private void OnFocusVehcile(InputAction.CallbackContext ctx) => IngameUI.Instance.FocusSelectedVehicle();
 
     // Sends hotkey slot selections directly down to the UI Layer
     private void OnSelectVehicleSlot(Map.Fleet.Vehicle.VehicleType type, int slotIndex)

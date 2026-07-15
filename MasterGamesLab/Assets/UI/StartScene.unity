@@ -621,14 +621,16 @@ MonoBehaviour:
     ImageAsset: {fileID: 21300000, guid: 6922e2039682d1e41980f48b958df2c5, type: 3}
   - VehicleActionType: 11
     ImageAsset: {fileID: 21300000, guid: 627399a259fe4d040acfb7677e96d9ed, type: 3}
-  - VehicleActionType: 12
-    ImageAsset: {fileID: 21300000, guid: 6d891ab223ed5364fa71a649861ddb7f, type: 3}
   - VehicleActionType: 13
-    ImageAsset: {fileID: 21300000, guid: 084b1883231998f4aaac09074b26b393, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 6d891ab223ed5364fa71a649861ddb7f, type: 3}
   - VehicleActionType: 14
-    ImageAsset: {fileID: 21300000, guid: 840b578123c845c41a654da7eaab9d4b, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 084b1883231998f4aaac09074b26b393, type: 3}
   - VehicleActionType: 15
+    ImageAsset: {fileID: 21300000, guid: 840b578123c845c41a654da7eaab9d4b, type: 3}
+  - VehicleActionType: 16
     ImageAsset: {fileID: 21300000, guid: da223b64aeed1354e932673545ff2a22, type: 3}
+  - VehicleActionType: 12
+    ImageAsset: {fileID: 21300000, guid: d85e002daf83e42488d8e42a2b2f5775, type: 3}
   actionQueueTemplate: {fileID: 9197481963319205126, guid: 102683850d6acc24288b6059039e2cab, type: 3}
   hide: {fileID: 21300000, guid: 9315c66dfdaee384594c6bcccc720c8b, type: 3}
   hidden: {fileID: 21300000, guid: bc55a776ea13be6409e45b01b487024b, type: 3}

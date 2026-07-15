@@ -172,22 +172,7 @@ namespace InGameCamera
 
         private void UpdateCameraTransformNew()
         {
-            if (FocusedObject != null)
-            {
-                FocusedPosition = FocusedObject.position;
-            }
-
-            if (FocusedPosition is Vector3 p)
-            {
-                var currentVec = (transform.position - Target.position).normalized;
-                var targetVec = (p - Target.position).normalized;
-
-                if(!AddRotationStepFromTo(currentVec, targetVec))
-                {
-                    FocusedPosition = null;
-                }
-            }
-            else if (primaryMousePressedAction.IsPressed())
+            if (primaryMousePressedAction.IsPressed())
             {
                 var lookDelta = lookAction.ReadValue<Vector2>();
 
@@ -195,6 +180,27 @@ namespace InGameCamera
                 var axis = Vector3.Cross(transform.position, velocityWorld).normalized;
 
                 transform.rotation = Quaternion.AngleAxis(velocityWorld.magnitude * rotationSpeedFactor * 180 / Mathf.PI, axis) * transform.rotation;
+
+                FocusedObject = null;
+                FocusedPosition = null;
+            }
+
+            if (FocusedObject != null)
+            {
+                FocusedPosition = FocusedObject.position;
+            }
+
+            if (FocusedPosition is Vector3 p)
+            {
+                TurnNorth();
+
+                var currentVec = (transform.position - Target.position).normalized;
+                var targetVec = (p - Target.position).normalized;
+
+                if(!AddRotationStepFromTo(currentVec, targetVec))
+                {
+                    FocusedPosition = null;
+                }
             }
 
             if (!supressZoom)
