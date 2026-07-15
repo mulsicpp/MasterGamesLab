@@ -591,8 +591,8 @@ namespace UI
 
         public void FocusSelectedVehicle()
         {
-            if (VehicleControls.SelectedVehicle == null) SelectNextVehicle();
-            mainCamera.FocusedPosition = VehicleControls.SelectedVehicle?.Renderer?.transform.position;
+            SelectNextVehicle();
+            mainCamera.FocusedObject = VehicleControls.SelectedVehicle?.Renderer?.transform;
         }
 
         public void SelectNextVehicle()
