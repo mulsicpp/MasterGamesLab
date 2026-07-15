@@ -154,18 +154,21 @@ namespace UI
                     Pin loadedTruck = GetLinkedTruckPin(pin);
                     if (loadedTruck != null && !pin.VehicleRenderer.Vehicle.IsParked)
                     {
-                        pin.SetManagedOffset(new Vector2(-pin.UnscaledWidth * 0.5f, 0f));
-                        loadedTruck.SetManagedOffset(new Vector2(pin.UnscaledWidth * 0.5f, 0f));
+                        pin.SetManagedOffset(new Vector2(-pin.PaddedWidth * 0.5f, 0f));
+                        loadedTruck.SetManagedOffset(new Vector2(pin.PaddedWidth * 0.5f, 0f));
                         continue;
                     }
-                    if (!_tileGroups.TryGetValue(groupKey, out var list))
+                    if (groupKey != null)
                     {
-                        list = new List<Pin>();
-                        _tileGroups[groupKey] = list;
+                        if (!_tileGroups.TryGetValue(groupKey, out var list))
+                        {
+                            list = new List<Pin>();
+                            _tileGroups[groupKey] = list;
+                        }
+                        list.Add(pin);
+                        if (loadedTruck != null)
+                            list.Add(loadedTruck);
                     }
-                    list.Add(pin);
-                    if (loadedTruck != null)
-                        list.Add(loadedTruck);
                 }
             }
             foreach (TruckPin pin in _activeTruckPins)
@@ -200,7 +203,7 @@ namespace UI
                 float totalwidth = 0;
                 for (int i = index; i < group.Count; i++)
                 {
-                    totalwidth += group[i].UnscaledWidth;
+                    totalwidth += group[i].PaddedWidth;
                 }
 
                 float currentXOffset = -totalwidth / 2f;
@@ -208,9 +211,9 @@ namespace UI
                 for (int i = index; i < group.Count; i++)
                 {
                     var element = group[i];
-                    float elementXShift = currentXOffset + (element.UnscaledWidth / 2f);
+                    float elementXShift = currentXOffset + (element.PaddedWidth / 2f);
                     element.SetManagedOffset(new Vector2(elementXShift, 0f));
-                    currentXOffset += element.UnscaledWidth;
+                    currentXOffset += element.PaddedWidth;
                 }
             }
         }

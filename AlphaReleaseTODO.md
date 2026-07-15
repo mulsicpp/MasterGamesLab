@@ -86,3 +86,8 @@ Balancing:
 - More balanced spawn
 - Pick consumer for request at random (not from ready list) [done]
 - Change progress calculation
+
+
+NickNock TODO:
+- RoutePin to front
+- Truck icon centered when good is none

@@ -42,6 +42,7 @@ namespace UI
         [SerializeField] protected VisualTreeAsset PinTemplate;
 
         public float UnscaledWidth { get; private set; }
+        public float PaddedWidth => UnscaledWidth * 1.05f;
         public float UnscaledHeight { get; private set; }
 
         private Vector2 _managedOffset = Vector2.zero;
