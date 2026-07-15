@@ -189,7 +189,7 @@ namespace Map
         public void ClearConsumerRequest(Consumer consumer)
         {
             if (consumer == null) return;
-            consumer.Request = new(Good.None, 0);
+            consumer.Request = new(Good.None, 0, 0);
         }
 
         public void GenerateConsumerRequest(Consumer consumer)
@@ -197,8 +197,8 @@ namespace Map
             if (consumer == null || availableGoods.Count == 0 || consumer.Request.Good != Good.None) return;
 
             var good = availableGoods.ToArray()[UnityEngine.Random.Range(0, availableGoods.Count)];
-
-            consumer.Request = new(good, CalculatePayout(consumer, good));
+            var payout = CalculatePayout(consumer, good);
+            consumer.Request = new(good, payout, payout);
             consumer.SetupPayoutIncrease();
         }
 
@@ -220,7 +220,7 @@ namespace Map
             }
 
             int randomCost = UnityEngine.Random.Range(Constants.MIN_RANDOM_COST, Constants.MAX_RANDOM_COST + 1);
-            return basecost + distancecost + randomCost -10;
+            return basecost + distancecost + randomCost - 10;
         }
 
         private float NextConsumerRequestCooldown()

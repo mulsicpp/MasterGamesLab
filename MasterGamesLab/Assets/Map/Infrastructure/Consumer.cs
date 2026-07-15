@@ -5,6 +5,7 @@ using UnityEngine;
 using Map.GeometryGeneration;
 using System.Security.Policy;
 using Map.Fleet;
+using UnityEditor.PackageManager.Requests;
 
 namespace Map.Infrastructure
 {
@@ -25,11 +26,15 @@ namespace Map.Infrastructure
         {
             public Good Good;
             public int Payout;
+            public int InitialPayout;
 
-            public ConsumerRequest(Good good, int payout)
+            public int MaxPayout => (int)System.Math.Round(InitialPayout * Constants.MAX_TOTAL_PAYOUT_FACTOR);
+
+            public ConsumerRequest(Good good, int payout, int initialPayout)
             {
                 Good = good;
                 Payout = payout;
+                InitialPayout = initialPayout;
             }
         }
 
@@ -53,7 +58,7 @@ namespace Map.Infrastructure
 
         public Consumer(StructureIndex index) : base(index)
         {
-            request = new(Good.None, 0);
+            request = new(Good.None, 0, 0);
         }
 
         public void ApplyServerState(ConsumerState state, double _) { State = state; ResetDirty(); }
@@ -68,7 +73,7 @@ namespace Map.Infrastructure
 
         public override void OnStructureSpawned()
         {
-            Request = new(Good.None, 0);
+            Request = new(Good.None, 0, 0);
         }
 
         public override void Tick(float tickDuration)
@@ -77,7 +82,7 @@ namespace Map.Infrastructure
 
             if ((payoutIncreaseCooldown -= tickDuration) <= 0)
             {
-                Request = new(Request.Good, nextPayout);
+                Request = new(Request.Good, nextPayout, Request.InitialPayout);
                 SetupPayoutIncrease();
             }
         }
@@ -85,7 +90,7 @@ namespace Map.Infrastructure
         public void SetupPayoutIncrease()
         {
             payoutIncreaseCooldown = NextPayoutIncreaseCooldown();
-            nextPayout = NextPayout(Request.Payout);
+            nextPayout = NextPayout(Request);
         }
 
         public void FulfillRequest(Truck truck)
@@ -100,15 +105,15 @@ namespace Map.Infrastructure
             return Random.Range(Constants.MIN_CONSUMER_PAYOUT_INCREASE_COOLDOWN, Constants.MAX_CONSUMER_PAYOUT_INCREASE_COOLDOWN);
         }
 
-        private int NextPayout(int currentPayout)
+        private int NextPayout(ConsumerRequest request)
         {
             var factor =  Random.Range(Constants.MIN_CONSUMER_PAYOUT_INCREASE_FACTOR, Constants.MAX_CONSUMER_PAYOUT_INCREASE_FACTOR);
-            var baseIncrease = Random.Range(Constants.MIN_CONSUMER_PAYOUT_INCREASE_BASE, Constants.MAX_CONSUMER_PAYOUT_INCREASE_BASE);
+            var baseIncrease = Random.Range(Constants.MIN_CONSUMER_PAYOUT_INCREASE_FLAT, Constants.MAX_CONSUMER_PAYOUT_INCREASE_FLAT);
 
-            float nextPayoutRaw = currentPayout * factor + baseIncrease;
+            float nextPayoutRaw = Mathf.Min(request.Payout +  request.InitialPayout * factor + baseIncrease, request.MaxPayout);
 
 
-            return Mathf.Min((int)Mathf.Ceil(nextPayoutRaw / 10.0f) * 10, Constants.MAX_PAYOUT);
+            return (int)Mathf.Ceil(nextPayoutRaw / 10.0f) * 10;
         }
     }
 }

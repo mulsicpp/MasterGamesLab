@@ -1,9 +1,7 @@
-using Map.Infrastructure;
 using System;
 using Map.GeometryGeneration;
 using UnityEngine;
-using UnityEngine.UI;
-using Unity.VisualScripting;
+
 
 public static class Constants
 {
@@ -12,7 +10,7 @@ public static class Constants
     public const byte MIN_PLAYER_COUNT = 2;
     public const byte MAX_PLAYER_COUNT = 4;
 
-    public const int PLAYER_INITIAL_CASH = 2000;
+    public const int PLAYER_INITIAL_CASH = 3000;
     public const int WINNING_MARKET_CAP = 100000;
 
     // ------------------- Vehicles -------------------
@@ -23,7 +21,7 @@ public static class Constants
 
     public const byte MAX_FREIGHTERS_PER_PLAYER = 4;
     public const byte MAX_FREIGHTER_COUNT = MAX_FREIGHTERS_PER_PLAYER * MAX_PLAYER_COUNT;
-    public const float FREIGHTER_BASE_SPEED_TPS = 1/3f;
+    public const float FREIGHTER_BASE_SPEED_TPS = 1 / 3f;
 
     public const int TRUCK_LOADING_COST_ENEMY = 100;
     public const int TRUCK_UNLOADING_COST_ENEMY = 200;
@@ -56,7 +54,6 @@ public static class Constants
     public const int MIN_RANDOM_COST = 0;
     public const int MAX_RANDOM_COST = 0;
 
-    public const int MAX_PAYOUT = 8000;
 
     public const float FOREIGN_GOOD_PAYOUT_FACTOR = 3.0f;
 
@@ -76,17 +73,19 @@ public static class Constants
 
     public static int StartConsumerCount => TotalConsumerCount / 6;
 
+    public const float MAX_TOTAL_PAYOUT_FACTOR = 2;
+
     public const float MIN_CONSUMER_REQUEST_COOLDOWN = 15f;
-    public const float MAX_CONSUMER_REQUEST_COOLDOWN = 40f;
+    public const float MAX_CONSUMER_REQUEST_COOLDOWN = 30f;
 
     public const float MIN_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 120f;
     public const float MAX_CONSUMER_PAYOUT_INCREASE_COOLDOWN = 120f;
 
-    public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.02f;
-    public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 1.05f;
+    public const float MIN_CONSUMER_PAYOUT_INCREASE_FACTOR = 0.05f;
+    public const float MAX_CONSUMER_PAYOUT_INCREASE_FACTOR = 0.05f;
 
-    public const int MIN_CONSUMER_PAYOUT_INCREASE_BASE = 10;
-    public const int MAX_CONSUMER_PAYOUT_INCREASE_BASE = 50;
+    public const int MIN_CONSUMER_PAYOUT_INCREASE_FLAT = 0;
+    public const int MAX_CONSUMER_PAYOUT_INCREASE_FLAT = 0;
 
 
     public const float MIN_CONSUMER_SPAWN_COOLDOWN = 5f;
@@ -101,27 +100,19 @@ public static class Constants
     public const float PLAIN_BUILD_COST_FACTOR = 1f;
     public const float FOREST_BUILD_COST_FACTOR = 2f;
 
-    public const int ROAD_BUILD_COST = 10;
-    public const int BASE_CANAL_BUILD_COST = 20;
-
-    public const int PORT_BUILD_COST = 500;
-
-    public const int TRUCK_BUILD_COST = 150;
-    public const int FREIGHTER_BUILD_COST = 300;
-
     public static int RoadBuildCost(int n) => 50;
     public static int CanalBuildCost(int n) => 20 + (n / 10) * 5;
 
-    public static int PortBuildCost(int n) =>  n switch
+    public static int PortBuildCost(int n) => n switch
     {
         0 => 1000,
-        _ => 1000 + 1000 * (n-1),
+        _ => 1000 + 1000 * (n - 1),
     };
 
     public static int TruckBuildCost(int n) => n switch
     {
         0 => 0,
-        1 => 3000,
+        1 => 4000,
         2 => 5000,
         3 => 10000,
         _ => 20000,

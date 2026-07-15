@@ -44,7 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0aa29e4bf2bb1b448e9bbfb20faeabb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI.ConsumerPin
-  panelOffset: 0
   invisibleThreshold: -0.1
   pivotDirection: 1
   PinTemplate: {fileID: 9197481963319205126, guid: 89d45d9520cc5da4d90aec338f36414c, type: 3}
@@ -60,6 +59,7 @@ MonoBehaviour:
   - GoodType: 5
     ImageAsset: {fileID: 21300000, guid: af5a1091cc7068549bde78103ae78f08, type: 3}
   structureRenderer: {fileID: 5823246843871546993}
+  MaxPayoutColor: {r: 0.83137256, g: 0.6862745, b: 0.21568628, a: 1}
 --- !u!1 &4004374116097416254
 GameObject:
   m_ObjectHideFlags: 0

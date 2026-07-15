@@ -28,6 +28,9 @@ namespace UI
         protected override float pinHeightPercent => 6f;
         protected override float pinAspectRatio => 1f;
 
+        [SerializeField]
+        private Color MaxPayoutColor;
+
         // MANAGER HOOKS: Wire this structure cleanly into the central PinboardUi loop
 
         protected override void OnEnable()
@@ -71,6 +74,11 @@ namespace UI
                     SetShowing(true);
                     goodIcon.style.backgroundImage = new StyleBackground(img);
                     payout.text = consumer.Request.Payout.ToString();
+                    float payoutRange = consumer.Request.MaxPayout - consumer.Request.InitialPayout;
+
+                    float t = payoutRange > 0f ? Math.Clamp((consumer.Request.Payout - consumer.Request.InitialPayout) / payoutRange, 0f, 1f) : 0f;
+
+                    payout.style.color = Color.Lerp(Color.white, MaxPayoutColor, t);
                 }
                 else
                 {
