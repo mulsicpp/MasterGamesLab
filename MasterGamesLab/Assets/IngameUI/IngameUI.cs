@@ -34,6 +34,7 @@ namespace UI
             DriveTruckToEpicConsumer,
             DriveTruckToLegendaryConsumer,
             DriveTruckToPort,
+            DriveTruckToCarPark,
             LoadTruck,
             UnloadTruck,
             DriveFreighter,

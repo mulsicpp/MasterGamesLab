@@ -600,6 +600,7 @@ namespace UI
                 (Vehicle.VehicleType.Truck, Consumer { Request: { Good: Good.Legendary } }) => IngameUI.VehicleAction.DriveTruckToLegendaryConsumer,
 
                 (Vehicle.VehicleType.Truck, Port) => IngameUI.VehicleAction.DriveTruckToPort,
+                (Vehicle.VehicleType.Truck, CarPark) => IngameUI.VehicleAction.DriveTruckToCarPark,
 
                 _ => IngameUI.VehicleAction.DriveTruckToCommonConsumer
             };
