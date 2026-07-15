@@ -608,16 +608,26 @@ MonoBehaviour:
   - VehicleActionType: 4
     ImageAsset: {fileID: 21300000, guid: aa317a97a55f30f44a2aee961e86b423, type: 3}
   - VehicleActionType: 5
-    ImageAsset: {fileID: 21300000, guid: 35fbb3b052f2fac4f859631a2c6933bf, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 8c7b51cd50129cc46aaac61a1791e605, type: 3}
   - VehicleActionType: 6
-    ImageAsset: {fileID: 21300000, guid: 627399a259fe4d040acfb7677e96d9ed, type: 3}
+    ImageAsset: {fileID: 21300000, guid: f3be677dc4eb61f4a88a2c80cda9c7e8, type: 3}
   - VehicleActionType: 7
-    ImageAsset: {fileID: 21300000, guid: 6d891ab223ed5364fa71a649861ddb7f, type: 3}
+    ImageAsset: {fileID: 21300000, guid: bdbd6ae22baa4184a82a0b67d60158d4, type: 3}
   - VehicleActionType: 8
-    ImageAsset: {fileID: 21300000, guid: 084b1883231998f4aaac09074b26b393, type: 3}
+    ImageAsset: {fileID: 21300000, guid: e27f1e292a69a3e44aafa941ccc38358, type: 3}
   - VehicleActionType: 9
-    ImageAsset: {fileID: 21300000, guid: 840b578123c845c41a654da7eaab9d4b, type: 3}
+    ImageAsset: {fileID: 21300000, guid: 6ff4859ea1dc4fc4584f3af88e63167d, type: 3}
   - VehicleActionType: 10
+    ImageAsset: {fileID: 21300000, guid: 6922e2039682d1e41980f48b958df2c5, type: 3}
+  - VehicleActionType: 11
+    ImageAsset: {fileID: 21300000, guid: 627399a259fe4d040acfb7677e96d9ed, type: 3}
+  - VehicleActionType: 12
+    ImageAsset: {fileID: 21300000, guid: 6d891ab223ed5364fa71a649861ddb7f, type: 3}
+  - VehicleActionType: 13
+    ImageAsset: {fileID: 21300000, guid: 084b1883231998f4aaac09074b26b393, type: 3}
+  - VehicleActionType: 14
+    ImageAsset: {fileID: 21300000, guid: 840b578123c845c41a654da7eaab9d4b, type: 3}
+  - VehicleActionType: 15
     ImageAsset: {fileID: 21300000, guid: da223b64aeed1354e932673545ff2a22, type: 3}
   actionQueueTemplate: {fileID: 9197481963319205126, guid: 102683850d6acc24288b6059039e2cab, type: 3}
   hide: {fileID: 21300000, guid: 9315c66dfdaee384594c6bcccc720c8b, type: 3}

@@ -387,7 +387,8 @@ namespace UI
                                 }
                         }
                     }
-                } else if (SelectedVehicle is Freighter freighter)
+                }
+                else if (SelectedVehicle is Freighter freighter)
                 {
                     var driveTargets = Pathfinding.FindAllReachable(start, t => freighter.DriveDestinationCondition(t) && t != start, (s, t) => Vehicle.CanCross(s, t, Vehicle.VehicleType.Freighter));
 
@@ -534,7 +535,6 @@ namespace UI
                 }
             }
 
-
             vehicleActionRenderers.Clear();
             IngameUI.Instance.ClearActionQueue();
 
@@ -544,67 +544,65 @@ namespace UI
                 return;
             }
 
-            if (SelectedVehicle.Route != null)
+            if (SelectedVehicle.Route != null && SelectedVehicle.Route.Length > 0)
             {
-                IngameUI.VehicleAction uiAction = (SelectedVehicle.Type, selectedVehicle.Route[selectedVehicle.Route.Length - 1].Structure) switch
-                {
-                    (Vehicle.VehicleType.Freighter, _) => IngameUI.VehicleAction.DriveFreighter,
-
-                    (Vehicle.VehicleType.Truck, Producer { Good: Good.Common }) => IngameUI.VehicleAction.DriveTruckToCommon,
-                    (Vehicle.VehicleType.Truck, Producer { Good: Good.Uncommon }) => IngameUI.VehicleAction.DriveTruckToUncommon,
-                    (Vehicle.VehicleType.Truck, Producer { Good: Good.Rare }) => IngameUI.VehicleAction.DriveTruckToRare,
-                    (Vehicle.VehicleType.Truck, Producer { Good: Good.Epic }) => IngameUI.VehicleAction.DriveTruckToEpic,
-                    (Vehicle.VehicleType.Truck, Producer { Good: Good.Legendary }) => IngameUI.VehicleAction.DriveTruckToLegendary,
-                    (Vehicle.VehicleType.Truck, Consumer) => IngameUI.VehicleAction.DriveTruckToConsumer,
-                    (Vehicle.VehicleType.Truck, Port) => IngameUI.VehicleAction.DriveTruckToPort,
-
-                    _ => IngameUI.VehicleAction.DriveTruckToCommon
-                };
-                IngameUI.Instance.AddItemToQueue(uiAction, null);
+                var destinationStructure = SelectedVehicle.Route[SelectedVehicle.Route.Length - 1].Structure;
+                var initialUiAction = GetActionForRoute(SelectedVehicle.Type, destinationStructure);
+                IngameUI.Instance.AddItemToQueue(initialUiAction, null);
             }
 
             for (var actionNode = SelectedVehicle.ActionQueue.First; actionNode != null; actionNode = actionNode.Next)
             {
                 var action = actionNode.Value;
 
-                VehicleActionRenderer vehicleActionRenderer = Instantiate(Map.Map.Instance.VehicleActionPrefab, Map.Map.Instance.transform).GetComponent<VehicleActionRenderer>();
-                vehicleActionRenderer.Init(vehicleActionRenderers.Count, SelectedVehicle, actionNode);
+                VehicleActionRenderer vehicleActionRenderer = Instantiate(Map.Map.Instance.VehicleActionPrefab, Map.Map.Instance.transform)
+                    .GetComponent<VehicleActionRenderer>();
 
+                vehicleActionRenderer.Init(vehicleActionRenderers.Count, SelectedVehicle, actionNode);
                 vehicleActionRenderers.Add(vehicleActionRenderer);
 
-                // if (action.Type == VehicleAction.ActionType.DriveRoute)
-                // {
-                //     Route r = new(Route.RouteType.Queued);
-                //     r.SetRoute(SelectedVehicle, action.RouteIds, actionQueueGameObjects.Count);
-                //     r.Renderer.PinVisible = false;
-                //     actionQueueGameObjects.Add(r.Renderer.gameObject);
-                // }
-                // else
-                // {
-                //     actionQueueGameObjects.Add(null);
-                // }
-
-                IngameUI.VehicleAction uiAction = (action.Type, SelectedVehicle.Type, Map.Map.Instance.Tiles[action.TargetTileId].Structure) switch
-                {
-                    (VehicleAction.ActionType.LoadTruck, _, _) => IngameUI.VehicleAction.LoadTruck,
-                    (VehicleAction.ActionType.UnloadTruck, _, _) => IngameUI.VehicleAction.UnloadTruck,
-                    (VehicleAction.ActionType.WaitForTruck, _, _) => IngameUI.VehicleAction.WaitFreighter,
-
-                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Freighter, _) => IngameUI.VehicleAction.DriveFreighter,
-
-                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Producer { Good: Good.Common }) => IngameUI.VehicleAction.DriveTruckToCommon,
-                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Producer { Good: Good.Uncommon }) => IngameUI.VehicleAction.DriveTruckToUncommon,
-                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Producer { Good: Good.Rare }) => IngameUI.VehicleAction.DriveTruckToRare,
-                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Producer { Good: Good.Epic }) => IngameUI.VehicleAction.DriveTruckToEpic,
-                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Producer { Good: Good.Legendary }) => IngameUI.VehicleAction.DriveTruckToLegendary,
-                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Consumer) => IngameUI.VehicleAction.DriveTruckToConsumer,
-                    (VehicleAction.ActionType.DriveRoute, Vehicle.VehicleType.Truck, Port) => IngameUI.VehicleAction.DriveTruckToPort,
-
-                    _ => IngameUI.VehicleAction.DriveTruckToCommon
-                };
-
+                var uiAction = ResolveUiAction(action, SelectedVehicle.Type);
                 IngameUI.Instance.AddItemToQueue(uiAction, vehicleActionRenderer);
             }
+        }
+
+        private IngameUI.VehicleAction ResolveUiAction(VehicleAction action, Vehicle.VehicleType vehicleType)
+        {
+            return action.Type switch
+            {
+                VehicleAction.ActionType.LoadTruck => IngameUI.VehicleAction.LoadTruck,
+                VehicleAction.ActionType.UnloadTruck => IngameUI.VehicleAction.UnloadTruck,
+                VehicleAction.ActionType.WaitForTruck => IngameUI.VehicleAction.WaitFreighter,
+
+                VehicleAction.ActionType.DriveRoute => GetActionForRoute(vehicleType, Map.Map.Instance.Tiles[action.TargetTileId].Structure),
+
+                _ => IngameUI.VehicleAction.DriveTruckToCommonConsumer
+            };
+        }
+
+        private IngameUI.VehicleAction GetActionForRoute(Vehicle.VehicleType vehicleType, object structure)
+        {
+            return (vehicleType, structure) switch
+            {
+                (Vehicle.VehicleType.Freighter, _) => IngameUI.VehicleAction.DriveFreighter,
+
+                (Vehicle.VehicleType.Truck, Producer { Good: Good.Common }) => IngameUI.VehicleAction.DriveTruckToCommonProducer,
+                (Vehicle.VehicleType.Truck, Producer { Good: Good.Uncommon }) => IngameUI.VehicleAction.DriveTruckToUncommonProducer,
+                (Vehicle.VehicleType.Truck, Producer { Good: Good.Rare }) => IngameUI.VehicleAction.DriveTruckToRareProducer,
+                (Vehicle.VehicleType.Truck, Producer { Good: Good.Epic }) => IngameUI.VehicleAction.DriveTruckToEpicProducer,
+                (Vehicle.VehicleType.Truck, Producer { Good: Good.Legendary }) => IngameUI.VehicleAction.DriveTruckToLegendaryProducer,
+
+                (Vehicle.VehicleType.Truck, Consumer { Request: { Good: Good.None } }) => IngameUI.VehicleAction.DriveTruckToConsumer,
+                (Vehicle.VehicleType.Truck, Consumer { Request: { Good: Good.Common } }) => IngameUI.VehicleAction.DriveTruckToCommonConsumer,
+                (Vehicle.VehicleType.Truck, Consumer { Request: { Good: Good.Uncommon } }) => IngameUI.VehicleAction.DriveTruckToUncommonConsumer,
+                (Vehicle.VehicleType.Truck, Consumer { Request: { Good: Good.Rare } }) => IngameUI.VehicleAction.DriveTruckToRareConsumer,
+                (Vehicle.VehicleType.Truck, Consumer { Request: { Good: Good.Epic } }) => IngameUI.VehicleAction.DriveTruckToEpicConsumer,
+                (Vehicle.VehicleType.Truck, Consumer { Request: { Good: Good.Legendary } }) => IngameUI.VehicleAction.DriveTruckToLegendaryConsumer,
+
+                (Vehicle.VehicleType.Truck, Port) => IngameUI.VehicleAction.DriveTruckToPort,
+
+                _ => IngameUI.VehicleAction.DriveTruckToCommonConsumer
+            };
         }
 
         public void OnDrawGizmos()

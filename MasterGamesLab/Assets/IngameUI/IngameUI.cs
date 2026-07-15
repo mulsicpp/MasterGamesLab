@@ -22,12 +22,17 @@ namespace UI
     {
         public enum VehicleAction
         {
-            DriveTruckToCommon,
-            DriveTruckToUncommon,
-            DriveTruckToRare,
-            DriveTruckToEpic,
-            DriveTruckToLegendary,
+            DriveTruckToCommonProducer,
+            DriveTruckToUncommonProducer,
+            DriveTruckToRareProducer,
+            DriveTruckToEpicProducer,
+            DriveTruckToLegendaryProducer,
             DriveTruckToConsumer,
+            DriveTruckToCommonConsumer,
+            DriveTruckToUncommonConsumer,
+            DriveTruckToRareConsumer,
+            DriveTruckToEpicConsumer,
+            DriveTruckToLegendaryConsumer,
             DriveTruckToPort,
             LoadTruck,
             UnloadTruck,
