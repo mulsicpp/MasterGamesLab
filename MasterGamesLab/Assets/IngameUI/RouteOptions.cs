@@ -109,7 +109,7 @@ namespace UI
 
         public void Clear()
         {
-            Destination?.ClearOutline();
+            VisualDestination?.ClearOutline();
             Destination = null;
             FastestRoute.SetRoute(null, null);
             CheapestRoute.SetRoute(null, null);
