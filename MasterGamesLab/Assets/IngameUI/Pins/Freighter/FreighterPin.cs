@@ -74,11 +74,15 @@ namespace UI
             base.LateUpdate();
         }
 
-        protected override Vector3 GetTargetWorldPosition(out Vector3 upVector)
+        public override Vector3 GetTargetWorldPosition(out Vector3 upVector)
         {
             Vector3 rawPosition = gameObject.transform.position;
+            if (VehicleRenderer.Vehicle.IsParked)
+            {
+                rawPosition = VehicleRenderer.Vehicle.ParkedTile.PositionOnSphere;
+            }
             Vector3 projectedPosition = Map.Map.Instance.GetProjectedPosition(rawPosition);
-            upVector = Map.Map.Instance.GetProjectedVehicleTransform(VehicleRenderer.Vehicle.Transform).Up;
+            upVector = (Map.Map.Instance.GetProjectedPosition(rawPosition * 1.01f) - projectedPosition).normalized;
             return projectedPosition;
         }
 

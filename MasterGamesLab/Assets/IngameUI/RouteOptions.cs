@@ -47,7 +47,7 @@ namespace UI
 
             if (cheapestRoute == null || Route.AreSame(fastestRoute, cheapestRoute))
             {
-                Destination?.ClearOutline();
+                VisualDestination?.ClearOutline();
                 Destination = destination;
 
                 FastestRoute.SetRoute(vehicle, fastestRoute);
