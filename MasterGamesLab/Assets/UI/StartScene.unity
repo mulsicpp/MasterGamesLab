@@ -1549,7 +1549,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: playerColors.Array.data[3].b
-      value: 0.34509805
+      value: 0.5202382
       objectReference: {fileID: 0}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: playerColors.Array.data[3].g
@@ -1557,7 +1557,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: playerColors.Array.data[3].r
-      value: 0.4666667
+      value: 0.703504
       objectReference: {fileID: 0}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: previewOverlapping.textureId
