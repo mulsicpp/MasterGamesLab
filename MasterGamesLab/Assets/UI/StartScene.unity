@@ -1965,15 +1965,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: routeCheapestPreviewOutline.innerColor.b
-      value: 0.14901961
+      value: 0.24999349
       objectReference: {fileID: 0}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: routeCheapestPreviewOutline.innerColor.g
-      value: 1
+      value: 0.832884
       objectReference: {fileID: 0}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: routeCheapestPreviewOutline.innerColor.r
-      value: 0
+      value: 0.016837226
       objectReference: {fileID: 0}
     - target: {fileID: 4787018619662013, guid: b5914ca4cc173ba48b4e06d0e60bda5c, type: 3}
       propertyPath: routeQueuedHoveredOutline.outlineColor.b
