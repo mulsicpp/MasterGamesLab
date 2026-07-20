@@ -11,7 +11,7 @@ public static class Constants
     public const byte MAX_PLAYER_COUNT = 4;
 
     public const int PLAYER_INITIAL_CASH = 3000;
-    public const int WINNING_MARKET_CAP = 100000;
+    public const int WINNING_MARKET_CAP = 50000;
 
     // ------------------- Vehicles -------------------
 
